@@ -3,7 +3,6 @@
   <img src="https://media.giphy.com/media/hvRJCLFzcasrR4ia7z/giphy.gif" width="28">
 </h3>
 
-[![Typing SVG](https://readme-typing-svg.demolab.com?font=Afacad+Flux&size=30&pause=1000&color=367AF7&center=true&width=435&lines=Soy+un+estudiante+universitario;Actualmente+soy+el+l%C3%ADder+un+equipo;%C2%A1Explora+mis+proyectos!)](https://git.io/typing-svg)
 
 <!--Acerca de mí-->
 
