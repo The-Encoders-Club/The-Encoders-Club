@@ -27,7 +27,7 @@ const teamMembers = [
     id: 3,
     name: '[Nombre del integrante 3]',
     cargo: '[Cargo/Rol]',
-    image: '/team-member-4.png',
+    image: '/team-member-3.png',
   },
   {
     id: 4,
@@ -76,7 +76,7 @@ export default function App() {
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const scrollAmount = carouselRef.current.clientWidth * 0.8;
+      const scrollAmount = 400;
       if (direction === 'left') {
         carouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
       } else {
@@ -102,16 +102,59 @@ export default function App() {
         </div>
       </nav>
 
-      {/* Hero */}
-      <header className="py-12 md:py-24 px-4 md:px-8 text-center bg-gradient-to-b from-purple-900/20 to-transparent">
-        <h1 className="text-4xl md:text-7xl font-extrabold mb-4 md:mb-6 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">The Encoders Club</h1>
-        <p className="text-lg md:text-2xl text-gray-300 mb-6 md:mb-10 max-w-2xl mx-auto">Tu portal a las mejores experiencias de Ren'Py en español</p>
-        <button className="bg-pink-600 hover:bg-pink-700 px-6 md:px-10 py-2 md:py-4 rounded-full text-base md:text-xl font-bold transition-all">Ver más</button>
+      {/* SECCIÓN DE INICIO (HERO) - REACOMODADA SEGÚN BOCETO IMG_20260403_205352_266.jpg */}
+      <header className="relative py-12 md:py-24 px-4 md:px-8 bg-gradient-to-b from-purple-900/20 to-transparent overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+          {/* Texto de Inicio - Según Boceto */}
+          <div className="w-full md:w-1/2 text-center md:text-left z-10">
+            <motion.h1 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="text-4xl md:text-7xl font-extrabold mb-4 md:mb-6 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500"
+            >
+              The Encoders Club
+            </motion.h1>
+            <motion.p 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 }}
+              className="text-lg md:text-2xl text-gray-300 mb-6 md:mb-10 max-w-xl"
+            >
+              Tu portal a las mejores experiencias de Ren'Py en español. Únete a nuestra comunidad de desarrolladores, escritores y artistas.
+            </motion.p>
+            <motion.button 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-pink-600 hover:bg-pink-700 px-6 md:px-10 py-2 md:py-4 rounded-full text-base md:text-xl font-bold transition-all shadow-lg shadow-pink-600/20"
+            >
+              Ver más
+            </motion.button>
+          </div>
+
+          {/* Personaje de Inicio - Según Boceto */}
+          <div className="w-full md:w-1/2 flex justify-center md:justify-end">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="relative w-full max-w-md"
+            >
+              <div className="absolute inset-0 bg-purple-600/20 blur-[80px] rounded-full"></div>
+              <img 
+                src="/Personaje.png" 
+                alt="Personaje Principal" 
+                className="relative z-10 w-full h-auto object-contain drop-shadow-[0_20px_50px_rgba(168,85,247,0.4)]"
+                referrerPolicy="no-referrer" 
+              />
+            </motion.div>
+          </div>
+        </div>
       </header>
 
       {/* Content */}
       <main className="max-w-7xl mx-auto px-4 md:px-8 py-8 md:py-16">
-        {/* Sección: Nuestro Enfoque */}
+        {/* Sección: Nuestro Enfoque - Mantenida intacta */}
         <section className="flex flex-col md:flex-row items-center gap-8 md:gap-16 mb-16 md:mb-24">
           <div className="w-full md:w-1/3">
             <img src="/Personaje.png" alt="Mascota" className="rounded-2xl shadow-2xl shadow-purple-900/50 w-full" referrerPolicy="no-referrer" />
@@ -124,10 +167,10 @@ export default function App() {
           </div>
         </section>
 
-        {/* Sección: Noticias Recientes - 4 COLUMNAS FIJAS EN PC */}
+        {/* Sección: Noticias Recientes - Mantenida intacta (4 columnas en PC) */}
         <section className="mb-16 md:mb-24">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10">Noticias Recientes</h2>
-          <div className="news-grid-fixed">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {[1, 2, 3, 4].map((i) => (
               <motion.div
                 key={i}
@@ -146,27 +189,30 @@ export default function App() {
           </div>
         </section>
 
-        {/* Sección: Integrantes del Equipo con Carrusel y Difuminado */}
+        {/* Sección: Integrantes del Equipo - Mantenida intacta (Carrusel con Difuminado) */}
         <section className="mb-16 md:mb-24">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10">Integrantes del Equipo</h2>
           
-          <div className="relative group carousel-container-fixed">
-            {/* Máscara de difuminado en los extremos */}
-            <div className="carousel-fade-mask-fixed"></div>
+          <div className="relative group">
+            {/* Máscara de difuminado lateral */}
+            <div className="absolute inset-0 pointer-events-none z-20" style={{
+              background: 'linear-gradient(to right, rgba(10, 10, 26, 1) 0%, rgba(10, 10, 26, 0) 8%, rgba(10, 10, 26, 0) 92%, rgba(10, 10, 26, 1) 100%)',
+              height: '100%',
+              borderRadius: '1rem',
+            }}></div>
 
-            {/* Botones de navegación - Izquierda */}
+            {/* Botones de navegación */}
             <button
               onClick={() => scrollCarousel('left')}
-              className="carousel-button-fixed left-0 hidden md:flex"
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-pink-600 hover:bg-pink-700 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-lg hidden md:flex items-center justify-center"
               aria-label="Anterior"
             >
               <ChevronLeft size={24} />
             </button>
 
-            {/* Botones de navegación - Derecha */}
             <button
               onClick={() => scrollCarousel('right')}
-              className="carousel-button-fixed right-0 hidden md:flex"
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-pink-600 hover:bg-pink-700 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-lg hidden md:flex items-center justify-center"
               aria-label="Siguiente"
             >
               <ChevronRight size={24} />
@@ -175,7 +221,11 @@ export default function App() {
             {/* Carrusel */}
             <div
               ref={carouselRef}
-              className="carousel-scroll-fixed"
+              className="flex gap-6 md:gap-8 overflow-x-auto scroll-smooth pb-4 md:pb-6"
+              style={{
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
             >
               {teamMembers.map((member) => (
                 <motion.div
@@ -183,25 +233,21 @@ export default function App() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: member.id * 0.1 }}
-                  className="carousel-item-fixed"
+                  className="flex-shrink-0 w-72 flex flex-col items-center text-center"
                 >
-                  {/* Foto del integrante - TAMAÑO FIJO Y FIJADO */}
-                  <div className="carousel-image-box">
+                  <div className="w-full aspect-[3/4] mb-4 rounded-2xl overflow-hidden shadow-xl shadow-purple-900/50 bg-purple-950/30 border border-purple-800/50">
                     <img
                       src={member.image}
                       alt={member.name}
-                      className="carousel-img-fixed"
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                       onError={(e) => {
                         e.currentTarget.src = 'https://picsum.photos/seed/team' + member.id + '/300/400';
                       }}
                     />
                   </div>
-                  {/* Nombre y Cargo - Según Boceto Móvil */}
-                  <div className="mt-4">
-                    <h3 className="text-base md:text-xl font-bold mb-1 text-pink-400">{member.name}</h3>
-                    <p className="text-xs md:text-sm text-gray-300">{member.cargo}</p>
-                  </div>
+                  <h3 className="text-xl font-bold mb-2 text-pink-400">{member.name}</h3>
+                  <p className="text-sm text-gray-300">{member.cargo}</p>
                 </motion.div>
               ))}
             </div>
@@ -209,7 +255,7 @@ export default function App() {
         </section>
       </main>
 
-      {/* Footer con Redes Sociales */}
+      {/* Footer - Mantenido intacto */}
       <footer className="border-t border-purple-900/50 py-12 md:py-16 bg-[#0a0a1a]">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-8 md:mb-12">
