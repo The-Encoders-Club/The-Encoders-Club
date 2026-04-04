@@ -6,7 +6,8 @@
 }
 
 body {
-  background-image: url('/img/fondo.jpg');
+  background-image: url('/Fondo.jpg');
+  /* Alternativa si usas .png: url('/Fondo.png'); */
   background-size: cover;
   background-position: center;
   background-attachment: fixed;
