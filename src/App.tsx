@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React from 'react';
+import React, { useRef } from 'react';
 import { motion } from 'motion/react';
-import { Users, BookOpen, Newspaper, Heart, Download, Eye, Youtube, MessageCircle, Facebook, Twitter } from 'lucide-react';
+import { Users, BookOpen, Newspaper, Heart, Download, Eye, Youtube, MessageCircle, Facebook, Twitter, ChevronLeft, ChevronRight } from 'lucide-react';
 const logo = '/logo.png';
 
 // Datos de los integrantes del equipo
@@ -71,6 +71,19 @@ const socialLinks = [
 ];
 
 export default function App() {
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = 400;
+      if (direction === 'left') {
+        carouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0a0a1a] text-white font-sans selection:bg-pink-500 selection:text-white">
       {/* Navbar */}
@@ -110,43 +123,76 @@ export default function App() {
           </div>
         </section>
 
-        {/* Sección: Noticias Recientes */}
+        {/* Sección: Noticias Recientes - 4 COLUMNAS FIJAS EN PC */}
         <section className="mb-16 md:mb-24">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10">Noticias Recientes</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-purple-950/30 rounded-2xl overflow-hidden border border-purple-800/50 hover:border-pink-500/50 transition-all">
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="bg-purple-950/30 rounded-2xl overflow-hidden border border-purple-800/50 hover:border-pink-500/50 transition-all flex flex-col h-full"
+              >
                 <img src={`https://picsum.photos/seed/news${i}/400/200`} alt="News" className="w-full h-32 md:h-40 object-cover" referrerPolicy="no-referrer" />
-                <div className="p-4 md:p-5">
+                <div className="p-4 md:p-5 flex-grow flex flex-col">
                   <h3 className="font-bold text-base md:text-lg mb-2">Noticia {i}</h3>
-                  <p className="text-xs md:text-sm text-gray-400">Breve descripción de la noticia reciente sobre Ren'Py.</p>
+                  <p className="text-xs md:text-sm text-gray-400 flex-grow">Breve descripción de la noticia reciente sobre Ren'Py.</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </section>
 
-        {/* Sección: Integrantes del Equipo con Difuminado */}
-        <section className="mb-16 md:mb-24 relative">
+        {/* Sección: Integrantes del Equipo con Carrusel y Difuminado */}
+        <section className="mb-16 md:mb-24">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10">Integrantes del Equipo</h2>
           
-          {/* Contenedor con máscara de difuminado */}
-          <div className="relative">
+          {/* Contenedor del Carrusel con Difuminado */}
+          <div className="relative group">
             {/* Máscara de difuminado en los extremos */}
-            <div className="absolute inset-0 pointer-events-none z-10" style={{
-              background: 'linear-gradient(to right, rgba(10, 10, 26, 1) 0%, rgba(10, 10, 26, 0) 10%, rgba(10, 10, 26, 0) 90%, rgba(10, 10, 26, 1) 100%)',
+            <div className="absolute inset-0 pointer-events-none z-20" style={{
+              background: 'linear-gradient(to right, rgba(10, 10, 26, 1) 0%, rgba(10, 10, 26, 0) 8%, rgba(10, 10, 26, 0) 92%, rgba(10, 10, 26, 1) 100%)',
               height: '100%',
               borderRadius: '1rem',
             }}></div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+            {/* Botones de navegación - Izquierda */}
+            <button
+              onClick={() => scrollCarousel('left')}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-pink-600 hover:bg-pink-700 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-lg hidden md:flex items-center justify-center"
+              aria-label="Anterior"
+            >
+              <ChevronLeft size={24} />
+            </button>
+
+            {/* Botones de navegación - Derecha */}
+            <button
+              onClick={() => scrollCarousel('right')}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-pink-600 hover:bg-pink-700 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-lg hidden md:flex items-center justify-center"
+              aria-label="Siguiente"
+            >
+              <ChevronRight size={24} />
+            </button>
+
+            {/* Carrusel */}
+            <div
+              ref={carouselRef}
+              className="flex gap-6 md:gap-8 overflow-x-auto scroll-smooth pb-4 md:pb-6 scrollbar-hide"
+              style={{
+                scrollBehavior: 'smooth',
+                scrollbarWidth: 'none',
+                msOverflowStyle: 'none',
+              }}
+            >
               {teamMembers.map((member) => (
                 <motion.div
                   key={member.id}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: member.id * 0.1 }}
-                  className="flex flex-col items-center text-center"
+                  className="flex-shrink-0 w-full sm:w-80 md:w-72 flex flex-col items-center text-center"
                 >
                   {/* Foto del integrante */}
                   <div className="w-full mb-4 rounded-2xl overflow-hidden shadow-xl shadow-purple-900/50 bg-purple-950/30 border border-purple-800/50 h-48 md:h-64">
