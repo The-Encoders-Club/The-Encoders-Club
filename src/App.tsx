@@ -27,7 +27,7 @@ const teamMembers = [
     id: 3,
     name: '[Nombre del integrante 3]',
     cargo: '[Cargo/Rol]',
-    image: '/team-member-3.png',
+    image: '/team-member-4.png',
   },
   {
     id: 4,
@@ -86,7 +86,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white font-sans selection:bg-pink-500 selection:text-white">
+    <div className="min-h-screen bg-[#0a0a1a] text-white font-sans selection:bg-pink-500 selection:text-white overflow-x-hidden">
       {/* Navbar */}
       <nav className="flex flex-col md:flex-row items-center justify-between px-4 md:px-8 py-4 md:py-6 border-b border-purple-900/50 bg-[#0a0a1a]/80 backdrop-blur-md sticky top-0 z-50">
         <div className="flex items-center gap-2 mb-4 md:mb-0">
@@ -124,10 +124,10 @@ export default function App() {
           </div>
         </section>
 
-        {/* Sección: Noticias Recientes - 4 COLUMNAS FIJAS */}
+        {/* Sección: Noticias Recientes - 4 COLUMNAS FIJAS EN PC */}
         <section className="mb-16 md:mb-24">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10">Noticias Recientes</h2>
-          <div className="news-grid">
+          <div className="news-grid-fixed">
             {[1, 2, 3, 4].map((i) => (
               <motion.div
                 key={i}
@@ -150,15 +150,14 @@ export default function App() {
         <section className="mb-16 md:mb-24">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10">Integrantes del Equipo</h2>
           
-          {/* Contenedor del Carrusel con Difuminado */}
-          <div className="relative group carousel-container">
+          <div className="relative group carousel-container-fixed">
             {/* Máscara de difuminado en los extremos */}
-            <div className="carousel-fade-mask"></div>
+            <div className="carousel-fade-mask-fixed"></div>
 
             {/* Botones de navegación - Izquierda */}
             <button
               onClick={() => scrollCarousel('left')}
-              className="carousel-button carousel-button-left hidden md:flex"
+              className="carousel-button-fixed left-0 hidden md:flex"
               aria-label="Anterior"
             >
               <ChevronLeft size={24} />
@@ -167,7 +166,7 @@ export default function App() {
             {/* Botones de navegación - Derecha */}
             <button
               onClick={() => scrollCarousel('right')}
-              className="carousel-button carousel-button-right hidden md:flex"
+              className="carousel-button-fixed right-0 hidden md:flex"
               aria-label="Siguiente"
             >
               <ChevronRight size={24} />
@@ -176,7 +175,7 @@ export default function App() {
             {/* Carrusel */}
             <div
               ref={carouselRef}
-              className="carousel-scroll"
+              className="carousel-scroll-fixed"
             >
               {teamMembers.map((member) => (
                 <motion.div
@@ -184,23 +183,25 @@ export default function App() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: member.id * 0.1 }}
-                  className="carousel-item"
+                  className="carousel-item-fixed"
                 >
-                  {/* Foto del integrante - TAMAÑO FIJO */}
-                  <div className="carousel-image-container">
+                  {/* Foto del integrante - TAMAÑO FIJO Y FIJADO */}
+                  <div className="carousel-image-box">
                     <img
                       src={member.image}
                       alt={member.name}
-                      className="carousel-image"
+                      className="carousel-img-fixed"
                       referrerPolicy="no-referrer"
                       onError={(e) => {
                         e.currentTarget.src = 'https://picsum.photos/seed/team' + member.id + '/300/400';
                       }}
                     />
                   </div>
-                  {/* Nombre y Cargo */}
-                  <h3 className="text-base md:text-xl font-bold mb-2 text-pink-400">{member.name}</h3>
-                  <p className="text-xs md:text-sm text-gray-300">{member.cargo}</p>
+                  {/* Nombre y Cargo - Según Boceto Móvil */}
+                  <div className="mt-4">
+                    <h3 className="text-base md:text-xl font-bold mb-1 text-pink-400">{member.name}</h3>
+                    <p className="text-xs md:text-sm text-gray-300">{member.cargo}</p>
+                  </div>
                 </motion.div>
               ))}
             </div>
@@ -214,7 +215,7 @@ export default function App() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-8 md:mb-12">
             <div>
               <h3 className="text-lg md:text-xl font-bold mb-4">The Encoders Club</h3>
-              <p className="text-sm md:text-base text-gray-400">Tu portal a las mejores experiencias de Ren'Py en español.</p>
+              <p className="text-sm md:text-base text-gray-400">Tu portal a las mejores experiencias de Ren'Py en español. Únete a nuestra comunidad de desarrolladores, escritores y artistas.</p>
             </div>
             <div>
               <h3 className="text-lg md:text-xl font-bold mb-4">Enlaces Rápidos</h3>
@@ -249,22 +250,12 @@ export default function App() {
             </div>
           </div>
           <div className="border-t border-purple-900/30 pt-8 md:pt-12">
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6 mb-8 md:mb-12">
-              <div className="flex items-center gap-2 text-gray-400 text-xs md:text-base">
-                <BookOpen size={20} /> 15 Projectes
-              </div>
-              <div className="flex items-center gap-2 text-gray-400 text-xs md:text-base">
-                <Download size={20} /> 99800 Déscnasgas
-              </div>
-              <div className="flex items-center gap-2 text-gray-400 text-xs md:text-base">
-                <Users size={20} /> 7 Cursus
-              </div>
-              <div className="flex items-center gap-2 text-gray-400 text-xs md:text-base">
-                <Eye size={20} /> 9480715 Visitas
-              </div>
-              <div className="flex items-center gap-2 text-gray-400 text-xs md:text-base">
-                <Heart size={20} /> Comunidad
-              </div>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6 mb-8 md:mb-12 text-gray-400 text-xs md:text-base">
+              <div className="flex items-center gap-2"><BookOpen size={20} /> 15 Projectes</div>
+              <div className="flex items-center gap-2"><Download size={20} /> 99800 Déscnasgas</div>
+              <div className="flex items-center gap-2"><Users size={20} /> 7 Cursus</div>
+              <div className="flex items-center gap-2"><Eye size={20} /> 9480715 Visitas</div>
+              <div className="flex items-center gap-2"><Heart size={20} /> Comunidad</div>
             </div>
             <div className="text-center text-xs md:text-sm text-gray-500">
               <p>&copy; 2026 The Encoders Club. Todos los derechos reservados.</p>
