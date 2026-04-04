@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { motion } from 'motion/react';
-import { Users, BookOpen, Newspaper, Heart, Download, Eye } from 'lucide-react';
+import { Users, BookOpen, Newspaper, Download, Eye, Zap, Menu, MoreVertical } from 'lucide-react';
 const logo = '/logo.png';
 
 // Datos de los integrantes del equipo
@@ -38,63 +38,139 @@ const teamMembers = [
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white font-sans selection:bg-pink-500 selection:text-white">
+    <div className="min-h-screen bg-[#0a0a1a] text-white font-sans selection:bg-pink-500 selection:text-white overflow-x-hidden">
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-8 py-6 border-b border-purple-900/50 bg-[#0a0a1a]/80 backdrop-blur-md sticky top-0 z-50">
-        <div className="flex items-center gap-2">
-          <img src={logo} alt="The Encoders Club Logo" className="w-12 h-12 object-contain" referrerPolicy="no-referrer" />
-          <span className="text-2xl font-bold tracking-tight">The Encoders Club</span>
-        </div>
-        <div className="flex items-center gap-8 text-lg font-medium">
-          <a href="#" className="hover:text-pink-400 transition-colors">Projectos</a>
-          <a href="#" className="hover:text-pink-400 transition-colors">Cursus</a>
-          <a href="#" className="hover:text-pink-400 transition-colors">Noticias</a>
-          <a href="#" className="hover:text-pink-400 transition-colors">Donar</a>
-          <button className="bg-pink-600 hover:bg-pink-700 px-6 py-2 rounded-full font-bold transition-all">¡Únete al equipo!</button>
+      <nav className="fixed top-0 left-0 right-0 z-50 px-8 py-4 border-b border-purple-900/30 bg-[#0a0a1a]/60 backdrop-blur-lg">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={logo} alt="The Encoders Club Logo" className="w-14 h-14 object-contain drop-shadow-lg" referrerPolicy="no-referrer" />
+            <div>
+              <h1 className="text-lg font-bold tracking-tight">The Encoders Club</h1>
+              <p className="text-xs text-purple-400">Club</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-8 text-base font-semibold">
+            <a href="#" className="hover:text-blue-400 transition-colors">Projectos</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Cursus</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Noticias</a>
+            <a href="#" className="hover:text-blue-400 transition-colors">Donar</a>
+            <button className="text-gray-400 hover:text-white transition-colors">
+              <Menu size={24} />
+            </button>
+            <button className="text-gray-400 hover:text-white transition-colors">
+              <MoreVertical size={24} />
+            </button>
+            <button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-6 py-2 rounded-lg font-bold transition-all shadow-lg shadow-blue-500/50">¡Únete al equipo!</button>
+          </div>
         </div>
       </nav>
 
-      {/* Hero */}
-      <header className="py-24 px-8 text-center bg-gradient-to-b from-purple-900/20 to-transparent">
-        <h1 className="text-7xl font-extrabold mb-6 tracking-tighter bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500">The Encoders Club</h1>
-        <p className="text-2xl text-gray-300 mb-10 max-w-2xl mx-auto">Tu portal a las mejores experiencias de Ren'Py en español</p>
-        <button className="bg-pink-600 hover:bg-pink-700 px-10 py-4 rounded-full text-xl font-bold transition-all">Ver más</button>
-      </header>
+      {/* Hero Section */}
+      <div className="pt-24 pb-16 px-8">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid grid-cols-2 gap-12 items-center">
+            {/* Left Content */}
+            <motion.div
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="z-10"
+            >
+              <h1 className="text-6xl font-extrabold mb-4 tracking-tighter">
+                <span className="bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-200 to-purple-300">The Encoders Club</span>
+              </h1>
+              <p className="text-xl text-gray-300 mb-8 leading-relaxed">Tu portal a las mégirse experiences de Ren'Py en español</p>
+              <button className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 px-8 py-3 rounded-lg font-bold text-lg transition-all shadow-lg shadow-blue-500/50">Ver mas</button>
+            </motion.div>
 
-      {/* Content */}
-      <main className="max-w-7xl mx-auto px-8 py-16">
-        {/* Sección: Nuestro Enfoque */}
-        <section className="flex items-center gap-16 mb-24">
-          <div className="w-1/3">
-            <img src="/Personaje.png" alt="Mascota" className="rounded-2xl shadow-2xl shadow-purple-900/50" referrerPolicy="no-referrer" />
+            {/* Right Content - Personaje */}
+            <motion.div
+              initial={{ opacity: 0, x: 50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="flex justify-center"
+            >
+              <div className="relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-600 rounded-3xl blur-2xl opacity-30"></div>
+                <img
+                  src="/Personaje.png"
+                  alt="Mascota"
+                  className="relative w-96 h-96 object-contain drop-shadow-2xl"
+                  referrerPolicy="no-referrer"
+                />
+              </div>
+            </motion.div>
           </div>
-          <div className="w-2/3">
-            <h2 className="text-5xl font-bold mb-6">Nuestro Enfoque</h2>
-            <p className="text-xl text-gray-300 leading-relaxed">
-              En The Encoders Club, nos dedicamos a fomentar la creación y el aprendizaje de novelas visuales utilizando el motor Ren'Py. Nuestro objetivo es crear una comunidad vibrante donde los desarrolladores, escritores y artistas puedan colaborar, aprender y compartir sus proyectos.
-            </p>
-          </div>
-        </section>
+        </div>
+      </div>
 
-        {/* Sección: Noticias Recientes */}
-        <section className="mb-24">
-          <h2 className="text-4xl font-bold mb-10">Noticias Recientes</h2>
+      {/* Stats Section */}
+      <div className="px-8 py-12">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8">Nuestro Enfoque</h2>
+          <div className="grid grid-cols-5 gap-4">
+            {[
+              { icon: Zap, label: 'Projectos', value: '15', color: 'from-pink-500 to-red-500' },
+              { icon: Download, label: 'Descascas', value: '99800', color: 'from-blue-500 to-cyan-500' },
+              { icon: BookOpen, label: 'Cursus', value: '7', color: 'from-purple-500 to-pink-500' },
+              { icon: Eye, label: 'Visitas', value: '9480715', color: 'from-green-500 to-teal-500' },
+              { icon: Users, label: 'Visitas', value: '∞', color: 'from-orange-500 to-pink-500' },
+            ].map((stat, idx) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: idx * 0.1 }}
+                  className={`bg-gradient-to-br ${stat.color} p-0.5 rounded-2xl`}
+                >
+                  <div className="bg-[#0a0a1a] rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+                    <Icon className="w-8 h-8 mb-3" />
+                    <p className="text-3xl font-bold mb-1">{stat.value}</p>
+                    <p className="text-sm text-gray-400">{stat.label}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+
+      {/* News Section */}
+      <div className="px-8 py-12">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8">Noticias Recientes</h2>
           <div className="grid grid-cols-4 gap-6">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-purple-950/30 rounded-2xl overflow-hidden border border-purple-800/50 hover:border-pink-500/50 transition-all">
-                <img src={`https://picsum.photos/seed/news${i}/400/200`} alt="News" className="w-full h-40 object-cover" referrerPolicy="no-referrer" />
-                <div className="p-5">
-                  <h3 className="font-bold text-lg mb-2">Noticia {i}</h3>
-                  <p className="text-sm text-gray-400">Breve descripción de la noticia reciente sobre Ren'Py.</p>
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                className="group cursor-pointer"
+              >
+                <div className="relative rounded-2xl overflow-hidden mb-4 h-40 border border-purple-500/30 hover:border-pink-500/60 transition-all">
+                  <img
+                    src={`https://picsum.photos/seed/news${i}/400/200`}
+                    alt="News"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                 </div>
-              </div>
+                <h3 className="font-bold text-lg mb-2 group-hover:text-pink-400 transition-colors">Revelado: [Nuevu projecto interactivo de cience fiction!]</h3>
+                <p className="text-sm text-gray-400">Lorem ipsum dolor sit amet, eccon auruscriptue elt, quosusciscion et.</p>
+              </motion.div>
             ))}
           </div>
-        </section>
+        </div>
+      </div>
 
-        {/* Sección: Integrantes del Equipo */}
-        <section className="mb-24">
-          <h2 className="text-4xl font-bold mb-10">Integrantes del Equipo</h2>
+      {/* Team Section */}
+      <div className="px-8 py-12">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl font-bold mb-8">Integrantes del Equipo</h2>
           <div className="grid grid-cols-4 gap-8">
             {teamMembers.map((member) => (
               <motion.div
@@ -102,14 +178,14 @@ export default function App() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: member.id * 0.1 }}
-                className="flex flex-col items-center text-center"
+                className="flex flex-col items-center text-center group"
               >
                 {/* Foto del integrante */}
-                <div className="w-full mb-4 rounded-2xl overflow-hidden shadow-xl shadow-purple-900/50 bg-purple-950/30 border border-purple-800/50 h-64">
+                <div className="w-full mb-4 rounded-2xl overflow-hidden shadow-xl shadow-purple-900/50 bg-purple-950/30 border border-purple-500/30 h-64 relative">
                   <img
                     src={member.image}
                     alt={member.name}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                     referrerPolicy="no-referrer"
                     onError={(e) => {
                       e.currentTarget.src = 'https://picsum.photos/seed/team' + member.id + '/300/400';
@@ -117,21 +193,18 @@ export default function App() {
                   />
                 </div>
                 {/* Nombre y Cargo */}
-                <h3 className="text-xl font-bold mb-2 text-pink-400">{member.name}</h3>
-                <p className="text-gray-300 text-sm">{member.cargo}</p>
+                <h3 className="text-lg font-bold mb-2 text-pink-400 group-hover:text-pink-300 transition-colors">{member.name}</h3>
+                <p className="text-gray-400 text-sm group-hover:text-gray-300 transition-colors">{member.cargo}</p>
               </motion.div>
             ))}
           </div>
-        </section>
-      </main>
+        </div>
+      </div>
 
-      {/* Footer Stats */}
-      <footer className="border-t border-purple-900/50 py-10 mt-16 bg-[#0a0a1a]">
-        <div className="max-w-7xl mx-auto px-8 flex justify-between text-gray-400">
-          <div className="flex items-center gap-2"><BookOpen size={20}/> 15 Projectes</div>
-          <div className="flex items-center gap-2"><Download size={20}/> 99800 Déscnasgas</div>
-          <div className="flex items-center gap-2"><Users size={20}/> 7 Cursus</div>
-          <div className="flex items-center gap-2"><Eye size={20}/> 9480715 Visitas</div>
+      {/* Footer */}
+      <footer className="border-t border-purple-900/30 py-8 mt-16 bg-[#0a0a1a]/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-8 text-center text-gray-500 text-sm">
+          <p>© 2026 The Encoders Club. Todos los derechos reservados.</p>
         </div>
       </footer>
     </div>
