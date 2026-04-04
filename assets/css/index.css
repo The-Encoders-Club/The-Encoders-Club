@@ -48,6 +48,16 @@ html {
   background: linear-gradient(180deg, #f472b6, #a78bfa);
 }
 
+/* Ocultar scrollbar en carrusel */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Responsive images */
 img {
   max-width: 100%;
@@ -108,8 +118,14 @@ img {
     font-size: 1.5rem;
   }
 
-  .grid {
-    gap: 1rem;
+  /* Carrusel en móvil - ancho completo */
+  .flex-shrink-0 {
+    width: 100% !important;
+  }
+
+  /* Noticias en móvil - 1 columna */
+  .grid-cols-4 {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -136,19 +152,32 @@ img {
     margin-bottom: 2rem;
   }
 
+  /* Carrusel en móvil pequeño */
+  .flex-shrink-0 {
+    width: 100% !important;
+  }
+
+  /* Noticias en móvil pequeño - 1 columna */
   .grid-cols-4 {
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    grid-template-columns: 1fr;
+  }
+
+  /* Ocultar botones del carrusel en móvil */
+  .md\:flex {
+    display: none !important;
   }
 }
 
 /* Tablet adjustments */
 @media (min-width: 641px) and (max-width: 1024px) {
+  /* Noticias en tablet - 2 columnas */
   .grid-cols-4 {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  .grid-cols-5 {
-    grid-template-columns: repeat(2, 1fr);
+  /* Carrusel en tablet */
+  .flex-shrink-0 {
+    width: 320px !important;
   }
 }
 
@@ -158,12 +187,19 @@ img {
     background-attachment: fixed;
   }
 
+  /* Noticias en desktop - SIEMPRE 4 COLUMNAS */
   .grid-cols-4 {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, 1fr) !important;
   }
 
-  .grid-cols-5 {
-    grid-template-columns: repeat(5, 1fr);
+  /* Carrusel en desktop */
+  .flex-shrink-0 {
+    width: 288px !important;
+  }
+
+  /* Mostrar botones del carrusel en desktop */
+  .md\:flex {
+    display: flex !important;
   }
 }
 
@@ -187,4 +223,14 @@ img {
   a {
     padding: 0.5rem;
   }
+}
+
+/* Carrusel - estilos específicos */
+.scroll-smooth {
+  scroll-behavior: smooth;
+}
+
+/* Asegurar que el carrusel no se envuelva */
+.flex-shrink-0 {
+  flex-shrink: 0;
 }
