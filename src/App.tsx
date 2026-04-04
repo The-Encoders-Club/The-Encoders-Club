@@ -6,6 +6,7 @@
 import React, { useRef } from 'react';
 import { motion } from 'motion/react';
 import { Users, BookOpen, Newspaper, Heart, Download, Eye, Youtube, MessageCircle, Facebook, Twitter, ChevronLeft, ChevronRight } from 'lucide-react';
+
 const logo = '/logo.png';
 
 // Datos de los integrantes del equipo
@@ -75,7 +76,7 @@ export default function App() {
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
-      const scrollAmount = 400;
+      const scrollAmount = carouselRef.current.clientWidth * 0.8;
       if (direction === 'left') {
         carouselRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
       } else {
@@ -210,15 +211,11 @@ export default function App() {
       {/* Footer con Redes Sociales */}
       <footer className="border-t border-purple-900/50 py-12 md:py-16 bg-[#0a0a1a]">
         <div className="max-w-7xl mx-auto px-4 md:px-8">
-          {/* Contenido del Footer */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-8 md:mb-12">
-            {/* Sección de Información */}
             <div>
               <h3 className="text-lg md:text-xl font-bold mb-4">The Encoders Club</h3>
-              <p className="text-sm md:text-base text-gray-400">Tu portal a las mejores experiencias de Ren'Py en español. Únete a nuestra comunidad de desarrolladores, escritores y artistas.</p>
+              <p className="text-sm md:text-base text-gray-400">Tu portal a las mejores experiencias de Ren'Py en español.</p>
             </div>
-
-            {/* Sección de Enlaces Rápidos */}
             <div>
               <h3 className="text-lg md:text-xl font-bold mb-4">Enlaces Rápidos</h3>
               <ul className="space-y-2 text-sm md:text-base text-gray-400">
@@ -228,8 +225,6 @@ export default function App() {
                 <li><a href="#" className="hover:text-pink-400 transition-colors">Donar</a></li>
               </ul>
             </div>
-
-            {/* Sección de Redes Sociales */}
             <div>
               <h3 className="text-lg md:text-xl font-bold mb-4">Síguenos</h3>
               <div className="flex gap-4 flex-wrap">
@@ -253,10 +248,7 @@ export default function App() {
               </div>
             </div>
           </div>
-
-          {/* Línea divisoria */}
           <div className="border-t border-purple-900/30 pt-8 md:pt-12">
-            {/* Stats Footer */}
             <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6 mb-8 md:mb-12">
               <div className="flex items-center gap-2 text-gray-400 text-xs md:text-base">
                 <BookOpen size={20} /> 15 Projectes
@@ -274,11 +266,8 @@ export default function App() {
                 <Heart size={20} /> Comunidad
               </div>
             </div>
-
-            {/* Copyright */}
             <div className="text-center text-xs md:text-sm text-gray-500">
               <p>&copy; 2026 The Encoders Club. Todos los derechos reservados.</p>
-              <p className="mt-2">Hecho con ❤️ por la comunidad de Ren'Py en español</p>
             </div>
           </div>
         </div>
