@@ -123,10 +123,10 @@ export default function App() {
           </div>
         </section>
 
-        {/* Sección: Noticias Recientes - 4 COLUMNAS FIJAS EN PC */}
+        {/* Sección: Noticias Recientes - 4 COLUMNAS FIJAS */}
         <section className="mb-16 md:mb-24">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10">Noticias Recientes</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="news-grid">
             {[1, 2, 3, 4].map((i) => (
               <motion.div
                 key={i}
@@ -150,18 +150,14 @@ export default function App() {
           <h2 className="text-3xl md:text-4xl font-bold mb-6 md:mb-10">Integrantes del Equipo</h2>
           
           {/* Contenedor del Carrusel con Difuminado */}
-          <div className="relative group">
+          <div className="relative group carousel-container">
             {/* Máscara de difuminado en los extremos */}
-            <div className="absolute inset-0 pointer-events-none z-20" style={{
-              background: 'linear-gradient(to right, rgba(10, 10, 26, 1) 0%, rgba(10, 10, 26, 0) 8%, rgba(10, 10, 26, 0) 92%, rgba(10, 10, 26, 1) 100%)',
-              height: '100%',
-              borderRadius: '1rem',
-            }}></div>
+            <div className="carousel-fade-mask"></div>
 
             {/* Botones de navegación - Izquierda */}
             <button
               onClick={() => scrollCarousel('left')}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-30 bg-pink-600 hover:bg-pink-700 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-lg hidden md:flex items-center justify-center"
+              className="carousel-button carousel-button-left hidden md:flex"
               aria-label="Anterior"
             >
               <ChevronLeft size={24} />
@@ -170,7 +166,7 @@ export default function App() {
             {/* Botones de navegación - Derecha */}
             <button
               onClick={() => scrollCarousel('right')}
-              className="absolute right-0 top-1/2 -translate-y-1/2 z-30 bg-pink-600 hover:bg-pink-700 p-2 rounded-full transition-all opacity-0 group-hover:opacity-100 shadow-lg hidden md:flex items-center justify-center"
+              className="carousel-button carousel-button-right hidden md:flex"
               aria-label="Siguiente"
             >
               <ChevronRight size={24} />
@@ -179,12 +175,7 @@ export default function App() {
             {/* Carrusel */}
             <div
               ref={carouselRef}
-              className="flex gap-6 md:gap-8 overflow-x-auto scroll-smooth pb-4 md:pb-6 scrollbar-hide"
-              style={{
-                scrollBehavior: 'smooth',
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none',
-              }}
+              className="carousel-scroll"
             >
               {teamMembers.map((member) => (
                 <motion.div
@@ -192,14 +183,14 @@ export default function App() {
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: member.id * 0.1 }}
-                  className="flex-shrink-0 w-full sm:w-80 md:w-72 flex flex-col items-center text-center"
+                  className="carousel-item"
                 >
-                  {/* Foto del integrante */}
-                  <div className="w-full mb-4 rounded-2xl overflow-hidden shadow-xl shadow-purple-900/50 bg-purple-950/30 border border-purple-800/50 h-48 md:h-64">
+                  {/* Foto del integrante - TAMAÑO FIJO */}
+                  <div className="carousel-image-container">
                     <img
                       src={member.image}
                       alt={member.name}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                      className="carousel-image"
                       referrerPolicy="no-referrer"
                       onError={(e) => {
                         e.currentTarget.src = 'https://picsum.photos/seed/team' + member.id + '/300/400';
