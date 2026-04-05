@@ -94,7 +94,7 @@
   body {
     @apply bg-background text-foreground;
     font-family: 'DM Sans', sans-serif;
-    background-color: #080818;
+    background: linear-gradient(135deg, #080818 0%, #0d0d24 50%, #080818 100%);
     color: #F0F0FF;
   }
 
@@ -178,7 +178,7 @@
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #FF2D78, #e0195e);
+    background: linear-gradient(135deg, #FF2D78 0%, #e0195e 50%, #c41563 100%);
     color: white;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
@@ -189,16 +189,17 @@
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(255, 45, 120, 0.3);
   }
 
   .btn-primary:hover {
-    background: linear-gradient(135deg, #ff4d8d, #FF2D78);
-    box-shadow: 0 8px 25px rgba(255, 45, 120, 0.5);
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, #ff4d8d 0%, #FF2D78 50%, #e0195e 100%);
+    box-shadow: 0 12px 35px rgba(255, 45, 120, 0.6);
+    transform: translateY(-3px);
   }
 
   .btn-outline {
-    background: transparent;
+    background: linear-gradient(135deg, rgba(255, 45, 120, 0.08) 0%, rgba(77, 159, 255, 0.05) 100%);
     color: #FF2D78;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
@@ -212,9 +213,9 @@
   }
 
   .btn-outline:hover {
-    background: rgba(255, 45, 120, 0.12);
-    box-shadow: 0 0 20px rgba(255, 45, 120, 0.3);
-    transform: translateY(-2px);
+    background: linear-gradient(135deg, rgba(255, 45, 120, 0.18) 0%, rgba(77, 159, 255, 0.12) 100%);
+    box-shadow: 0 0 25px rgba(255, 45, 120, 0.4);
+    transform: translateY(-3px);
   }
 
   .section-title {
@@ -228,8 +229,19 @@
     font-family: 'DM Sans', sans-serif;
     font-weight: 500;
     color: rgba(240, 240, 255, 0.75);
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
     position: relative;
+  }
+
+  .tag {
+    background: linear-gradient(135deg, rgba(255, 45, 120, 0.25) 0%, rgba(77, 159, 255, 0.15) 100%);
+    border: 1px solid rgba(255, 45, 120, 0.4);
+    padding: 0.4rem 0.8rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #FF2D78;
+    display: inline-block;
   }
 
   .nav-link::after {
@@ -254,12 +266,22 @@
 
   /* Floating animation for mascot */
   @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-16px); }
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-16px) rotate(5deg); }
   }
 
   .animate-float {
     animation: float 4s ease-in-out infinite;
+  }
+
+  /* Rotation animation for moon */
+  @keyframes rotate-slow {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  .animate-rotate-slow {
+    animation: rotate-slow 20s linear infinite;
   }
 
   /* Pulse glow */
