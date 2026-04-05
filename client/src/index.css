@@ -9,6 +9,13 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+@font-face {
+  font-family: 'DDLCFont';
+  src: url('https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/hkcPWTPjEepCvxSd.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
