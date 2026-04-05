@@ -48,13 +48,13 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
-          {/* El Splash Screen ahora controla su propia duración (4s) antes de llamar a handleSplashComplete */}
+          {/* El Splash Screen ahora controla su propia duración (5s) antes de llamar a handleSplashComplete */}
           {showSplash && <SplashScreen onComplete={handleSplashComplete} />}
           
           <Toaster />
           <BackgroundParticles />
           
-          {/* Solo mostramos el contenido principal cuando el splash ha terminado */}
+          {/* Solo mostramos el contenido principal cuando el splash ha terminado por completo */}
           {!showSplash && <Router />}
         </TooltipProvider>
       </ThemeProvider>
