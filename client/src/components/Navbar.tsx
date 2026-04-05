@@ -4,7 +4,8 @@
    ============================================================ */
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { Menu, X, Youtube, MessageCircle, Heart } from "lucide-react";
+import { Menu, X, Youtube, MessageCircle, Heart, Send } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
@@ -41,26 +42,29 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "bg-[#080818]/90 backdrop-blur-xl border-b border-white/8 shadow-lg shadow-black/30"
-            : "bg-transparent"
+            ? "py-3 bg-[#080818]/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]"
+            : "py-5 bg-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo */}
+          <div className="flex items-center justify-between">
+            {/* Logo & Brand */}
             <Link href="/" className="flex items-center gap-3 group">
-              <img
-                src={LOGO_URL}
-                alt="The Encoders Club"
-                className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-full transition-transform duration-300 group-hover:scale-110"
-              />
+              <div className="relative">
+                <div className="absolute inset-0 bg-[#FF2D78]/20 blur-xl rounded-full group-hover:bg-[#FF2D78]/40 transition-all duration-500" />
+                <img
+                  src={LOGO_URL}
+                  alt="The Encoders Club"
+                  className="w-10 h-10 md:w-12 md:h-12 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
+                />
+              </div>
               <span
-                className="font-bold text-base md:text-lg text-white hidden sm:block"
+                className="font-bold text-base md:text-xl tracking-tighter group-hover:text-[#FF2D78] transition-colors duration-300 hidden sm:block"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                The Encoders Club
+                THE ENCODERS <span className="text-[#FF2D78] drop-shadow-[0_0_8px_rgba(255,45,120,0.5)]">CLUB</span>
               </span>
             </Link>
 
@@ -70,44 +74,50 @@ export default function Navbar() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`nav-link text-sm font-medium transition-colors ${
-                    location === link.href ? "text-[#FF2D78]" : ""
+                  className={`relative text-sm font-medium tracking-wide transition-all duration-300 hover:text-white ${
+                    location === link.href ? "text-white" : "text-white/60"
                   }`}
                 >
                   {link.label}
+                  {location === link.href && (
+                    <motion.div
+                      layoutId="nav-underline"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF] shadow-[0_0_10px_rgba(255,45,120,0.8)]"
+                    />
+                  )}
                 </Link>
               ))}
             </div>
 
             {/* Desktop CTA + Social */}
             <div className="hidden md:flex items-center gap-3">
-              <a
-                href={socialLinks.discord}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full text-white/60 hover:text-[#5865F2] hover:bg-white/8 transition-all"
-                title="Discord"
+              <div className="flex items-center gap-1 mr-2">
+                <a
+                  href={socialLinks.discord}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full text-white/60 hover:text-[#5865F2] hover:bg-white/8 transition-all hover:scale-110"
+                  title="Discord"
+                >
+                  <MessageCircle size={18} />
+                </a>
+                <a
+                  href={socialLinks.youtube}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full text-white/60 hover:text-red-500 hover:bg-white/8 transition-all hover:scale-110"
+                  title="YouTube"
+                >
+                  <Youtube size={18} />
+                </a>
+              </div>
+              <Link
+                href="/comunidad"
+                className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/80 text-white text-sm font-bold shadow-[0_0_20px_rgba(255,45,120,0.3)] hover:shadow-[0_0_25px_rgba(255,45,120,0.5)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2"
               >
-                <MessageCircle size={18} />
-              </a>
-              <a
-                href={socialLinks.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 rounded-full text-white/60 hover:text-red-500 hover:bg-white/8 transition-all"
-                title="YouTube"
-              >
-                <Youtube size={18} />
-              </a>
-              <a
-                href={socialLinks.kofi}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn-primary text-sm py-2 px-5"
-              >
-                <Heart size={15} />
                 Únete
-              </a>
+                <Send size={14} />
+              </Link>
             </div>
 
             {/* Mobile Hamburger */}
@@ -116,84 +126,63 @@ export default function Navbar() {
               className="md:hidden p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all"
               aria-label="Abrir menú"
             >
-              {menuOpen ? <X size={24} /> : <Menu size={24} />}
+              {menuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
       </nav>
 
       {/* Mobile Menu Overlay */}
-      <div
-        className={`fixed inset-0 z-40 md:hidden transition-all duration-300 ${
-          menuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
-      >
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-          onClick={() => setMenuOpen(false)}
-        />
-        {/* Drawer */}
-        <div
-          className={`absolute top-0 right-0 h-full w-72 bg-[#0d0d24] border-l border-white/10 shadow-2xl transition-transform duration-300 ${
-            menuOpen ? "translate-x-0" : "translate-x-full"
-          }`}
-        >
-          <div className="flex flex-col h-full p-6 pt-20">
-            {/* Nav Links */}
-            <nav className="flex flex-col gap-1">
-              {navLinks.map((link) => (
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: "100%" }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-40 md:hidden"
+          >
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setMenuOpen(false)}
+            />
+            {/* Drawer */}
+            <div className="absolute top-0 right-0 h-full w-72 bg-[#080818] border-l border-white/10 shadow-2xl flex flex-col p-6 pt-24">
+              <nav className="flex flex-col gap-2">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`px-5 py-3.5 rounded-xl text-base font-medium transition-all ${
+                      location === link.href
+                        ? "bg-[#FF2D78]/15 text-[#FF2D78] border border-[#FF2D78]/30 shadow-[0_0_15px_rgba(255,45,120,0.1)]"
+                        : "text-white/70 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="mt-auto space-y-6">
+                <div className="flex items-center justify-around p-4 bg-white/5 rounded-2xl border border-white/5">
+                  <a href={socialLinks.discord} target="_blank" rel="noopener noreferrer" className="p-3 text-white/60 hover:text-[#5865F2] transition-colors"><MessageCircle size={24} /></a>
+                  <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="p-3 text-white/60 hover:text-red-500 transition-colors"><Youtube size={24} /></a>
+                  <a href={socialLinks.kofi} target="_blank" rel="noopener noreferrer" className="p-3 text-white/60 hover:text-[#FF2D78] transition-colors"><Heart size={24} /></a>
+                </div>
                 <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`px-4 py-3 rounded-xl text-base font-medium transition-all ${
-                    location === link.href
-                      ? "bg-[#FF2D78]/15 text-[#FF2D78] border border-[#FF2D78]/30"
-                      : "text-white/70 hover:text-white hover:bg-white/8"
-                  }`}
+                  href="/comunidad"
+                  className="w-full py-4 rounded-2xl bg-[#FF2D78] text-white font-bold text-center shadow-[0_0_20px_rgba(255,45,120,0.3)] flex items-center justify-center gap-2"
                 >
-                  {link.label}
+                  Únete al equipo
+                  <Send size={16} />
                 </Link>
-              ))}
-            </nav>
-
-            {/* Divider */}
-            <div className="my-6 border-t border-white/10" />
-
-            {/* Social Links */}
-            <div className="flex items-center gap-3 mb-6">
-              <a
-                href={socialLinks.discord}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-[#5865F2]/15 border border-[#5865F2]/30 text-[#5865F2] text-sm font-medium hover:bg-[#5865F2]/25 transition-all"
-              >
-                <MessageCircle size={16} />
-                Discord
-              </a>
-              <a
-                href={socialLinks.youtube}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl bg-red-500/15 border border-red-500/30 text-red-400 text-sm font-medium hover:bg-red-500/25 transition-all"
-              >
-                <Youtube size={16} />
-                YouTube
-              </a>
+              </div>
             </div>
-
-            <a
-              href={socialLinks.kofi}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-primary justify-center text-sm"
-            >
-              <Heart size={16} />
-              ¡Únete al equipo!
-            </a>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
