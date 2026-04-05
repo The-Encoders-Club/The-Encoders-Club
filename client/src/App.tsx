@@ -11,6 +11,7 @@ import Noticias from "./pages/Noticias";
 import Donar from "./pages/Donar";
 import SplashScreen from "./components/SplashScreen";
 import BackgroundParticles from "./components/BackgroundParticles";
+import { useState, useEffect } from "react";
 
 function Router() {
   return (
@@ -27,12 +28,24 @@ function Router() {
 }
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    // Lógica inteligente: Solo mostrar el Splash Screen la primera vez en la sesión
+    const hasSeenSplash = sessionStorage.getItem("hasSeenSplash");
+    if (hasSeenSplash) {
+      setShowSplash(false);
+    } else {
+      sessionStorage.setItem("hasSeenSplash", "true");
+    }
+  }, []);
+
   return (
     <ErrorBoundary>
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
+          {showSplash && <SplashScreen onComplete={() => setShowSplash(false)} />}
           <Toaster />
-          <SplashScreen />
           <BackgroundParticles />
           <Router />
         </TooltipProvider>
