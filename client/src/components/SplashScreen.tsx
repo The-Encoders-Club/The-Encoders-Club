@@ -31,8 +31,8 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
     }));
     setParticles(newParticles);
 
-    // Complete splash after 3 seconds
-    const timer = setTimeout(onComplete, 3000);
+    // Complete splash after 2 seconds
+    const timer = setTimeout(onComplete, 2000);
     return () => clearTimeout(timer);
   }, [onComplete]);
 
@@ -40,7 +40,7 @@ export default function SplashScreen({ onComplete }: { onComplete: () => void })
     <motion.div
       initial={{ opacity: 1 }}
       animate={{ opacity: 0 }}
-      transition={{ duration: 0.8, delay: 2.2 }}
+      transition={{ duration: 0.8, delay: 1.2 }}
       onAnimationComplete={onComplete}
       className="fixed inset-0 z-[9999] bg-gradient-to-br from-[#080818] via-[#0d0d24] to-[#080818] flex items-center justify-center pointer-events-none"
     >
