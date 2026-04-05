@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Users, BookOpen, Newspaper, Heart, Download, Eye, Youtube, MessageCircle } from 'lucide-react';
 const logo = '/logo.png';
 
@@ -77,28 +77,28 @@ const proyectos = [
     title: 'Proyecto 1: Historia Épica',
     description: 'Una novela visual épica con múltiples finales y caminos narrativos.',
     image: 'https://picsum.photos/seed/project1/400/300',
-    descargas: 1250,
+    downloadUrl: 'https://ko-fi.com/theencodersclub',
   },
   {
     id: 2,
     title: 'Proyecto 2: Misterio Oscuro',
     description: 'Un thriller psicológico lleno de giros inesperados.',
     image: 'https://picsum.photos/seed/project2/400/300',
-    descargas: 890,
+    downloadUrl: 'https://ko-fi.com/theencodersclub',
   },
   {
     id: 3,
     title: 'Proyecto 3: Romance Moderno',
     description: 'Una historia de amor contemporánea con personajes memorables.',
     image: 'https://picsum.photos/seed/project3/400/300',
-    descargas: 2100,
+    downloadUrl: 'https://ko-fi.com/theencodersclub',
   },
   {
     id: 4,
     title: 'Proyecto 4: Fantasía Épica',
     description: 'Un mundo de fantasía con magia, dragones y aventuras.',
     image: 'https://picsum.photos/seed/project4/400/300',
-    descargas: 1560,
+    downloadUrl: 'https://ko-fi.com/theencodersclub',
   },
 ];
 
@@ -158,6 +158,28 @@ type Page = 'home' | 'proyectos' | 'cursos' | 'noticias' | 'donar';
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('home');
+  const [visits, setVisits] = useState(() => {
+    const stored = localStorage.getItem('visits');
+    return stored ? parseInt(stored) : 0;
+  });
+  const [downloads, setDownloads] = useState(() => {
+    const stored = localStorage.getItem('downloads');
+    return stored ? parseInt(stored) : 0;
+  });
+
+  // Incrementar visitas cuando se carga la página
+  useEffect(() => {
+    const newVisits = visits + 1;
+    setVisits(newVisits);
+    localStorage.setItem('visits', newVisits.toString());
+  }, []);
+
+  const handleDownload = (downloadUrl: string) => {
+    const newDownloads = downloads + 1;
+    setDownloads(newDownloads);
+    localStorage.setItem('downloads', newDownloads.toString());
+    window.open(downloadUrl, '_blank');
+  };
 
   const renderPage = () => {
     switch(currentPage) {
@@ -172,8 +194,8 @@ export default function App() {
                   <div className="p-5">
                     <h3 className="font-bold text-lg mb-2">{proyecto.title}</h3>
                     <p className="text-sm text-gray-400 mb-4">{proyecto.description}</p>
-                    <div className="text-pink-400 font-bold mb-3">{proyecto.descargas} descargas</div>
-                    <button className="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-full font-bold transition-all">Descargar</button>
+                    <div className="text-pink-400 font-bold mb-3">{downloads} descargas</div>
+                    <button onClick={() => handleDownload(proyecto.downloadUrl)} className="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-full font-bold transition-all">Descargar</button>
                   </div>
                 </div>
               ))}
@@ -208,9 +230,9 @@ export default function App() {
         return (
           <main className="max-w-7xl mx-auto px-8 py-16">
             <h1 className="text-5xl font-bold mb-12">Noticias Recientes</h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="flex gap-6 overflow-x-auto pb-4">
               {noticias.map((noticia) => (
-                <div key={noticia.id} className="bg-purple-950/30 rounded-2xl overflow-hidden border border-purple-800/50 hover:border-pink-500/50 transition-all">
+                <div key={noticia.id} className="flex-shrink-0 w-full md:w-1/2 lg:w-1/4 bg-purple-950/30 rounded-2xl overflow-hidden border border-purple-800/50 hover:border-pink-500/50 transition-all">
                   <img src={noticia.image} alt={noticia.title} className="w-full h-40 object-cover" referrerPolicy="no-referrer" />
                   <div className="p-5">
                     <h3 className="font-bold text-lg mb-2">{noticia.title}</h3>
@@ -272,36 +294,17 @@ export default function App() {
               </div>
             </section>
 
-            {/* Sección: Estadísticas */}
-            <section className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-24">
-              <div className="text-center">
-                <div className="text-5xl font-bold text-pink-400 mb-2">15</div>
-                <div className="text-gray-400">Proyectos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-5xl font-bold text-pink-400 mb-2">99,800</div>
-                <div className="text-gray-400">Descargas</div>
-              </div>
-              <div className="text-center">
-                <div className="text-5xl font-bold text-pink-400 mb-2">7</div>
-                <div className="text-gray-400">Cursos</div>
-              </div>
-              <div className="text-center">
-                <div className="text-5xl font-bold text-pink-400 mb-2">9,880,715</div>
-                <div className="text-gray-400">Visitas</div>
-              </div>
-            </section>
-
             {/* Sección: Noticias Recientes */}
             <section className="mb-24">
               <h2 className="text-4xl font-bold mb-10">Noticias Recientes</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="flex gap-6 overflow-x-auto pb-4">
                 {noticias.map((noticia) => (
-                  <div key={noticia.id} className="bg-purple-950/30 rounded-2xl overflow-hidden border border-purple-800/50 hover:border-pink-500/50 transition-all">
-                    <img src={noticia.image} alt="News" className="w-full h-40 object-cover" referrerPolicy="no-referrer" />
+                  <div key={noticia.id} className="flex-shrink-0 w-full md:w-1/2 lg:w-1/4 bg-purple-950/30 rounded-2xl overflow-hidden border border-purple-800/50 hover:border-pink-500/50 transition-all">
+                    <img src={noticia.image} alt={noticia.title} className="w-full h-40 object-cover" referrerPolicy="no-referrer" />
                     <div className="p-5">
                       <h3 className="font-bold text-lg mb-2">{noticia.title}</h3>
-                      <p className="text-sm text-gray-400">{noticia.description}</p>
+                      <p className="text-sm text-gray-400 mb-4">{noticia.description}</p>
+                      <button className="text-pink-400 hover:text-pink-300 font-semibold transition-colors">Leer más →</button>
                     </div>
                   </div>
                 ))}
@@ -326,6 +329,28 @@ export default function App() {
                     <p className="text-gray-300 text-sm">{member.cargo}</p>
                   </div>
                 ))}
+              </div>
+            </section>
+
+            {/* Sección: Estadísticas ANTES del Footer */}
+            <section className="bg-gradient-to-r from-purple-900/20 to-pink-900/20 rounded-2xl border border-purple-800/50 py-16 px-8 mb-24">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div className="text-center">
+                  <div className="text-5xl font-bold text-pink-400 mb-2">15</div>
+                  <div className="text-gray-400">Proyectos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-5xl font-bold text-pink-400 mb-2">{downloads}</div>
+                  <div className="text-gray-400">Descargas</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-5xl font-bold text-pink-400 mb-2">7</div>
+                  <div className="text-gray-400">Cursos</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-5xl font-bold text-pink-400 mb-2">{visits}</div>
+                  <div className="text-gray-400">Visitas</div>
+                </div>
               </div>
             </section>
           </main>
@@ -414,24 +439,8 @@ export default function App() {
 
           {/* Divisor */}
           <div className="border-t border-purple-900/50 pt-8">
-            {/* Estadísticas Footer */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <div className="flex items-center gap-2 text-gray-400 text-sm">
-                <BookOpen size={18}/> 15 Proyectos
-              </div>
-              <div className="flex items-center gap-2 text-gray-400 text-sm">
-                <Download size={18}/> 99,800 Descargas
-              </div>
-              <div className="flex items-center gap-2 text-gray-400 text-sm">
-                <Users size={18}/> 7 Cursos
-              </div>
-              <div className="flex items-center gap-2 text-gray-400 text-sm">
-                <Eye size={18}/> 9,880,715 Visitas
-              </div>
-            </div>
-
             {/* Copyright */}
-            <div className="text-center text-gray-500 text-sm border-t border-purple-900/50 pt-6">
+            <div className="text-center text-gray-500 text-sm">
               <p>&copy; 2026 The Encoders Club. Todos los derechos reservados.</p>
             </div>
           </div>
