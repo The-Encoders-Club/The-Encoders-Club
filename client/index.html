@@ -49,59 +49,63 @@
           20% { opacity: 1; }
           100% { transform: translate(var(--tw-x), var(--tw-y)) scale(0); opacity: 0; }
         }
-        @keyframes grid-move {
-          0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
-          100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
+        @keyframes nebula-drift {
+          0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.4; }
+          50% { transform: scale(1.2) translate(20px, 10px); opacity: 0.7; }
         }
-        @keyframes bg-glow-pulse {
-          0%, 100% { opacity: 0.3; transform: scale(1); }
-          50% { opacity: 0.6; transform: scale(1.2); }
+        @keyframes star-twinkle {
+          0%, 100% { opacity: 0.3; transform: scale(0.8); }
+          50% { opacity: 1; transform: scale(1.2); }
+        }
+        @keyframes shooting-star {
+          0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0); opacity: 0; }
+          10% { opacity: 1; scale(1); }
+          100% { transform: translateX(-500px) translateY(500px) rotate(-45deg) scale(1); opacity: 0; }
         }
 
-        /* --- FONDO Y DECORACIÓN --- */
-        .splash-bg-grid {
+        /* --- FONDO ARTÍSTICO --- */
+        .splash-nebula-1 {
           position: absolute;
-          bottom: -50%;
-          left: -50%;
-          right: -50%;
-          height: 100%;
-          background-image: 
-            linear-gradient(rgba(255,45,120,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,45,120,0.1) 1px, transparent 1px);
-          background-size: 40px 40px;
-          animation: grid-move 2s linear infinite;
-          z-index: 0;
-          pointer-events: none;
-        }
-        .splash-glow-pink {
-          position: absolute;
-          top: -10%;
+          top: -20%;
           left: -10%;
-          width: 50%;
-          height: 50%;
+          width: 80%;
+          height: 80%;
           background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
-          animation: bg-glow-pulse 4s ease-in-out infinite;
+          filter: blur(60px);
+          animation: nebula-drift 8s ease-in-out infinite;
           z-index: 0;
         }
-        .splash-glow-blue {
+        .splash-nebula-2 {
           position: absolute;
-          bottom: -10%;
+          bottom: -20%;
           right: -10%;
-          width: 60%;
-          height: 60%;
+          width: 90%;
+          height: 90%;
           background: radial-gradient(circle, rgba(77,159,255,0.15) 0%, transparent 70%);
-          animation: bg-glow-pulse 5s ease-in-out infinite reverse;
+          filter: blur(80px);
+          animation: nebula-drift 10s ease-in-out infinite reverse;
           z-index: 0;
         }
-        .splash-scanlines {
+        .splash-starfield {
           position: absolute;
           inset: 0;
-          background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-                      linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-          background-size: 100% 3px, 3px 100%;
-          z-index: 10;
+          z-index: 1;
           pointer-events: none;
-          opacity: 0.4;
+        }
+        .star {
+          position: absolute;
+          background: white;
+          border-radius: 50%;
+          animation: star-twinkle var(--duration) ease-in-out infinite;
+        }
+        .shooting-star {
+          position: absolute;
+          width: 100px;
+          height: 2px;
+          background: linear-gradient(90deg, white, transparent);
+          z-index: 2;
+          pointer-events: none;
+          animation: shooting-star 2s linear infinite;
         }
 
         /* --- ELEMENTOS CENTRALES --- */
@@ -114,12 +118,21 @@
           justify-content: center;
           z-index: 5;
         }
+        .splash-logo-glow {
+          position: absolute;
+          inset: -40px;
+          background: radial-gradient(circle, rgba(255,45,120,0.2) 0%, transparent 70%);
+          border-radius: 50%;
+          z-index: 1;
+          filter: blur(20px);
+        }
         .splash-ring {
           position: absolute;
           inset: 0;
           border: 2px dashed rgba(255,45,120,0.4);
           border-radius: 50%;
           animation: ring-rotate 3s linear infinite;
+          z-index: 2;
         }
         .splash-ring-outer {
           position: absolute;
@@ -127,13 +140,14 @@
           border: 1px solid rgba(77,159,255,0.2);
           border-radius: 50%;
           animation: ring-rotate 6s linear infinite reverse;
+          z-index: 2;
         }
         .splash-logo {
           width: 160px;
           height: 160px;
           object-fit: contain;
           animation: pulse-neon 2s ease-in-out infinite;
-          z-index: 2;
+          z-index: 3;
         }
         .splash-scan {
           position: absolute;
@@ -142,7 +156,7 @@
           height: 3px;
           background: linear-gradient(90deg, transparent, #FF2D78, transparent);
           box-shadow: 0 0 20px #FF2D78;
-          z-index: 3;
+          z-index: 4;
           animation: scan-laser 2s ease-in-out infinite;
           pointer-events: none;
         }
@@ -194,16 +208,16 @@
         }
       </style>
       
-      <!-- Fondo Decorativo -->
-      <div class="splash-bg-grid"></div>
-      <div class="splash-glow-pink"></div>
-      <div class="splash-glow-blue"></div>
-      <div class="splash-scanlines"></div>
+      <!-- Fondo Artístico -->
+      <div class="splash-nebula-1"></div>
+      <div class="splash-nebula-2"></div>
+      <div id="starfield" class="splash-starfield"></div>
       
       <!-- Partículas decorativas -->
       <div id="particles-container" style="position: absolute; inset: 0; pointer-events: none; z-index: 4;"></div>
 
       <div class="splash-logo-container">
+        <div class="splash-logo-glow"></div>
         <div class="splash-ring-outer"></div>
         <div class="splash-ring"></div>
         <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png" class="splash-logo" alt="Logo" onerror="this.style.display='none'">
@@ -217,6 +231,32 @@
       </div>
 
       <script>
+        // Generador de estrellas estáticas
+        const starfield = document.getElementById('starfield');
+        for (let i = 0; i < 80; i++) {
+          const star = document.createElement('div');
+          star.className = 'star';
+          const size = Math.random() * 2 + 1;
+          star.style.width = `${size}px`;
+          star.style.height = `${size}px`;
+          star.style.left = `${Math.random() * 100}%`;
+          star.style.top = `${Math.random() * 100}%`;
+          star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+          starfield.appendChild(star);
+        }
+
+        // Generador de estrellas fugaces
+        function createShootingStar() {
+          const s = document.createElement('div');
+          s.className = 'shooting-star';
+          s.style.left = `${Math.random() * 100 + 20}%`;
+          s.style.top = `${Math.random() * 50}%`;
+          starfield.appendChild(s);
+          setTimeout(() => s.remove(), 2000);
+        }
+        const shootingStarInterval = setInterval(createShootingStar, 4000);
+
+        // Generador de partículas centrales
         const container = document.getElementById('particles-container');
         const colors = ['#FF2D78', '#4D9FFF', '#a855f7', '#ffffff'];
         
@@ -244,7 +284,11 @@
         }
 
         const particleInterval = setInterval(createParticle, 100);
-        window.stopParticles = () => clearInterval(particleInterval);
+        
+        window.stopParticles = () => {
+          clearInterval(particleInterval);
+          clearInterval(shootingStarInterval);
+        };
       </script>
     </div>
     <div id="root"></div>
