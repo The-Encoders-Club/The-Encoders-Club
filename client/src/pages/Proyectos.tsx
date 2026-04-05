@@ -1,6 +1,6 @@
 /* ============================================================
    PROYECTOS PAGE — The Encoders Club
-   Style: Neon Synthwave Gaming
+   Style: Neon Synthwave Gaming + Inmersive Background
    ============================================================ */
 import { motion, AnimatePresence } from "framer-motion";
 import { Gamepad2, Star, Sparkles, ArrowRight } from "lucide-react";
@@ -12,6 +12,7 @@ import NatsukiProjectView from "../components/NatsukiProjectView";
 import YuriProjectView from "../components/YuriProjectView";
 
 const LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png";
+const PROYECTOS_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG_20260405_121731_665_166b9420.jpg";
 
 const projects = [
   {
@@ -59,7 +60,15 @@ export default function Proyectos() {
   const [activeProject, setActiveProject] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
+    <div className="min-h-screen text-white overflow-x-hidden relative" style={{
+      backgroundImage: `url('${PROYECTOS_BG}')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed'
+    }}>
+      {/* Overlay para mejor legibilidad */}
+      <div className="absolute inset-0 bg-[#080818]/60 pointer-events-none" />
+      
       <Navbar />
 
       <AnimatePresence>
@@ -76,8 +85,6 @@ export default function Proyectos() {
 
       {/* Page Header */}
       <section className="pt-32 pb-16 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#FF2D78]/5 to-transparent pointer-events-none" />
-        <div className="absolute top-20 right-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -98,7 +105,7 @@ export default function Proyectos() {
       </section>
 
       {/* Projects */}
-      <section className="pb-24">
+      <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Featured project */}
           {projects.filter(p => p.featured).map((project) => (
