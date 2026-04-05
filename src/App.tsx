@@ -6,7 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, BookOpen, Newspaper, Heart, Download, Eye, Youtube, MessageCircle } from 'lucide-react';
 const logo = '/logo.png';
-const backgroundImage = '/const logo = '/fondoweb.png'; // Cambia esta ruta para usar una imagen diferente
+const backgroundImage = '/const logo = '/fondoweb.png';
 
 // Enlaces de redes sociales
 const socialLinks = {
