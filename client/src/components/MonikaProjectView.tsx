@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { X, Download, Info, Users, Calendar, ShieldCheck, ExternalLink } from "lucide-react";
+import { X, Download, Info, Users, Calendar, ShieldCheck, ExternalLink, Sparkles } from "lucide-react";
 
 interface Props {
   onClose: () => void;
