@@ -140,9 +140,9 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" />
         </div>
 
-        {/* Decorative orbs */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
+        {/* Decorative orbs - Increased opacity */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/15 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/15 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
@@ -247,10 +247,10 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.5 }}
               />
-              {/* Decorative ring */}
+              {/* Decorative ring - Moon rotation */}
               <div
-                className="absolute w-80 h-80 rounded-full border border-[#FF2D78]/15 animate-spin"
-                style={{ animationDuration: "20s" }}
+                className="absolute w-80 h-80 rounded-full border border-[#FF2D78]/15 animate-rotate-slow"
+                style={{ animationDuration: "25s" }}
               />
             </div>
           </div>
@@ -376,10 +376,10 @@ export default function Home() {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <span
-                    className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
+                    className="absolute top-3 left-3 text-sm font-bold px-3 py-1.5 rounded-lg tag"
                     style={{
-                      background: `${item.tagColor}25`,
-                      border: `1px solid ${item.tagColor}50`,
+                      background: `${item.tagColor}40`,
+                      border: `1.5px solid ${item.tagColor}60`,
                       color: item.tagColor,
                     }}
                   >
