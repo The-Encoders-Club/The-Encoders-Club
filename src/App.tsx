@@ -6,6 +6,7 @@
 import React, { useState, useEffect } from 'react';
 import { Users, BookOpen, Newspaper, Heart, Download, Eye, Youtube, MessageCircle } from 'lucide-react';
 const logo = '/logo.png';
+const backgroundImage = '/const logo = '/fondoweb.png'; // Cambia esta ruta para usar una imagen diferente
 
 // Enlaces de redes sociales
 const socialLinks = {
@@ -359,7 +360,20 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white font-sans selection:bg-pink-500 selection:text-white flex flex-col">
+    <div 
+      className="min-h-screen text-white font-sans selection:bg-pink-500 selection:text-white flex flex-col"
+      style={{
+        backgroundImage: `url('${backgroundImage}')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundColor: '#0a0a1a'
+      }}
+    >
+      {/* Overlay oscuro para mejor legibilidad */}
+      <div className="absolute inset-0 bg-black/40 pointer-events-none"></div>
+      <div className="relative z-10 flex flex-col min-h-screen">
+
       {/* Navbar */}
       <nav className="flex items-center justify-between px-4 md:px-8 py-6 border-b border-purple-900/50 bg-[#0a0a1a]/80 backdrop-blur-md sticky top-0 z-50 flex-wrap gap-4">
         <div className="flex items-center gap-2">
@@ -446,6 +460,7 @@ export default function App() {
           </div>
         </div>
       </footer>
+      </div>
     </div>
   );
 }
