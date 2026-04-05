@@ -2,30 +2,25 @@
    PROYECTOS PAGE — The Encoders Club
    Style: Neon Synthwave Gaming
    ============================================================ */
-import { motion } from "framer-motion";
-import { Download, ExternalLink, Gamepad2, Star } from "lucide-react";
-import { Link } from "wouter";
+import { motion, AnimatePresence } from "framer-motion";
+import { Gamepad2, Star, Sparkles, ArrowRight } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { useState } from "react";
+import MonikaProjectView from "../components/MonikaProjectView";
+import NatsukiProjectView from "../components/NatsukiProjectView";
+import YuriProjectView from "../components/YuriProjectView";
 
-const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
-
-const projectIds: Record<string, string> = {
-  "Monika After History": "monika",
-  "Just Natsuki": "natsuki",
-  "Just Yuri": "yuri",
-};
+const LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png";
 
 const projects = [
   {
     id: 1,
-    slug: "monika",
     name: "Monika After History",
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia. Una experiencia emocional llena de reflexiones sobre la existencia, el amor y la narrativa.",
     image: LOGO_URL,
-    downloadUrl: "https://ko-fi.com/theencodersclub",
     tags: ["Fan-Made", "Drama", "Romance"],
     status: "En desarrollo",
     statusColor: "#FF2D78",
@@ -34,13 +29,11 @@ const projects = [
   },
   {
     id: 2,
-    slug: "natsuki",
     name: "Just Natsuki",
     subtitle: "Novela Visual Fan-Made",
     description:
       "Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad, sus sueños y los desafíos que enfrenta día a día.",
     image: LOGO_URL,
-    downloadUrl: "https://ko-fi.com/theencodersclub",
     tags: ["Fan-Made", "Slice of Life"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -49,13 +42,11 @@ const projects = [
   },
   {
     id: 3,
-    slug: "yuri",
     name: "Just Yuri",
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural en una narrativa única.",
     image: LOGO_URL,
-    downloadUrl: "https://ko-fi.com/theencodersclub",
     tags: ["Fan-Made", "Misterio", "Literatura"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -64,19 +55,24 @@ const projects = [
   },
 ];
 
-const PROYECTOS_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG_20260405_121731_665_166b9420.jpg";
-
 export default function Proyectos() {
+  const [activeProject, setActiveProject] = useState<number | null>(null);
+
   return (
-    <div className="min-h-screen text-white overflow-x-hidden" style={{
-      backgroundImage: `url('${PROYECTOS_BG}')`,
-      backgroundSize: 'cover',
-      backgroundPosition: 'center',
-      backgroundAttachment: 'fixed'
-    }}>
-      {/* Overlay para mejor legibilidad */}
-      <div className="absolute inset-0 bg-[#080818]/40 pointer-events-none" />
+    <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
       <Navbar />
+
+      <AnimatePresence>
+        {activeProject === 1 && (
+          <MonikaProjectView onClose={() => setActiveProject(null)} />
+        )}
+        {activeProject === 2 && (
+          <NatsukiProjectView onClose={() => setActiveProject(null)} />
+        )}
+        {activeProject === 3 && (
+          <YuriProjectView onClose={() => setActiveProject(null)} />
+        )}
+      </AnimatePresence>
 
       {/* Page Header */}
       <section className="pt-32 pb-16 relative overflow-hidden">
@@ -111,7 +107,8 @@ export default function Proyectos() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
-              className="glass-card overflow-hidden mb-8 relative"
+              onClick={() => setActiveProject(project.id)}
+              className="glass-card overflow-hidden mb-8 relative cursor-pointer group hover:border-[#FF2D78]/40 transition-all"
             >
               <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
               <div className="grid lg:grid-cols-2 gap-0">
@@ -120,13 +117,19 @@ export default function Proyectos() {
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="w-48 h-48 object-contain opacity-80"
+                    className="w-48 h-48 object-contain opacity-80 group-hover:scale-110 transition-transform duration-500"
                     style={{ filter: "drop-shadow(0 0 30px rgba(255,45,120,0.4))" }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d24]/60 hidden lg:block" />
                   <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
                     DESTACADO
                   </span>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-[2px]">
+                    <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold">
+                      <Sparkles size={16} className="text-[#FF2D78]" />
+                      Explorar Proyecto
+                    </div>
+                  </div>
                 </div>
                 {/* Info */}
                 <div className="p-8 lg:p-10 flex flex-col justify-center">
@@ -158,14 +161,8 @@ export default function Proyectos() {
                       </span>
                     ))}
                   </div>
-                  <div className="flex gap-3">
-                    <Link
-                      href={`/proyectos/${project.slug}`}
-                      className="btn-primary text-sm px-5 py-2.5"
-                    >
-                      <ExternalLink size={16} />
-                      Ver Proyecto
-                    </Link>
+                  <div className="flex items-center gap-2 text-[#FF2D78] font-bold text-sm group-hover:translate-x-2 transition-transform">
+                    Ver detalles del proyecto <ArrowRight size={16} />
                   </div>
                 </div>
               </div>
@@ -181,14 +178,15 @@ export default function Proyectos() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
-                className="glass-card overflow-hidden"
+                onClick={() => setActiveProject(project.id)}
+                className="glass-card overflow-hidden cursor-pointer group hover:border-[#4D9FFF]/40 transition-all"
               >
                 {/* Image */}
                 <div className="relative h-48 bg-gradient-to-br from-[#4D9FFF]/10 to-[#a855f7]/10 flex items-center justify-center overflow-hidden">
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="w-32 h-32 object-contain opacity-70"
+                    className="w-32 h-32 object-contain opacity-70 group-hover:scale-110 transition-transform duration-500"
                     style={{ filter: "drop-shadow(0 0 20px rgba(77,159,255,0.3))" }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24]/80 to-transparent" />
@@ -208,6 +206,9 @@ export default function Proyectos() {
                       <span>{project.rating}</span>
                     </div>
                   </div>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-[2px]">
+                    <Sparkles size={24} className="text-[#4D9FFF]" />
+                  </div>
                 </div>
                 {/* Content */}
                 <div className="p-6">
@@ -223,13 +224,9 @@ export default function Proyectos() {
                       </span>
                     ))}
                   </div>
-                  <Link
-                    href={`/proyectos/${project.slug}`}
-                    className="btn-primary text-sm px-5 py-2.5 w-full justify-center"
-                  >
-                    <ExternalLink size={15} />
-                    Ver Proyecto
-                  </Link>
+                  <div className="flex items-center gap-2 text-[#4D9FFF] font-bold text-xs group-hover:translate-x-2 transition-transform">
+                    Explorar <ArrowRight size={14} />
+                  </div>
                 </div>
               </motion.div>
             ))}
