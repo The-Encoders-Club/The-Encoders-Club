@@ -20,15 +20,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
   </head>
   <body>
-    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1.5s ease-in-out;">
+    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out;">
       <style>
         @keyframes pulse-neon {
-          0%, 100% { filter: drop-shadow(0 0 10px rgba(255,45,120,0.4)); }
-          50% { filter: drop-shadow(0 0 30px rgba(255,45,120,0.8)); }
+          0%, 100% { filter: drop-shadow(0 0 15px rgba(255,45,120,0.5)); transform: scale(1); }
+          50% { filter: drop-shadow(0 0 35px rgba(255,45,120,0.9)); transform: scale(1.05); }
         }
         @keyframes scan-laser {
-          0%, 100% { top: 10%; }
-          50% { top: 90%; }
+          0%, 100% { top: 0%; opacity: 0; }
+          10%, 90% { opacity: 1; }
+          50% { top: 100%; }
         }
         @keyframes ring-rotate {
           from { transform: rotate(0deg); }
@@ -42,10 +43,24 @@
           from { transform: translateX(-100%); }
           to { transform: translateX(100%); }
         }
+        @keyframes particle-float {
+          0% { transform: translate(0, 0) scale(1); opacity: 0; }
+          20% { opacity: 1; }
+          100% { transform: translate(var(--tw-x), var(--tw-y)) scale(0); opacity: 0; }
+        }
+        @keyframes glitch-text {
+          0% { transform: translate(0); }
+          20% { transform: translate(-2px, 2px); }
+          40% { transform: translate(-2px, -2px); }
+          60% { transform: translate(2px, 2px); }
+          80% { transform: translate(2px, -2px); }
+          100% { transform: translate(0); }
+        }
+
         .splash-logo-container {
           position: relative;
-          width: 200px;
-          height: 200px;
+          width: 220px;
+          height: 220px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -53,9 +68,16 @@
         .splash-ring {
           position: absolute;
           inset: 0;
-          border: 2px dashed rgba(255,45,120,0.3);
+          border: 2px dashed rgba(255,45,120,0.4);
           border-radius: 50%;
-          animation: ring-rotate 4s linear infinite;
+          animation: ring-rotate 3s linear infinite;
+        }
+        .splash-ring-outer {
+          position: absolute;
+          inset: -20px;
+          border: 1px solid rgba(77,159,255,0.2);
+          border-radius: 50%;
+          animation: ring-rotate 6s linear infinite reverse;
         }
         .splash-logo {
           width: 160px;
@@ -66,48 +88,68 @@
         }
         .splash-scan {
           position: absolute;
-          left: 0;
-          right: 0;
-          height: 2px;
-          background: #FF2D78;
-          box-shadow: 0 0 15px #FF2D78;
+          left: -10%;
+          right: -10%;
+          height: 3px;
+          background: linear-gradient(90deg, transparent, #FF2D78, transparent);
+          box-shadow: 0 0 20px #FF2D78;
           z-index: 3;
-          animation: scan-laser 3s ease-in-out infinite;
+          animation: scan-laser 2s ease-in-out infinite;
+          pointer-events: none;
         }
         .splash-text-container {
-          margin-top: 40px;
+          margin-top: 50px;
           text-align: center;
-          animation: fade-in-up 1s ease-out 0.5s both;
+          animation: fade-in-up 0.8s ease-out both;
         }
         .splash-title {
           color: white;
           font-family: 'Space Grotesk', sans-serif;
-          font-size: 24px;
+          font-size: 28px;
           font-weight: bold;
-          letter-spacing: 0.4em;
+          letter-spacing: 0.3em;
           text-transform: uppercase;
           margin: 0;
+          position: relative;
         }
-        .splash-title span { color: #FF2D78; }
+        .splash-title span { color: #FF2D78; text-shadow: 0 0 10px rgba(255,45,120,0.5); }
+        .splash-title:hover { animation: glitch-text 0.3s infinite; }
+        
         .splash-loader {
-          margin-top: 20px;
-          width: 180px;
-          height: 2px;
-          background: rgba(255,255,255,0.1);
+          margin-top: 25px;
+          width: 200px;
+          height: 3px;
+          background: rgba(255,255,255,0.05);
           border-radius: 10px;
           overflow: hidden;
           position: relative;
           margin-left: auto;
           margin-right: auto;
+          border: 1px solid rgba(255,255,255,0.1);
         }
         .splash-loader-bar {
           position: absolute;
           inset: 0;
-          background: linear-gradient(90deg, transparent, #FF2D78, transparent);
-          animation: loading-bar 2s linear infinite;
+          background: linear-gradient(90deg, transparent, #FF2D78, #4D9FFF, transparent);
+          animation: loading-bar 1.5s linear infinite;
+        }
+        
+        .particle {
+          position: absolute;
+          width: 4px;
+          height: 4px;
+          background: #FF2D78;
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 1;
         }
       </style>
+      
+      <!-- Partículas decorativas -->
+      <div id="particles-container" style="position: absolute; inset: 0; pointer-events: none;"></div>
+
       <div class="splash-logo-container">
+        <div class="splash-ring-outer"></div>
         <div class="splash-ring"></div>
         <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png" class="splash-logo" alt="Logo" onerror="this.style.display='none'">
         <div class="splash-scan"></div>
@@ -118,6 +160,49 @@
           <div class="splash-loader-bar"></div>
         </div>
       </div>
+
+      <script>
+        // Generador de partículas simple
+        const container = document.getElementById('particles-container');
+        const colors = ['#FF2D78', '#4D9FFF', '#a855f7', '#ffffff'];
+        
+        function createParticle() {
+          const p = document.createElement('div');
+          p.className = 'particle';
+          
+          const size = Math.random() * 4 + 2;
+          p.style.width = `${size}px`;
+          p.style.height = `${size}px`;
+          p.style.background = colors[Math.floor(Math.random() * colors.length)];
+          
+          // Posición inicial (centro)
+          const startX = window.innerWidth / 2;
+          const startY = window.innerHeight / 2;
+          p.style.left = `${startX}px`;
+          p.style.top = `${startY}px`;
+          
+          // Destino aleatorio
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 300 + 100;
+          const tx = Math.cos(angle) * dist;
+          const ty = Math.sin(angle) * dist;
+          
+          p.style.setProperty('--tw-x', `${tx}px`);
+          p.style.setProperty('--tw-y', `${ty}px`);
+          
+          const duration = Math.random() * 2 + 1;
+          p.style.animation = `particle-float ${duration}s ease-out forwards`;
+          
+          container.appendChild(p);
+          setTimeout(() => p.remove(), duration * 1000);
+        }
+
+        // Crear partículas periódicamente
+        const particleInterval = setInterval(createParticle, 100);
+        
+        // Limpiar intervalo cuando el splash desaparezca (opcional, main.tsx lo manejará)
+        window.stopParticles = () => clearInterval(particleInterval);
+      </script>
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
