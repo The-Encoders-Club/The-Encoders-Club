@@ -15,7 +15,7 @@ const handleSplashScreen = () => {
     if (hasSeenSplash) {
       splash.style.display = "none";
     } else {
-      // Tiempo mínimo de visualización: 5 segundos
+      // Tiempo mínimo de visualización: 8 segundos (aumentado de 5s)
       setTimeout(() => {
         splash.style.opacity = "0";
         sessionStorage.setItem("hasSeenSplash", "true");
@@ -23,7 +23,7 @@ const handleSplashScreen = () => {
         setTimeout(() => {
           splash.style.display = "none";
         }, 1500);
-      }, 5000);
+      }, 8000);
     }
   }
 };
