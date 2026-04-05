@@ -20,6 +20,105 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
   </head>
   <body>
+    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1.5s ease-in-out;">
+      <style>
+        @keyframes pulse-neon {
+          0%, 100% { filter: drop-shadow(0 0 10px rgba(255,45,120,0.4)); }
+          50% { filter: drop-shadow(0 0 30px rgba(255,45,120,0.8)); }
+        }
+        @keyframes scan-laser {
+          0%, 100% { top: 10%; }
+          50% { top: 90%; }
+        }
+        @keyframes ring-rotate {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes loading-bar {
+          from { transform: translateX(-100%); }
+          to { transform: translateX(100%); }
+        }
+        .splash-logo-container {
+          position: relative;
+          width: 200px;
+          height: 200px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .splash-ring {
+          position: absolute;
+          inset: 0;
+          border: 2px dashed rgba(255,45,120,0.3);
+          border-radius: 50%;
+          animation: ring-rotate 4s linear infinite;
+        }
+        .splash-logo {
+          width: 160px;
+          height: 160px;
+          object-fit: contain;
+          animation: pulse-neon 2s ease-in-out infinite;
+          z-index: 2;
+        }
+        .splash-scan {
+          position: absolute;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: #FF2D78;
+          box-shadow: 0 0 15px #FF2D78;
+          z-index: 3;
+          animation: scan-laser 3s ease-in-out infinite;
+        }
+        .splash-text-container {
+          margin-top: 40px;
+          text-align: center;
+          animation: fade-in-up 1s ease-out 1s both;
+        }
+        .splash-title {
+          color: white;
+          font-family: 'Space Grotesk', sans-serif;
+          font-size: 24px;
+          font-weight: bold;
+          letter-spacing: 0.4em;
+          text-transform: uppercase;
+          margin: 0;
+        }
+        .splash-title span { color: #FF2D78; }
+        .splash-loader {
+          margin-top: 20px;
+          width: 180px;
+          height: 2px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 10px;
+          overflow: hidden;
+          position: relative;
+          margin-left: auto;
+          margin-right: auto;
+        }
+        .splash-loader-bar {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, #FF2D78, transparent);
+          animation: loading-bar 2s linear infinite;
+        }
+      </style>
+      <div class="splash-logo-container">
+        <div class="splash-ring"></div>
+        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png" class="splash-logo" alt="Logo">
+        <div class="splash-scan"></div>
+      </div>
+      <div class="splash-text-container">
+        <h1 class="splash-title">The Encoders <span>Club</span></h1>
+        <div class="splash-loader">
+          <div class="splash-loader-bar"></div>
+        </div>
+      </div>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
     <script
