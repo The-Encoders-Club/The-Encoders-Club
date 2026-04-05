@@ -4,8 +4,15 @@
  */
 
 import React, { useState } from 'react';
-import { Users, BookOpen, Newspaper, Heart, Download, Eye } from 'lucide-react';
+import { Users, BookOpen, Newspaper, Heart, Download, Eye, Youtube, MessageCircle } from 'lucide-react';
 const logo = '/logo.png';
+
+// Enlaces de redes sociales
+const socialLinks = {
+  youtube: 'https://youtube.com/@theencodersclub',
+  discord: 'https://discord.gg/2DB5k7sb8',
+  kofi: 'https://ko-fi.com/theencodersclub'
+};
 
 // Datos de los integrantes del equipo
 const teamMembers = [
@@ -190,7 +197,7 @@ export default function App() {
                     <div>⏱️ {curso.duration}</div>
                     <div>👥 {curso.students} estudiantes</div>
                   </div>
-                  <button className="w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-full font-bold transition-all">Inscribirse</button>
+                  <a href={socialLinks.kofi} target="_blank" rel="noopener noreferrer" className="block w-full bg-pink-600 hover:bg-pink-700 px-4 py-2 rounded-full font-bold transition-all text-center">Inscribirse</a>
                 </div>
               ))}
             </div>
@@ -201,13 +208,13 @@ export default function App() {
         return (
           <main className="max-w-7xl mx-auto px-8 py-16">
             <h1 className="text-5xl font-bold mb-12">Noticias Recientes</h1>
-            <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {noticias.map((noticia) => (
-                <div key={noticia.id} className="bg-purple-950/30 rounded-2xl overflow-hidden border border-purple-800/50 hover:border-pink-500/50 transition-all flex flex-col md:flex-row">
-                  <img src={noticia.image} alt={noticia.title} className="w-full md:w-48 h-48 md:h-auto object-cover" referrerPolicy="no-referrer" />
-                  <div className="p-6 flex-1">
+                <div key={noticia.id} className="bg-purple-950/30 rounded-2xl overflow-hidden border border-purple-800/50 hover:border-pink-500/50 transition-all">
+                  <img src={noticia.image} alt={noticia.title} className="w-full h-40 object-cover" referrerPolicy="no-referrer" />
+                  <div className="p-5">
                     <h3 className="font-bold text-lg mb-2">{noticia.title}</h3>
-                    <p className="text-gray-400 mb-4">{noticia.description}</p>
+                    <p className="text-sm text-gray-400 mb-4">{noticia.description}</p>
                     <button className="text-pink-400 hover:text-pink-300 font-semibold transition-colors">Leer más →</button>
                   </div>
                 </div>
@@ -240,9 +247,9 @@ export default function App() {
                       <div key={idx} className="text-sm text-gray-300">✓ {benefit}</div>
                     ))}
                   </div>
-                  <button className={`w-full px-4 py-3 rounded-full font-bold transition-all ${option.featured ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}>
+                  <a href={socialLinks.kofi} target="_blank" rel="noopener noreferrer" className={`block w-full px-4 py-3 rounded-full font-bold transition-all text-center ${option.featured ? 'bg-pink-600 hover:bg-pink-700' : 'bg-purple-600 hover:bg-purple-700'}`}>
                     Donar ${option.amount}
-                  </button>
+                  </a>
                 </div>
               ))}
             </div>
@@ -327,7 +334,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white font-sans selection:bg-pink-500 selection:text-white">
+    <div className="min-h-screen bg-[#0a0a1a] text-white font-sans selection:bg-pink-500 selection:text-white flex flex-col">
       {/* Navbar */}
       <nav className="flex items-center justify-between px-4 md:px-8 py-6 border-b border-purple-900/50 bg-[#0a0a1a]/80 backdrop-blur-md sticky top-0 z-50 flex-wrap gap-4">
         <div className="flex items-center gap-2">
@@ -339,7 +346,7 @@ export default function App() {
           <button onClick={() => setCurrentPage('cursos')} className="hover:text-pink-400 transition-colors">Cursos</button>
           <button onClick={() => setCurrentPage('noticias')} className="hover:text-pink-400 transition-colors">Noticias</button>
           <button onClick={() => setCurrentPage('donar')} className="hover:text-pink-400 transition-colors">Donar</button>
-          <button className="bg-pink-600 hover:bg-pink-700 px-4 md:px-6 py-2 rounded-full font-bold transition-all whitespace-nowrap">¡Únete al equipo!</button>
+          <a href={socialLinks.kofi} target="_blank" rel="noopener noreferrer" className="bg-pink-600 hover:bg-pink-700 px-4 md:px-6 py-2 rounded-full font-bold transition-all whitespace-nowrap">¡Únete al equipo!</a>
         </div>
       </nav>
 
@@ -360,15 +367,74 @@ export default function App() {
       )}
 
       {/* Render de páginas */}
-      {renderPage()}
+      <div className="flex-grow">
+        {renderPage()}
+      </div>
 
-      {/* Footer Stats */}
-      <footer className="border-t border-purple-900/50 py-10 mt-16 bg-[#0a0a1a]">
-        <div className="max-w-7xl mx-auto px-8 flex flex-col md:flex-row justify-between text-gray-400 gap-4">
-          <div className="flex items-center gap-2"><BookOpen size={20}/> 15 Proyectos</div>
-          <div className="flex items-center gap-2"><Download size={20}/> 99,800 Descargas</div>
-          <div className="flex items-center gap-2"><Users size={20}/> 7 Cursos</div>
-          <div className="flex items-center gap-2"><Eye size={20}/> 9,880,715 Visitas</div>
+      {/* Footer */}
+      <footer className="border-t border-purple-900/50 py-12 mt-16 bg-[#0a0a1a]">
+        <div className="max-w-7xl mx-auto px-8">
+          {/* Footer Content */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+            {/* Sección 1: Sobre nosotros */}
+            <div>
+              <h3 className="text-xl font-bold mb-4 text-pink-400">The Encoders Club</h3>
+              <p className="text-gray-400 text-sm leading-relaxed">
+                Comunidad dedicada a crear y compartir novelas visuales con Ren'Py en español. Aprende, crea y colabora con otros creadores.
+              </p>
+            </div>
+
+            {/* Sección 2: Enlaces rápidos */}
+            <div>
+              <h3 className="text-xl font-bold mb-4 text-pink-400">Enlaces Rápidos</h3>
+              <ul className="space-y-2 text-sm">
+                <li><button onClick={() => setCurrentPage('home')} className="text-gray-400 hover:text-pink-400 transition-colors">Inicio</button></li>
+                <li><button onClick={() => setCurrentPage('proyectos')} className="text-gray-400 hover:text-pink-400 transition-colors">Proyectos</button></li>
+                <li><button onClick={() => setCurrentPage('cursos')} className="text-gray-400 hover:text-pink-400 transition-colors">Cursos</button></li>
+                <li><button onClick={() => setCurrentPage('noticias')} className="text-gray-400 hover:text-pink-400 transition-colors">Noticias</button></li>
+              </ul>
+            </div>
+
+            {/* Sección 3: Redes sociales */}
+            <div>
+              <h3 className="text-xl font-bold mb-4 text-pink-400">Síguenos</h3>
+              <div className="flex gap-4">
+                <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="bg-purple-950/50 hover:bg-pink-600 p-3 rounded-full transition-all">
+                  <Youtube size={20} />
+                </a>
+                <a href={socialLinks.discord} target="_blank" rel="noopener noreferrer" className="bg-purple-950/50 hover:bg-pink-600 p-3 rounded-full transition-all">
+                  <MessageCircle size={20} />
+                </a>
+                <a href={socialLinks.kofi} target="_blank" rel="noopener noreferrer" className="bg-purple-950/50 hover:bg-pink-600 p-3 rounded-full transition-all">
+                  <Heart size={20} />
+                </a>
+              </div>
+            </div>
+          </div>
+
+          {/* Divisor */}
+          <div className="border-t border-purple-900/50 pt-8">
+            {/* Estadísticas Footer */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <BookOpen size={18}/> 15 Proyectos
+              </div>
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <Download size={18}/> 99,800 Descargas
+              </div>
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <Users size={18}/> 7 Cursos
+              </div>
+              <div className="flex items-center gap-2 text-gray-400 text-sm">
+                <Eye size={18}/> 9,880,715 Visitas
+              </div>
+            </div>
+
+            {/* Copyright */}
+            <div className="text-center text-gray-500 text-sm border-t border-purple-900/50 pt-6">
+              <p>&copy; 2026 The Encoders Club. Todos los derechos reservados.</p>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
