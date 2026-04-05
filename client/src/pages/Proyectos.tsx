@@ -64,7 +64,7 @@ const projects = [
   },
 ];
 
-const PROYECTOS_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG-20260405-WA0108_ba601a22.jpg";
+const PROYECTOS_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG_20260405_121731_665_166b9420.jpg";
 
 export default function Proyectos() {
   return (
