@@ -9,6 +9,8 @@ import Proyectos from "./pages/Proyectos";
 import Cursos from "./pages/Cursos";
 import Noticias from "./pages/Noticias";
 import Donar from "./pages/Donar";
+import SplashScreen from "./components/SplashScreen";
+import BackgroundParticles from "./components/BackgroundParticles";
 
 function Router() {
   return (
@@ -30,6 +32,8 @@ function App() {
       <ThemeProvider defaultTheme="dark">
         <TooltipProvider>
           <Toaster />
+          <SplashScreen />
+          <BackgroundParticles />
           <Router />
         </TooltipProvider>
       </ThemeProvider>
