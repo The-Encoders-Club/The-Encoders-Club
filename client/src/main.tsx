@@ -9,22 +9,15 @@ createRoot(document.getElementById("root")!).render(<App />);
 const handleSplashScreen = () => {
   const splash = document.getElementById("splash-screen");
   if (splash) {
-    // Solo mostramos el splash si no se ha visto en esta sesión
-    const hasSeenSplash = sessionStorage.getItem("hasSeenSplash");
-    
-    if (hasSeenSplash) {
-      splash.style.display = "none";
-    } else {
-      // Tiempo mínimo de visualización: 8 segundos (aumentado de 5s)
+    // El splash screen aparece cada vez que se recarga la página
+    // Tiempo mínimo de visualización: 8 segundos
+    setTimeout(() => {
+      splash.style.opacity = "0";
+      // Eliminamos el elemento del DOM después de la transición de 1.5s
       setTimeout(() => {
-        splash.style.opacity = "0";
-        sessionStorage.setItem("hasSeenSplash", "true");
-        // Eliminamos el elemento del DOM después de la transición de 1.5s
-        setTimeout(() => {
-          splash.style.display = "none";
-        }, 1500);
-      }, 8000);
-    }
+        splash.style.display = "none";
+      }, 1500);
+    }, 8000);
   }
 };
 
