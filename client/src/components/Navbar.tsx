@@ -1,12 +1,14 @@
 /* ============================================================
    NAVBAR — The Encoders Club
    Style: Neon Synthwave Gaming — glassmorphism, sticky, mobile hamburger
+   Improvements: Gradient background, larger nav buttons, better styling
    ============================================================ */
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, Youtube, MessageCircle, Heart } from "lucide-react";
 
 const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
+const RENPY_LOGO = "https://www.renpy.org/dl/8.1.3/renpy-8.1.3-sdk/doc/_static/logo.png";
 
 const navLinks = [
   { label: "Inicio", href: "/" },
@@ -43,18 +45,23 @@ export default function Navbar() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
           scrolled
-            ? "bg-[#080818]/90 backdrop-blur-xl border-b border-white/8 shadow-lg shadow-black/30"
+            ? "bg-gradient-to-b from-[#080818]/95 via-[#0d0d24]/90 to-[#080818]/85 backdrop-blur-xl border-b border-white/8 shadow-lg shadow-black/50"
             : "bg-transparent"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 md:h-20">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-3 group">
+            {/* Logo + Ren'Py Logo */}
+            <Link href="/" className="flex items-center gap-2 md:gap-3 group">
+              <img
+                src={RENPY_LOGO}
+                alt="Ren'Py"
+                className="w-8 h-8 md:w-10 md:h-10 object-contain transition-transform duration-300 group-hover:scale-110"
+              />
               <img
                 src={LOGO_URL}
                 alt="The Encoders Club"
-                className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-full transition-transform duration-300 group-hover:scale-110"
+                className="w-10 h-10 md:w-12 md:h-12 object-contain rounded-full transition-transform duration-300 group-hover:scale-110 ring-2 ring-[#FF2D78]/50"
               />
               <span
                 className="font-bold text-base md:text-lg text-white hidden sm:block"
@@ -65,13 +72,15 @@ export default function Navbar() {
             </Link>
 
             {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            <div className="hidden md:flex items-center gap-2 lg:gap-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`nav-link text-sm font-medium transition-colors ${
-                    location === link.href ? "text-[#FF2D78]" : ""
+                  className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200 ${
+                    location === link.href
+                      ? "bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/80 text-white shadow-lg shadow-[#FF2D78]/50"
+                      : "text-white/70 hover:text-white hover:bg-white/10"
                   }`}
                 >
                   {link.label}
@@ -135,20 +144,20 @@ export default function Navbar() {
         />
         {/* Drawer */}
         <div
-          className={`absolute top-0 right-0 h-full w-72 bg-[#0d0d24] border-l border-white/10 shadow-2xl transition-transform duration-300 ${
+          className={`absolute top-0 right-0 h-full w-72 bg-gradient-to-b from-[#0d0d24] to-[#080818] border-l border-white/10 shadow-2xl transition-transform duration-300 ${
             menuOpen ? "translate-x-0" : "translate-x-full"
           }`}
         >
           <div className="flex flex-col h-full p-6 pt-20">
             {/* Nav Links */}
-            <nav className="flex flex-col gap-1">
+            <nav className="flex flex-col gap-2">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-3 rounded-xl text-base font-medium transition-all ${
+                  className={`px-4 py-3 rounded-xl text-base font-semibold transition-all ${
                     location === link.href
-                      ? "bg-[#FF2D78]/15 text-[#FF2D78] border border-[#FF2D78]/30"
+                      ? "bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/80 text-white border border-[#FF2D78]/50 shadow-lg shadow-[#FF2D78]/30"
                       : "text-white/70 hover:text-white hover:bg-white/8"
                   }`}
                 >
