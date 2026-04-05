@@ -22,6 +22,7 @@
   <body>
     <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out;">
       <style>
+        /* --- ANIMACIONES --- */
         @keyframes pulse-neon {
           0%, 100% { filter: drop-shadow(0 0 15px rgba(255,45,120,0.5)); transform: scale(1); }
           50% { filter: drop-shadow(0 0 35px rgba(255,45,120,0.9)); transform: scale(1.05); }
@@ -48,15 +49,62 @@
           20% { opacity: 1; }
           100% { transform: translate(var(--tw-x), var(--tw-y)) scale(0); opacity: 0; }
         }
-        @keyframes glitch-text {
-          0% { transform: translate(0); }
-          20% { transform: translate(-2px, 2px); }
-          40% { transform: translate(-2px, -2px); }
-          60% { transform: translate(2px, 2px); }
-          80% { transform: translate(2px, -2px); }
-          100% { transform: translate(0); }
+        @keyframes grid-move {
+          0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+          100% { transform: perspective(500px) rotateX(60deg) translateY(40px); }
+        }
+        @keyframes bg-glow-pulse {
+          0%, 100% { opacity: 0.3; transform: scale(1); }
+          50% { opacity: 0.6; transform: scale(1.2); }
         }
 
+        /* --- FONDO Y DECORACIÓN --- */
+        .splash-bg-grid {
+          position: absolute;
+          bottom: -50%;
+          left: -50%;
+          right: -50%;
+          height: 100%;
+          background-image: 
+            linear-gradient(rgba(255,45,120,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,45,120,0.1) 1px, transparent 1px);
+          background-size: 40px 40px;
+          animation: grid-move 2s linear infinite;
+          z-index: 0;
+          pointer-events: none;
+        }
+        .splash-glow-pink {
+          position: absolute;
+          top: -10%;
+          left: -10%;
+          width: 50%;
+          height: 50%;
+          background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
+          animation: bg-glow-pulse 4s ease-in-out infinite;
+          z-index: 0;
+        }
+        .splash-glow-blue {
+          position: absolute;
+          bottom: -10%;
+          right: -10%;
+          width: 60%;
+          height: 60%;
+          background: radial-gradient(circle, rgba(77,159,255,0.15) 0%, transparent 70%);
+          animation: bg-glow-pulse 5s ease-in-out infinite reverse;
+          z-index: 0;
+        }
+        .splash-scanlines {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                      linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+          background-size: 100% 3px, 3px 100%;
+          z-index: 10;
+          pointer-events: none;
+          opacity: 0.4;
+        }
+
+        /* --- ELEMENTOS CENTRALES --- */
         .splash-logo-container {
           position: relative;
           width: 220px;
@@ -64,6 +112,7 @@
           display: flex;
           align-items: center;
           justify-content: center;
+          z-index: 5;
         }
         .splash-ring {
           position: absolute;
@@ -101,6 +150,7 @@
           margin-top: 50px;
           text-align: center;
           animation: fade-in-up 0.8s ease-out both;
+          z-index: 5;
         }
         .splash-title {
           color: white;
@@ -110,10 +160,9 @@
           letter-spacing: 0.3em;
           text-transform: uppercase;
           margin: 0;
-          position: relative;
+          text-shadow: 0 0 15px rgba(255,255,255,0.2);
         }
-        .splash-title span { color: #FF2D78; text-shadow: 0 0 10px rgba(255,45,120,0.5); }
-        .splash-title:hover { animation: glitch-text 0.3s infinite; }
+        .splash-title span { color: #FF2D78; text-shadow: 0 0 15px rgba(255,45,120,0.6); }
         
         .splash-loader {
           margin-top: 25px;
@@ -141,12 +190,18 @@
           background: #FF2D78;
           border-radius: 50%;
           pointer-events: none;
-          z-index: 1;
+          z-index: 4;
         }
       </style>
       
+      <!-- Fondo Decorativo -->
+      <div class="splash-bg-grid"></div>
+      <div class="splash-glow-pink"></div>
+      <div class="splash-glow-blue"></div>
+      <div class="splash-scanlines"></div>
+      
       <!-- Partículas decorativas -->
-      <div id="particles-container" style="position: absolute; inset: 0; pointer-events: none;"></div>
+      <div id="particles-container" style="position: absolute; inset: 0; pointer-events: none; z-index: 4;"></div>
 
       <div class="splash-logo-container">
         <div class="splash-ring-outer"></div>
@@ -162,45 +217,33 @@
       </div>
 
       <script>
-        // Generador de partículas simple
         const container = document.getElementById('particles-container');
         const colors = ['#FF2D78', '#4D9FFF', '#a855f7', '#ffffff'];
         
         function createParticle() {
           const p = document.createElement('div');
           p.className = 'particle';
-          
           const size = Math.random() * 4 + 2;
           p.style.width = `${size}px`;
           p.style.height = `${size}px`;
           p.style.background = colors[Math.floor(Math.random() * colors.length)];
-          
-          // Posición inicial (centro)
           const startX = window.innerWidth / 2;
           const startY = window.innerHeight / 2;
           p.style.left = `${startX}px`;
           p.style.top = `${startY}px`;
-          
-          // Destino aleatorio
           const angle = Math.random() * Math.PI * 2;
           const dist = Math.random() * 300 + 100;
           const tx = Math.cos(angle) * dist;
           const ty = Math.sin(angle) * dist;
-          
           p.style.setProperty('--tw-x', `${tx}px`);
           p.style.setProperty('--tw-y', `${ty}px`);
-          
           const duration = Math.random() * 2 + 1;
           p.style.animation = `particle-float ${duration}s ease-out forwards`;
-          
           container.appendChild(p);
           setTimeout(() => p.remove(), duration * 1000);
         }
 
-        // Crear partículas periódicamente
         const particleInterval = setInterval(createParticle, 100);
-        
-        // Limpiar intervalo cuando el splash desaparezca (opcional, main.tsx lo manejará)
         window.stopParticles = () => clearInterval(particleInterval);
       </script>
     </div>
