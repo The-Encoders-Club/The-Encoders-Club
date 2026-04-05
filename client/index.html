@@ -47,7 +47,7 @@
         @keyframes particle-float {
           0% { transform: translate(0, 0) scale(1); opacity: 0; }
           20% { opacity: 1; }
-          100% { transform: translate(var(--tw-x), var(--tw-y)) scale(0); opacity: 0; }
+          100% { transform: translate(var(--p-tx), var(--p-ty)) scale(0); opacity: 0; }
         }
         @keyframes nebula-drift {
           0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.4; }
@@ -96,7 +96,7 @@
           position: absolute;
           background: white;
           border-radius: 50%;
-          animation: star-twinkle var(--duration) ease-in-out infinite;
+          animation: star-twinkle var(--s-duration) ease-in-out infinite;
         }
         .shooting-star {
           position: absolute;
@@ -237,11 +237,11 @@
           const star = document.createElement('div');
           star.className = 'star';
           const size = Math.random() * 2 + 1;
-          star.style.width = `${size}px`;
-          star.style.height = `${size}px`;
-          star.style.left = `${Math.random() * 100}%`;
-          star.style.top = `${Math.random() * 100}%`;
-          star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+          star.style.width = size + 'px';
+          star.style.height = size + 'px';
+          star.style.left = (Math.random() * 100) + '%';
+          star.style.top = (Math.random() * 100) + '%';
+          star.style.setProperty('--s-duration', (Math.random() * 3 + 2) + 's');
           starfield.appendChild(star);
         }
 
@@ -249,10 +249,10 @@
         function createShootingStar() {
           const s = document.createElement('div');
           s.className = 'shooting-star';
-          s.style.left = `${Math.random() * 100 + 20}%`;
-          s.style.top = `${Math.random() * 50}%`;
+          s.style.left = (Math.random() * 100 + 20) + '%';
+          s.style.top = (Math.random() * 50) + '%';
           starfield.appendChild(s);
-          setTimeout(() => s.remove(), 2000);
+          setTimeout(function() { s.remove(); }, 2000);
         }
         const shootingStarInterval = setInterval(createShootingStar, 4000);
 
@@ -264,28 +264,28 @@
           const p = document.createElement('div');
           p.className = 'particle';
           const size = Math.random() * 4 + 2;
-          p.style.width = `${size}px`;
-          p.style.height = `${size}px`;
+          p.style.width = size + 'px';
+          p.style.height = size + 'px';
           p.style.background = colors[Math.floor(Math.random() * colors.length)];
           const startX = window.innerWidth / 2;
           const startY = window.innerHeight / 2;
-          p.style.left = `${startX}px`;
-          p.style.top = `${startY}px`;
+          p.style.left = startX + 'px';
+          p.style.top = startY + 'px';
           const angle = Math.random() * Math.PI * 2;
           const dist = Math.random() * 300 + 100;
           const tx = Math.cos(angle) * dist;
           const ty = Math.sin(angle) * dist;
-          p.style.setProperty('--tw-x', `${tx}px`);
-          p.style.setProperty('--tw-y', `${ty}px`);
+          p.style.setProperty('--p-tx', tx + 'px');
+          p.style.setProperty('--p-ty', ty + 'px');
           const duration = Math.random() * 2 + 1;
-          p.style.animation = `particle-float ${duration}s ease-out forwards`;
+          p.style.animation = 'particle-float ' + duration + 's ease-out forwards';
           container.appendChild(p);
-          setTimeout(() => p.remove(), duration * 1000);
+          setTimeout(function() { p.remove(); }, duration * 1000);
         }
 
         const particleInterval = setInterval(createParticle, 100);
         
-        window.stopParticles = () => {
+        window.stopParticles = function() {
           clearInterval(particleInterval);
           clearInterval(shootingStarInterval);
         };
@@ -293,9 +293,5 @@
     </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script
-      defer
-      src="%VITE_ANALYTICS_ENDPOINT%/umami"
-      data-website-id="%VITE_ANALYTICS_WEBSITE_ID%"></script>
   </body>
 </html>
