@@ -4,14 +4,22 @@
    ============================================================ */
 import { motion } from "framer-motion";
 import { Download, ExternalLink, Gamepad2, Star } from "lucide-react";
+import { Link } from "wouter";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
+const projectIds: Record<string, string> = {
+  "Monika After History": "monika",
+  "Just Natsuki": "natsuki",
+  "Just Yuri": "yuri",
+};
+
 const projects = [
   {
     id: 1,
+    slug: "monika",
     name: "Monika After History",
     subtitle: "Novela Visual Fan-Made",
     description:
@@ -26,6 +34,7 @@ const projects = [
   },
   {
     id: 2,
+    slug: "natsuki",
     name: "Just Natsuki",
     subtitle: "Novela Visual Fan-Made",
     description:
@@ -40,6 +49,7 @@ const projects = [
   },
   {
     id: 3,
+    slug: "yuri",
     name: "Just Yuri",
     subtitle: "Novela Visual Fan-Made",
     description:
@@ -140,24 +150,13 @@ export default function Proyectos() {
                     ))}
                   </div>
                   <div className="flex gap-3">
-                    <a
-                      href={project.downloadUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <Link
+                      href={`/proyectos/${project.slug}`}
                       className="btn-primary text-sm px-5 py-2.5"
                     >
-                      <Download size={16} />
-                      Descargar
-                    </a>
-                    <a
-                      href={project.downloadUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-outline text-sm px-5 py-2.5"
-                    >
                       <ExternalLink size={16} />
-                      Ver más
-                    </a>
+                      Ver Proyecto
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -215,15 +214,13 @@ export default function Proyectos() {
                       </span>
                     ))}
                   </div>
-                  <a
-                    href={project.downloadUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <Link
+                    href={`/proyectos/${project.slug}`}
                     className="btn-primary text-sm px-5 py-2.5 w-full justify-center"
                   >
-                    <Download size={15} />
-                    Descargar / Ver
-                  </a>
+                    <ExternalLink size={15} />
+                    Ver Proyecto
+                  </Link>
                 </div>
               </motion.div>
             ))}
