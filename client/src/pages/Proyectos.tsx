@@ -64,9 +64,18 @@ const projects = [
   },
 ];
 
+const PROYECTOS_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG-20260405-WA0108_ba601a22.jpg";
+
 export default function Proyectos() {
   return (
-    <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
+    <div className="min-h-screen text-white overflow-x-hidden" style={{
+      backgroundImage: `url('${PROYECTOS_BG}')`,
+      backgroundSize: 'cover',
+      backgroundPosition: 'center',
+      backgroundAttachment: 'fixed'
+    }}>
+      {/* Overlay para mejor legibilidad */}
+      <div className="absolute inset-0 bg-[#080818]/40 pointer-events-none" />
       <Navbar />
 
       {/* Page Header */}
