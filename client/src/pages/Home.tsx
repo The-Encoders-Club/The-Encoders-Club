@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 import { useCountUp } from "@/hooks/useCountUp";
 
 const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
-const PERSONAJE_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518852144/qQVGUPrroRbXsNxl.png";
+const PERSONAJE_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518852144/ZbUNPMDpcLvHgznH.png";
 const BG_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/hero_bg-nZF9vsy8Qjc3eRVqRoEgy7.webp";
 
 const newsItems = [
@@ -154,7 +154,7 @@ export default function Home() {
               <motion.img
                 src={PERSONAJE_URL}
                 alt="Mascota Ren'Py"
-                className="w-[450px] h-auto object-contain relative z-10 animate-float"
+                className="w-full max-w-[450px] h-auto object-contain relative z-10 animate-float"
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
