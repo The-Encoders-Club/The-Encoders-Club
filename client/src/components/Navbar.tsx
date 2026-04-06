@@ -68,23 +68,19 @@ export default function Navbar() {
               </span>
             </Link>
 
-            {/* Desktop Nav */}
-            <div className="hidden md:flex items-center gap-6 lg:gap-8">
+            {/* Desktop Nav - Botones Grandes */}
+            <div className="hidden md:flex items-center gap-3 lg:gap-4">
               {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative text-sm font-medium tracking-wide transition-all duration-300 hover:text-white ${
-                    location === link.href ? "text-white" : "text-white/60"
+                  className={`relative px-5 py-2.5 rounded-xl font-semibold text-sm tracking-wide transition-all duration-300 ${
+                    location === link.href
+                      ? "bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 text-white shadow-[0_0_20px_rgba(255,45,120,0.5)] hover:shadow-[0_0_30px_rgba(255,45,120,0.8)]"
+                      : "text-white/70 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20 hover:shadow-[0_0_15px_rgba(255,255,255,0.1)]"
                   }`}
                 >
                   {link.label}
-                  {location === link.href && (
-                    <motion.div
-                      layoutId="nav-underline"
-                      className="absolute -bottom-1 left-0 right-0 h-0.5 bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF] shadow-[0_0_10px_rgba(255,45,120,0.8)]"
-                    />
-                  )}
                 </Link>
               ))}
             </div>
@@ -113,7 +109,7 @@ export default function Navbar() {
               </div>
               <Link
                 href="/comunidad"
-                className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/80 text-white text-sm font-bold shadow-[0_0_20px_rgba(255,45,120,0.3)] hover:shadow-[0_0_25px_rgba(255,45,120,0.5)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2"
+                className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] text-white text-sm font-bold shadow-[0_0_20px_rgba(255,45,120,0.4)] hover:shadow-[0_0_30px_rgba(255,45,120,0.6)] hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2"
               >
                 Únete
                 <Send size={14} />
@@ -154,10 +150,10 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`px-5 py-3.5 rounded-xl text-base font-medium transition-all ${
+                    className={`px-5 py-3.5 rounded-xl text-base font-semibold transition-all ${
                       location === link.href
-                        ? "bg-[#FF2D78]/15 text-[#FF2D78] border border-[#FF2D78]/30 shadow-[0_0_15px_rgba(255,45,120,0.1)]"
-                        : "text-white/70 hover:text-white hover:bg-white/5"
+                        ? "bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 text-white shadow-[0_0_15px_rgba(255,45,120,0.3)]"
+                        : "text-white/70 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white"
                     }`}
                   >
                     {link.label}
@@ -173,7 +169,7 @@ export default function Navbar() {
                 </div>
                 <Link
                   href="/comunidad"
-                  className="w-full py-4 rounded-2xl bg-[#FF2D78] text-white font-bold text-center shadow-[0_0_20px_rgba(255,45,120,0.3)] flex items-center justify-center gap-2"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] text-white font-bold text-center shadow-[0_0_20px_rgba(255,45,120,0.3)] flex items-center justify-center gap-2"
                 >
                   Únete al equipo
                   <Send size={16} />
