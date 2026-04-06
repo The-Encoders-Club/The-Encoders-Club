@@ -18,196 +18,12 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
+    
+    <!-- Splash Screen Styles (External to avoid Tailwind build errors) -->
+    <link rel="stylesheet" href="/splash.css" />
   </head>
   <body>
     <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out;">
-      <style>
-        /* --- ANIMACIONES --- */
-        @keyframes pulse-neon {
-          0%, 100% { filter: drop-shadow(0 0 15px rgba(255,45,120,0.5)); transform: scale(1); }
-          50% { filter: drop-shadow(0 0 35px rgba(255,45,120,0.9)); transform: scale(1.05); }
-        }
-        @keyframes scan-laser {
-          0%, 100% { top: 0%; opacity: 0; }
-          10%, 90% { opacity: 1; }
-          50% { top: 100%; }
-        }
-        @keyframes ring-rotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes loading-bar {
-          from { transform: translateX(-100%); }
-          to { transform: translateX(100%); }
-        }
-        @keyframes particle-float {
-          0% { transform: translate(0, 0) scale(1); opacity: 0; }
-          20% { opacity: 1; }
-          100% { transform: translate(var(--p-tx), var(--p-ty)) scale(0); opacity: 0; }
-        }
-        @keyframes nebula-drift {
-          0%, 100% { transform: scale(1) translate(0, 0); opacity: 0.4; }
-          50% { transform: scale(1.2) translate(20px, 10px); opacity: 0.7; }
-        }
-        @keyframes star-twinkle {
-          0%, 100% { opacity: 0.3; transform: scale(0.8); }
-          50% { opacity: 1; transform: scale(1.2); }
-        }
-        @keyframes shooting-star {
-          0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0); opacity: 0; }
-          10% { opacity: 1; scale(1); }
-          100% { transform: translateX(-500px) translateY(500px) rotate(-45deg) scale(1); opacity: 0; }
-        }
-
-        /* --- FONDO ARTÍSTICO --- */
-        .splash-nebula-1 {
-          position: absolute;
-          top: -20%;
-          left: -10%;
-          width: 80%;
-          height: 80%;
-          background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
-          filter: blur(60px);
-          animation: nebula-drift 8s ease-in-out infinite;
-          z-index: 0;
-        }
-        .splash-nebula-2 {
-          position: absolute;
-          bottom: -20%;
-          right: -10%;
-          width: 90%;
-          height: 90%;
-          background: radial-gradient(circle, rgba(77,159,255,0.15) 0%, transparent 70%);
-          filter: blur(80px);
-          animation: nebula-drift 10s ease-in-out infinite reverse;
-          z-index: 0;
-        }
-        .splash-starfield {
-          position: absolute;
-          inset: 0;
-          z-index: 1;
-          pointer-events: none;
-        }
-        .star {
-          position: absolute;
-          background: white;
-          border-radius: 50%;
-          animation: star-twinkle var(--s-duration) ease-in-out infinite;
-        }
-        .shooting-star {
-          position: absolute;
-          width: 100px;
-          height: 2px;
-          background: linear-gradient(90deg, white, transparent);
-          z-index: 2;
-          pointer-events: none;
-          animation: shooting-star 2s linear infinite;
-        }
-
-        /* --- ELEMENTOS CENTRALES --- */
-        .splash-logo-container {
-          position: relative;
-          width: 220px;
-          height: 220px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 5;
-        }
-        .splash-logo-glow {
-          position: absolute;
-          inset: -40px;
-          background: radial-gradient(circle, rgba(255,45,120,0.2) 0%, transparent 70%);
-          border-radius: 50%;
-          z-index: 1;
-          filter: blur(20px);
-        }
-        .splash-ring {
-          position: absolute;
-          inset: 0;
-          border: 2px dashed rgba(255,45,120,0.4);
-          border-radius: 50%;
-          animation: ring-rotate 3s linear infinite;
-          z-index: 2;
-        }
-        .splash-ring-outer {
-          position: absolute;
-          inset: -20px;
-          border: 1px solid rgba(77,159,255,0.2);
-          border-radius: 50%;
-          animation: ring-rotate 6s linear infinite reverse;
-          z-index: 2;
-        }
-        .splash-logo {
-          width: 160px;
-          height: 160px;
-          object-fit: contain;
-          animation: pulse-neon 2s ease-in-out infinite;
-          z-index: 3;
-        }
-        .splash-scan {
-          position: absolute;
-          left: -10%;
-          right: -10%;
-          height: 3px;
-          background: linear-gradient(90deg, transparent, #FF2D78, transparent);
-          box-shadow: 0 0 20px #FF2D78;
-          z-index: 4;
-          animation: scan-laser 2s ease-in-out infinite;
-          pointer-events: none;
-        }
-        .splash-text-container {
-          margin-top: 50px;
-          text-align: center;
-          animation: fade-in-up 0.8s ease-out both;
-          z-index: 5;
-        }
-        .splash-title {
-          color: white;
-          font-family: 'Space Grotesk', sans-serif;
-          font-size: 28px;
-          font-weight: bold;
-          letter-spacing: 0.3em;
-          text-transform: uppercase;
-          margin: 0;
-          text-shadow: 0 0 15px rgba(255,255,255,0.2);
-        }
-        .splash-title span { color: #FF2D78; text-shadow: 0 0 15px rgba(255,45,120,0.6); }
-        
-        .splash-loader {
-          margin-top: 25px;
-          width: 200px;
-          height: 3px;
-          background: rgba(255,255,255,0.05);
-          border-radius: 10px;
-          overflow: hidden;
-          position: relative;
-          margin-left: auto;
-          margin-right: auto;
-          border: 1px solid rgba(255,255,255,0.1);
-        }
-        .splash-loader-bar {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(90deg, transparent, #FF2D78, #4D9FFF, transparent);
-          animation: loading-bar 1.5s linear infinite;
-        }
-        
-        .particle {
-          position: absolute;
-          width: 4px;
-          height: 4px;
-          background: #FF2D78;
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 4;
-        }
-      </style>
-      
       <!-- Fondo Artístico -->
       <div class="splash-nebula-1"></div>
       <div class="splash-nebula-2"></div>
@@ -233,25 +49,29 @@
       <script>
         // Generador de estrellas estáticas
         const starfield = document.getElementById('starfield');
-        for (let i = 0; i < 80; i++) {
-          const star = document.createElement('div');
-          star.className = 'star';
-          const size = Math.random() * 2 + 1;
-          star.style.width = size + 'px';
-          star.style.height = size + 'px';
-          star.style.left = (Math.random() * 100) + '%';
-          star.style.top = (Math.random() * 100) + '%';
-          star.style.setProperty('--s-duration', (Math.random() * 3 + 2) + 's');
-          starfield.appendChild(star);
+        if (starfield) {
+          for (let i = 0; i < 80; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            const size = Math.random() * 2 + 1;
+            star.style.width = size + 'px';
+            star.style.height = size + 'px';
+            star.style.left = (Math.random() * 100) + '%';
+            star.style.top = (Math.random() * 100) + '%';
+            star.style.setProperty('--s-duration', (Math.random() * 3 + 2) + 's');
+            starfield.appendChild(star);
+          }
         }
 
         // Generador de estrellas fugaces
         function createShootingStar() {
+          const sf = document.getElementById('starfield');
+          if (!sf) return;
           const s = document.createElement('div');
           s.className = 'shooting-star';
           s.style.left = (Math.random() * 100 + 20) + '%';
           s.style.top = (Math.random() * 50) + '%';
-          starfield.appendChild(s);
+          sf.appendChild(s);
           setTimeout(function() { s.remove(); }, 2000);
         }
         const shootingStarInterval = setInterval(createShootingStar, 4000);
@@ -261,6 +81,7 @@
         const colors = ['#FF2D78', '#4D9FFF', '#a855f7', '#ffffff'];
         
         function createParticle() {
+          if (!container) return;
           const p = document.createElement('div');
           p.className = 'particle';
           const size = Math.random() * 4 + 2;
