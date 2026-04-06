@@ -23,7 +23,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  // Imagen de portada correcta y logo para galería
+  // Portada correcta: Just Yuri.png
   const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/txUegLxciaFhYmJX.jpg";
   const logoImage = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
@@ -132,7 +132,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                     {activeTab === 'galeria' && (
                       <div className="animate-in fade-in slide-in-from-bottom-4">
                         <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                          {[1, 2, 3, 4, 5].map((idx) => (
+                          {[1, 2, 3, 4].map((idx) => (
                             <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start">
                               <img src={logoImage} alt={`Logo ${idx}`} className="w-full h-full object-contain p-4 bg-white/5 transition-transform group-hover:scale-110" />
                               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
