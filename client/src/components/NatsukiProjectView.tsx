@@ -24,9 +24,9 @@ const project = {
 A través de momentos cotidianos y encuentros significativos, descubrimos quién es realmente Natsuki más allá de lo que vemos en el juego original. Una historia de crecimiento personal y amistad.`,
   image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/DPGVHSibyvFIguxX.png",
   gallery: [
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/YYQFbguJjorMHodE.jpg",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/eZeDjRwAYCpu.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/1WtGsykphm6q.png"
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/jratWxEJRZdNhGWL.jpg",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/MmBSWSqNDgmynfPd.jpg",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/EpB1Il67Biom.jpg"
   ],
   status: "Disponible",
   rating: 4.5,
@@ -136,7 +136,7 @@ export default function NatsukiProjectView({ onClose }: Props) {
               {/* Gallery */}
               <div className="mb-12">
                 <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: theme.font }}>
-                  Galería (Versión en Español)
+                  Galería (Español)
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {project.gallery.map((img: string, i: number) => (
