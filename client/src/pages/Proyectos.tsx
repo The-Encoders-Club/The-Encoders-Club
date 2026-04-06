@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, ChevronRight, Play, Download, Share2, Filter, Search, Grid, List, Sparkles, ArrowRight, Gamepad2 } from 'lucide-react';
+import { Star, Sparkles, ArrowRight, Gamepad2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BackgroundParticles from '../components/BackgroundParticles';
 
-// Importar los nuevos componentes de vista de proyecto
-import MonikaProjectView from '../components/MonikaProjectView';
-import NatsukiProjectView from '../components/NatsukiProjectView';
-import YuriProjectView from '../components/YuriProjectView';
+// CORRECCIÓN: Importar desde la misma carpeta si están allí, o ajustar a la ruta real
+// Si los archivos están en la misma carpeta que Proyectos.tsx:
+import MonikaProjectView from './MonikaProjectView';
+import NatsukiProjectView from './NatsukiProjectView';
+import YuriProjectView from './YuriProjectView';
 
 // FONDO EXCLUSIVO PARA LA PÁGINA DE PROYECTOS
 const PROYECTO_FONDO = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/NRmFmLWrClsWwfrt.jpg";
@@ -20,7 +21,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png", // PORTADA MONIKA
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png",
     tags: ["Fan-Made", "Drama", "Romance"],
     status: "En desarrollo",
     statusColor: "#FF2D78",
@@ -33,7 +34,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png", // PORTADA NATSUKI
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png",
     tags: ["Fan-Made", "Slice of Life"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -46,7 +47,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural en una narrativa única.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/cwKcOURitanDmJSy.png", // PORTADA YURI
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/cwKcOURitanDmJSy.png",
     tags: ["Fan-Made", "Misterio", "Literatura"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -123,7 +124,7 @@ export default function Proyectos() {
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
               <div className="grid lg:grid-cols-2 gap-0">
-                {/* Image - SIN OPACIDAD */}
+                {/* Image */}
                 <div className="relative h-64 lg:h-auto min-h-64 bg-gradient-to-br from-[#FF2D78]/10 to-[#4D9FFF]/10 flex items-center justify-center overflow-hidden">
                   <img
                     src={project.image}
@@ -193,7 +194,7 @@ export default function Proyectos() {
                 onClick={() => setActiveProject(project.id)}
                 className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all backdrop-blur-sm"
               >
-                {/* Image - SIN OPACIDAD */}
+                {/* Image */}
                 <div className="relative h-48 bg-gradient-to-br from-[#00F3FF]/10 to-[#FF2D78]/10 flex items-center justify-center overflow-hidden">
                   <img
                     src={project.image}
