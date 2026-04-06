@@ -23,8 +23,8 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  // URLs de Cloudfront generadas
-  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png";
+  // FONDO ABSTRACTO CYBERPUNK (COBERTURA 100%)
+  const abstractBg = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ePsnmxTopyYeROdq.png";
   const logoImage = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
   // Enlaces de descarga
@@ -42,19 +42,27 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto monika-theme"
       >
-        {/* FONDO TEMÁTICO - SIN OPACIDAD */}
+        {/* FONDO ABSTRACTO - COBERTURA 100% */}
         <div 
-          className="fixed inset-0 z-0 opacity-100 pointer-events-none bg-cover bg-center"
-          style={{ backgroundImage: `url("${mainImage}")` }}
+          className="fixed inset-0 z-0 pointer-events-none"
+          style={{ 
+            backgroundImage: `url("${abstractBg}")`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            width: '100vw',
+            height: '100vh'
+          }}
         />
 
-        {/* MÚSICA - PRECARGA MEJORADA */}
-        <iframe 
-          className="hidden"
-          width="0" height="0" 
-          src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1" 
-          allow="autoplay"
-        />
+        {/* MÚSICA INVISIBLE - INICIO AJUSTADO (start=2) */}
+        <div style={{ display: 'none' }}>
+          <iframe 
+            width="0" height="0" 
+            src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&start=2&controls=0" 
+            allow="autoplay"
+          />
+        </div>
 
         <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a1a]/90 to-[#0a0a1a]/95">
           <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#FF2D78]/30 px-6 py-4 flex justify-between items-center">
@@ -88,7 +96,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
                 <div className="rounded-2xl overflow-hidden border border-[#FF2D78]/50 shadow-[0_0_30px_rgba(255,45,120,0.3)] aspect-video relative group">
                   <img 
-                    src={mainImage} 
+                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png" 
                     alt="Monika After History" 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
