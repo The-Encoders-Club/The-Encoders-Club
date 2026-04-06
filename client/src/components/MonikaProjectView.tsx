@@ -24,9 +24,9 @@ const project = {
 Con una narrativa introspectiva y emocional, seguimos a Monika mientras intenta entender su lugar en el mundo y construir su propio destino. Una experiencia única que mezcla drama, romance y reflexión filosófica.`,
   image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/lqfZTkbzoCrwSxwy.png",
   gallery: [
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/RoONLQGICrPVOmBx.jpg",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/yTysBYcCtXXOLZTe.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/mRmHnpypaHlnjEzC.png"
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/txUegLxciaFhYmJX.jpg",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/6DMnty8QCYU2.jpg",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/vtfvrwBddwZr.png"
   ],
   status: "En desarrollo",
   rating: 4.8,
@@ -136,7 +136,7 @@ export default function MonikaProjectView({ onClose }: Props) {
               {/* Gallery */}
               <div className="mb-12">
                 <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: theme.font }}>
-                  Galería (Versión en Español)
+                  Galería (Español)
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {project.gallery.map((img: string, i: number) => (
