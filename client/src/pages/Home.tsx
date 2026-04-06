@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 import { useCountUp } from "@/hooks/useCountUp";
 
 const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
-const PERSONAJE_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/Personaje_fede3a39.png";
+const PERSONAJE_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518852144/qQVGUPrroRbXsNxl.png";
 const BG_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/hero_bg-nZF9vsy8Qjc3eRVqRoEgy7.webp";
 
 const newsItems = [
@@ -146,55 +146,29 @@ export default function Home() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            {/* Left: Mascot + Logo */}
+            {/* Left: Mascot */}
             <div className="hidden lg:flex flex-col items-center justify-center relative">
               {/* Glow behind mascot */}
-              <div className="absolute w-72 h-72 rounded-full bg-[#FF2D78]/15 blur-3xl" />
-              {/* Logo floating */}
-              <motion.img
-                src={LOGO_URL}
-                alt="The Encoders Club Logo"
-                className="w-48 h-48 object-contain rounded-full mb-6 relative z-10"
-                style={{ filter: "drop-shadow(0 0 30px rgba(255,45,120,0.5))" }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              />
+              <div className="absolute w-96 h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
               {/* Mascot */}
               <motion.img
                 src={PERSONAJE_URL}
-                alt="Mascota"
-                className="w-48 h-auto object-contain relative z-10 animate-float"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-              />
-              {/* Decorative ring */}
-              <div
-                className="absolute w-80 h-80 rounded-full border border-[#FF2D78]/15 animate-spin"
-                style={{ animationDuration: "15s" }}
+                alt="Mascota Ren'Py"
+                className="w-[450px] h-auto object-contain relative z-10 animate-float"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.2 }}
               />
             </div>
 
             {/* Right: Text */}
-            <div className="flex flex-col justify-center">
-              {/* Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF2D78]/10 border border-[#FF2D78]/25 text-[#FF2D78] text-sm font-medium mb-6 w-fit"
-              >
-                <Sparkles size={14} />
-                Comunidad Ren'Py en Español
-              </motion.div>
-
+            <div className="flex flex-col justify-center lg:pl-8">
               {/* Title */}
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6"
+                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 <span className="text-white">The</span>{" "}
