@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen } from 'lucide-react';
+import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, Image as ImageIcon } from 'lucide-react';
 
 interface ProjectViewProps {
   isOpen: boolean;
@@ -23,6 +23,12 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  const galleryImages = [
+    "https://images.alphacoders.com/883/883398.png",
+    "https://images.alphacoders.com/883/883395.png",
+    "https://images.alphacoders.com/883/883397.png"
+  ];
+
   return (
     <AnimatePresence>
       <motion.div
@@ -31,13 +37,13 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto yuri-theme"
       >
-        {/* FONDO TEMÁTICO: Salón del Club al Atardecer */}
+        {/* FONDO TEMÁTICO */}
         <div 
           className="fixed inset-0 z-0 opacity-25 pointer-events-none bg-cover bg-center"
           style={{ backgroundImage: 'url("https://images.alphacoders.com/883/883398.png")' }}
         />
 
-        {/* MÚSICA: Okay, Everyone! (Yuri) - Auto-stop al desmontar */}
+        {/* MÚSICA */}
         <iframe 
           className="hidden"
           width="0" height="0" 
@@ -46,7 +52,6 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         />
 
         <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/90 via-[#1a0a2a]/80 to-[#0a0a1a]/90">
-          {/* Header / Navegación */}
           <nav className="sticky top-0 z-50 bg-[#0a0a1a]/80 backdrop-blur-md border-b border-[#9C27B0]/30 px-6 py-4 flex justify-between items-center">
             <button 
               onClick={onClose}
@@ -56,7 +61,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
               <span className="font-bold tracking-wider uppercase text-sm">Volver a Proyectos</span>
             </button>
             <div className="flex gap-4">
-              <button className="p-2 rounded-full bg-[#9C27B0]/10 border border-[#9C27B0]/30 text-[#9C27B0] hover:bg-[#9C27B0] hover:text-white transition-all">
+              <button className="p-2 rounded-full bg-gradient-to-r from-[#9C27B0]/20 to-[#E1BEE7]/20 border border-[#9C27B0]/30 text-[#9C27B0] hover:from-[#9C27B0] hover:to-[#E1BEE7] hover:text-white transition-all">
                 <Share2 className="w-5 h-5" />
               </button>
             </div>
@@ -64,7 +69,6 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
           <main className="max-w-7xl mx-auto px-6 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-              {/* Columna Izquierda: Info Principal */}
               <div className="lg:col-span-2 space-y-8">
                 <header>
                   <motion.h1 
@@ -77,7 +81,6 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                   <p className="text-xl text-gray-400 font-medium italic">Una aventura literaria con Yuri como protagonista</p>
                 </header>
 
-                {/* Galería Principal */}
                 <div className="rounded-2xl overflow-hidden border border-[#9C27B0]/30 shadow-[0_0_30px_rgba(156,39,176,0.2)] aspect-video relative group">
                   <img 
                     src="https://images.alphacoders.com/883/883398.png" 
@@ -87,10 +90,9 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] to-transparent opacity-60" />
                 </div>
 
-                {/* Tabs de Información */}
                 <div className="space-y-6">
                   <div className="flex gap-8 border-b border-white/10">
-                    {['info', 'historia', 'galeria'].map((tab) => (
+                    {['info', 'galeria'].map((tab) => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -98,9 +100,9 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                           activeTab === tab ? 'text-[#9C27B0]' : 'text-gray-500 hover:text-white'
                         }`}
                       >
-                        {tab}
+                        {tab === 'info' ? 'Información' : 'Galería'}
                         {activeTab === tab && (
-                          <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#9C27B0]" />
+                          <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7]" />
                         )}
                       </button>
                     ))}
@@ -128,11 +130,23 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                         </div>
                       </div>
                     )}
+
+                    {activeTab === 'galeria' && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4">
+                        {galleryImages.map((img, idx) => (
+                          <div key={idx} className="rounded-xl overflow-hidden border border-white/10 aspect-video group relative">
+                            <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                              <ImageIcon className="text-white w-8 h-8" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Columna Derecha: Sidebar */}
               <div className="space-y-8">
                 <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32">
                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
