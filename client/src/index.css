@@ -16,6 +16,40 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'M1Fixed';
+  src: url('/fonts/m1_fixed.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Monika After Story Theme */
+.monika-theme {
+  --monika-primary: #FF2D78;
+  --monika-secondary: #e0195e;
+  --monika-accent: #00FF41;
+  --monika-bg: #0a0a1a;
+  --monika-text: #F0F0FF;
+}
+
+/* Just Natsuki Theme */
+.natsuki-theme {
+  --natsuki-primary: #FF6B9D;
+  --natsuki-secondary: #FF8FB3;
+  --natsuki-accent: #FFB6D9;
+  --natsuki-bg: #1a0d0d;
+  --natsuki-text: #F0F0FF;
+}
+
+/* Just Yuri Theme */
+.yuri-theme {
+  --yuri-primary: #9D4EDD;
+  --yuri-secondary: #7C3AED;
+  --yuri-accent: #C084FC;
+  --yuri-bg: #1a0a2e;
+  --yuri-text: #F0F0FF;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
