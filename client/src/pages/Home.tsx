@@ -15,7 +15,7 @@ import Footer from "@/components/Footer";
 import { useCountUp } from "@/hooks/useCountUp";
 
 const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
-const PERSONAJE_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/Personaje_fede3a39.png";
+const MASCOT_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/LCQWMNLoTKaJlDdO.png";
 const BG_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/hero_bg-nZF9vsy8Qjc3eRVqRoEgy7.webp";
 
 const newsItems = [
@@ -146,14 +146,37 @@ export default function Home() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            {/* Left: Text */}
-            <div className="flex flex-col justify-center">
+            
+            {/* Left: Mascot (Mascota a la izquierda) */}
+            <div className="flex flex-col items-center justify-center relative order-2 lg:order-1">
+              {/* Glow behind mascot */}
+              <div className="absolute w-72 h-72 rounded-full bg-[#FF2D78]/15 blur-3xl" />
+              
+              {/* Mascot Image */}
+              <motion.img
+                src={MASCOT_URL}
+                alt="Mascota Ren'Py"
+                className="w-full max-w-[450px] h-auto object-contain relative z-10 animate-float"
+                initial={{ opacity: 0, x: -50 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+              />
+              
+              {/* Decorative ring */}
+              <div
+                className="absolute w-[500px] h-[500px] rounded-full border border-[#FF2D78]/10 animate-spin hidden lg:block"
+                style={{ animationDuration: '15s' }}
+              />
+            </div>
+
+            {/* Right: Text (Texto a la derecha) */}
+            <div className="flex flex-col justify-center order-1 lg:order-2 text-center lg:text-left">
               {/* Badge */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF2D78]/10 border border-[#FF2D78]/25 text-[#FF2D78] text-sm font-medium mb-6 w-fit"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF2D78]/10 border border-[#FF2D78]/25 text-[#FF2D78] text-sm font-medium mb-6 w-fit mx-auto lg:mx-0"
               >
                 <Sparkles size={14} />
                 Comunidad Ren'Py en Español
@@ -164,7 +187,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6"
+                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 <span className="text-white">The</span>{" "}
@@ -178,9 +201,9 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 }}
-                className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg"
+                className="text-xl text-white/65 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0"
               >
-                Tu portal a las mejores experiencias de novelas visuales en español. Aprende Ren'Py, crea historias únicas y comparte tu arte con la comunidad.
+                Tu portal a las mejores experiencias de <span className="text-[#FF2D78] font-semibold">novelas visuales</span> en español. Aprende <span className="text-[#4D9FFF] font-semibold">Ren'Py</span>, crea historias únicas y comparte tu arte con la comunidad.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -188,14 +211,14 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.35 }}
-                className="flex flex-wrap gap-4"
+                className="flex flex-wrap gap-4 justify-center lg:justify-start"
               >
-                <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
-                  Ver Proyectos
-                  <ArrowRight size={18} />
+                <Link href="/proyectos" className="btn-primary text-lg px-8 py-4">
+                  Ver más
+                  <ArrowRight size={20} />
                 </Link>
-                <Link href="/cursos" className="btn-outline text-base px-7 py-3.5">
-                  <BookOpen size={18} />
+                <Link href="/cursos" className="btn-outline text-lg px-8 py-4">
+                  <BookOpen size={20} />
                   Aprender
                 </Link>
               </motion.div>
@@ -205,7 +228,7 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10"
+                className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10 justify-center lg:justify-start"
               >
                 <div className="text-center">
                   <p className="text-2xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3+</p>
@@ -224,234 +247,105 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Right: Mascot + Logo */}
-            <div className="hidden lg:flex flex-col items-center justify-center relative">
-              {/* Glow behind mascot */}
-              <div className="absolute w-72 h-72 rounded-full bg-[#FF2D78]/15 blur-3xl" />
-              {/* Logo floating */}
-              <motion.img
-                src={LOGO_URL}
-                alt="The Encoders Club Logo"
-                className="w-48 h-48 object-contain rounded-full mb-6 relative z-10"
-                style={{ filter: "drop-shadow(0 0 30px rgba(255,45,120,0.5))" }}
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              />
-              {/* Mascot */}
-              <motion.img
-                src={PERSONAJE_URL}
-                alt="Mascota"
-                className="w-48 h-auto object-contain relative z-10 animate-float"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.5 }}
-              />
-              {/* Decorative ring */}
-              <div
-                className="absolute w-80 h-80 rounded-full border border-[#FF2D78]/15 animate-spin"
-                style={{ animationDuration: "20s" }}
-              />
-            </div>
           </div>
         </div>
-
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <span className="text-xs">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
-        </motion.div>
       </section>
 
-      {/* ── ABOUT ── */}
-      <section className="py-20 lg:py-28 relative">
+      {/* ── ABOUT / FEATURES ── */}
+      <section className="py-24 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Visual */}
+          <div className="grid md:grid-cols-3 gap-8">
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              custom={0}
+              initial="hidden"
+              whileInView="visible"
               viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-              className="relative"
+              variants={fadeUp}
+              className="glass-card p-8"
             >
-              <div className="glass-card p-8 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center">
-                    <Gamepad2 size={24} className="text-[#FF2D78]" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Motor Ren'Py</h3>
-                    <p className="text-sm text-white/50">Novelas Visuales</p>
-                  </div>
-                </div>
-                <p className="text-white/65 text-sm leading-relaxed mb-6">
-                  Ren'Py es el motor de referencia para crear novelas visuales. Con Python como base, permite crear historias interactivas con múltiples finales, personajes expresivos y música envolvente.
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {["Fácil de aprender", "Python-based", "Multiplataforma", "Comunidad activa"].map((feat) => (
-                    <div key={feat} className="flex items-center gap-2 text-xs text-white/60">
-                      <Star size={12} className="text-[#FF2D78] flex-shrink-0" />
-                      {feat}
-                    </div>
-                  ))}
-                </div>
+              <div className="w-12 h-12 rounded-xl bg-[#FF2D78]/10 flex items-center justify-center mb-6 border border-[#FF2D78]/20">
+                <Gamepad2 className="text-[#FF2D78]" size={24} />
               </div>
+              <h3 className="text-xl font-bold mb-3">Crea Juegos</h3>
+              <p className="text-white/60 text-sm leading-relaxed">
+                Domina el motor Ren'Py y transforma tus ideas en novelas visuales interactivas de alta calidad.
+              </p>
             </motion.div>
 
-            {/* Right: Text */}
             <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
+              custom={1}
+              initial="hidden"
+              whileInView="visible"
               viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
+              variants={fadeUp}
+              className="glass-card p-8"
             >
-              <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">
-                Sobre nosotros
-              </span>
-              <h2 className="section-title text-white mb-5">
-                Nuestro <span className="brand-gradient-text">Enfoque</span>
-              </h2>
-              <p className="text-white/65 leading-relaxed mb-5">
-                En The Encoders Club nos dedicamos a fomentar la creación y el aprendizaje de novelas visuales utilizando el motor Ren'Py. Nuestro objetivo es crear una comunidad vibrante donde desarrolladores, escritores y artistas puedan colaborar.
-              </p>
-              <p className="text-white/65 leading-relaxed mb-8">
-                Desde tutoriales para principiantes hasta proyectos avanzados, aquí encontrarás todo lo que necesitas para dar vida a tus historias en español.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
-                  Ver Cursos
-                  <ChevronRight size={16} />
-                </Link>
-                <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
-                  Explorar Proyectos
-                </Link>
+              <div className="w-12 h-12 rounded-xl bg-[#4D9FFF]/10 flex items-center justify-center mb-6 border border-[#4D9FFF]/20">
+                <Users className="text-[#4D9FFF]" size={24} />
               </div>
+              <h3 className="text-xl font-bold mb-3">Comunidad Activa</h3>
+              <p className="text-white/60 text-sm leading-relaxed">
+                Conecta con otros desarrolladores, artistas y escritores apasionados por el género en español.
+              </p>
+            </motion.div>
+
+            <motion.div
+              custom={2}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              variants={fadeUp}
+              className="glass-card p-8"
+            >
+              <div className="w-12 h-12 rounded-xl bg-[#a855f7]/10 flex items-center justify-center mb-6 border border-[#a855f7]/20">
+                <Download className="text-[#a855f7]" size={24} />
+              </div>
+              <h3 className="text-xl font-bold mb-3">Recursos Gratuitos</h3>
+              <p className="text-white/60 text-sm leading-relaxed">
+                Accede a una biblioteca de activos, scripts y plantillas listas para usar en tus propios proyectos.
+              </p>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ── NOTICIAS ── */}
-      <section className="py-20 lg:py-28 bg-[#06060f]">
+      {/* ── NEWS / BLOG ── */}
+      <section className="py-24 bg-white/[0.02]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
             <div>
-              <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">
-                Lo último
-              </span>
-              <h2 className="section-title text-white">
-                Noticias <span className="brand-gradient-text">Recientes</span>
-              </h2>
+              <h2 className="section-title mb-4">Últimas <span className="text-[#FF2D78]">Noticias</span></h2>
+              <p className="text-white/50 max-w-xl">Mantente al día con las novedades de la comunidad, nuevos tutoriales y eventos próximos.</p>
             </div>
-            <Link href="/noticias" className="btn-outline text-sm px-5 py-2.5 whitespace-nowrap">
-              Ver todas
-              <ArrowRight size={15} />
+            <Link href="/noticias" className="flex items-center gap-2 text-[#FF2D78] font-bold hover:gap-3 transition-all">
+              Ver todas las noticias <ChevronRight size={20} />
             </Link>
           </div>
 
-          {/* Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {newsItems.map((item, i) => (
-              <motion.article
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {newsItems.map((item, idx) => (
+              <motion.div
                 key={item.id}
-                custom={i}
-                variants={fadeUp}
+                custom={idx}
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="glass-card overflow-hidden group"
+                variants={fadeUp}
+                className="group cursor-pointer"
               >
-                <div className="relative overflow-hidden h-40">
+                <div className="relative aspect-[16/9] rounded-2xl overflow-hidden mb-4 border border-white/10">
                   <img
                     src={item.image}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span
-                    className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{
-                      background: `${item.tagColor}25`,
-                      border: `1px solid ${item.tagColor}50`,
-                      color: item.tagColor,
-                    }}
-                  >
+                  <div className="absolute top-3 left-3 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider text-white" style={{ backgroundColor: item.tagColor }}>
                     {item.tag}
-                  </span>
+                  </div>
                 </div>
-                <div className="p-4">
-                  <p className="text-xs text-white/40 mb-2">{item.date}</p>
-                  <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">
-                    {item.description}
-                  </p>
-                  <button className="text-xs text-[#FF2D78] font-semibold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
-                    Leer más <ChevronRight size={13} />
-                  </button>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TEAM ── */}
-      <section className="py-20 lg:py-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">
-              Quiénes somos
-            </span>
-            <h2 className="section-title text-white">
-              Integrantes del <span className="brand-gradient-text">Equipo</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-8">
-            {teamMembers.map((member, i) => (
-              <motion.div
-                key={member.id}
-                custom={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="glass-card p-6 flex flex-col items-center text-center group"
-              >
-                {/* Avatar placeholder */}
-                <div
-                  className="w-20 h-20 rounded-2xl mb-4 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
-                  style={{
-                    background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
-                    border: `2px solid ${member.color}40`,
-                  }}
-                >
-                  <img
-                    src={LOGO_URL}
-                    alt={member.name}
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
-                  />
-                  <div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
-                    style={{ background: member.color }}
-                  />
-                </div>
-                <h3
-                  className="font-bold text-sm mb-1"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
-                >
-                  {member.name}
-                </h3>
-                <p className="text-xs text-white/50">{member.cargo}</p>
+                <p className="text-xs text-white/40 mb-2">{item.date}</p>
+                <h3 className="text-lg font-bold mb-2 group-hover:text-[#FF2D78] transition-colors line-clamp-2">{item.title}</h3>
+                <p className="text-sm text-white/60 line-clamp-2 leading-relaxed">{item.description}</p>
               </motion.div>
             ))}
           </div>
@@ -459,58 +353,74 @@ export default function Home() {
       </section>
 
       {/* ── STATS ── */}
-      <section className="py-16 bg-[#06060f] border-y border-white/6">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
-            <StatCounter value={3} label="Proyectos" icon={BookOpen} color="#FF2D78" suffix="+" />
-            <StatCounter value={15000} label="Descargas" icon={Download} color="#4D9FFF" suffix="+" />
-            <StatCounter value={7} label="Cursos" icon={Users} color="#a855f7" suffix="+" />
-            <StatCounter value={50000} label="Visitas" icon={Eye} color="#22c55e" suffix="+" />
+      <section className="py-20 border-y border-white/5">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <StatCounter value={1250} label="Miembros" icon={Users} color="#FF2D78" suffix="+" />
+            <StatCounter value={45} label="Juegos Creados" icon={Gamepad2} color="#4D9FFF" />
+            <StatCounter value={8500} label="Descargas" icon={Download} color="#a855f7" />
+            <StatCounter value={120} label="Tutoriales" icon={BookOpen} color="#22c55e" />
           </div>
         </div>
       </section>
 
-      {/* ── CTA BANNER ── */}
-      <section className="py-20 lg:py-28">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="glass-card p-10 lg:p-16 relative overflow-hidden"
-          >
-            <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
+      {/* ── TEAM ── */}
+      <section className="py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="section-title mb-4">Nuestro <span className="text-[#4D9FFF]">Equipo</span></h2>
+            <p className="text-white/50 max-w-2xl mx-auto">Las mentes creativas detrás de The Encoders Club trabajando para fortalecer la comunidad.</p>
+          </div>
 
-            <div className="relative z-10">
-              <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">
-                Únete a nosotros
-              </span>
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                ¿Listo para crear tu{" "}
-                <span className="brand-gradient-text">novela visual?</span>
-              </h2>
-              <p className="text-white/60 mb-8 max-w-xl mx-auto leading-relaxed">
-                Únete a nuestra comunidad, aprende con nuestros cursos y comparte tus proyectos con cientos de creadores hispanohablantes.
-              </p>
-              <div className="flex flex-wrap gap-4 justify-center">
-                <a
-                  href="https://discord.gg/2DB5k7sb8"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary text-base px-8 py-3.5"
-                >
-                  Unirse al Discord
-                  <ArrowRight size={18} />
-                </a>
-                <Link href="/cursos" className="btn-outline text-base px-8 py-3.5">
-                  Empezar a Aprender
-                </Link>
-              </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            {teamMembers.map((member, idx) => (
+              <motion.div
+                key={member.id}
+                custom={idx}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                className="glass-card p-8 text-center group"
+              >
+                <div className="w-24 h-24 rounded-full mx-auto mb-6 relative">
+                  <div className="absolute inset-0 rounded-full blur-lg opacity-20 group-hover:opacity-40 transition-opacity" style={{ backgroundColor: member.color }} />
+                  <div className="w-full h-full rounded-full bg-white/10 border-2 border-white/10 flex items-center justify-center relative z-10 overflow-hidden">
+                    <Users size={40} className="text-white/20" />
+                  </div>
+                </div>
+                <h3 className="text-xl font-bold mb-1">{member.name}</h3>
+                <p className="text-sm font-medium mb-4" style={{ color: member.color }}>{member.cargo}</p>
+                <div className="flex justify-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer">
+                    <Star size={14} className="text-white/40" />
+                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors cursor-pointer">
+                    <Eye size={14} className="text-white/40" />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── CTA FINAL ── */}
+      <section className="py-24 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/10 to-[#4D9FFF]/10" />
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="glass-card p-12 md:p-20 text-center border-[#FF2D78]/20">
+            <h2 className="text-3xl md:text-5xl font-bold mb-6">¿Listo para crear tu propia <span className="brand-gradient-text">historia</span>?</h2>
+            <p className="text-lg text-white/60 mb-10 max-w-2xl mx-auto">
+              Únete a cientos de creadores y comienza tu viaje en el desarrollo de novelas visuales hoy mismo.
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link href="/comunidad" className="btn-primary text-lg px-10 py-4">
+                ¡Únete ahora!
+                <Send size={20} />
+              </Link>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -518,3 +428,6 @@ export default function Home() {
     </div>
   );
 }
+
+// Re-importing Send as it was missing in the original imports but used in CTA
+import { Send } from "lucide-react";
