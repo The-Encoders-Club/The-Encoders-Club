@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, Image as ImageIcon, Smartphone, Monitor } from 'lucide-react';
+import { X, Download, Share2, Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor } from 'lucide-react';
 
 interface ProjectViewProps {
   isOpen: boolean;
@@ -61,6 +61,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
             width="0" height="0" 
             src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&start=2&controls=0" 
             allow="autoplay"
+            title="Monika Theme"
           />
         </div>
 
