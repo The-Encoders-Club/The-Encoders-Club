@@ -10,7 +10,8 @@ import MonikaProjectView from '../components/MonikaProjectView';
 import NatsukiProjectView from '../components/NatsukiProjectView';
 import YuriProjectView from '../components/YuriProjectView';
 
-const PROYECTOS_BG = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png";
+// FONDO EXCLUSIVO PARA LA PÁGINA DE PROYECTOS
+const PROYECTO_FONDO = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/NRmFmLWrClsWwfrt.jpg";
 
 const projects = [
   {
@@ -59,6 +60,18 @@ export default function Proyectos() {
 
   return (
     <div className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]">
+      {/* FONDO EXCLUSIVO DE PROYECTOS - COBERTURA 100% */}
+      <div 
+        className="fixed inset-0 z-0 pointer-events-none"
+        style={{ 
+          backgroundImage: `url("${PROYECTO_FONDO}")`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundAttachment: 'fixed',
+          opacity: 0.4
+        }}
+      />
+      
       <BackgroundParticles />
       <Navbar />
 
