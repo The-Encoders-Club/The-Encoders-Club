@@ -8,7 +8,7 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
   ArrowRight, BookOpen, Download, Users, Eye,
-  Gamepad2, Sparkles, ChevronRight, Star
+  Gamepad2, Sparkles, ChevronRight, Star, Send
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -145,65 +145,46 @@ export default function Home() {
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
+          <div className="grid lg:grid-cols-2 gap-8 items-center min-h-[70vh]">
             
-            {/* Left: Mascot (Mascota a la izquierda) */}
-            <div className="flex flex-col items-center justify-center relative order-2 lg:order-1">
-              {/* Glow behind mascot */}
-              <div className="absolute w-72 h-72 rounded-full bg-[#FF2D78]/15 blur-3xl" />
-              
-              {/* Mascot Image */}
+            {/* Left: Mascot */}
+            <div className="flex justify-center lg:justify-start">
               <motion.img
                 src={MASCOT_URL}
                 alt="Mascota Ren'Py"
-                className="w-full max-w-[450px] h-auto object-contain relative z-10 animate-float"
+                className="w-80 h-auto object-contain animate-float"
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.8, delay: 0.3 }}
-              />
-              
-              {/* Decorative ring */}
-              <div
-                className="absolute w-[500px] h-[500px] rounded-full border border-[#FF2D78]/10 animate-spin hidden lg:block"
-                style={{ animationDuration: '15s' }}
+                transition={{ duration: 0.8, delay: 0.2 }}
               />
             </div>
 
-            {/* Right: Text (Texto a la derecha) */}
-            <div className="flex flex-col justify-center order-1 lg:order-2 text-center lg:text-left">
-              {/* Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[#FF2D78]/10 border border-[#FF2D78]/25 text-[#FF2D78] text-sm font-medium mb-6 w-fit mx-auto lg:mx-0"
-              >
-                <Sparkles size={14} />
-                Comunidad Ren'Py en Español
-              </motion.div>
-
+            {/* Right: Text Content */}
+            <div className="flex flex-col justify-center">
               {/* Title */}
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
+                className="text-5xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 <span className="text-white">The</span>{" "}
-                <span className="brand-gradient-text">Encoders</span>
-                <br />
+                <span className="brand-gradient-text">Encoders</span>{" "}
                 <span className="text-white">Club</span>
               </motion.h1>
 
-              {/* Subtitle */}
+              {/* Subtitle / Description */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 }}
-                className="text-xl text-white/65 leading-relaxed mb-8 max-w-lg mx-auto lg:mx-0"
+                className="text-lg text-white/70 leading-relaxed mb-10 max-w-2xl"
               >
-                Tu portal a las mejores experiencias de <span className="text-[#FF2D78] font-semibold">novelas visuales</span> en español. Aprende <span className="text-[#4D9FFF] font-semibold">Ren'Py</span>, crea historias únicas y comparte tu arte con la comunidad.
+                Tu portal a las mejores experiencias de{" "}
+                <span className="text-[#FF2D78] font-semibold">novelas visuales</span>
+                {" "}en español. Aprende{" "}
+                <span className="text-[#4D9FFF] font-semibold">Ren'Py</span>, crea historias únicas y comparte tu arte con la comunidad.
               </motion.p>
 
               {/* CTA Buttons */}
@@ -211,39 +192,16 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.35 }}
-                className="flex flex-wrap gap-4 justify-center lg:justify-start"
+                className="flex flex-wrap gap-4"
               >
-                <Link href="/proyectos" className="btn-primary text-lg px-8 py-4">
+                <Link href="/proyectos" className="btn-primary text-base px-8 py-3">
                   Ver más
-                  <ArrowRight size={20} />
+                  <ArrowRight size={18} />
                 </Link>
-                <Link href="/cursos" className="btn-outline text-lg px-8 py-4">
-                  <BookOpen size={20} />
+                <Link href="/cursos" className="btn-outline text-base px-8 py-3">
+                  <BookOpen size={18} />
                   Aprender
                 </Link>
-              </motion.div>
-
-              {/* Mini stats */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10 justify-center lg:justify-start"
-              >
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3+</p>
-                  <p className="text-xs text-white/45">Proyectos</p>
-                </div>
-                <div className="w-px h-10 bg-white/15" />
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>7+</p>
-                  <p className="text-xs text-white/45">Cursos</p>
-                </div>
-                <div className="w-px h-10 bg-white/15" />
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>∞</p>
-                  <p className="text-xs text-white/45">Creatividad</p>
-                </div>
               </motion.div>
             </div>
 
@@ -428,6 +386,3 @@ export default function Home() {
     </div>
   );
 }
-
-// Re-importing Send as it was missing in the original imports but used in CTA
-import { Send } from "lucide-react";
