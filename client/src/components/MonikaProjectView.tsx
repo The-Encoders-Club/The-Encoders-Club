@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2, Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor } from 'lucide-react';
+import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, Image as ImageIcon, Smartphone, Monitor } from 'lucide-react';
 
 interface ProjectViewProps {
   isOpen: boolean;
@@ -23,8 +23,8 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  // FONDO ABSTRACTO CYBERPUNK (COBERTURA 100%)
-  const abstractBg = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ePsnmxTopyYeROdq.png";
+  // URLs de Cloudfront generadas
+  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png";
   const logoImage = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
   // Enlaces de descarga
@@ -42,31 +42,23 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto monika-theme"
       >
-        {/* FONDO ABSTRACTO - COBERTURA 100% */}
+        {/* FONDO TEMÁTICO - DEGRADADO MONIKA */}
         <div 
-          className="fixed inset-0 z-0 pointer-events-none"
-          style={{ 
-            backgroundImage: `url("${abstractBg}")`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundAttachment: 'fixed',
-            width: '100vw',
-            height: '100vh'
-          }}
+          className="fixed inset-0 z-0 opacity-100 pointer-events-none"
+          style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, rgba(255, 45, 120, 0.15) 50%, rgba(10, 10, 26, 0.95) 100%)`, backgroundColor: '#0a0a1a' }}
         />
 
-        {/* MÚSICA INVISIBLE - INICIO AJUSTADO (start=2) */}
-        <div style={{ display: 'none' }}>
-          <iframe 
-            width="0" height="0" 
-            src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&start=2&controls=0" 
-            allow="autoplay"
-            title="Monika Theme"
-          />
-        </div>
+        {/* MÚSICA - PRECARGA MEJORADA */}
+        <iframe 
+          className="hidden"
+          width="0" height="0" 
+          src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&start=0" 
+          allow="autoplay"
+          title="Monika Theme Music"
+        />
 
-        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a1a]/90 to-[#0a0a1a]/95">
-          <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#FF2D78]/30 px-6 py-4 flex justify-between items-center">
+        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a1a]/90 to-[#0a0a1a]/95 w-screen overflow-x-hidden">
+          <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#FF2D78]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
             <button 
               onClick={onClose}
               className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group"
@@ -81,8 +73,8 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
             </div>
           </nav>
 
-          <main className="max-w-7xl mx-auto px-6 py-12">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+          <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 w-full">
               <div className="lg:col-span-2 space-y-8">
                 <header>
                   <motion.h1 
@@ -97,7 +89,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
                 <div className="rounded-2xl overflow-hidden border border-[#FF2D78]/50 shadow-[0_0_30px_rgba(255,45,120,0.3)] aspect-video relative group">
                   <img 
-                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png" 
+                    src={mainImage} 
                     alt="Monika After History" 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
