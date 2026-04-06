@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, Image as ImageIcon } from 'lucide-react';
+import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, Image as ImageIcon, Monitor } from 'lucide-react';
 
 interface ProjectViewProps {
   isOpen: boolean;
@@ -27,6 +27,9 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
   const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/cwKcOURitanDmJSy.png";
   const logoImage = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
+  // Enlace de descarga
+  const downloadLink = "https://github.com/The-Encoders-Club/Just-Yuri-ES/releases/download/V1.10.4/JustYuri-Beta-ES-1.10.4-win.zip";
+
   return (
     <AnimatePresence>
       <motion.div
@@ -35,22 +38,22 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto yuri-theme"
       >
-        {/* FONDO TEMÁTICO */}
+        {/* FONDO TEMÁTICO - SIN OPACIDAD */}
         <div 
-          className="fixed inset-0 z-0 opacity-25 pointer-events-none bg-cover bg-center"
+          className="fixed inset-0 z-0 opacity-100 pointer-events-none bg-cover bg-center"
           style={{ backgroundImage: `url("${mainImage}")` }}
         />
 
-        {/* MÚSICA */}
+        {/* MÚSICA - PRECARGA MEJORADA */}
         <iframe 
           className="hidden"
           width="0" height="0" 
-          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1" 
+          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1" 
           allow="autoplay"
         />
 
-        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/90 via-[#1a0a2a]/80 to-[#0a0a1a]/90">
-          <nav className="sticky top-0 z-50 bg-[#0a0a1a]/80 backdrop-blur-md border-b border-[#9C27B0]/30 px-6 py-4 flex justify-between items-center">
+        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a2a]/90 to-[#0a0a1a]/95">
+          <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#9C27B0]/30 px-6 py-4 flex justify-between items-center">
             <button 
               onClick={onClose}
               className="flex items-center gap-2 text-[#9C27B0] hover:text-white transition-colors group"
@@ -76,32 +79,31 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                   >
                     Just Yuri
                   </motion.h1>
-                  <p className="text-xl text-gray-400 font-medium italic">Una aventura literaria con Yuri como protagonista</p>
+                  <p className="text-xl text-gray-300 font-medium italic">Una aventura literaria con Yuri como protagonista</p>
                 </header>
 
-                <div className="rounded-2xl overflow-hidden border border-[#9C27B0]/30 shadow-[0_0_30px_rgba(156,39,176,0.2)] aspect-video relative group">
+                <div className="rounded-2xl overflow-hidden border border-[#9C27B0]/50 shadow-[0_0_30px_rgba(156,39,176,0.3)] aspect-video relative group">
                   <img 
                     src={mainImage} 
                     alt="Just Yuri" 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] to-transparent opacity-60" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/50 to-transparent opacity-60" />
                 </div>
 
                 <div className="space-y-6">
-                  <div className="flex gap-8 border-b border-white/10">
+                  <div className="flex gap-4 border-b border-white/10 pb-4">
                     {['info', 'galeria'].map((tab) => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
-                        className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${
-                          activeTab === tab ? 'text-[#9C27B0]' : 'text-gray-500 hover:text-white'
+                        className={`px-6 py-2 rounded-lg font-bold uppercase tracking-widest transition-all text-sm ${
+                          activeTab === tab 
+                            ? 'bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7] text-white shadow-[0_0_20px_rgba(156,39,176,0.4)]' 
+                            : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/30'
                         }`}
                       >
                         {tab === 'info' ? 'Información' : 'Galería'}
-                        {activeTab === tab && (
-                          <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7]" />
-                        )}
                       </button>
                     ))}
                   </div>
@@ -172,10 +174,15 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                     </li>
                   </ul>
 
-                  <button className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7] text-white font-black uppercase tracking-tighter flex items-center justify-center gap-3 hover:shadow-[0_0_30px_rgba(156,39,176,0.4)] transition-all group">
+                  <a 
+                    href={downloadLink} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7] text-white font-black uppercase tracking-tighter flex items-center justify-center gap-3 hover:shadow-[0_0_30px_rgba(156,39,176,0.4)] transition-all group"
+                  >
                     <Download className="w-6 h-6 group-hover:bounce" />
-                    Descargar Mod
-                  </button>
+                    Descargar Mod PC
+                  </a>
                 </div>
               </div>
             </div>
