@@ -11,7 +11,6 @@ import MonikaProjectView from "../components/MonikaProjectView";
 import NatsukiProjectView from "../components/NatsukiProjectView";
 import YuriProjectView from "../components/YuriProjectView";
 
-const LOGO_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png";
 const PROYECTOS_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG_20260405_121731_665_166b9420.jpg";
 
 const projects = [
@@ -21,7 +20,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia. Una experiencia emocional llena de reflexiones sobre la existencia, el amor y la narrativa.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/yGCXjqkUUqBJwMuo.png",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/lqfZTkbzoCrwSxwy.png",
     tags: ["Fan-Made", "Drama", "Romance"],
     status: "En desarrollo",
     statusColor: "#FF2D78",
@@ -34,7 +33,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad, sus sueños y los desafíos que enfrenta día a día.",
-    image: LOGO_URL,
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/DPGVHSibyvFIguxX.png",
     tags: ["Fan-Made", "Slice of Life"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -47,7 +46,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural en una narrativa única.",
-    image: LOGO_URL,
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/QkrnlFvzlTkWsxZq.png",
     tags: ["Fan-Made", "Misterio", "Literatura"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -124,8 +123,7 @@ export default function Proyectos() {
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="w-48 h-48 object-contain opacity-80 group-hover:scale-110 transition-transform duration-500"
-                    style={{ filter: "drop-shadow(0 0 30px rgba(255,45,120,0.4))" }}
+                    className="w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d24]/60 hidden lg:block" />
                   <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
@@ -193,8 +191,7 @@ export default function Proyectos() {
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="w-32 h-32 object-contain opacity-70 group-hover:scale-110 transition-transform duration-500"
-                    style={{ filter: "drop-shadow(0 0 20px rgba(77,159,255,0.3))" }}
+                    className="w-full h-full object-cover opacity-70 group-hover:scale-110 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24]/80 to-transparent" />
                   <div className="absolute bottom-3 left-4 flex items-center gap-2">
