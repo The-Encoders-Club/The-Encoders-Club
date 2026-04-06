@@ -10,7 +10,7 @@ import MonikaProjectView from '../components/MonikaProjectView';
 import NatsukiProjectView from '../components/NatsukiProjectView';
 import YuriProjectView from '../components/YuriProjectView';
 
-const PROYECTOS_BG = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png";
+const PROYECTOS_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG_20260405_121731_665_166b9420.jpg";
 
 const projects = [
   {
@@ -19,7 +19,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png", // PORTADA MONIKA (Aula)
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG_20260405_121731_665_166b9420.jpg", // Monika Portada (Cloudfront)
     tags: ["Fan-Made", "Drama", "Romance"],
     status: "En desarrollo",
     statusColor: "#FF2D78",
@@ -32,7 +32,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/lqfZTkbzoCrwSxwy.png", // PORTADA NATSUKI (Cocina)
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG_20260405_121731_665_166b9420.jpg", // Natsuki Portada (Cloudfront)
     tags: ["Fan-Made", "Slice of Life"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -45,7 +45,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural en una narrativa única.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/txUegLxciaFhYmJX.jpg", // PORTADA YURI (Club)
+    image: "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/IMG_20260405_121731_665_166b9420.jpg", // Yuri Portada (Cloudfront)
     tags: ["Fan-Made", "Misterio", "Literatura"],
     status: "Disponible",
     statusColor: "#22c55e",
