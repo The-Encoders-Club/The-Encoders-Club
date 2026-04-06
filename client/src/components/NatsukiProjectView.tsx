@@ -8,7 +8,7 @@ interface Props {
 const theme = {
   primary: "#FF6B9D",
   secondary: "#FF8FB3",
-  bg: "from-[#1a0d0d] to-[#0d0d24]",
+  bg: "from-[#080818] via-[#1a0d0d] to-[#080818]",
   accent: "#FF6B9D",
   font: "'DDLCFont', sans-serif",
 };
@@ -22,11 +22,11 @@ const project = {
   longDescription: `Just Natsuki es una novela visual que se enfoca en el personaje de Natsuki, proporcionando una perspectiva más profunda de su vida, sus pasiones y sus luchas personales.
 
 A través de momentos cotidianos y encuentros significativos, descubrimos quién es realmente Natsuki más allá de lo que vemos en el juego original. Una historia de crecimiento personal y amistad.`,
-  image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png",
+  image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/DPGVHSibyvFIguxX.png",
   gallery: [
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png"
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/YYQFbguJjorMHodE.jpg",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/eZeDjRwAYCpu.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/1WtGsykphm6q.png"
   ],
   status: "Disponible",
   rating: 4.5,
@@ -43,8 +43,11 @@ export default function NatsukiProjectView({ onClose }: Props) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className={`fixed inset-0 z-[100] bg-gradient-to-br ${theme.bg} text-white overflow-y-auto`}
+      className={`fixed inset-0 z-[100] bg-[#080818] text-white overflow-y-auto`}
     >
+      {/* Background Overlay */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${theme.bg} opacity-90 pointer-events-none`} />
+
       {/* Hero Section */}
       <section className="pt-12 pb-16 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#080818]" />
@@ -58,43 +61,55 @@ export default function NatsukiProjectView({ onClose }: Props) {
             Volver a Proyectos
           </motion.button>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <h1
-              className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-4"
-              style={{ fontFamily: theme.font, color: theme.primary }}
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              {project.name}
-            </h1>
-            <p className="text-xl text-white/70 mb-6 max-w-2xl">{project.subtitle}</p>
-
-            <div className="flex flex-wrap gap-4 items-center">
-              <div className="flex items-center gap-2">
-                <span className="text-3xl font-bold" style={{ color: theme.primary }}>
-                  {project.rating}
-                </span>
-                <div className="flex gap-1">
-                  {[...Array(5)].map((_, i) => (
-                    <Star 
-                      key={i} 
-                      size={20} 
-                      fill={i < Math.floor(project.rating) ? theme.primary : "transparent"} 
-                      style={{ color: i < Math.floor(project.rating) ? theme.primary : "rgba(255,255,255,0.2)" }} 
-                    />
-                  ))}
-                </div>
-              </div>
-              <span
-                className="px-4 py-2 rounded-full text-sm font-semibold"
-                style={{ background: `${theme.primary}20`, color: theme.primary, border: `1px solid ${theme.primary}50` }}
+              <h1
+                className="text-5xl sm:text-6xl lg:text-7xl font-bold mb-4"
+                style={{ fontFamily: theme.font, color: theme.primary }}
               >
-                {project.status}
-              </span>
-            </div>
-          </motion.div>
+                {project.name}
+              </h1>
+              <p className="text-xl text-white/70 mb-6 max-w-2xl">{project.subtitle}</p>
+
+              <div className="flex flex-wrap gap-4 items-center">
+                <div className="flex items-center gap-2">
+                  <span className="text-3xl font-bold" style={{ color: theme.primary }}>
+                    {project.rating}
+                  </span>
+                  <div className="flex gap-1">
+                    {[...Array(5)].map((_, i) => (
+                      <Star 
+                        key={i} 
+                        size={20} 
+                        fill={i < Math.floor(project.rating) ? theme.primary : "transparent"} 
+                        style={{ color: i < Math.floor(project.rating) ? theme.primary : "rgba(255,255,255,0.2)" }} 
+                      />
+                    ))}
+                  </div>
+                </div>
+                <span
+                  className="px-4 py-2 rounded-full text-sm font-semibold"
+                  style={{ background: `${theme.primary}20`, color: theme.primary, border: `1px solid ${theme.primary}50` }}
+                >
+                  {project.status}
+                </span>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8 }}
+              className="relative aspect-video rounded-2xl overflow-hidden border border-white/10 shadow-2xl shadow-[#FF6B9D]/20"
+            >
+              <img src={project.image} alt={project.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080818] via-transparent to-transparent" />
+            </motion.div>
+          </div>
         </div>
       </section>
 
@@ -121,14 +136,14 @@ export default function NatsukiProjectView({ onClose }: Props) {
               {/* Gallery */}
               <div className="mb-12">
                 <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: theme.font }}>
-                  Galería
+                  Galería (Versión en Español)
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {project.gallery.map((img: string, i: number) => (
                     <motion.div
                       key={i}
-                      className="aspect-video rounded-lg overflow-hidden glass-card cursor-pointer border border-white/10"
-                      whileHover={{ scale: 1.05 }}
+                      className="aspect-video rounded-lg overflow-hidden bg-white/5 border border-white/10 cursor-pointer"
+                      whileHover={{ scale: 1.05, borderColor: theme.primary }}
                     >
                       <img src={img} alt={`Galería ${i + 1}`} className="w-full h-full object-cover opacity-80 hover:opacity-100 transition-opacity" />
                     </motion.div>
@@ -145,7 +160,7 @@ export default function NatsukiProjectView({ onClose }: Props) {
               className="space-y-6"
             >
               {/* Info Card */}
-              <div className="glass-card p-6 space-y-4 border border-white/10">
+              <div className="bg-white/5 backdrop-blur-md p-6 space-y-4 border border-white/10 rounded-2xl">
                 <h3 className="text-lg font-bold flex items-center gap-2" style={{ fontFamily: theme.font }}>
                   <Info size={18} className="text-[#FF6B9D]" />
                   Información
@@ -171,7 +186,7 @@ export default function NatsukiProjectView({ onClose }: Props) {
               </div>
 
               {/* Themes */}
-              <div className="glass-card p-6 border border-white/10">
+              <div className="bg-white/5 backdrop-blur-md p-6 border border-white/10 rounded-2xl">
                 <h3 className="text-lg font-bold mb-4" style={{ fontFamily: theme.font }}>
                   Temas
                 </h3>
@@ -201,7 +216,7 @@ export default function NatsukiProjectView({ onClose }: Props) {
                   Descargar Mod
                 </button>
                 <button
-                  className="w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 glass-card hover:bg-white/10 border border-white/10"
+                  className="w-full py-4 rounded-xl font-bold transition-all flex items-center justify-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10"
                 >
                   <Share2 size={20} />
                   Compartir
