@@ -15,7 +15,7 @@ const Proyectos = () => {
   const [filter, setFilter] = useState('todos');
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Datos de los proyectos con las portadas corregidas
+  // Datos de los proyectos con las portadas corregidas de Google Drive
   const projects = [
     {
       id: 'monika',
@@ -25,7 +25,7 @@ const Proyectos = () => {
       rating: 4.8,
       status: 'En desarrollo',
       tags: ['Fan-Made', 'Drama', 'Romance'],
-      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png', // PORTADA MONIKA (Aula)
+      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png', // Monika After History.png
       featured: true
     },
     {
@@ -36,7 +36,7 @@ const Proyectos = () => {
       rating: 4.5,
       status: 'Disponible',
       tags: ['Fan-Made', 'Slice of Life'],
-      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/lqfZTkbzoCrwSxwy.png', // PORTADA NATSUKI (Cocina)
+      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/lqfZTkbzoCrwSxwy.png', // Just Natsuki.png
       featured: false
     },
     {
@@ -47,7 +47,7 @@ const Proyectos = () => {
       rating: 4.6,
       status: 'Disponible',
       tags: ['Fan-Made', 'Misterio', 'Literatura'],
-      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/txUegLxciaFhYmJX.jpg', // PORTADA YURI (Club)
+      image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/txUegLxciaFhYmJX.jpg', // Just Yuri.png
       featured: false
     }
   ];
