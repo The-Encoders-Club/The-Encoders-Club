@@ -22,11 +22,11 @@ const project = {
   longDescription: `Monika After History es una novela visual fan-made que profundiza en el personaje de Monika después de los eventos del juego original. La historia explora temas de consciencia, realidad y libre albedrío.
 
 Con una narrativa introspectiva y emocional, seguimos a Monika mientras intenta entender su lugar en el mundo y construir su propio destino. Una experiencia única que mezcla drama, romance y reflexión filosófica.`,
-  image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/yGCXjqkUUqBJwMuo.png",
+  image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/lqfZTkbzoCrwSxwy.png",
   gallery: [
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/mRmHnpypaHlnjEzC.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/inPeKaJDwNpnTsES.jpg",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/FFclDGlkKmdKKber.jpg"
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/RoONLQGICrPVOmBx.jpg",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/yTysBYcCtXXOLZTe.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/mRmHnpypaHlnjEzC.png"
   ],
   status: "En desarrollo",
   rating: 4.8,
@@ -136,7 +136,7 @@ export default function MonikaProjectView({ onClose }: Props) {
               {/* Gallery */}
               <div className="mb-12">
                 <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: theme.font }}>
-                  Galería de Referencia
+                  Galería (Versión en Español)
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {project.gallery.map((img: string, i: number) => (
