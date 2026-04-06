@@ -23,12 +23,9 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  // Imágenes que funcionan en tu servidor
+  // Imagen de portada correcta y logo para galería
   const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png";
-  const galleryImages = [
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png",
-    "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png"
-  ];
+  const logoImage = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
   return (
     <AnimatePresence>
@@ -134,15 +131,18 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                     )}
 
                     {activeTab === 'galeria' && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-in fade-in slide-in-from-bottom-4">
-                        {galleryImages.map((img, idx) => (
-                          <div key={idx} className="rounded-xl overflow-hidden border border-white/10 aspect-video group relative">
-                            <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                              <ImageIcon className="text-white w-8 h-8" />
+                      <div className="animate-in fade-in slide-in-from-bottom-4">
+                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                          {[1, 2, 3, 4, 5].map((idx) => (
+                            <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start">
+                              <img src={logoImage} alt={`Logo ${idx}`} className="w-full h-full object-contain p-4 bg-white/5 transition-transform group-hover:scale-110" />
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <ImageIcon className="text-white w-8 h-8" />
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
+                        <p className="text-xs text-gray-500 mt-2 italic">← Desliza para ver más →</p>
                       </div>
                     )}
                   </div>
