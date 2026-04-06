@@ -4,7 +4,6 @@
    Sections: Hero, About, News, Team, Stats
    ============================================================ */
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -62,21 +61,26 @@ const teamMembers = [
   {
     id: 1,
     name: "Slytharbez",
-    cargo: "Todos los roles actuales",
+    cargo: "Desarrollador",
+    cargo: "Moderador",
+    cargo: "Traductor",
+    cargo: "Ideas",
     color: "#FF2D78",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/sYvfOcdjjpxwpsYH.jpg"
   },
   {
     id: 2,
-    name: "«[×𝐹ɾαɳƈιʂƈσ×]»",
-    cargo: "Beta Tester / Traductor",
+    name: "The_Player_Madness",
+    cargo: "Desarrollador",
+    cargo: "Traductor",
     color: "#4D9FFF",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/NdddEeYbkRaZUwAf.jpg"
   },
   {
     id: 3,
-    name: "The_Player_Madness",
-    cargo: "Desarrollador / Traductor",
+    name: "«[×𝐹ɾαɳƈιʂƈσ×]»",
+    cargo: "Beta Tester",
+    cargo: "Traductor",
     color: "#a855f7",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/fqvycZADioutZyXg.jpg"
   },
@@ -170,23 +174,6 @@ const fadeUp = {
 
 // Team Carousel Component
 function TeamCarousel() {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerView = 4;
-  const totalSlides = Math.ceil(teamMembers.length / itemsPerView);
-
-  const handlePrev = () => {
-    setCurrentIndex((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
-  };
-
-  const handleNext = () => {
-    setCurrentIndex((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
-  };
-
-  const visibleMembers = teamMembers.slice(
-    currentIndex * itemsPerView,
-    currentIndex * itemsPerView + itemsPerView
-  );
-
   return (
     <section className="py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -199,22 +186,22 @@ function TeamCarousel() {
           </h2>
         </div>
 
-        {/* Carousel Container */}
-        <div className="relative">
-          {/* Team Members Grid */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-8">
-            {visibleMembers.map((member, i) => (
+        {/* Scrollable Container */}
+        <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex gap-5 lg:gap-8 min-w-min">
+            {teamMembers.map((member, i) => (
               <motion.div
                 key={member.id}
                 custom={i}
                 variants={fadeUp}
                 initial="hidden"
-                animate="visible"
-                className="glass-card p-6 flex flex-col items-center text-center group"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56"
               >
-                {/* Avatar */}
+                {/* Avatar - Larger */}
                 <div
-                  className="w-24 h-24 rounded-2xl mb-4 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
+                  className="w-32 h-32 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
                   style={{
                     background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
                     border: `2px solid ${member.color}40`,
@@ -231,7 +218,7 @@ function TeamCarousel() {
                   />
                 </div>
                 <h3
-                  className="font-bold text-sm mb-1"
+                  className="font-bold text-base mb-2"
                   style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
                 >
                   {member.name}
@@ -240,47 +227,6 @@ function TeamCarousel() {
               </motion.div>
             ))}
           </div>
-
-          {/* Navigation Buttons */}
-          {totalSlides > 1 && (
-            <>
-              {/* Left Arrow */}
-              <motion.button
-                onClick={handlePrev}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 lg:-translate-x-20 p-3 rounded-full bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 text-white shadow-[0_0_20px_rgba(255,45,120,0.5)] hover:shadow-[0_0_30px_rgba(255,45,120,0.8)] transition-all z-10"
-              >
-                <ChevronLeft size={20} />
-              </motion.button>
-
-              {/* Right Arrow */}
-              <motion.button
-                onClick={handleNext}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 lg:translate-x-20 p-3 rounded-full bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 text-white shadow-[0_0_20px_rgba(255,45,120,0.5)] hover:shadow-[0_0_30px_rgba(255,45,120,0.8)] transition-all z-10"
-              >
-                <ChevronRightIcon size={20} />
-              </motion.button>
-
-              {/* Dots Indicator */}
-              <div className="flex items-center justify-center gap-2 mt-8">
-                {Array.from({ length: totalSlides }).map((_, idx) => (
-                  <motion.button
-                    key={idx}
-                    onClick={() => setCurrentIndex(idx)}
-                    whileHover={{ scale: 1.2 }}
-                    className={`h-2 rounded-full transition-all ${
-                      idx === currentIndex
-                        ? "w-8 bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 shadow-[0_0_10px_rgba(255,45,120,0.5)]"
-                        : "w-2 bg-white/20 hover:bg-white/40"
-                    }`}
-                  />
-                ))}
-              </div>
-            </>
-          )}
         </div>
       </div>
     </section>
