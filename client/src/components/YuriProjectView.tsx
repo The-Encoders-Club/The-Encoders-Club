@@ -24,9 +24,9 @@ const project = {
 Con una atmósfera envolvente que mezcla lo cotidiano con elementos sobrenaturales, seguimos a Yuri en un viaje de descubrimiento personal. Una historia que celebra la belleza de la literatura y la complejidad de la naturaleza humana.`,
   image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/QkrnlFvzlTkWsxZq.png",
   gallery: [
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/IlOOnHXmiMoXdRxo.jpg",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/XBOjDWxbg6Mw.png",
-    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/jRxRAYIMChkN.jpg"
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/FFIZDmdlCYjNdViG.jpg",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/d4qB228f4iF7.jpg",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/90ESAz90gOps.jpg"
   ],
   status: "Disponible",
   rating: 4.6,
@@ -136,7 +136,7 @@ export default function YuriProjectView({ onClose }: Props) {
               {/* Gallery */}
               <div className="mb-12">
                 <h2 className="text-2xl font-bold mb-6" style={{ fontFamily: theme.font }}>
-                  Galería (Versión en Español)
+                  Galería (Español)
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   {project.gallery.map((img: string, i: number) => (
