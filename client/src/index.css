@@ -33,12 +33,9 @@
   html, body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    overflow-x: hidden; /* CORRECCIÓN: Evita el desplazamiento lateral global */
+    overflow-x: hidden;
     width: 100%;
     position: relative;
-  }
-
-  body {
     margin: 0;
     padding: 0;
     -webkit-font-smoothing: antialiased;
@@ -53,7 +50,7 @@
     margin-right: auto;
     padding-left: 1rem;
     padding-right: 1rem;
-    max-width: 100%; /* CORRECCIÓN: Asegura que el contenedor no exceda el ancho */
+    max-width: 100%;
   }
   @media (min-width: 640px) {
     .container {
@@ -68,6 +65,7 @@
       max-width: 1280px;
     }
   }
+
   /* === Brand Utilities === */
   .brand-gradient {
     background: linear-gradient(135deg, #FF2D78 0%, #7C3AED 50%, #4D9FFF 100%);
@@ -164,7 +162,8 @@
   .nav-link:hover::after {
     width: 100%;
   }
-  /* Floating animation for mascot */
+
+  /* Floating animation */
   @keyframes float {
     0%, 100% { transform: translateY(0px); }
     50% { transform: translateY(-16px); }
@@ -172,6 +171,7 @@
   .animate-float {
     animation: float 4s ease-in-out infinite;
   }
+
   /* Pulse glow */
   @keyframes pulse-glow {
     0%, 100% { box-shadow: 0 0 15px rgba(255, 45, 120, 0.3); }
@@ -180,6 +180,7 @@
   .animate-pulse-glow {
     animation: pulse-glow 2.5s ease-in-out infinite;
   }
+
   /* Neon glow effect */
   @keyframes neon-glow {
     0%, 100% {
@@ -192,6 +193,7 @@
   .animate-neon-glow {
     animation: neon-glow 3s ease-in-out infinite;
   }
+
   /* Cyber pulse */
   @keyframes cyber-pulse {
     0% { transform: scale(1); opacity: 1; }
@@ -201,6 +203,7 @@
   .animate-cyber-pulse {
     animation: cyber-pulse 2s ease-in-out infinite;
   }
+
   /* Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
@@ -215,7 +218,8 @@
   ::-webkit-scrollbar-thumb:hover {
     background: #ff4d8d;
   }
-  /* Enhanced glass card with more glow */
+
+  /* Enhanced glass card */
   .glass-card-enhanced {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(16px);
@@ -228,5 +232,45 @@
     border-color: rgba(255, 45, 120, 0.4);
     transform: translateY(-6px);
     box-shadow: 0 25px 50px rgba(255, 45, 120, 0.2), 0 0 40px rgba(168, 85, 247, 0.15);
+  }
+
+  /* === UTILITIES FALTANTES PARA EL DESPLIEGUE === */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .animate-in {
+    animation-duration: 500ms;
+    animation-fill-mode: both;
+  }
+
+  .fade-in {
+    animation-name: fadeIn;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .slide-in-from-bottom-4 {
+    animation-name: slideInFromBottom;
+  }
+
+  @keyframes slideInFromBottom {
+    from { transform: translateY(1rem); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  @keyframes bounce-custom {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .group:hover .group-hover\:bounce {
+    animation: bounce-custom 0.6s ease-in-out infinite;
   }
 }
