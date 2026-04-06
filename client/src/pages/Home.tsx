@@ -147,7 +147,7 @@ export default function Home() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             {/* Left: Mascot */}
-            <div className="flex flex-col items-center justify-center relative order-2 lg:order-1">
+            <div className="flex flex-col items-center justify-center relative order-1 lg:order-1">
               {/* Glow behind mascot */}
               <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
               {/* Mascot */}
@@ -162,7 +162,7 @@ export default function Home() {
             </div>
 
             {/* Right: Text */}
-            <div className="flex flex-col justify-center lg:pl-8 order-1 lg:order-2">
+            <div className="flex flex-col justify-center lg:pl-8 order-2 lg:order-2">
               {/* Title */}
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
