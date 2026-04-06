@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, Image as ImageIcon, Monitor } from 'lucide-react';
+import { X, Download, Share2, Star, Cpu, BookOpen, Image as ImageIcon } from 'lucide-react';
 
 interface ProjectViewProps {
   isOpen: boolean;
@@ -57,6 +57,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
             width="0" height="0" 
             src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&enablejsapi=1&modestbranding=1&start=1&controls=0" 
             allow="autoplay"
+            title="Natsuki Theme"
           />
         </div>
 
