@@ -23,10 +23,11 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
+  // Imágenes que funcionan en tu servidor
+  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png";
   const galleryImages = [
-    "https://images.alphacoders.com/883/883394.png",
-    "https://images.alphacoders.com/883/883395.png",
-    "https://images.alphacoders.com/883/883397.png"
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png",
+    "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png"
   ];
 
   return (
@@ -40,7 +41,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         {/* FONDO TEMÁTICO */}
         <div 
           className="fixed inset-0 z-0 opacity-25 pointer-events-none bg-cover bg-center"
-          style={{ backgroundImage: 'url("https://images.alphacoders.com/883/883394.png")' }}
+          style={{ backgroundImage: `url("${mainImage}")` }}
         />
 
         {/* MÚSICA */}
@@ -83,7 +84,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
                 <div className="rounded-2xl overflow-hidden border border-[#FF2D78]/30 shadow-[0_0_30px_rgba(255,45,120,0.2)] aspect-video relative group">
                   <img 
-                    src="https://images.alphacoders.com/883/883394.png" 
+                    src={mainImage} 
                     alt="Monika After History" 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
