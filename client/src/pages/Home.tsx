@@ -61,54 +61,49 @@ const teamMembers = [
   {
     id: 1,
     name: "Slytharbez",
-    cargo: "Desarrollador",
-    cargo: "Moderador",
-    cargo: "Traductor",
-    cargo: "Ideas",
+    cargo: ["Desarrollador", "Moderador", "Traductor", "Ideas"],
     color: "#FF2D78",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/sYvfOcdjjpxwpsYH.jpg"
   },
   {
     id: 2,
     name: "The_Player_Madness",
-    cargo: "Desarrollador",
-    cargo: "Traductor",
+    cargo: ["Desarrollador", "Traductor"],
     color: "#4D9FFF",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/NdddEeYbkRaZUwAf.jpg"
   },
   {
     id: 3,
     name: "«[×𝐹ɾαɳƈιʂƈσ×]»",
-    cargo: "Beta Tester",
-    cargo: "Traductor",
+    cargo: ["Beta Tester", "Traductor"],
     color: "#a855f7",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/fqvycZADioutZyXg.jpg"
   },
   {
     id: 4,
     name: "Ashi",
-    cargo: "Traductor",
+    cargo: ["Traductor"],
     color: "#22c55e",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/owXrIjTwHSFTkmKB.jpg"
   },
   {
     id: 5,
     name: "mondongo8360",
-    cargo: "Traductor",
+    cargo: ["Traductor"],
     color: "#FF2D78",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/cCtjHYrvAzaOHjEd.jpg"
   },
   {
     id: 6,
     name: "FlagBro23",
-    cargo: "Traductor",
+    cargo: ["Traductor"],
     color: "#4D9FFF",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/iecokdxZIrlMEbyP.jpg"
   },
   {
     id: 7,
     name: "Manu",
-    cargo: "Traductor",
+    cargo: ["Traductor"],
     color: "#a855f7",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/bIiIQjvPOSUKgAUl.jpg"
   },
@@ -187,8 +182,8 @@ function TeamCarousel() {
         </div>
 
         {/* Scrollable Container */}
-        <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-5 lg:gap-8 min-w-min">
+        <div className="overflow-x-auto pb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 scrollbar-hide">
+          <div className="flex gap-6 lg:gap-10 min-w-min">
             {teamMembers.map((member, i) => (
               <motion.div
                 key={member.id}
@@ -197,11 +192,11 @@ function TeamCarousel() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56"
+                className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-64"
               >
                 {/* Avatar - Larger */}
                 <div
-                  className="w-32 h-32 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
+                  className="w-36 h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
                   style={{
                     background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
                     border: `2px solid ${member.color}40`,
@@ -218,12 +213,20 @@ function TeamCarousel() {
                   />
                 </div>
                 <h3
-                  className="font-bold text-base mb-2"
+                  className="font-bold text-lg mb-3"
                   style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
                 >
                   {member.name}
                 </h3>
-                <p className="text-xs text-white/50 whitespace-pre-line">{member.cargo}</p>
+                <div className="flex flex-col gap-1">
+                  {Array.isArray(member.cargo) ? (
+                    member.cargo.map((role, idx) => (
+                      <p key={idx} className="text-xs text-white/50">{role}</p>
+                    ))
+                  ) : (
+                    <p className="text-xs text-white/50">{member.cargo}</p>
+                  )}
+                </div>
               </motion.div>
             ))}
           </div>
