@@ -101,9 +101,13 @@ export default function Donar() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6">
+            <motion.div
+              animate={{ scale: [1, 1.1, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6 animate-neon-glow"
+            >
               <Heart size={28} className="text-[#FF2D78]" fill="currentColor" />
-            </div>
+            </motion.div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               Apoya el <span className="brand-gradient-text">Proyecto</span>
             </h1>
@@ -127,8 +131,8 @@ export default function Donar() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className={`glass-card p-7 flex flex-col relative overflow-hidden ${
-                    tier.featured ? "ring-2 ring-[#FF2D78]/50 scale-105" : ""
+                  className={`glass-card-enhanced p-7 flex flex-col relative overflow-hidden ${
+                    tier.featured ? "ring-2 ring-[#FF2D78]/50 scale-105 animate-neon-glow" : ""
                   }`}
                 >
                   {tier.featured && (
@@ -176,10 +180,12 @@ export default function Donar() {
                     ))}
                   </ul>
 
-                  <a
+                  <motion.a
                     href={KOFI_URL}
                     target="_blank"
                     rel="noopener noreferrer"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     className={`w-full py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                       tier.featured ? "btn-primary" : "btn-outline"
                     }`}
@@ -188,7 +194,7 @@ export default function Donar() {
                     <Heart size={15} />
                     Donar ${tier.amount}
                     <ExternalLink size={13} />
-                  </a>
+                  </motion.a>
                 </motion.div>
               );
             })}
@@ -200,9 +206,9 @@ export default function Donar() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mt-8 glass-card p-8 text-center relative overflow-hidden"
+            className="mt-8 glass-card-enhanced p-8 text-center relative overflow-hidden"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/4 via-[#a855f7]/4 to-[#4D9FFF]/4 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/6 via-[#a855f7]/6 to-[#4D9FFF]/6 pointer-events-none animate-pulse" />
             <div className="relative z-10">
               <Zap size={28} className="text-[#a855f7] mx-auto mb-3" />
               <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -222,10 +228,12 @@ export default function Donar() {
                     className="w-full pl-8 pr-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#FF2D78]/50 focus:bg-white/8 transition-all"
                   />
                 </div>
-                <a
+                <motion.a
                   href={KOFI_URL}
                   target="_blank"
                   rel="noopener noreferrer"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                   className="btn-primary text-sm px-6 py-3 whitespace-nowrap"
                   onClick={() => {
                     if (customAmount && parseFloat(customAmount) > 0) {
@@ -235,7 +243,7 @@ export default function Donar() {
                 >
                   Donar Ahora
                   <ExternalLink size={14} />
-                </a>
+                </motion.a>
               </div>
             </div>
           </motion.div>
@@ -246,9 +254,15 @@ export default function Donar() {
       <section className="py-16 bg-[#06060f]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <HelpCircle size={28} className="text-[#4D9FFF] mx-auto mb-3" />
+            <motion.div
+              animate={{ y: [0, -8, 0] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              className="inline-block"
+            >
+              <HelpCircle size={28} className="text-[#4D9FFF] mx-auto mb-3 animate-neon-glow" />
+            </motion.div>
             <h2 className="text-2xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Preguntas Frecuentes
+              Preguntas <span className="brand-gradient-text">Frecuentes</span>
             </h2>
           </div>
 
@@ -260,17 +274,17 @@ export default function Donar() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.07 }}
-                className="glass-card overflow-hidden"
+                className="glass-card-enhanced overflow-hidden"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between p-5 text-left"
+                  className="w-full flex items-center justify-between p-5 text-left hover:bg-white/3 transition-colors"
                 >
                   <span className="font-semibold text-white text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {faq.q}
                   </span>
                   <span
-                    className="text-[#FF2D78] transition-transform duration-300 flex-shrink-0 ml-4"
+                    className="text-[#FF2D78] transition-transform duration-300 flex-shrink-0 ml-4 text-xl font-bold"
                     style={{ transform: openFaq === i ? "rotate(45deg)" : "rotate(0deg)" }}
                   >
                     +
