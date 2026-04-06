@@ -4,6 +4,7 @@
    Sections: Hero, About, News, Team, Stats
    ============================================================ */
 import { useEffect, useRef, useState } from "react";
+import { ChevronLeft, ChevronRight as ChevronRightIcon } from "lucide-react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
@@ -166,6 +167,125 @@ const fadeUp = {
     transition: { duration: 0.6, delay: i * 0.1 },
   }),
 };
+
+// Team Carousel Component
+function TeamCarousel() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const itemsPerView = 4;
+  const totalSlides = Math.ceil(teamMembers.length / itemsPerView);
+
+  const handlePrev = () => {
+    setCurrentIndex((prev) => (prev === 0 ? totalSlides - 1 : prev - 1));
+  };
+
+  const handleNext = () => {
+    setCurrentIndex((prev) => (prev === totalSlides - 1 ? 0 : prev + 1));
+  };
+
+  const visibleMembers = teamMembers.slice(
+    currentIndex * itemsPerView,
+    currentIndex * itemsPerView + itemsPerView
+  );
+
+  return (
+    <section className="py-20 lg:py-28">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-14">
+          <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">
+            Quiénes somos
+          </span>
+          <h2 className="section-title text-white">
+            Integrantes del <span className="brand-gradient-text">Equipo</span>
+          </h2>
+        </div>
+
+        {/* Carousel Container */}
+        <div className="relative">
+          {/* Team Members Grid */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-8">
+            {visibleMembers.map((member, i) => (
+              <motion.div
+                key={member.id}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                animate="visible"
+                className="glass-card p-6 flex flex-col items-center text-center group"
+              >
+                {/* Avatar */}
+                <div
+                  className="w-24 h-24 rounded-2xl mb-4 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
+                    border: `2px solid ${member.color}40`,
+                  }}
+                >
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
+                    style={{ background: member.color }}
+                  />
+                </div>
+                <h3
+                  className="font-bold text-sm mb-1"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
+                >
+                  {member.name}
+                </h3>
+                <p className="text-xs text-white/50 whitespace-pre-line">{member.cargo}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Navigation Buttons */}
+          {totalSlides > 1 && (
+            <>
+              {/* Left Arrow */}
+              <motion.button
+                onClick={handlePrev}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 lg:-translate-x-20 p-3 rounded-full bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 text-white shadow-[0_0_20px_rgba(255,45,120,0.5)] hover:shadow-[0_0_30px_rgba(255,45,120,0.8)] transition-all z-10"
+              >
+                <ChevronLeft size={20} />
+              </motion.button>
+
+              {/* Right Arrow */}
+              <motion.button
+                onClick={handleNext}
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 lg:translate-x-20 p-3 rounded-full bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 text-white shadow-[0_0_20px_rgba(255,45,120,0.5)] hover:shadow-[0_0_30px_rgba(255,45,120,0.8)] transition-all z-10"
+              >
+                <ChevronRightIcon size={20} />
+              </motion.button>
+
+              {/* Dots Indicator */}
+              <div className="flex items-center justify-center gap-2 mt-8">
+                {Array.from({ length: totalSlides }).map((_, idx) => (
+                  <motion.button
+                    key={idx}
+                    onClick={() => setCurrentIndex(idx)}
+                    whileHover={{ scale: 1.2 }}
+                    className={`h-2 rounded-full transition-all ${
+                      idx === currentIndex
+                        ? "w-8 bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 shadow-[0_0_10px_rgba(255,45,120,0.5)]"
+                        : "w-2 bg-white/20 hover:bg-white/40"
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
 
 export default function Home() {
   return (
@@ -424,58 +544,7 @@ export default function Home() {
       </section>
 
       {/* ── TEAM ── */}
-      <section className="py-20 lg:py-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
-            <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">
-              Quiénes somos
-            </span>
-            <h2 className="section-title text-white">
-              Integrantes del <span className="brand-gradient-text">Equipo</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 lg:gap-8">
-            {teamMembers.map((member, i) => (
-              <motion.div
-                key={member.id}
-                custom={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="glass-card p-6 flex flex-col items-center text-center group"
-              >
-                {/* Avatar */}
-                <div
-                  className="w-24 h-24 rounded-2xl mb-4 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
-                  style={{
-                    background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
-                    border: `2px solid ${member.color}40`,
-                  }}
-                >
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
-                    style={{ background: member.color }}
-                  />
-                </div>
-                <h3
-                  className="font-bold text-sm mb-1"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
-                >
-                  {member.name}
-                </h3>
-                <p className="text-xs text-white/50 whitespace-pre-line">{member.cargo}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TeamCarousel />
 
       {/* ── STATS ── */}
       <section className="py-16 bg-[#06060f] border-y border-white/6">
