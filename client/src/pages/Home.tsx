@@ -128,7 +128,7 @@ export default function Home() {
       <Navbar />
 
       {/* ── HERO ── */}
-      <section className="relative min-h-screen flex items-center pt-32 pb-20 overflow-hidden">
+      <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <img
@@ -141,18 +141,18 @@ export default function Home() {
         </div>
 
         {/* Decorative orbs */}
-        <div className="absolute top-1/3 left-0 w-96 h-96 rounded-full bg-[#FF2D78]/15 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 right-0 w-96 h-96 rounded-full bg-[#4D9FFF]/15 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex items-center justify-between gap-12 min-h-[70vh]">
+          <div className="flex items-center gap-16 lg:gap-20">
             
             {/* Left: Mascot */}
-            <div className="flex-shrink-0 hidden lg:flex">
+            <div className="flex-shrink-0 w-1/3 hidden lg:block">
               <motion.img
                 src={MASCOT_URL}
                 alt="Mascota Ren'Py"
-                className="w-96 h-auto object-contain animate-float"
+                className="w-full h-auto object-contain animate-float"
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
@@ -166,7 +166,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-5xl sm:text-6xl lg:text-6xl xl:text-7xl font-bold leading-tight mb-6"
+                className="text-5xl sm:text-6xl lg:text-6xl font-bold leading-snug mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 <span className="text-white">The</span>{" "}
@@ -179,7 +179,7 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 }}
-                className="text-lg text-white/70 leading-relaxed mb-8 max-w-2xl"
+                className="text-base lg:text-lg text-white/70 leading-relaxed mb-8 max-w-2xl"
               >
                 Tu portal a las mejores experiencias de{" "}
                 <span className="text-[#FF2D78] font-semibold">novelas visuales</span>
