@@ -58,10 +58,55 @@ const newsItems = [
 ];
 
 const teamMembers = [
-  { id: 1, name: "NICKNAME", cargo: "Desarrollador Principal", color: "#FF2D78" },
-  { id: 2, name: "NICKNAME", cargo: "Diseñadora UX/UI", color: "#4D9FFF" },
-  { id: 3, name: "NICKNAME", cargo: "Escritor de Historias", color: "#a855f7" },
-  { id: 4, name: "NICKNAME", cargo: "Community Manager", color: "#22c55e" },
+  {
+    id: 1,
+    name: "Slytharbez",
+    cargo: "Todos los roles actuales",
+    color: "#FF2D78",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/sYvfOcdjjpxwpsYH.jpg"
+  },
+  {
+    id: 2,
+    name: "«[×𝐹ɾαɳƈιʂƈσ×]»",
+    cargo: "Beta Tester / Traductor",
+    color: "#4D9FFF",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/NdddEeYbkRaZUwAf.jpg"
+  },
+  {
+    id: 3,
+    name: "The_Player_Madness",
+    cargo: "Desarrollador / Traductor",
+    color: "#a855f7",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/fqvycZADioutZyXg.jpg"
+  },
+  {
+    id: 4,
+    name: "Ashi",
+    cargo: "Traductor",
+    color: "#22c55e",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/owXrIjTwHSFTkmKB.jpg"
+  },
+  {
+    id: 5,
+    name: "mondongo8360",
+    cargo: "Traductor",
+    color: "#FF2D78",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/cCtjHYrvAzaOHjEd.jpg"
+  },
+  {
+    id: 6,
+    name: "FlagBro23",
+    cargo: "Traductor",
+    color: "#4D9FFF",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/iecokdxZIrlMEbyP.jpg"
+  },
+  {
+    id: 7,
+    name: "Manu",
+    cargo: "Traductor",
+    color: "#a855f7",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/bIiIQjvPOSUKgAUl.jpg"
+  },
 ];
 
 // Stat counter component
@@ -401,18 +446,18 @@ export default function Home() {
                 viewport={{ once: true }}
                 className="glass-card p-6 flex flex-col items-center text-center group"
               >
-                {/* Avatar placeholder */}
+                {/* Avatar */}
                 <div
-                  className="w-20 h-20 rounded-2xl mb-4 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
+                  className="w-24 h-24 rounded-2xl mb-4 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
                   style={{
                     background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
                     border: `2px solid ${member.color}40`,
                   }}
                 >
                   <img
-                    src={LOGO_URL}
+                    src={member.image}
                     alt={member.name}
-                    className="w-full h-full object-cover opacity-60 group-hover:opacity-80 transition-opacity"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
@@ -425,7 +470,7 @@ export default function Home() {
                 >
                   {member.name}
                 </h3>
-                <p className="text-xs text-white/50">{member.cargo}</p>
+                <p className="text-xs text-white/50 whitespace-pre-line">{member.cargo}</p>
               </motion.div>
             ))}
           </div>
