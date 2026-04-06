@@ -21,7 +21,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia. Una experiencia emocional llena de reflexiones sobre la existencia, el amor y la narrativa.",
-    image: LOGO_URL,
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/yGCXjqkUUqBJwMuo.png",
     tags: ["Fan-Made", "Drama", "Romance"],
     status: "En desarrollo",
     statusColor: "#FF2D78",
