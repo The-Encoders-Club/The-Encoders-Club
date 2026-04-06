@@ -185,7 +185,7 @@
   }
 
   .btn-primary {
-    background: linear-gradient(135deg, #FF2D78, #e0195e);
+    background: linear-gradient(135deg, #FF2D78 0%, #a855f7 50%, #4D9FFF 100%);
     color: white;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
@@ -199,19 +199,19 @@
   }
 
   .btn-primary:hover {
-    background: linear-gradient(135deg, #ff4d8d, #FF2D78);
-    box-shadow: 0 8px 25px rgba(255, 45, 120, 0.5);
+    background: linear-gradient(135deg, #ff4d8d 0%, #c084fc 50%, #60a5fa 100%);
+    box-shadow: 0 8px 30px rgba(255, 45, 120, 0.6), 0 0 20px rgba(168, 85, 247, 0.4);
     transform: translateY(-2px);
   }
 
   .btn-outline {
-    background: transparent;
+    background: rgba(255, 45, 120, 0.08);
     color: #FF2D78;
     font-family: 'Space Grotesk', sans-serif;
     font-weight: 600;
     padding: 0.75rem 1.75rem;
     border-radius: 9999px;
-    border: 1.5px solid #FF2D78;
+    border: 1.5px solid rgba(255, 45, 120, 0.5);
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
@@ -219,8 +219,9 @@
   }
 
   .btn-outline:hover {
-    background: rgba(255, 45, 120, 0.12);
-    box-shadow: 0 0 20px rgba(255, 45, 120, 0.3);
+    background: linear-gradient(135deg, rgba(255, 45, 120, 0.15) 0%, rgba(168, 85, 247, 0.1) 100%);
+    border: 1.5px solid rgba(255, 45, 120, 0.8);
+    box-shadow: 0 0 25px rgba(255, 45, 120, 0.4), 0 0 15px rgba(168, 85, 247, 0.2);
     transform: translateY(-2px);
   }
 
