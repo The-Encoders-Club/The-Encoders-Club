@@ -23,8 +23,8 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
   if (!isOpen) return null;
 
-  // URLs de Cloudfront generadas
-  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/cwKcOURitanDmJSy.png";
+  // FONDO ABSTRACTO CYBERPUNK (COBERTURA 100%)
+  const abstractBg = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/YpXqXmXmXmXmXmXm.png";
   const logoImage = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
   // Enlace de descarga
@@ -38,31 +38,39 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto yuri-theme"
       >
-        {/* FONDO TEMÁTICO - SIN OPACIDAD */}
+        {/* FONDO ABSTRACTO - COBERTURA 100% */}
         <div 
-          className="fixed inset-0 z-0 opacity-100 pointer-events-none bg-cover bg-center"
-          style={{ backgroundImage: `url("${mainImage}")` }}
+          className="fixed inset-0 z-0 pointer-events-none"
+          style={{ 
+            backgroundImage: `url("${abstractBg}")`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundAttachment: 'fixed',
+            width: '100vw',
+            height: '100vh'
+          }}
         />
 
-        {/* MÚSICA - PRECARGA MEJORADA */}
-        <iframe 
-          className="hidden"
-          width="0" height="0" 
-          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1" 
-          allow="autoplay"
-        />
+        {/* MÚSICA INVISIBLE - INICIO AJUSTADO (start=1) */}
+        <div style={{ display: 'none' }}>
+          <iframe 
+            width="0" height="0" 
+            src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&start=1&controls=0" 
+            allow="autoplay"
+          />
+        </div>
 
-        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a2a]/90 to-[#0a0a1a]/95">
-          <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#9C27B0]/30 px-6 py-4 flex justify-between items-center">
+        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a1a]/90 to-[#0a0a1a]/95">
+          <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#7C3AED]/30 px-6 py-4 flex justify-between items-center">
             <button 
               onClick={onClose}
-              className="flex items-center gap-2 text-[#9C27B0] hover:text-white transition-colors group"
+              className="flex items-center gap-2 text-[#7C3AED] hover:text-white transition-colors group"
             >
               <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
               <span className="font-bold tracking-wider uppercase text-sm">Volver a Proyectos</span>
             </button>
             <div className="flex gap-4">
-              <button className="p-2 rounded-full bg-gradient-to-r from-[#9C27B0]/20 to-[#E1BEE7]/20 border border-[#9C27B0]/30 text-[#9C27B0] hover:from-[#9C27B0] hover:to-[#E1BEE7] hover:text-white transition-all">
+              <button className="p-2 rounded-full bg-gradient-to-r from-[#7C3AED]/20 to-[#4D9FFF]/20 border border-[#7C3AED]/30 text-[#7C3AED] hover:from-[#7C3AED] hover:to-[#4D9FFF] hover:text-white transition-all">
                 <Share2 className="w-5 h-5" />
               </button>
             </div>
@@ -75,16 +83,16 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                   <motion.h1 
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    className="text-6xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7] mb-4"
+                    className="text-6xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#7C3AED] to-[#4D9FFF] mb-4"
                   >
                     Just Yuri
                   </motion.h1>
                   <p className="text-xl text-gray-300 font-medium italic">Una aventura literaria con Yuri como protagonista</p>
                 </header>
 
-                <div className="rounded-2xl overflow-hidden border border-[#9C27B0]/50 shadow-[0_0_30px_rgba(156,39,176,0.3)] aspect-video relative group">
+                <div className="rounded-2xl overflow-hidden border border-[#7C3AED]/50 shadow-[0_0_30px_rgba(124,58,237,0.3)] aspect-video relative group">
                   <img 
-                    src={mainImage} 
+                    src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/cwKcOURitanDmJSy.png" 
                     alt="Just Yuri" 
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
@@ -99,7 +107,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                         onClick={() => setActiveTab(tab)}
                         className={`px-6 py-2 rounded-lg font-bold uppercase tracking-widest transition-all text-sm ${
                           activeTab === tab 
-                            ? 'bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7] text-white shadow-[0_0_20px_rgba(156,39,176,0.4)]' 
+                            ? 'bg-gradient-to-r from-[#7C3AED] to-[#4D9FFF] text-white shadow-[0_0_20px_rgba(124,58,237,0.4)]' 
                             : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/30'
                         }`}
                       >
@@ -112,7 +120,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                     {activeTab === 'info' && (
                       <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
                         <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                          <BookOpen className="w-6 h-6 text-[#9C27B0]" /> Sobre este proyecto
+                          <BookOpen className="w-6 h-6 text-[#7C3AED]" /> Sobre este proyecto
                         </h3>
                         <p className="text-gray-300 leading-relaxed text-lg">
                           Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano 
@@ -120,11 +128,11 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                         </p>
                         <div className="grid grid-cols-2 gap-4 mt-8">
                           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                            <span className="text-[#9C27B0] text-xs font-bold uppercase block mb-1">Estado</span>
+                            <span className="text-[#7C3AED] text-xs font-bold uppercase block mb-1">Estado</span>
                             <span className="text-white font-medium">Disponible</span>
                           </div>
                           <div className="p-4 rounded-xl bg-white/5 border border-white/10">
-                            <span className="text-[#E1BEE7] text-xs font-bold uppercase block mb-1">Calificación</span>
+                            <span className="text-[#4D9FFF] text-xs font-bold uppercase block mb-1">Calificación</span>
                             <span className="text-white font-medium flex items-center gap-1">4.6 <Star className="w-4 h-4 fill-current" /></span>
                           </div>
                         </div>
@@ -153,12 +161,12 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
               <div className="space-y-8">
                 <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32">
                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                    <Cpu className="w-5 h-5 text-[#E1BEE7]" /> Información
+                    <Cpu className="w-5 h-5 text-[#4D9FFF]" /> Información
                   </h3>
                   <ul className="space-y-4 mb-8">
                     <li className="flex justify-between text-sm">
                       <span className="text-gray-400">Tiempo de juego</span>
-                      <span className="text-white font-mono">5-7 horas</span>
+                      <span className="text-white font-mono">5-8 horas</span>
                     </li>
                     <li className="flex justify-between text-sm">
                       <span className="text-gray-400">Idioma</span>
@@ -178,7 +186,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                     href={downloadLink} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7] text-white font-black uppercase tracking-tighter flex items-center justify-center gap-3 hover:shadow-[0_0_30px_rgba(156,39,176,0.4)] transition-all group"
+                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#7C3AED] to-[#4D9FFF] text-white font-black uppercase tracking-tighter flex items-center justify-center gap-3 hover:shadow-[0_0_30px_rgba(124,58,237,0.4)] transition-all group"
                   >
                     <Download className="w-6 h-6 group-hover:bounce" />
                     Descargar Mod PC
