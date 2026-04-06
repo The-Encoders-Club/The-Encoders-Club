@@ -70,14 +70,14 @@ const teamMembers = [
     name: "The_Player_Madness",
     cargo: ["Desarrollador", "Traductor"],
     color: "#4D9FFF",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/NdddEeYbkRaZUwAf.jpg"
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/fqvycZADioutZyXg.jpg"
   },
   {
     id: 3,
     name: "«[×𝐹ɾαɳƈιʂƈσ×]»",
     cargo: ["Beta Tester", "Traductor"],
     color: "#a855f7",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/fqvycZADioutZyXg.jpg"
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/NdddEeYbkRaZUwAf.jpg"
   },
   {
     id: 4,
@@ -181,53 +181,55 @@ function TeamCarousel() {
           </h2>
         </div>
 
-        {/* Grid Container - 4 columns on desktop, 2 on mobile */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {teamMembers.map((member, i) => (
-            <motion.div
-              key={member.id}
-              custom={i}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="glass-card p-8 flex flex-col items-center text-center group"
-            >
-              {/* Avatar - Larger */}
-              <div
-                className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
-                style={{
-                  background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
-                  border: `2px solid ${member.color}40`,
-                }}
+        {/* Scrollable Container - 4 visible items */}
+        <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex gap-6 lg:gap-8 w-max">
+            {teamMembers.map((member, i) => (
+              <motion.div
+                key={member.id}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
               >
-                <img
-                  src={member.image}
-                  alt={member.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                />
+                {/* Avatar - Larger */}
                 <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
-                  style={{ background: member.color }}
-                />
-              </div>
-              <h3
-                className="font-bold text-base lg:text-lg mb-3"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
-              >
-                {member.name}
-              </h3>
-              <div className="flex flex-col gap-1">
-                {Array.isArray(member.cargo) ? (
-                  member.cargo.map((role, idx) => (
-                    <p key={idx} className="text-xs text-white/50">{role}</p>
-                  ))
-                ) : (
-                  <p className="text-xs text-white/50">{member.cargo}</p>
-                )}
-              </div>
-            </motion.div>
-          ))}
+                  className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
+                    border: `2px solid ${member.color}40`,
+                  }}
+                >
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
+                    style={{ background: member.color }}
+                  />
+                </div>
+                <h3
+                  className="font-bold text-base lg:text-lg mb-3"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
+                >
+                  {member.name}
+                </h3>
+                <div className="flex flex-col gap-1">
+                  {Array.isArray(member.cargo) ? (
+                    member.cargo.map((role, idx) => (
+                      <p key={idx} className="text-xs text-white/50">{role}</p>
+                    ))
+                  ) : (
+                    <p className="text-xs text-white/50">{member.cargo}</p>
+                  )}
+                </div>
+              </motion.div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
