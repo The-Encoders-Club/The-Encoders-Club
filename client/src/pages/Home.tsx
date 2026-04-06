@@ -82,7 +82,7 @@ const teamMembers = [
   {
     id: 4,
     name: "Ashi",
-    cargo: ["Traductor"],
+    cargo: ["Ideas"],
     color: "#22c55e",
     image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/owXrIjTwHSFTkmKB.jpg"
   },
