@@ -44,18 +44,17 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
           style={{ backgroundImage: `linear-gradient(135deg, rgba(26, 10, 26, 0.95) 0%, rgba(255, 45, 120, 0.12) 50%, rgba(26, 10, 26, 0.95) 100%)`, backgroundColor: '#1a0a1a' }}
         />
 
-        {/* MÚSICA - REPRODUCCIÓN INMEDIATA */}
+        {/* MÚSICA - PRECARGA MEJORADA */}
         <iframe 
           className="hidden"
           width="0" height="0" 
-          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&enablejsapi=1&modestbranding=1&start=0&fs=0" 
-          allow="autoplay; encrypted-media"
+          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&enablejsapi=1&modestbranding=1&start=2" 
+          allow="autoplay"
           title="Natsuki Theme Music"
-          style={{ display: 'none' }}
         />
 
-        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#1a0a1a]/95 via-[#2a0a1a]/90 to-[#1a0a1a]/95 w-full overflow-x-hidden">
-          <nav className="sticky top-0 z-50 bg-[#1a0a1a]/90 backdrop-blur-md border-b border-[#FF2D78]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full max-w-full">
+        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#1a0a1a]/95 via-[#2a0a1a]/90 to-[#1a0a1a]/95 w-screen overflow-x-hidden">
+          <nav className="sticky top-0 z-50 bg-[#1a0a1a]/90 backdrop-blur-md border-b border-[#FF2D78]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
             <button 
               onClick={onClose}
               className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group"
