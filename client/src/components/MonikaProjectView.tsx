@@ -87,11 +87,11 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                   <p className="text-xl text-gray-300 font-medium italic">Una historia alternativa de reflexión y existencia</p>
                 </header>
 
-                <div className="rounded-2xl overflow-hidden border border-[#FF2D78]/50 shadow-[0_0_30px_rgba(255,45,120,0.3)] aspect-video relative group">
+                <div className="rounded-2xl overflow-hidden border border-[#FF2D78]/50 shadow-[0_0_30px_rgba(255,45,120,0.3)] aspect-video relative group bg-white/5">
                   <img 
                     src={mainImage} 
                     alt="Monika After History" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/50 to-transparent opacity-60" />
                 </div>
@@ -157,7 +157,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
                     {activeTab === 'kiwi' && (
                       <div className="animate-in fade-in slide-in-from-bottom-4 py-12 text-center border border-dashed border-white/10 rounded-2xl bg-white/5">
-                        <p className="text-gray-500 italic">Contenido de Kiwi próximamente...</p>
+                        <p className="text-gray-500 italic">Próximamente...</p>
                       </div>
                     )}
                   </div>
