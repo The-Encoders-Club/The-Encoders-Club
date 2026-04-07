@@ -84,10 +84,17 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                 </header>
 
                 <div className="rounded-2xl overflow-hidden border border-[#FF2D78]/50 shadow-[0_0_30px_rgba(255,45,120,0.3)] aspect-video relative group bg-[#0d0d24]">
+                  {/* Background Blur Fill */}
+                  <img 
+                    src={mainImage} 
+                    alt="" 
+                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110"
+                  />
+                  {/* Main Image (Complete) */}
                   <img 
                     src={mainImage} 
                     alt="Just Natsuki" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="relative z-10 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 p-4"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a0a1a]/50 to-transparent opacity-60" />
                 </div>
