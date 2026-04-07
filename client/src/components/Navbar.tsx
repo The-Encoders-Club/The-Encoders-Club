@@ -44,8 +44,8 @@ export default function Navbar() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "py-3 bg-[#080818]/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]"
-            : "py-5 bg-transparent border-b border-white/10"
+            ? "py-3 bg-gradient-to-b from-[#080818]/90 to-[#080818]/70 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]"
+            : "py-5 bg-gradient-to-b from-black/20 to-transparent border-b border-white/5"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
@@ -126,8 +126,6 @@ export default function Navbar() {
             </button>
           </div>
         </div>
-        {/* Línea decorativa inferior */}
-        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF2D78] via-[#00F3FF] to-[#FF2D78] opacity-100" />
       </nav>
 
       {/* Mobile Menu Overlay */}
