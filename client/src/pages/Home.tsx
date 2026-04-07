@@ -260,19 +260,10 @@ export default function Home() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            {/* Left: Mascot */}
-            <div className="flex flex-col items-center justify-center relative order-1 lg:order-1">
-              {/* Glow behind mascot */}
+            {/* Left: Content Spacer (Logo removed) */}
+            <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
+              {/* Glow remains for atmosphere */}
               <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
-              {/* Mascot */}
-              <motion.img
-                src={PERSONAJE_URL}
-                alt="Mascota Ren'Py"
-                className="w-full max-w-[300px] lg:max-w-[450px] h-auto object-contain relative z-10 animate-float"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.2 }}
-              />
             </div>
 
             {/* Right: Text */}
