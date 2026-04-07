@@ -9,53 +9,63 @@ import Footer from "@/components/Footer";
 
 export default function Cursos() {
   return (
-    <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden flex flex-col">
+    <div className="min-h-screen bg-[#080818] text-white flex flex-col">
       <Navbar />
 
-      {/* Main Content */}
-      <div className="flex-grow flex items-center justify-center px-4 sm:px-6 lg:px-8">
+      {/* Main Content - Centrado absoluto con padding para Navbar y Footer */}
+      <main className="flex-grow flex items-center justify-center py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+        {/* Background effects */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-[#FF2D78]/5 blur-[120px] pointer-events-none" />
+        
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl"
+          className="text-center relative z-10 w-full"
         >
-          {/* Icon */}
+          {/* Icon with glow */}
           <div className="flex justify-center mb-8">
-            <div className="relative">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF] rounded-full blur-2xl opacity-20 animate-pulse" />
-              <div className="relative bg-gradient-to-br from-[#FF2D78]/20 to-[#4D9FFF]/20 p-6 rounded-full border border-[#FF2D78]/30">
-                <Hammer size={48} className="text-[#FF2D78]" />
+            <div className="relative inline-block">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF] rounded-full blur-2xl opacity-30 animate-pulse" />
+              <div className="relative bg-white/5 backdrop-blur-md p-8 rounded-full border border-white/10 shadow-[0_0_40px_rgba(255,45,120,0.2)]">
+                <Hammer size={56} className="text-[#FF2D78]" />
               </div>
             </div>
           </div>
 
-          {/* Title */}
+          {/* Title with gradient */}
           <h1 
-            className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4"
+            className="text-5xl sm:text-6xl lg:text-7xl font-bold text-white mb-6 tracking-tight"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
-            En Construcción
+            En <span className="brand-gradient-text">Construcción</span>
           </h1>
 
           {/* Description */}
-          <p className="text-white/60 text-lg mb-8 leading-relaxed">
-            Estamos trabajando en traerte los mejores cursos de Ren'Py. Pronto tendremos contenido exclusivo y tutoriales detallados para que aprendas a crear novelas visuales profesionales.
+          <p className="text-white/70 text-lg sm:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-medium">
+            Estamos preparando el mejor contenido para que domines Ren'Py. Muy pronto podrás acceder a tutoriales exclusivos y cursos certificados.
           </p>
 
-          {/* Decorative elements */}
-          <div className="flex justify-center gap-2 mb-8">
-            <Sparkles size={20} className="text-[#FF2D78] animate-pulse" />
-            <Sparkles size={20} className="text-[#4D9FFF] animate-pulse" style={{ animationDelay: "0.2s" }} />
-            <Sparkles size={20} className="text-[#a855f7] animate-pulse" style={{ animationDelay: "0.4s" }} />
+          {/* Animated elements */}
+          <div className="flex justify-center gap-4 mb-10">
+            <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 2 }}>
+              <Sparkles size={24} className="text-[#FF2D78]" />
+            </motion.div>
+            <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 2, delay: 0.5 }}>
+              <Sparkles size={24} className="text-[#4D9FFF]" />
+            </motion.div>
+            <motion.div animate={{ opacity: [0.4, 1, 0.4] }} transition={{ repeat: Infinity, duration: 2, delay: 1 }}>
+              <Sparkles size={24} className="text-[#a855f7]" />
+            </motion.div>
           </div>
 
-          {/* Call to action */}
-          <p className="text-white/40 text-sm">
-            Síguenos en nuestro Discord para ser notificado cuando los cursos estén disponibles.
-          </p>
+          {/* Bottom badge */}
+          <div className="inline-flex items-center gap-2 px-6 py-2 rounded-full bg-white/5 border border-white/10 text-white/50 text-sm font-semibold tracking-wider uppercase">
+            <span className="w-2 h-2 rounded-full bg-[#FF2D78] animate-ping" />
+            Próximamente 2026
+          </div>
         </motion.div>
-      </div>
+      </main>
 
       <Footer />
     </div>
