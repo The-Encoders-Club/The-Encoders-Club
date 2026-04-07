@@ -87,7 +87,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                   <img 
                     src={mainImage} 
                     alt="Just Natsuki" 
-                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 p-2"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a0a1a]/50 to-transparent opacity-60" />
                 </div>
@@ -159,6 +159,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                 </div>
               </div>
 
+              {activeTab === 'info' && (
               <div className="space-y-8">
                 <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32">
                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
@@ -194,6 +195,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                   </a>
                 </div>
               </div>
+              )}
             </div>
           </main>
         </div>
