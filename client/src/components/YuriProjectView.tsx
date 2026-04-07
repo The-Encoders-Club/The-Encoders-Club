@@ -24,7 +24,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   // URLs de Cloudfront generadas
-  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/cwKcOURitanDmJSy.png";
+  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663522621232/wWSuFRWkAQVXHGQp.png";
   const logoImage = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
   // Enlace de descarga
@@ -94,7 +94,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
                 <div className="space-y-6">
                   <div className="flex gap-4 border-b border-white/10 pb-4">
-                    {['info', 'galeria'].map((tab) => (
+                    {['info', 'kiwi'].map((tab) => (
                       <button
                         key={tab}
                         onClick={() => setActiveTab(tab)}
@@ -104,7 +104,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                             : 'bg-white/5 border border-white/10 text-gray-400 hover:text-white hover:border-white/30'
                         }`}
                       >
-                        {tab === 'info' ? 'Información' : 'Galería'}
+                        {tab === 'info' ? 'Información' : 'Kiwi'}
                       </button>
                     ))}
                   </div>
@@ -129,22 +129,30 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                             <span className="text-white font-medium flex items-center gap-1">4.6 <Star className="w-4 h-4 fill-current" /></span>
                           </div>
                         </div>
+
+                        {/* SECCIÓN DE IMÁGENES MOVIDA AQUÍ */}
+                        <div className="mt-8 pt-8 border-t border-white/10">
+                          <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                            <ImageIcon className="w-5 h-5 text-[#9C27B0]" /> Vista Previa
+                          </h4>
+                          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                            {[1, 2, 3, 4].map((idx) => (
+                              <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start">
+                                <img src={logoImage} alt={`Logo ${idx}`} className="w-full h-full object-contain p-4 bg-white/5 transition-transform group-hover:scale-110" />
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                  <ImageIcon className="text-white w-8 h-8" />
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                          <p className="text-xs text-gray-500 mt-2 italic">← Desliza para ver más →</p>
+                        </div>
                       </div>
                     )}
 
-                    {activeTab === 'galeria' && (
-                      <div className="animate-in fade-in slide-in-from-bottom-4">
-                        <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                          {[1, 2, 3, 4].map((idx) => (
-                            <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start">
-                              <img src={logoImage} alt={`Logo ${idx}`} className="w-full h-full object-contain p-4 bg-white/5 transition-transform group-hover:scale-110" />
-                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <ImageIcon className="text-white w-8 h-8" />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <p className="text-xs text-gray-500 mt-2 italic">← Desliza para ver más →</p>
+                    {activeTab === 'kiwi' && (
+                      <div className="animate-in fade-in slide-in-from-bottom-4 py-12 text-center border border-dashed border-white/10 rounded-2xl bg-white/5">
+                        <p className="text-gray-500 italic">Contenido de Kiwi próximamente...</p>
                       </div>
                     )}
                   </div>
