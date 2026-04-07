@@ -45,7 +45,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural en una narrativa única.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/cwKcOURitanDmJSy.png", // PORTADA YURI
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663522621232/wWSuFRWkAQVXHGQp.png", // PORTADA YURI
     tags: ["Fan-Made", "Misterio", "Literatura"],
     status: "Disponible",
     statusColor: "#22c55e",
