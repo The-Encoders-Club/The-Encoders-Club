@@ -115,7 +115,7 @@ export default function Proyectos() {
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-2"
+                    className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d24]/40 hidden lg:block" />
                   <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
@@ -185,7 +185,7 @@ export default function Proyectos() {
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4"
+                    className="w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24]/60 to-transparent" />
                   <div className="absolute bottom-3 left-4 flex items-center gap-2">
