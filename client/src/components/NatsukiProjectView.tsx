@@ -53,7 +53,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
           title="Natsuki Theme Music"
         />
 
-        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#1a0a1a]/95 via-[#2a0a1a]/90 to-[#1a0a1a]/95 w-screen overflow-x-hidden">
+        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#1a0a1a]/95 via-[#2a0a1a]/90 to-[#1a0a1a]/95 w-full overflow-x-hidden">
           <nav className="sticky top-0 z-50 bg-[#1a0a1a]/90 backdrop-blur-md border-b border-[#FF2D78]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
             <button 
               onClick={onClose}
