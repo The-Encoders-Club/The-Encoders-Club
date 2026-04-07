@@ -58,8 +58,7 @@ export default function Proyectos() {
   const [activeProject, setActiveProject] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]" style={{ backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.9) 0%, rgba(26, 10, 26, 0.85) 50%, rgba(8, 8, 24, 0.9) 100%), url("${PROYECTOS_BG}")`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed', backgroundRepeat: 'no-repeat' }}>
-      <div className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#00F3FF] to-transparent z-40 pointer-events-none" />
+    <div className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]" style={{ backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <BackgroundParticles />
       <Navbar />
 
