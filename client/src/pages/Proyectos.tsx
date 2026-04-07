@@ -1,372 +1,256 @@
-/* ============================================================
-   THE ENCODERS CLUB — Design System
-   Style: Neon Synthwave Gaming
-   Primary: #FF2D78 (magenta-pink) | Secondary: #4D9FFF (electric blue)
-   Background: #080818 (deep blue-black) | Text: #F0F0FF (near-white)
-   Fonts: Space Grotesk (titles) + DM Sans (body)
-   ============================================================ */
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, ChevronRight, Play, Download, Share2, Filter, Search, Grid, List, Sparkles, ArrowRight, Gamepad2 } from 'lucide-react';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
+import BackgroundParticles from '../components/BackgroundParticles';
 
-@import "tailwindcss";
-@import "tw-animate-css";
+// Importar los nuevos componentes de vista de proyecto
+import MonikaProjectView from '../components/MonikaProjectView';
+import NatsukiProjectView from '../components/NatsukiProjectView';
+import YuriProjectView from '../components/YuriProjectView';
 
-@font-face {
-  font-family: 'DDLCFont';
-  src: url('https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/hkcPWTPjEepCvxSd.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+const PROYECTOS_BG = "https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/gdw63Pfk2mCpqaap3WKi6Q/ProyectoFondo_c3356f10.jpg";
 
-@font-face {
-  font-family: 'M1Fixed';
-  src: url('/fonts/m1_fixed.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-}
+const projects = [
+  {
+    id: 1,
+    name: "Monika After History",
+    subtitle: "Novela Visual Fan-Made",
+    description:
+      "Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia.",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png", // PORTADA MONIKA
+    tags: ["Fan-Made", "Drama", "Romance"],
+    status: "En desarrollo",
+    statusColor: "#FF2D78",
+    rating: 4.8,
+    featured: true,
+  },
+  {
+    id: 2,
+    name: "Just Natsuki",
+    subtitle: "Novela Visual Fan-Made",
+    description:
+      "Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad.",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png", // PORTADA NATSUKI
+    tags: ["Fan-Made", "Slice of Life"],
+    status: "Disponible",
+    statusColor: "#22c55e",
+    rating: 4.5,
+    featured: false,
+  },
+  {
+    id: 3,
+    name: "Just Yuri",
+    subtitle: "Novela Visual Fan-Made",
+    description:
+      "Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural en una narrativa única.",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663522621232/wWSuFRWkAQVXHGQp.png", // PORTADA YURI
+    tags: ["Fan-Made", "Misterio", "Literatura"],
+    status: "Disponible",
+    statusColor: "#22c55e",
+    rating: 4.6,
+    featured: false,
+  },
+];
 
-/* Monika After Story Theme */
-.monika-theme {
-  --monika-primary: #FF2D78;
-  --monika-secondary: #e0195e;
-  --monika-accent: #00FF41;
-  --monika-bg: #0a0a1a;
-  --monika-text: #F0F0FF;
-}
+export default function Proyectos() {
+  const [activeProject, setActiveProject] = useState<number | null>(null);
 
-/* Just Natsuki Theme */
-.natsuki-theme {
-  --natsuki-primary: #FF6B9D;
-  --natsuki-secondary: #FF8FB3;
-  --natsuki-accent: #FFB6D9;
-  --natsuki-bg: #1a0d0d;
-  --natsuki-text: #F0F0FF;
-}
+  return (
+    <div className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]" style={{ backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
+      <BackgroundParticles />
+      <Navbar />
 
-/* Just Yuri Theme */
-.yuri-theme {
-  --yuri-primary: #9D4EDD;
-  --yuri-secondary: #7C3AED;
-  --yuri-accent: #C084FC;
-  --yuri-bg: #1a0a2e;
-  --yuri-text: #F0F0FF;
-}
+      <AnimatePresence>
+        {activeProject === 1 && (
+          <MonikaProjectView isOpen={true} onClose={() => setActiveProject(null)} />
+        )}
+        {activeProject === 2 && (
+          <NatsukiProjectView isOpen={true} onClose={() => setActiveProject(null)} />
+        )}
+        {activeProject === 3 && (
+          <YuriProjectView isOpen={true} onClose={() => setActiveProject(null)} />
+        )}
+      </AnimatePresence>
 
-@custom-variant dark (&:is(.dark *));
+      {/* Page Header */}
+      <section className="pt-32 pb-16 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">
+              Nuestras creaciones
+            </span>
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Proyectos <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]">Destacados</span>
+            </h1>
+            <p className="text-white/60 text-lg max-w-2xl">
+              Novelas visuales creadas con pasión por nuestra comunidad usando el motor Ren'Py. Historias únicas en español.
+            </p>
+          </motion.div>
+        </div>
+      </section>
 
-@theme inline {
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+      {/* Projects */}
+      <section className="pb-24 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Featured project */}
+          {projects.filter(p => p.featured).map((project) => (
+            <motion.div
+              key={project.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              onClick={() => setActiveProject(project.id)}
+              className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 relative cursor-pointer group hover:border-[#FF2D78]/40 transition-all backdrop-blur-sm"
+            >
+              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
+              <div className="grid lg:grid-cols-2 gap-0">
+                {/* Image - SIN OPACIDAD */}
+                <div className="relative h-64 lg:h-auto min-h-64 bg-gradient-to-br from-[#FF2D78]/10 to-[#4D9FFF]/10 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={project.image}
+                    alt={project.name}
+                    className="w-full h-full object-contain opacity-100 group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d24]/40 hidden lg:block" />
+                  <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
+                    DESTACADO
+                  </span>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-[2px]">
+                    <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold">
+                      <Sparkles size={16} className="text-[#FF2D78]" />
+                      Explorar Proyecto
+                    </div>
+                  </div>
+                </div>
+                {/* Info */}
+                <div className="p-8 lg:p-10 flex flex-col justify-center">
+                  <div className="flex items-center gap-3 mb-2">
+                    <span
+                      className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                      style={{
+                        background: `${project.statusColor}20`,
+                        border: `1px solid ${project.statusColor}40`,
+                        color: project.statusColor,
+                      }}
+                    >
+                      {project.status}
+                    </span>
+                    <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                      <Star size={12} fill="currentColor" />
+                      <span>{project.rating}</span>
+                    </div>
+                  </div>
+                  <h2 className="text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    {project.name}
+                  </h2>
+                  <p className="text-[#FF2D78] text-sm font-medium mb-4">{project.subtitle}</p>
+                  <p className="text-white/60 text-base leading-relaxed mb-6">
+                    {project.description}
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    {project.tags.map((tag) => (
+                      <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 text-[#FF2D78] font-bold text-sm group-hover:translate-x-2 transition-transform">
+                    Ver detalles del proyecto <ArrowRight size={16} />
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
 
-  /* Custom brand tokens */
-  --color-brand-pink: #FF2D78;
-  --color-brand-blue: #4D9FFF;
-  --color-brand-purple: #7C3AED;
-  --color-brand-dark: #080818;
-}
+          {/* Other projects */}
+          <div className="grid sm:grid-cols-2 gap-6">
+            {projects.filter(p => !p.featured).map((project, i) => (
+              <motion.div
+                key={project.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
+                onClick={() => setActiveProject(project.id)}
+                className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all backdrop-blur-sm"
+              >
+                {/* Image - SIN OPACIDAD */}
+                <div className="relative h-48 bg-gradient-to-br from-[#00F3FF]/10 to-[#FF2D78]/10 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={project.image}
+                    alt={project.name}
+                    className="w-full h-full object-contain opacity-100 group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24]/60 to-transparent" />
+                  <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                    <span
+                      className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                      style={{
+                        background: `${project.statusColor}20`,
+                        border: `1px solid ${project.statusColor}40`,
+                        color: project.statusColor,
+                      }}
+                    >
+                      {project.status}
+                    </span>
+                    <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                      <Star size={11} fill="currentColor" />
+                      <span>{project.rating}</span>
+                    </div>
+                  </div>
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-[2px]">
+                    <Sparkles size={24} className="text-[#00F3FF]" />
+                  </div>
+                </div>
+                {/* Content */}
+                <div className="p-6">
+                  <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    {project.name}
+                  </h3>
+                  <p className="text-[#00F3FF] text-xs font-medium mb-3">{project.subtitle}</p>
+                  <p className="text-white/55 text-sm leading-relaxed mb-4 line-clamp-3">{project.description}</p>
+                  <div className="flex flex-wrap gap-1.5 mb-5">
+                    {project.tags.map((tag) => (
+                      <span key={tag} className="text-xs px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/50">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-2 text-[#00F3FF] font-bold text-xs group-hover:translate-x-2 transition-transform">
+                    Explorar <ArrowRight size={14} />
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
 
-:root {
-  --radius: 0.75rem;
-  --background: oklch(0.09 0.02 280);
-  --foreground: oklch(0.95 0.01 280);
-  --card: oklch(0.13 0.025 280);
-  --card-foreground: oklch(0.95 0.01 280);
-  --popover: oklch(0.13 0.025 280);
-  --popover-foreground: oklch(0.95 0.01 280);
-  --primary: oklch(0.62 0.28 0);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.18 0.03 280);
-  --secondary-foreground: oklch(0.85 0.01 280);
-  --muted: oklch(0.18 0.02 280);
-  --muted-foreground: oklch(0.6 0.02 280);
-  --accent: oklch(0.55 0.22 260);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.65 0.25 25);
-  --destructive-foreground: oklch(1 0 0);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.62 0.28 0);
-  --sidebar: oklch(0.11 0.025 280);
-  --sidebar-foreground: oklch(0.95 0.01 280);
-  --sidebar-primary: oklch(0.62 0.28 0);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.18 0.03 280);
-  --sidebar-accent-foreground: oklch(0.95 0.01 280);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.62 0.28 0);
-}
+          {/* Coming soon banner */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mt-10 bg-white/5 border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden backdrop-blur-sm"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-[#a855f7]/5 to-[#00F3FF]/5 pointer-events-none" />
+            <Gamepad2 size={32} className="text-[#FF2D78] mx-auto mb-3" />
+            <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Más proyectos en camino
+            </h3>
+            <p className="text-white/50 text-sm max-w-md mx-auto">
+              Estamos trabajando en nuevas novelas visuales. Únete a nuestro Discord para ser el primero en enterarte.
+            </p>
+          </motion.div>
+        </div>
+      </section>
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-
-  html {
-    scroll-behavior: smooth;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-    font-family: 'DM Sans', sans-serif;
-    background-color: #080818;
-    color: #F0F0FF;
-  }
-
-  h1, h2, h3, h4, h5, h6 {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-  }
-
-  button:not(:disabled),
-  [role="button"]:not([aria-disabled="true"]),
-  [type="button"]:not(:disabled),
-  [type="submit"]:not(:disabled),
-  a[href],
-  select:not(:disabled) {
-    @apply cursor-pointer;
-  }
-}
-
-@layer components {
-  .container {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-
-  .flex {
-    min-height: 0;
-    min-width: 0;
-  }
-
-  @media (min-width: 640px) {
-    .container {
-      padding-left: 1.5rem;
-      padding-right: 1.5rem;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    .container {
-      padding-left: 2rem;
-      padding-right: 2rem;
-      max-width: 1280px;
-    }
-  }
-
-  /* === Brand Utilities === */
-  .brand-gradient {
-    background: linear-gradient(135deg, #FF2D78 0%, #7C3AED 50%, #4D9FFF 100%);
-  }
-
-  .brand-gradient-text {
-    background: linear-gradient(135deg, #FF2D78 0%, #a855f7 50%, #4D9FFF 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .glass-card {
-    background: rgba(13, 13, 36, 0.85);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 1rem;
-    transition: all 0.3s ease;
-  }
-
-  .glass-card:hover {
-    background: rgba(255, 255, 255, 0.07);
-    border-color: rgba(255, 45, 120, 0.35);
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(255, 45, 120, 0.15);
-  }
-
-  .glow-pink {
-    box-shadow: 0 0 20px rgba(255, 45, 120, 0.4), 0 0 40px rgba(255, 45, 120, 0.2);
-  }
-
-  .glow-blue {
-    box-shadow: 0 0 20px rgba(77, 159, 255, 0.4), 0 0 40px rgba(77, 159, 255, 0.2);
-  }
-
-  .btn-primary {
-    background: linear-gradient(135deg, #FF2D78 0%, #a855f7 50%, #4D9FFF 100%);
-    color: white;
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 600;
-    padding: 0.75rem 1.75rem;
-    border-radius: 9999px;
-    border: none;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .btn-primary:hover {
-    background: linear-gradient(135deg, #ff4d8d 0%, #c084fc 50%, #60a5fa 100%);
-    box-shadow: 0 8px 30px rgba(255, 45, 120, 0.6), 0 0 20px rgba(168, 85, 247, 0.4);
-    transform: translateY(-2px);
-  }
-
-  .btn-outline {
-    background: rgba(255, 45, 120, 0.08);
-    color: #FF2D78;
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 600;
-    padding: 0.75rem 1.75rem;
-    border-radius: 9999px;
-    border: 1.5px solid rgba(255, 45, 120, 0.5);
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .btn-outline:hover {
-    background: linear-gradient(135deg, rgba(255, 45, 120, 0.15) 0%, rgba(168, 85, 247, 0.1) 100%);
-    border: 1.5px solid rgba(255, 45, 120, 0.8);
-    box-shadow: 0 0 25px rgba(255, 45, 120, 0.4), 0 0 15px rgba(168, 85, 247, 0.2);
-    transform: translateY(-2px);
-  }
-
-  .section-title {
-    font-family: 'Space Grotesk', sans-serif;
-    font-weight: 700;
-    font-size: clamp(1.75rem, 4vw, 2.5rem);
-    line-height: 1.2;
-  }
-
-  .nav-link {
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500;
-    color: rgba(240, 240, 255, 0.75);
-    transition: color 0.2s ease;
-    position: relative;
-  }
-
-  .nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: -4px;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: #FF2D78;
-    transition: width 0.3s ease;
-    border-radius: 2px;
-  }
-
-  .nav-link:hover {
-    color: #FF2D78;
-  }
-
-  .nav-link:hover::after {
-    width: 100%;
-  }
-
-  /* Floating animation for mascot */
-  @keyframes float {
-    0%, 100% { transform: translateY(0px); }
-    50% { transform: translateY(-16px); }
-  }
-
-  .animate-float {
-    animation: float 4s ease-in-out infinite;
-  }
-
-  /* Pulse glow */
-  @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 15px rgba(255, 45, 120, 0.3); }
-    50% { box-shadow: 0 0 30px rgba(255, 45, 120, 0.6), 0 0 60px rgba(255, 45, 120, 0.2); }
-  }
-
-  .animate-pulse-glow {
-    animation: pulse-glow 2.5s ease-in-out infinite;
-  }
-
-  /* Neon glow effect */
-  @keyframes neon-glow {
-    0%, 100% {
-      box-shadow: 0 0 10px rgba(255, 45, 120, 0.5), 0 0 20px rgba(255, 45, 120, 0.3);
-    }
-    50% {
-      box-shadow: 0 0 20px rgba(255, 45, 120, 0.8), 0 0 40px rgba(255, 45, 120, 0.5), 0 0 60px rgba(168, 85, 247, 0.3);
-    }
-  }
-
-  .animate-neon-glow {
-    animation: neon-glow 3s ease-in-out infinite;
-  }
-
-  /* Cyber pulse */
-  @keyframes cyber-pulse {
-    0% { transform: scale(1); opacity: 1; }
-    50% { transform: scale(1.05); opacity: 0.8; }
-    100% { transform: scale(1); opacity: 1; }
-  }
-
-  .animate-cyber-pulse {
-    animation: cyber-pulse 2s ease-in-out infinite;
-  }
-
-  /* Scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: #080818;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: #FF2D78;
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: #ff4d8d;
-  }
-
-  /* Enhanced glass card with more glow */
-  .glass-card-enhanced {
-    background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 45, 120, 0.15);
-    border-radius: 1rem;
-    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-  }
-
-  .glass-card-enhanced:hover {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 45, 120, 0.4);
-    transform: translateY(-6px);
-    box-shadow: 0 25px 50px rgba(255, 45, 120, 0.2), 0 0 40px rgba(168, 85, 247, 0.15);
-  }
+      <Footer />
+    </div>
+  );
 }
