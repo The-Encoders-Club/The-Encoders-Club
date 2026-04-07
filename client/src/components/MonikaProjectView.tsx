@@ -91,7 +91,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                   <img 
                     src={mainImage} 
                     alt="Monika After History" 
-                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 p-2"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/50 to-transparent opacity-60" />
                 </div>
@@ -164,6 +164,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
+              {activeTab === 'info' && (
               <div className="space-y-8">
                 <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32 space-y-6">
                   <div>
@@ -225,6 +226,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                   </div>
                 </div>
               </div>
+              )}
             </div>
           </main>
         </div>
