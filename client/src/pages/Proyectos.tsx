@@ -111,11 +111,11 @@ export default function Proyectos() {
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
               <div className="grid lg:grid-cols-2 gap-0">
                 {/* Image - SIN OPACIDAD */}
-                <div className="relative h-64 lg:h-auto min-h-64 bg-gradient-to-br from-[#FF2D78]/10 to-[#4D9FFF]/10 flex items-center justify-center overflow-hidden">
+                <div className="relative h-64 lg:h-auto min-h-64 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-r border-white/5">
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="w-full h-full object-contain opacity-100 group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-2"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d24]/40 hidden lg:block" />
                   <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
@@ -181,11 +181,11 @@ export default function Proyectos() {
                 className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all backdrop-blur-sm"
               >
                 {/* Image - SIN OPACIDAD */}
-                <div className="relative h-48 bg-gradient-to-br from-[#00F3FF]/10 to-[#FF2D78]/10 flex items-center justify-center overflow-hidden">
+                <div className="relative h-48 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5">
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="w-full h-full object-contain opacity-100 group-hover:scale-110 transition-transform duration-500"
+                    className="w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24]/60 to-transparent" />
                   <div className="absolute bottom-3 left-4 flex items-center gap-2">
