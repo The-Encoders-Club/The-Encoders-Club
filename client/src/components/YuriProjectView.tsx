@@ -83,11 +83,11 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                   <p className="text-xl text-gray-300 font-medium italic">Una aventura literaria con Yuri como protagonista</p>
                 </header>
 
-                <div className="rounded-2xl overflow-hidden border border-[#9C27B0]/50 shadow-[0_0_30px_rgba(156,39,176,0.3)] aspect-video relative group bg-white/5">
+                <div className="rounded-2xl overflow-hidden border border-[#9C27B0]/50 shadow-[0_0_30px_rgba(156,39,176,0.3)] aspect-video relative group bg-[#0d0d24]">
                   <img 
                     src={mainImage} 
                     alt="Just Yuri" 
-                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
+                    className="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 p-2"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/50 to-transparent opacity-60" />
                 </div>
@@ -162,7 +162,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
               <div className="space-y-8">
                 <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32">
                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
-                    <Cpu className="w-5 h-5 text-[#E1BEE7]" /> Información
+                    <Cpu className="w-5 h-5 text-[#E1BEE7]" /> Detalles
                   </h3>
                   <ul className="space-y-4 mb-8">
                     <li className="flex justify-between text-sm">
