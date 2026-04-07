@@ -44,8 +44,8 @@ export default function Navbar() {
       <nav
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
           scrolled
-            ? "py-3 bg-gradient-to-b from-[#080818]/90 to-[#080818]/70 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]"
-            : "py-5 bg-gradient-to-b from-[#080818]/40 to-transparent border-b border-white/5"
+            ? "py-3 bg-gradient-to-b from-[#080818]/95 to-[#080818]/80 backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]"
+            : "py-5 bg-gradient-to-b from-[#080818]/60 to-[#080818]/10 border-b border-white/5"
         }`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
