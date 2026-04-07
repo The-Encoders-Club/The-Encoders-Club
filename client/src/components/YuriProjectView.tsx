@@ -44,17 +44,18 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
           style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, rgba(156, 39, 176, 0.15) 50%, rgba(10, 10, 26, 0.95) 100%)`, backgroundColor: '#0a0a1a' }}
         />
 
-        {/* MÚSICA - PRECARGA MEJORADA */}
+        {/* MÚSICA - REPRODUCCIÓN INMEDIATA */}
         <iframe 
           className="hidden"
           width="0" height="0" 
-          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&start=0" 
-          allow="autoplay"
+          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&start=0&fs=0" 
+          allow="autoplay; encrypted-media"
           title="Yuri Theme Music"
+          style={{ display: 'none' }}
         />
 
-        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a2a]/90 to-[#0a0a1a]/95 w-screen overflow-x-hidden">
-          <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#9C27B0]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
+        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a2a]/90 to-[#0a0a1a]/95 w-full overflow-x-hidden">
+          <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#9C27B0]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full max-w-full">
             <button 
               onClick={onClose}
               className="flex items-center gap-2 text-[#9C27B0] hover:text-white transition-colors group"
