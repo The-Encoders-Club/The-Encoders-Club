@@ -48,8 +48,6 @@ export default function Navbar() {
             : "py-5 bg-transparent border-b border-white/10"
         }`}
       >
-        {/* Línea decorativa superior */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF2D78] via-[#00F3FF] to-[#FF2D78] opacity-100" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex items-center justify-between">
             {/* Logo & Brand */}
@@ -128,6 +126,8 @@ export default function Navbar() {
             </button>
           </div>
         </div>
+        {/* Línea decorativa inferior */}
+        <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-[#FF2D78] via-[#00F3FF] to-[#FF2D78] opacity-100" />
       </nav>
 
       {/* Mobile Menu Overlay */}
