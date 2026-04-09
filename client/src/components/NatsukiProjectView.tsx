@@ -51,11 +51,11 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
           style={{ backgroundImage: `linear-gradient(135deg, rgba(26, 10, 26, 0.95) 0%, rgba(255, 45, 120, 0.12) 50%, rgba(26, 10, 26, 0.95) 100%)`, backgroundColor: '#1a0a1a' }}
         />
 
-        {/* MÚSICA - OPTIMIZADA */}
+        {/* MÚSICA - IMPLEMENTACIÓN MEJORADA */}
         <iframe 
           className="hidden"
           width="0" height="0" 
-          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&start=3" 
+          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&mute=0&origin=https://www.youtube.com&start=3" 
           allow="autoplay"
           title="Natsuki Theme Music"
         />
@@ -90,14 +90,14 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                   <p className="text-xl text-gray-300 font-medium italic">Sumérgete en la historia de Natsuki, explorando su mundo más allá del club</p>
                 </header>
 
-                <div className="rounded-2xl overflow-hidden border border-[#FF2D78]/50 shadow-[0_0_30px_rgba(255,45,120,0.3)] aspect-video relative group bg-[#0d0d24]">
-                  {/* PORTADA COMPLETA - SIN BORDES NI OPACIDAD */}
+                {/* PORTADA - AJUSTE TOTAL */}
+                <div className="rounded-2xl overflow-hidden border border-[#FF2D78]/50 shadow-[0_0_30px_rgba(255,45,120,0.3)] aspect-video relative group">
                   <img 
                     src={mainImage} 
                     alt="Just Natsuki" 
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a0a1a]/40 to-transparent opacity-60 pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#1a0a1a]/30 to-transparent pointer-events-none" />
                 </div>
 
                 <div className="space-y-6">
