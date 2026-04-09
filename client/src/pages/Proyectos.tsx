@@ -19,7 +19,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png", // PORTADA MONIKA
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/TVkduhXBmMlPCZFW.png", // PORTADA MONIKA
     tags: ["Fan-Made", "Drama", "Romance"],
     status: "En desarrollo",
     statusColor: "#FF2D78",
@@ -32,7 +32,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png", // PORTADA NATSUKI
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/yMnTdiEAQHlpXyGB.png", // PORTADA NATSUKI
     tags: ["Fan-Made", "Slice of Life"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -45,7 +45,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural en una narrativa única.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663522621232/wWSuFRWkAQVXHGQp.png", // PORTADA YURI
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/nODHKFtudeHsUrUX.png", // PORTADA YURI
     tags: ["Fan-Made", "Misterio", "Literatura"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -110,19 +110,19 @@ export default function Proyectos() {
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
               <div className="grid lg:grid-cols-2 gap-0">
-                {/* Image - SIN OPACIDAD */}
-                <div className="relative h-64 lg:h-auto min-h-64 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-r border-white/5 group">
+                {/* Image - AJUSTADA PARA VERSE COMPLETA */}
+                <div className="relative h-64 lg:h-auto min-h-[400px] bg-[#0d0d24] flex items-center justify-center overflow-hidden border-r border-white/5 group">
                   {/* Background Blur Fill */}
                   <img
                     src={project.image}
                     alt=""
-                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110"
+                    className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110"
                   />
                   {/* Main Image (Complete) */}
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-2"
+                    className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-6"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d24]/40 hidden lg:block" />
                   <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
@@ -187,19 +187,19 @@ export default function Proyectos() {
                 onClick={() => setActiveProject(project.id)}
                 className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all backdrop-blur-sm"
               >
-                {/* Image - SIN OPACIDAD */}
-                <div className="relative h-48 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5 group">
+                {/* Image - AJUSTADA PARA VERSE COMPLETA */}
+                <div className="relative h-64 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5 group">
                   {/* Background Blur Fill */}
                   <img
                     src={project.image}
                     alt=""
-                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110"
+                    className="absolute inset-0 w-full h-full object-cover blur-2xl opacity-40 scale-110"
                   />
                   {/* Main Image (Complete) */}
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4"
+                    className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-6"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24]/60 to-transparent" />
                   <div className="absolute bottom-3 left-4 flex items-center gap-2">
