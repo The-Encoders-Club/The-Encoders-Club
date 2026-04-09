@@ -163,7 +163,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                             ))}
                           </div>
                           <p className="text-xs text-gray-500 mt-2 italic">← Desliza para ver más →</p>
-                        </div>>
+                        </div>
                       </div>
                     )}
 
