@@ -54,11 +54,11 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
           style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, rgba(156, 39, 176, 0.15) 50%, rgba(10, 10, 26, 0.95) 100%)`, backgroundColor: '#0a0a1a' }}
         />
 
-        {/* MÚSICA - PRECARGA MEJORADA */}
+        {/* MÚSICA - OPTIMIZADA */}
         <iframe 
           className="hidden"
           width="0" height="0" 
-          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&start=1" 
+          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3" 
           allow="autoplay"
           title="Yuri Theme Music"
         />
@@ -94,19 +94,13 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                 </header>
 
                 <div className="rounded-2xl overflow-hidden border border-[#9C27B0]/50 shadow-[0_0_30px_rgba(156,39,176,0.3)] aspect-video relative group bg-[#0d0d24]">
-                  {/* Background Blur Fill */}
-                  <img 
-                    src={mainImage} 
-                    alt="" 
-                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110"
-                  />
-                  {/* Main Image (Complete) */}
+                  {/* PORTADA COMPLETA - SIN BORDES NI OPACIDAD */}
                   <img 
                     src={mainImage} 
                     alt="Just Yuri" 
-                    className="relative z-10 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105 p-4"
+                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/50 to-transparent opacity-60" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/40 to-transparent opacity-60 pointer-events-none" />
                 </div>
 
                 <div className="space-y-6">
