@@ -24,7 +24,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   // URLs de Cloudfront generadas
-  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/TVkduhXBmMlPCZFW.png";
+  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png";
   
   // Imágenes de vista previa (CDN)
   const previewImages = [
