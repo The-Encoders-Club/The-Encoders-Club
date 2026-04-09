@@ -24,8 +24,22 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   // URLs de Cloudfront generadas
-  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png";
-  const logoImage = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
+  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/TVkduhXBmMlPCZFW.png";
+  
+  // Imágenes de vista previa (CDN)
+  const previewImages = [
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/TVkduhXBmMlPCZFW.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/mqhHRmXycZgtCRGT.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/uEwglaEfVLcnjIeI.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/eZLMcIGibsfljLVS.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/ZxUHZmiFeZeGDnAC.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/PqKmtrnYGSuwlaSG.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/FxBzavirhlgvOnDv.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/ZWciHOwYUYApVNkA.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/gCGXTleYiyEDXpdr.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/YPPlrDCMvtZVIRVf.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/wsujcvWlkHLDEdRo.png"
+  ];
 
   // Enlaces de descarga
   const downloadLinks = {
@@ -142,15 +156,15 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                           </div>
                         </div>
 
-                        {/* SECCIÓN DE IMÁGENES MOVIDA AQUÍ */}
+                        {/* SECCIÓN DE IMÁGENES ACTUALIZADA */}
                         <div className="mt-8 pt-8 border-t border-white/10">
                           <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                             <ImageIcon className="w-5 h-5 text-[#FF2D78]" /> Vista Previa
                           </h4>
                           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                            {[1, 2, 3, 4].map((idx) => (
-                              <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start">
-                                <img src={logoImage} alt={`Logo ${idx}`} className="w-full h-full object-contain p-4 bg-white/5 transition-transform group-hover:scale-110" />
+                            {previewImages.map((img, idx) => (
+                              <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start bg-[#0d0d24]">
+                                <img src={img} alt={`Vista Previa ${idx + 1}`} className="w-full h-full object-contain p-2 transition-transform group-hover:scale-110" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                   <ImageIcon className="text-white w-8 h-8" />
                                 </div>
