@@ -24,7 +24,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
   if (!isOpen) return null;
 
   // URLs de Cloudfront generadas
-  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/yMnTdiEAQHlpXyGB.png";
+  const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png";
   
   // Imágenes de vista previa (CDN)
   const previewImages = [
