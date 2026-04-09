@@ -25,7 +25,14 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
 
   // URLs de Cloudfront generadas
   const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png";
-  const logoImage = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
+  
+  // Imágenes de Vista Previa
+  const previewImages = [
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/fRwehLiQXmdlyzkT.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/hfJDYHHcaghUPWDY.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/LoFizNNVGrQAVrjI.png",
+    "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/pGPSAZuWYokOhDFV.png"
+  ];
 
   // Enlace de descarga
   const downloadLink = "https://github.com/The-Encoders-Club/Just-Natsuki-ES/releases/download/Actualizaci%C3%B3n/Jn-ES-1.3.5.zip";
@@ -137,20 +144,15 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                           </div>
                         </div>
 
-                         // SECCIÓN DE IMÁGENES MOVIDA AQUÍ */}
+                        {/* SECCIÓN DE IMÁGENES ACTUALIZADA */}
                         <div className="mt-8 pt-8 border-t border-white/10">
                           <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                             <ImageIcon className="w-5 h-5 text-[#FF2D78]" /> Vista Previa
                           </h4>
                           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
-                            {[
-                              "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/SWaVpOJHERSdKFHR.png",
-                              "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/tcCNbTMtqixnZWGr.png",
-                              "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/JyWEekewVBrunHWU.png",
-                              "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/MHoKYfGWxalTwjMO.png"
-                            ].map((url, idx) => (
+                            {previewImages.map((src, idx) => (
                               <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start">
-                                <img src={url} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                <img src={src} alt={`Vista Previa ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                   <ImageIcon className="text-white w-8 h-8" />
                                 </div>
