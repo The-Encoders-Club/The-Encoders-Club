@@ -1,7 +1,7 @@
 /* --- ANIMACIONES ORIGINALES (OPTIMIZADAS CON GPU) --- */
 @keyframes pulse-neon {
-  0%, 100% { filter: drop-shadow(0 0 15px rgba(255,45,120,0.5)); transform: scale(1) translateZ(0); }
-  50% { filter: drop-shadow(0 0 35px rgba(255,45,120,0.9)); transform: scale(1.05) translateZ(0); }
+  0%, 100% { filter: drop-shadow(0 0 15px rgba(255,45,120,0.5)); transform: scale(1) translate3d(0,0,0); }
+  50% { filter: drop-shadow(0 0 35px rgba(255,45,120,0.9)); transform: scale(1.05) translate3d(0,0,0); }
 }
 @keyframes scan-laser {
   0%, 100% { top: 0%; opacity: 0; }
@@ -9,34 +9,34 @@
   50% { top: 100%; }
 }
 @keyframes ring-rotate {
-  from { transform: rotate(0deg) translateZ(0); }
-  to { transform: rotate(360deg) translateZ(0); }
+  from { transform: rotate(0deg) translate3d(0,0,0); }
+  to { transform: rotate(360deg) translate3d(0,0,0); }
 }
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px) translateZ(0); }
-  to { opacity: 1; transform: translateY(0) translateZ(0); }
+  from { opacity: 0; transform: translateY(20px) translate3d(0,0,0); }
+  to { opacity: 1; transform: translateY(0) translate3d(0,0,0); }
 }
 @keyframes loading-bar {
-  from { transform: translateX(-100%) translateZ(0); }
-  to { transform: translateX(100%) translateZ(0); }
+  from { transform: translateX(-100%) translate3d(0,0,0); }
+  to { transform: translateX(100%) translate3d(0,0,0); }
 }
 @keyframes particle-float {
-  0% { transform: translate(0, 0) scale(1) translateZ(0); opacity: 0; }
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0; }
   20% { opacity: 1; }
-  100% { transform: translate(var(--p-tx), var(--p-ty)) scale(0) translateZ(0); opacity: 0; }
+  100% { transform: translate3d(var(--p-tx), var(--p-ty), 0) scale(0); opacity: 0; }
 }
 @keyframes nebula-drift {
-  0%, 100% { transform: scale(1) translate(0, 0) translateZ(0); opacity: 0.4; }
-  50% { transform: scale(1.2) translate(20px, 10px) translateZ(0); opacity: 0.7; }
+  0%, 100% { transform: scale(1) translate3d(0, 0, 0); opacity: 0.4; }
+  50% { transform: scale(1.2) translate3d(20px, 10px, 0); opacity: 0.7; }
 }
 @keyframes star-twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(0.8) translateZ(0); }
-  50% { opacity: 1; transform: scale(1.2) translateZ(0); }
+  0%, 100% { opacity: 0.3; transform: scale(0.8) translate3d(0,0,0); }
+  50% { opacity: 1; transform: scale(1.2) translate3d(0,0,0); }
 }
 @keyframes shooting-star {
-  0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translateZ(0); opacity: 0; }
+  0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translate3d(0,0,0); opacity: 0; }
   10% { opacity: 1; scale(1); }
-  100% { transform: translateX(-500px) translateY(500px) rotate(-45deg) scale(1) translateZ(0); opacity: 0; }
+  100% { transform: translateX(-500px) translateY(500px) rotate(-45deg) scale(1) translate3d(0,0,0); opacity: 0; }
 }
 
 /* --- FONDO ARTÍSTICO (DISEÑO ORIGINAL) --- */
@@ -130,6 +130,7 @@
   object-fit: contain;
   animation: pulse-neon 2s ease-in-out infinite;
   z-index: 3;
+  display: block !important; /* Aseguramos que se vea */
   will-change: transform, filter;
 }
 .splash-scan {
@@ -211,5 +212,6 @@
     backface-visibility: hidden;
     -webkit-perspective: 1000;
     perspective: 1000;
+    transform: translate3d(0,0,0);
   }
 }
