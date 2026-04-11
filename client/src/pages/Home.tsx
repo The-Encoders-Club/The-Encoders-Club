@@ -205,6 +205,8 @@ function TeamCarousel() {
                   <img
                     src={member.image}
                     alt={member.name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div
@@ -335,15 +337,11 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
+        {/* Scroll indicator — animación CSS pura, sin framer-motion */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 animate-float">
           <span className="text-xs">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
-        </motion.div>
+        </div>
       </section>
 
       {/* ── ABOUT ── */}
@@ -451,6 +449,8 @@ export default function Home() {
                   <img
                     src={item.image}
                     alt={item.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

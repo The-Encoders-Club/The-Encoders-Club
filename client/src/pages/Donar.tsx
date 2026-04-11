@@ -101,13 +101,9 @@ export default function Donar() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6 animate-neon-glow"
-            >
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6 animate-neon-glow animate-cyber-pulse">
               <Heart size={28} className="text-[#FF2D78]" fill="currentColor" />
-            </motion.div>
+            </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               Apoya el <span className="brand-gradient-text">Proyecto</span>
             </h1>

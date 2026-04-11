@@ -42,7 +42,7 @@ export default function Navbar() {
   return (
     <>
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 py-3 bg-gradient-to-b from-[#080818]/95 via-[#080818]/80 to-transparent backdrop-blur-xl border-b border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.3)]`}
+        className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 py-3 bg-gradient-to-b from-[#080818]/95 via-[#080818]/80 to-transparent md:backdrop-blur-xl border-b border-white/10 shadow-[0_4px_20px_rgba(0,0,0,0.25)]`}
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex items-center justify-between">
@@ -53,7 +53,10 @@ export default function Navbar() {
                 <img
                   src={LOGO_URL}
                   alt="The Encoders Club"
-                  className="w-10 h-10 md:w-12 md:h-12 object-contain relative z-10 group-hover:scale-110 transition-transform duration-500"
+                  loading="eager"
+                  decoding="async"
+                  fetchPriority="high"
+                  className="w-10 h-10 md:w-12 md:h-12 object-contain relative z-10 group-hover:scale-110 transition-transform duration-300"
                 />
               </div>
               <span

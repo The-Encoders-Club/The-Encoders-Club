@@ -54,11 +54,12 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
           style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, rgba(156, 39, 176, 0.15) 50%, rgba(10, 10, 26, 0.95) 100%)`, backgroundColor: '#0a0a1a' }}
         />
 
-        {/* MÚSICA - IMPLEMENTACIÓN MEJORADA */}
+        {/* MÚSICA — loading="lazy" para no bloquear el render inicial */}
         <iframe 
           className="hidden"
-          width="0" height="0" 
-          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&mute=0&origin=https://www.youtube.com&start=2" 
+          width="0" height="0"
+          loading="lazy"
+          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&mute=0&origin=https://the-encoders-club.pages.dev&start=2" 
           allow="autoplay"
           title="Yuri Theme Music"
         />

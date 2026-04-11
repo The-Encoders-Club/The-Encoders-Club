@@ -126,7 +126,9 @@ export default function Noticias() {
                   <img
                     src={featured.image}
                     alt={featured.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    loading="eager"
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d24]/70 hidden lg:block" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24]/80 to-transparent lg:hidden" />
@@ -184,6 +186,8 @@ export default function Noticias() {
                   <img
                     src={item.image}
                     alt={item.title}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />

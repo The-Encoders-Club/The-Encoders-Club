@@ -166,6 +166,25 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist"),
     emptyOutDir: true,
+    // Minificación agresiva para producción
+    minify: "esbuild",
+    // Separar chunks grandes para mejor caching
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Separar framer-motion en su propio chunk (es grande)
+          "framer-motion": ["framer-motion"],
+          // Separar lucide-react
+          "lucide": ["lucide-react"],
+          // Separar React core
+          "react-vendor": ["react", "react-dom"],
+        },
+      },
+    },
+    // Comprimir assets
+    assetsInlineLimit: 4096,
+    // Reportar chunks grandes
+    chunkSizeWarningLimit: 600,
   },
   server: {
     port: 3000,

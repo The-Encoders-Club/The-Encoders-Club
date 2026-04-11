@@ -51,11 +51,12 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
           style={{ backgroundImage: `linear-gradient(135deg, rgba(26, 10, 26, 0.95) 0%, rgba(255, 45, 120, 0.12) 50%, rgba(26, 10, 26, 0.95) 100%)`, backgroundColor: '#1a0a1a' }}
         />
 
-        {/* MÚSICA - IMPLEMENTACIÓN MEJORADA */}
+        {/* MÚSICA — loading="lazy" para no bloquear el render inicial */}
         <iframe 
           className="hidden"
-          width="0" height="0" 
-          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&mute=0&origin=https://www.youtube.com&start=3" 
+          width="0" height="0"
+          loading="lazy"
+          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&mute=0&origin=https://the-encoders-club.pages.dev&start=3" 
           allow="autoplay"
           title="Natsuki Theme Music"
         />

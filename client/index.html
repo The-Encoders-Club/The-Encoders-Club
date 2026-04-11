@@ -4,31 +4,36 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>The Encoders Club</title>
-    <!-- Favicon para navegadores modernos -->
+
+    <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png" />
-    
-    <!-- Apple Touch Icon (para dispositivos iOS y móviles) -->
     <link rel="apple-touch-icon" sizes="180x180" href="https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png" />
-    
-    <!-- Android / Chrome -->
+
+    <!-- PWA / Mobile -->
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="theme-color" content="#080818" />
     <meta name="description" content="Comunidad dedicada a crear y compartir novelas visuales con Ren'Py en español. Aprende, crea y colabora." />
+
+    <!-- Preconnect a dominios de recursos críticos -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet" />
-    
-    <!-- Splash Screen Styles (External to avoid Tailwind build errors) -->
+    <link rel="preconnect" href="https://files.manuscdn.com" crossorigin />
+    <link rel="preconnect" href="https://d2xsxph8kpxj0f.cloudfront.net" crossorigin />
+
+    <!-- Fuentes con display=swap para no bloquear renderizado -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap" rel="stylesheet" />
+
+    <!-- Splash Screen Styles -->
     <link rel="stylesheet" href="/splash.css" />
   </head>
   <body>
-    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out;">
+    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 0.6s ease-in-out;">
       <!-- Fondo Artístico -->
       <div class="splash-nebula-1"></div>
       <div class="splash-nebula-2"></div>
       <div id="starfield" class="splash-starfield"></div>
-      
+
       <!-- Partículas decorativas -->
       <div id="particles-container" style="position: absolute; inset: 0; pointer-events: none; z-index: 4;"></div>
 
@@ -36,7 +41,7 @@
         <div class="splash-logo-glow"></div>
         <div class="splash-ring-outer"></div>
         <div class="splash-ring"></div>
-        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png" class="splash-logo" alt="Logo" onerror="this.style.display='none'">
+        <img src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663518113549/KEigSkzYpCzkACRU.png" class="splash-logo" alt="Logo" onerror="this.style.display='none'" fetchpriority="high" />
         <div class="splash-scan"></div>
       </div>
       <div class="splash-text-container">
@@ -47,23 +52,20 @@
       </div>
 
       <script>
-        // Generador de estrellas estáticas
+        // Generador de estrellas estáticas (reducido de 80 a 50)
         const starfield = document.getElementById('starfield');
         if (starfield) {
-          for (let i = 0; i < 80; i++) {
+          for (let i = 0; i < 50; i++) {
             const star = document.createElement('div');
             star.className = 'star';
             const size = Math.random() * 2 + 1;
-            star.style.width = size + 'px';
-            star.style.height = size + 'px';
-            star.style.left = (Math.random() * 100) + '%';
-            star.style.top = (Math.random() * 100) + '%';
+            star.style.cssText = 'width:' + size + 'px;height:' + size + 'px;left:' + (Math.random() * 100) + '%;top:' + (Math.random() * 100) + '%';
             star.style.setProperty('--s-duration', (Math.random() * 3 + 2) + 's');
             starfield.appendChild(star);
           }
         }
 
-        // Generador de estrellas fugaces
+        // Estrellas fugaces (intervalo aumentado para menor carga)
         function createShootingStar() {
           const sf = document.getElementById('starfield');
           if (!sf) return;
@@ -74,17 +76,17 @@
           sf.appendChild(s);
           setTimeout(function() { s.remove(); }, 2000);
         }
-        const shootingStarInterval = setInterval(createShootingStar, 4000);
+        const shootingStarInterval = setInterval(createShootingStar, 6000);
 
-        // Generador de partículas centrales
+        // Partículas centrales (intervalo aumentado de 100ms a 200ms)
         const container = document.getElementById('particles-container');
-        const colors = ['#FF2D78', '#4D9FFF', '#a855f7', '#ffffff'];
-        
+        const colors = ['#FF2D78', '#4D9FFF', '#a855f7'];
+
         function createParticle() {
           if (!container) return;
           const p = document.createElement('div');
           p.className = 'particle';
-          const size = Math.random() * 4 + 2;
+          const size = Math.random() * 3 + 2;
           p.style.width = size + 'px';
           p.style.height = size + 'px';
           p.style.background = colors[Math.floor(Math.random() * colors.length)];
@@ -93,19 +95,17 @@
           p.style.left = startX + 'px';
           p.style.top = startY + 'px';
           const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() * 300 + 100;
-          const tx = Math.cos(angle) * dist;
-          const ty = Math.sin(angle) * dist;
-          p.style.setProperty('--p-tx', tx + 'px');
-          p.style.setProperty('--p-ty', ty + 'px');
-          const duration = Math.random() * 2 + 1;
+          const dist = Math.random() * 250 + 80;
+          p.style.setProperty('--p-tx', (Math.cos(angle) * dist) + 'px');
+          p.style.setProperty('--p-ty', (Math.sin(angle) * dist) + 'px');
+          const duration = Math.random() * 1.5 + 0.8;
           p.style.animation = 'particle-float ' + duration + 's ease-out forwards';
           container.appendChild(p);
           setTimeout(function() { p.remove(); }, duration * 1000);
         }
 
-        const particleInterval = setInterval(createParticle, 100);
-        
+        const particleInterval = setInterval(createParticle, 200);
+
         window.stopParticles = function() {
           clearInterval(particleInterval);
           clearInterval(shootingStarInterval);
