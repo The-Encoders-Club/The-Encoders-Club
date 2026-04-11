@@ -5,7 +5,7 @@
   50% { opacity: 1; transform: translate3d(0,0,0) scale(1.03); }
 }
 
-/* Animación del láser: Aislada en su propia capa de GPU */
+/* Animación del láser: Aislada en su propia capa de GPU para evitar tirones */
 @keyframes scan-laser {
   0% { transform: translate3d(0, 0, 0); opacity: 0; }
   10%, 90% { opacity: 1; }
@@ -23,11 +23,10 @@
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-/* Animación de la barra de carga: Técnica de escala horizontal (LA MÁS RÁPIDA) */
-@keyframes loading-bar-scale {
-  0% { transform: translate3d(0,0,0) scaleX(0.1); opacity: 0.5; }
-  50% { transform: translate3d(0,0,0) scaleX(1); opacity: 1; }
-  100% { transform: translate3d(0,0,0) scaleX(0.1); opacity: 0.5; }
+/* Animación de flujo arcoíris: Técnica de translate3d (LA MÁS FLUIDA Y BONITA) */
+@keyframes loading-bar-flow {
+  0% { transform: translate3d(-50%, 0, 0); }
+  100% { transform: translate3d(0%, 0, 0); }
 }
 
 @keyframes nebula-fade {
@@ -180,7 +179,7 @@
 
 .splash-title span { color: #FF2D78; }
 
-/* Barra de carga: Técnica de escala horizontal (LA MÁS RÁPIDA) */
+/* Barra de carga: Técnica de flujo arcoíris (ESTÉTICA ORIGINAL + RENDIMIENTO GPU) */
 .splash-loader {
   margin-top: 20px;
   width: 200px; height: 6px;
@@ -196,13 +195,12 @@
 .splash-loader-bar {
   position: absolute;
   inset: 0;
-  width: 100%; height: 100%;
-  /* Degradado arcoíris vibrante */
-  background: linear-gradient(90deg, #FF2D78, #4D9FFF, #a855f7, #FF2D78) !important;
+  width: 200%; height: 100%; /* Doble de ancho para el flujo infinito */
+  /* Degradado arcoíris vibrante y repetido para el flujo */
+  background: linear-gradient(90deg, #FF2D78, #4D9FFF, #a855f7, #FF2D78, #4D9FFF, #a855f7, #FF2D78) !important;
   box-shadow: 0 0 20px rgba(255, 45, 120, 0.8);
-  /* Animación de escala horizontal: la más fluida para móviles */
-  animation: loading-bar-scale 2s linear infinite !important;
-  transform-origin: left center;
+  /* Animación de flujo usando translate3d: la más fluida y bonita */
+  animation: loading-bar-flow 2s linear infinite !important;
   will-change: transform;
-  transform: translate3d(0, 0, 0);
+  transform: translate3d(-50%, 0, 0);
 }
