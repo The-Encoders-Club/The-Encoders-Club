@@ -22,10 +22,10 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Animación de la barra de carga: Técnica de movimiento de fondo ultra-compatible */
-@keyframes loading-bar-flow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 200% 50%; }
+/* Animación de la barra de carga: Técnica de deslizamiento físico (MÁS VISIBLE) */
+@keyframes loading-bar-slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
 }
 
 @keyframes nebula-fade {
@@ -176,7 +176,7 @@
 
 .splash-title span { color: #FF2D78; }
 
-/* Barra de carga: Técnica de degradado animado optimizado */
+/* Barra de carga: Técnica de deslizamiento físico (MÁS VISIBLE) */
 .splash-loader {
   margin-top: 20px;
   width: 180px; height: 4px;
@@ -193,11 +193,18 @@
   position: absolute;
   inset: 0;
   width: 100%; height: 100%;
-  /* Degradado arcoíris vibrante con tamaño extra para animar */
+  /* Degradado arcoíris vibrante */
   background: linear-gradient(90deg, #FF2D78, #4D9FFF, #a855f7, #FF2D78) !important;
-  background-size: 200% 100% !important;
-  animation: loading-bar-flow 1.5s linear infinite !important;
   box-shadow: 0 0 15px rgba(255, 45, 120, 0.6);
   transform: translateZ(0);
-  will-change: background-position;
+}
+
+/* Brillo deslizable (Técnica infalible para móviles) */
+.splash-loader-bar::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+  animation: loading-bar-slide 1.5s infinite linear;
+  transform: translateZ(0);
 }
