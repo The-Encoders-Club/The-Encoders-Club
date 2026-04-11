@@ -1,23 +1,22 @@
-/* --- ANIMACIONES OPTIMIZADAS (ESTÉTICA ORIGINAL SIN LAG) --- */
+/* --- ANIMACIONES DEFINITIVAS (CERO LAG) --- */
 /* Usamos transform: translateZ(0) para forzar aceleración por hardware */
 
 @keyframes pulse-neon {
   0%, 100% { 
-    opacity: 0.8;
+    opacity: 0.85;
     transform: scale(1) translateZ(0); 
-    /* Eliminamos drop-shadow animado que causa lag en móviles */
   }
   50% { 
     opacity: 1;
-    transform: scale(1.05) translateZ(0); 
+    transform: scale(1.03) translateZ(0); 
   }
 }
 
-/* Escáner Original: Recorre el logo de arriba a abajo */
+/* Escáner: Recorre el logo de arriba a abajo de forma fluida */
 @keyframes scan-laser {
   0% { transform: translateY(0) translateZ(0); opacity: 0; }
   10%, 90% { opacity: 1; }
-  50% { transform: translateY(160px) translateZ(0); } /* Ajustado al alto del logo (160px) */
+  50% { transform: translateY(160px) translateZ(0); }
   100% { transform: translateY(0) translateZ(0); opacity: 0; }
 }
 
@@ -27,14 +26,14 @@
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px) translateZ(0); }
+  from { opacity: 0; transform: translateY(15px) translateZ(0); }
   to { opacity: 1; transform: translateY(0) translateZ(0); }
 }
 
-/* Barra de carga Original: Desplazamiento lateral */
-@keyframes loading-bar {
-  from { transform: translateX(-100%) translateZ(0); }
-  to { transform: translateX(100%) translateZ(0); }
+/* Barra de carga: Animación de desplazamiento de color visible */
+@keyframes loading-bar-move {
+  0% { transform: translateX(-100%) translateZ(0); }
+  100% { transform: translateX(100%) translateZ(0); }
 }
 
 @keyframes particle-float {
@@ -43,47 +42,47 @@
   100% { transform: translate(var(--p-tx), var(--p-ty)) scale(0) translateZ(0); opacity: 0; }
 }
 
-@keyframes nebula-drift {
-  0%, 100% { transform: scale(1) translate(0, 0) translateZ(0); opacity: 0.3; }
-  50% { transform: scale(1.1) translate(10px, 5px) translateZ(0); opacity: 0.5; }
+/* Nebulosas: Animación de opacidad suave (sin blur animado para evitar lag) */
+@keyframes nebula-fade {
+  0%, 100% { opacity: 0.3; transform: scale(1) translateZ(0); }
+  50% { opacity: 0.5; transform: scale(1.05) translateZ(0); }
 }
 
 @keyframes star-twinkle {
   0%, 100% { opacity: 0.2; transform: scale(0.8) translateZ(0); }
-  50% { opacity: 0.8; transform: scale(1.1) translateZ(0); }
+  50% { opacity: 0.7; transform: scale(1.1) translateZ(0); }
 }
 
 @keyframes shooting-star {
   0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translateZ(0); opacity: 0; }
   10% { opacity: 1; scale(1); }
-  100% { transform: translateX(-400px) translateY(400px) rotate(-45deg) scale(1) translateZ(0); opacity: 0; }
+  100% { transform: translateX(-350px) translateY(350px) rotate(-45deg) scale(1) translateZ(0); opacity: 0; }
 }
 
 /* --- FONDO ARTÍSTICO --- */
+/* Optimizamos las nebulosas usando degradados radiales sin filtros de blur pesados */
 .splash-nebula-1 {
   position: absolute;
-  top: -20%;
+  top: -10%;
   left: -10%;
-  width: 80%;
-  height: 80%;
-  background: radial-gradient(circle, rgba(255,45,120,0.12) 0%, transparent 70%);
-  filter: blur(50px); /* Reducido ligeramente para fluidez */
-  animation: nebula-drift 10s ease-in-out infinite;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(255,45,120,0.1) 0%, transparent 70%);
+  animation: nebula-fade 8s ease-in-out infinite;
   z-index: 0;
-  will-change: transform, opacity;
+  pointer-events: none;
 }
 
 .splash-nebula-2 {
   position: absolute;
-  bottom: -20%;
+  bottom: -10%;
   right: -10%;
-  width: 90%;
-  height: 90%;
-  background: radial-gradient(circle, rgba(77,159,255,0.12) 0%, transparent 70%);
-  filter: blur(60px);
-  animation: nebula-drift 12s ease-in-out infinite reverse;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(77,159,255,0.1) 0%, transparent 70%);
+  animation: nebula-fade 10s ease-in-out infinite reverse;
   z-index: 0;
-  will-change: transform, opacity;
+  pointer-events: none;
 }
 
 .splash-starfield {
@@ -103,7 +102,7 @@
 
 .shooting-star {
   position: absolute;
-  width: 80px;
+  width: 60px;
   height: 1px;
   background: linear-gradient(90deg, white, transparent);
   z-index: 2;
@@ -120,16 +119,14 @@
   align-items: center;
   justify-content: center;
   z-index: 5;
-  /* Eliminamos overflow: hidden para quitar el cuadro */
 }
 
 .splash-logo-glow {
   position: absolute;
-  inset: -30px;
+  inset: -20px;
   background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 1;
-  filter: blur(15px);
 }
 
 .splash-ring {
@@ -159,18 +156,17 @@
   animation: pulse-neon 3s ease-in-out infinite;
   z-index: 3;
   will-change: transform, opacity;
-  /* Sombra estática ligera para evitar lag */
-  filter: drop-shadow(0 0 10px rgba(255,45,120,0.3));
+  filter: drop-shadow(0 0 8px rgba(255,45,120,0.3));
 }
 
 .splash-scan {
   position: absolute;
-  top: 30px; /* Ajustado para empezar sobre el logo */
+  top: 30px;
   left: 15%;
   right: 15%;
   height: 2px;
   background: linear-gradient(90deg, transparent, #FF2D78, transparent);
-  box-shadow: 0 0 15px #FF2D78;
+  box-shadow: 0 0 12px #FF2D78;
   z-index: 4;
   animation: scan-laser 2.5s ease-in-out infinite;
   pointer-events: none;
@@ -178,7 +174,7 @@
 }
 
 .splash-text-container {
-  margin-top: 40px;
+  margin-top: 35px;
   text-align: center;
   animation: fade-in-up 0.8s ease-out both;
   z-index: 5;
@@ -187,7 +183,7 @@
 .splash-title {
   color: white;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 26px;
+  font-size: 24px;
   font-weight: bold;
   letter-spacing: 0.25em;
   text-transform: uppercase;
@@ -202,20 +198,21 @@
   margin-top: 20px;
   width: 180px;
   height: 2px;
-  background: rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.08);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
   margin-left: auto;
   margin-right: auto;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .splash-loader-bar {
   position: absolute;
   inset: 0;
+  width: 100%;
   background: linear-gradient(90deg, transparent, #FF2D78, #4D9FFF, transparent);
-  animation: loading-bar 2s linear infinite;
+  animation: loading-bar-move 1.5s linear infinite;
   will-change: transform;
 }
 
