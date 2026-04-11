@@ -1,32 +1,33 @@
-/* --- ANIMACIONES ULTRA-LIGERAS (CERO LAG) --- */
+/* --- ANIMACIONES DE ALTO RENDIMIENTO (60 FPS) --- */
 
 @keyframes pulse-neon {
-  0%, 100% { opacity: 0.85; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.03); }
+  0%, 100% { opacity: 0.85; transform: translate3d(0,0,0) scale(1); }
+  50% { opacity: 1; transform: translate3d(0,0,0) scale(1.03); }
 }
 
-/* Animación del láser: Simplificada para no saturar la GPU */
+/* Animación del láser: Aislada en su propia capa de GPU */
 @keyframes scan-laser {
-  0% { top: 30px; opacity: 0; }
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
   10%, 90% { opacity: 1; }
-  50% { top: 190px; }
-  100% { top: 30px; opacity: 0; }
+  50% { transform: translate3d(0, 160px, 0); }
+  100% { transform: translate3d(0, 0, 0); opacity: 0; }
 }
 
 @keyframes ring-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from { transform: rotate(0deg) translate3d(0,0,0); }
+  to { transform: rotate(360deg) translate3d(0,0,0); }
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate3d(0, 15px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-/* Animación de la barra de carga: Técnica nativa de posición de fondo (MÁS LIGERA) */
-@keyframes loading-bar-flow {
-  from { background-position: 0% 0%; }
-  to { background-position: 200% 0%; }
+/* Animación de la barra de carga: Técnica de escala horizontal (LA MÁS RÁPIDA) */
+@keyframes loading-bar-scale {
+  0% { transform: translate3d(0,0,0) scaleX(0.1); opacity: 0.5; }
+  50% { transform: translate3d(0,0,0) scaleX(1); opacity: 1; }
+  100% { transform: translate3d(0,0,0) scaleX(0.1); opacity: 0.5; }
 }
 
 @keyframes nebula-fade {
@@ -35,13 +36,13 @@
 }
 
 @keyframes star-twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(0.8); }
-  50% { opacity: 0.7; transform: scale(1.1); }
+  0%, 100% { opacity: 0.2; transform: translate3d(0,0,0) scale(0.8); }
+  50% { opacity: 0.7; transform: translate3d(0,0,0) scale(1.1); }
 }
 
 @keyframes particle-float {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--p-tx), var(--p-ty)) scale(0); opacity: 0; }
+  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 1; }
+  100% { transform: translate3d(var(--p-tx), var(--p-ty), 0) scale(0); opacity: 0; }
 }
 
 /* --- FONDO ARTÍSTICO --- */
@@ -52,6 +53,7 @@
   animation: nebula-fade 8s ease-in-out infinite;
   z-index: 0;
   pointer-events: none;
+  transform: translate3d(0,0,0);
 }
 
 .splash-nebula-2 {
@@ -61,6 +63,7 @@
   animation: nebula-fade 10s ease-in-out infinite reverse;
   z-index: 0;
   pointer-events: none;
+  transform: translate3d(0,0,0);
 }
 
 .splash-starfield {
@@ -75,6 +78,7 @@
   background: white;
   border-radius: 50%;
   animation: star-twinkle var(--s-duration) ease-in-out infinite;
+  transform: translate3d(0,0,0);
 }
 
 .shooting-star {
@@ -86,15 +90,16 @@
 }
 
 @keyframes shooting-star-anim {
-  0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0); opacity: 1; }
+  0% { transform: translate3d(0, 0, 0) rotate(-45deg) scale(0); opacity: 1; }
   70% { opacity: 1; }
-  100% { transform: translateX(-200px) translateY(200px) rotate(-45deg) scale(1); opacity: 0; }
+  100% { transform: translate3d(-200px, 200px, 0) rotate(-45deg) scale(1); opacity: 0; }
 }
 
 .particle {
   position: absolute;
   border-radius: 50%;
   z-index: 4;
+  transform: translate3d(0,0,0);
 }
 
 /* --- ELEMENTOS CENTRALES --- */
@@ -111,6 +116,7 @@
   background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 1;
+  transform: translate3d(0,0,0);
 }
 
 .splash-ring {
@@ -120,6 +126,7 @@
   border-radius: 50%;
   animation: ring-rotate 4s linear infinite;
   z-index: 2;
+  transform: translate3d(0,0,0);
 }
 
 .splash-ring-outer {
@@ -129,6 +136,7 @@
   border-radius: 50%;
   animation: ring-rotate 8s linear infinite reverse;
   z-index: 2;
+  transform: translate3d(0,0,0);
 }
 
 .splash-logo {
@@ -137,6 +145,7 @@
   animation: pulse-neon 3s ease-in-out infinite;
   z-index: 3;
   filter: drop-shadow(0 0 8px rgba(255,45,120,0.3));
+  transform: translate3d(0,0,0);
 }
 
 .splash-scan {
@@ -145,9 +154,11 @@
   background: linear-gradient(90deg, transparent, #FF2D78, transparent);
   box-shadow: 0 0 12px #FF2D78;
   z-index: 4;
-  /* Animación simplificada de 'top' para no saturar la GPU */
+  /* Animación aislada en GPU para fluidez total */
   animation: scan-laser 2.5s linear infinite;
   pointer-events: none;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
 }
 
 .splash-text-container {
@@ -169,7 +180,7 @@
 
 .splash-title span { color: #FF2D78; }
 
-/* Barra de carga: Técnica nativa de posición de fondo (MÁS LIGERA) */
+/* Barra de carga: Técnica de escala horizontal (LA MÁS RÁPIDA) */
 .splash-loader {
   margin-top: 20px;
   width: 200px; height: 6px;
@@ -179,16 +190,19 @@
   position: relative;
   margin-left: auto; margin-right: auto;
   border: 1px solid rgba(255,255,255,0.15);
+  transform: translate3d(0,0,0);
 }
 
 .splash-loader-bar {
   position: absolute;
   inset: 0;
   width: 100%; height: 100%;
-  /* Degradado arcoíris vibrante con tamaño 200% para poder fluir */
+  /* Degradado arcoíris vibrante */
   background: linear-gradient(90deg, #FF2D78, #4D9FFF, #a855f7, #FF2D78) !important;
-  background-size: 200% 100% !important;
   box-shadow: 0 0 20px rgba(255, 45, 120, 0.8);
-  /* Animación nativa de posición de fondo, ultra-ligera para móviles */
-  animation: loading-bar-flow 2s linear infinite !important;
+  /* Animación de escala horizontal: la más fluida para móviles */
+  animation: loading-bar-scale 2s linear infinite !important;
+  transform-origin: left center;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
 }
