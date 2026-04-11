@@ -127,7 +127,7 @@ function StatCounter({
           start();
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.1 } // Aparece antes
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
@@ -159,11 +159,11 @@ function StatCounter({
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay: i * 0.1 },
+    transition: { duration: 0.5, delay: i * 0.05, ease: "easeOut" },
   }),
 };
 
@@ -191,7 +191,7 @@ function TeamCarousel() {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                 style={{ transform: 'translateZ(0)' }}
                 className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
               >
@@ -262,9 +262,20 @@ export default function Home() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            {/* Left: Content Spacer (Logo removed) */}
-            <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
-              {/* Glow remains for atmosphere */}
+            {/* Left: Visual (Mascota restaurada) */}
+            <div className="flex flex-col items-center justify-center relative order-1 lg:order-1">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="relative z-10"
+              >
+                <img
+                  src={PERSONAJE_URL}
+                  alt="Mascota"
+                  className="w-full max-w-[350px] lg:max-w-[450px] h-auto animate-float"
+                />
+              </motion.div>
               <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
             </div>
 
@@ -360,7 +371,7 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "0px 0px -100px 0px" }}
               transition={{ duration: 0.7 }}
               style={{ transform: 'translateZ(0)' }}
               className="relative"
@@ -394,7 +405,7 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
+              viewport={{ once: true, margin: "0px 0px -100px 0px" }}
               transition={{ duration: 0.7 }}
               style={{ transform: 'translateZ(0)' }}
             >
@@ -452,7 +463,7 @@ export default function Home() {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "0px 0px -50px 0px" }}
                 style={{ transform: 'translateZ(0)' }}
                 className="glass-card overflow-hidden group"
               >
@@ -514,7 +525,7 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, margin: "0px 0px -100px 0px" }}
             transition={{ duration: 0.7 }}
             style={{ transform: 'translateZ(0)' }}
             className="glass-card p-10 lg:p-16 relative overflow-hidden"
