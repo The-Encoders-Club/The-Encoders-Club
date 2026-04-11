@@ -143,13 +143,13 @@ function StatCounter({
     <div ref={ref} className="flex flex-col items-center text-center p-6">
       <div
         className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
-        style={{ background: `${color}20`, border: `1px solid ${color}40`, transform: 'translateZ(0)' }} // Added translateZ
+        style={{ background: `${color}20`, border: `1px solid ${color}40` }}
       >
         <Icon size={22} style={{ color }} />
       </div>
       <span
         className="text-3xl md:text-4xl font-bold mb-1"
-        style={{ fontFamily: "'Space Grotesk', sans-serif", color, transform: 'translateZ(0)' }} // Added translateZ
+        style={{ fontFamily: "'Space Grotesk', sans-serif", color }}
       >
         {formatted}{suffix}
       </span>
@@ -159,19 +159,16 @@ function StatCounter({
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30, translateZ: 0 }, // Added translateZ
+  hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    translateZ: 0, // Added translateZ
-    transition: { duration: 0.6, delay: i * 0.1, ease: "easeOut" }, // Added easeOut
+    transition: { duration: 0.6, delay: i * 0.1 },
   }),
 };
 
 // Team Carousel Component
 function TeamCarousel() {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768; // Define isMobile locally
-
   return (
     <section className="py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -194,7 +191,7 @@ function TeamCarousel() {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, margin: isMobile ? "0px" : "-100px" }} // Adjusted viewport margin for mobile
+                viewport={{ once: true }}
                 className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
               >
                 {/* Avatar - Larger */}
@@ -203,24 +200,21 @@ function TeamCarousel() {
                   style={{
                     background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
                     border: `2px solid ${member.color}40`,
-                    transform: 'translateZ(0)' // Added translateZ
                   }}
                 >
                   <img
                     src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy" // Added lazy loading
-                    style={{ transform: 'translateZ(0)' }} // Added translateZ
                   />
                   <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
-                    style={{ background: member.color, transform: 'translateZ(0)' }} // Added translateZ
+                    style={{ background: member.color }}
                   />
                 </div>
                 <h3
                   className="font-bold text-base lg:text-lg mb-3"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color, transform: 'translateZ(0)' }} // Added translateZ
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
                 >
                   {member.name}
                 </h3>
@@ -243,8 +237,6 @@ function TeamCarousel() {
 }
 
 export default function Home() {
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768; // Define isMobile locally
-
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
       <Navbar />
@@ -257,56 +249,53 @@ export default function Home() {
             src={BG_URL}
             alt=""
             className="w-full h-full object-cover opacity-30"
-            loading="lazy" // Added lazy loading
-            style={{ transform: 'translateZ(0)' }} // Added translateZ
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#080818]/60 via-transparent to-[#080818]" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#080818]/60 via-transparent to-[#080818]" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" />
         </div>
 
-        {/* Decorative orbs - Optimizados con translateZ */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" style={{ transform: 'translateZ(0)' }} />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" style={{ transform: 'translateZ(0)' }} />
+        {/* Decorative orbs */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             {/* Left: Content Spacer (Logo removed) */}
             <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
               {/* Glow remains for atmosphere */}
-              <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" style={{ transform: 'translateZ(0)' }} />
+              <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
             </div>
 
             {/* Right: Text */}
             <div className="flex flex-col justify-center lg:pl-8 order-2 lg:order-2">
-              {/* Title */}
-              <motion.h1
-                initial={{ opacity: 0, y: 30, translateZ: 0 }} // Added translateZ
-                animate={{ opacity: 1, y: 0, translateZ: 0 }} // Added translateZ
-                transition={{ duration: 0.7, delay: 0.1, ease: "easeOut" }} // Added easeOut
-                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
+              {/* T              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.1 }}
+                className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6 text-center lg:text-left"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                <span className="text-white">The</span>{" "}
-                <span className="brand-gradient-text">Encoders</span>
-                <br />
-                <span className="text-white">Club</span>
+                THE ENCODERS <br />
+                <span className="brand-gradient-text drop-shadow-[0_0_15px_rgba(255,45,120,0.3)]">CLUB</span>
+              </motion.h1>       <span className="text-white">Club</span>
               </motion.h1>
 
               {/* Subtitle */}
               <motion.p
-                initial={{ opacity: 0, y: 20, translateZ: 0 }} // Added translateZ
-                animate={{ opacity: 1, y: 0, translateZ: 0 }} // Added translateZ
-                transition={{ duration: 0.6, delay: 0.25, ease: "easeOut" }} // Added easeOut
-                className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="text-base sm:text-xl text-white/70 mb-10 max-w-xl leading-relaxed text-center lg:text-left mx-auto lg:mx-0"
               >
                 Tu portal a las mejores experiencias de novelas visuales en español. Aprende Ren'Py, crea historias únicas y comparte tu arte con la comunidad.
               </motion.p>
 
               {/* CTA Buttons */}
               <motion.div
-                initial={{ opacity: 0, y: 20, translateZ: 0 }} // Added translateZ
-                animate={{ opacity: 1, y: 0, translateZ: 0 }} // Added translateZ
-                transition={{ duration: 0.6, delay: 0.35, ease: "easeOut" }} // Added easeOut
-                className="flex flex-wrap gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="flex flex-wrap gap-4 justify-center lg:justify-start"
               >
                 <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
                   Ver Proyectos
@@ -320,23 +309,23 @@ export default function Home() {
 
               {/* Mini stats */}
               <motion.div
-                initial={{ opacity: 0, translateZ: 0 }} // Added translateZ
-                animate={{ opacity: 1, translateZ: 0 }} // Added translateZ
-                transition={{ duration: 0.6, delay: 0.5, ease: "easeOut" }} // Added easeOut
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
                 className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10"
               >
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif", transform: 'translateZ(0)' }}>3+</p> {/* Added translateZ */}
+                  <p className="text-2xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3+</p>
                   <p className="text-xs text-white/45">Proyectos</p>
                 </div>
-                <div className="w-px h-10 bg-white/15" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
+                <div className="w-px h-10 bg-white/15" />
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif", transform: 'translateZ(0)' }}>7+</p> {/* Added translateZ */}
+                  <p className="text-2xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>7+</p>
                   <p className="text-xs text-white/45">Cursos</p>
                 </div>
-                <div className="w-px h-10 bg-white/15" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
+                <div className="w-px h-10 bg-white/15" />
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif", transform: 'translateZ(0)' }}>∞</p> {/* Added translateZ */}
+                  <p className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>∞</p>
                   <p className="text-xs text-white/45">Creatividad</p>
                 </div>
               </motion.div>
@@ -347,11 +336,11 @@ export default function Home() {
         {/* Scroll indicator */}
         <motion.div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
-          animate={{ y: [0, 8, 0], translateZ: 0 }} // Added translateZ
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }} // Added ease: "linear"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
         >
           <span className="text-xs">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
+          <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
         </motion.div>
       </section>
 
@@ -359,31 +348,31 @@ export default function Home() {
       <section className="py-20 lg:py-28 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Visual - Removed Ren'Py logo, kept the glass card */}
+            {/* Left: Visual */}
             <motion.div
-              initial={{ opacity: 0, x: -30, translateZ: 0 }} // Added translateZ
-              whileInView={{ opacity: 1, x: 0, translateZ: 0 }} // Added translateZ
-              viewport={{ once: true, margin: isMobile ? "0px" : "-100px" }} // Adjusted viewport margin for mobile
-              transition={{ duration: 0.7, ease: "easeOut" }} // Added easeOut
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
               className="relative"
             >
-              <div className="glass-card p-8 relative overflow-hidden" style={{ transform: 'translateZ(0)' }}> {/* Added translateZ */}
-                <div className="absolute top-0 left-0 w-full h-1 brand-gradient" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
+              <div className="glass-card p-8 relative overflow-hidden">
+                <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
                 <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center" style={{ transform: 'translateZ(0)' }}> {/* Added translateZ */}
+                  <div className="w-12 h-12 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center">
                     <Gamepad2 size={24} className="text-[#FF2D78]" />
                   </div>
                   <div>
-                    <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif", transform: 'translateZ(0)' }}>Motor Ren'Py</h3> {/* Added translateZ */}
+                    <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Motor Ren'Py</h3>
                     <p className="text-sm text-white/50">Novelas Visuales</p>
                   </div>
                 </div>
-                <p className="text-white/65 text-sm leading-relaxed mb-6" style={{ transform: 'translateZ(0)' }}> {/* Added translateZ */}
+                <p className="text-white/65 text-sm leading-relaxed mb-6">
                   Ren'Py es el motor de referencia para crear novelas visuales. Con Python como base, permite crear historias interactivas con múltiples finales, personajes expresivos y música envolvente.
                 </p>
                 <div className="grid grid-cols-2 gap-3">
                   {["Fácil de aprender", "Python-based", "Multiplataforma", "Comunidad activa"].map((feat) => (
-                    <div key={feat} className="flex items-center gap-2 text-xs text-white/60" style={{ transform: 'translateZ(0)' }}> {/* Added translateZ */}
+                    <div key={feat} className="flex items-center gap-2 text-xs text-white/60">
                       <Star size={12} className="text-[#FF2D78] flex-shrink-0" />
                       {feat}
                     </div>
@@ -394,10 +383,10 @@ export default function Home() {
 
             {/* Right: Text */}
             <motion.div
-              initial={{ opacity: 0, x: 30, translateZ: 0 }} // Added translateZ
-              whileInView={{ opacity: 1, x: 0, translateZ: 0 }} // Added translateZ
-              viewport={{ once: true, margin: isMobile ? "0px" : "-100px" }} // Adjusted viewport margin for mobile
-              transition={{ duration: 0.7, ease: "easeOut" }} // Added easeOut
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
             >
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">
                 Sobre nosotros
@@ -453,7 +442,7 @@ export default function Home() {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, margin: isMobile ? "0px" : "-100px" }} // Adjusted viewport margin for mobile
+                viewport={{ once: true }}
                 className="glass-card overflow-hidden group"
               >
                 <div className="relative overflow-hidden h-40">
@@ -461,17 +450,14 @@ export default function Home() {
                     src={item.image}
                     alt={item.title}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy" // Added lazy loading
-                    style={{ transform: 'translateZ(0)' }} // Added translateZ
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <span
                     className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
                     style={{
                       background: `${item.tagColor}25`,
                       border: `1px solid ${item.tagColor}50`,
                       color: item.tagColor,
-                      transform: 'translateZ(0)' // Added translateZ
                     }}
                   >
                     {item.tag}
@@ -479,7 +465,7 @@ export default function Home() {
                 </div>
                 <div className="p-4">
                   <p className="text-xs text-white/40 mb-2">{item.date}</p>
-                  <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif", transform: 'translateZ(0)' }}> {/* Added translateZ */}
+                  <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {item.title}
                   </h3>
                   <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">
@@ -514,21 +500,21 @@ export default function Home() {
       <section className="py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30, translateZ: 0 }} // Added translateZ
-            whileInView={{ opacity: 1, y: 0, translateZ: 0 }} // Added translateZ
-            viewport={{ once: true, margin: isMobile ? "0px" : "-100px" }} // Adjusted viewport margin for mobile
-            transition={{ duration: 0.7, ease: "easeOut" }} // Added easeOut
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
             className="glass-card p-10 lg:p-16 relative overflow-hidden"
           >
-            <div className="absolute top-0 left-0 w-full h-1 brand-gradient" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" style={{ transform: 'translateZ(0)' }} /> {/* Added translateZ */}
+            <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
+            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
 
             <div className="relative z-10">
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">
                 Únete a nosotros
               </span>
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif", transform: 'translateZ(0)' }}>
+              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 ¿Listo para crear tu{" "}
                 <span className="brand-gradient-text">novela visual?</span>
               </h2>
@@ -550,7 +536,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
