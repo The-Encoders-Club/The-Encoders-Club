@@ -23,21 +23,14 @@
     <link rel="stylesheet" href="/splash.css" />
   </head>
   <body>
-    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 0.8s ease-in-out; will-change: opacity;">
-      <!-- Fondo Artístico (Optimizado: Menos capas de blur) -->
+    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out; will-change: opacity; transform: translateZ(0);">
+      <!-- Fondo Artístico -->
       <div class="splash-nebula-1"></div>
       <div class="splash-nebula-2"></div>
       <div id="starfield" class="splash-starfield"></div>
       
-      <!-- Partículas decorativas (Optimizadas: Estáticas con animación CSS) -->
-      <div id="particles-container" class="splash-particles-static">
-        <div class="p-static p1"></div>
-        <div class="p-static p2"></div>
-        <div class="p-static p3"></div>
-        <div class="p-static p4"></div>
-        <div class="p-static p5"></div>
-        <div class="p-static p6"></div>
-      </div>
+      <!-- Partículas decorativas -->
+      <div id="particles-container" style="position: absolute; inset: 0; pointer-events: none; z-index: 4; transform: translateZ(0);"></div>
 
       <div class="splash-logo-container">
         <div class="splash-logo-glow"></div>
@@ -54,19 +47,14 @@
       </div>
 
       <script>
-        // Generador de estrellas estáticas (Optimizado: Ejecución única y fragmento de DOM)
-        (function() {
-          const starfield = document.getElementById('starfield');
-          if (!starfield) return;
-          
-          const isMobile = window.innerWidth < 768;
-          const starCount = isMobile ? 30 : 60;
+        // Generador de estrellas estáticas (Restaurado a 80 estrellas originales)
+        const starfield = document.getElementById('starfield');
+        if (starfield) {
           const fragment = document.createDocumentFragment();
-          
-          for (let i = 0; i < starCount; i++) {
+          for (let i = 0; i < 80; i++) {
             const star = document.createElement('div');
             star.className = 'star';
-            const size = Math.random() * 1.2 + 0.4;
+            const size = Math.random() * 2 + 1;
             star.style.width = size + 'px';
             star.style.height = size + 'px';
             star.style.left = (Math.random() * 100) + '%';
@@ -75,24 +63,55 @@
             fragment.appendChild(star);
           }
           starfield.appendChild(fragment);
+        }
 
-          // Estrellas fugaces (Optimizado: Menos frecuencia y solo si la pestaña está activa)
-          function createShootingStar() {
-            if (document.hidden) return;
-            const s = document.createElement('div');
-            s.className = 'shooting-star';
-            s.style.left = (Math.random() * 100 + 20) + '%';
-            s.style.top = (Math.random() * 50) + '%';
-            starfield.appendChild(s);
-            setTimeout(() => s.remove(), 2000);
-          }
-          
-          const shootingStarInterval = setInterval(createShootingStar, 8000);
-          
-          window.stopParticles = function() {
-            clearInterval(shootingStarInterval);
-          };
-        })();
+        // Generador de estrellas fugaces (Restaurado a frecuencia original)
+        function createShootingStar() {
+          const sf = document.getElementById('starfield');
+          if (!sf || document.hidden) return;
+          const s = document.createElement('div');
+          s.className = 'shooting-star';
+          s.style.left = (Math.random() * 100 + 20) + '%';
+          s.style.top = (Math.random() * 50) + '%';
+          sf.appendChild(s);
+          setTimeout(function() { s.remove(); }, 2000);
+        }
+        const shootingStarInterval = setInterval(createShootingStar, 4000);
+
+        // Generador de partículas centrales (Restaurado a frecuencia original)
+        const container = document.getElementById('particles-container');
+        const colors = ['#FF2D78', '#4D9FFF', '#a855f7', '#ffffff'];
+        
+        function createParticle() {
+          if (!container || document.hidden) return;
+          const p = document.createElement('div');
+          p.className = 'particle';
+          const size = Math.random() * 4 + 2;
+          p.style.width = size + 'px';
+          p.style.height = size + 'px';
+          p.style.background = colors[Math.floor(Math.random() * colors.length)];
+          const startX = window.innerWidth / 2;
+          const startY = window.innerHeight / 2;
+          p.style.left = startX + 'px';
+          p.style.top = startY + 'px';
+          const angle = Math.random() * Math.PI * 2;
+          const dist = Math.random() * 300 + 100;
+          const tx = Math.cos(angle) * dist;
+          const ty = Math.sin(angle) * dist;
+          p.style.setProperty('--p-tx', tx + 'px');
+          p.style.setProperty('--p-ty', ty + 'px');
+          const duration = Math.random() * 2 + 1;
+          p.style.animation = 'particle-float ' + duration + 's ease-out forwards';
+          container.appendChild(p);
+          setTimeout(function() { p.remove(); }, duration * 1000);
+        }
+
+        const particleInterval = setInterval(createParticle, 100);
+        
+        window.stopParticles = function() {
+          clearInterval(particleInterval);
+          clearInterval(shootingStarInterval);
+        };
       </script>
     </div>
     <div id="root"></div>
