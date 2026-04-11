@@ -1,25 +1,26 @@
 /* --- ANIMACIONES OPTIMIZADAS (CERO LAG) --- */
 
 @keyframes pulse-neon {
-  0%, 100% { opacity: 0.85; transform: scale(1); }
-  50% { opacity: 1; transform: scale(1.03); }
+  0%, 100% { opacity: 0.85; transform: translate3d(0,0,0) scale(1); }
+  50% { opacity: 1; transform: translate3d(0,0,0) scale(1.03); }
 }
 
+/* Animación del láser: Optimizada con translate3d para evitar tirones */
 @keyframes scan-laser {
-  0% { transform: translateY(0); opacity: 0; }
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
   10%, 90% { opacity: 1; }
-  50% { transform: translateY(160px); }
-  100% { transform: translateY(0); opacity: 0; }
+  50% { transform: translate3d(0, 160px, 0); }
+  100% { transform: translate3d(0, 0, 0); opacity: 0; }
 }
 
 @keyframes ring-rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from { transform: rotate(0deg) translate3d(0,0,0); }
+  to { transform: rotate(360deg) translate3d(0,0,0); }
 }
 
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(15px); }
-  to { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translate3d(0, 15px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
 /* Animación de la barra de carga: Velocidad LINEAL para evitar tirones o cambios de ritmo */
@@ -34,8 +35,8 @@
 }
 
 @keyframes star-twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(0.8); }
-  50% { opacity: 0.7; transform: scale(1.1); }
+  0%, 100% { opacity: 0.2; transform: translate3d(0,0,0) scale(0.8); }
+  50% { opacity: 0.7; transform: translate3d(0,0,0) scale(1.1); }
 }
 
 @keyframes particle-float {
@@ -152,8 +153,10 @@
   background: linear-gradient(90deg, transparent, #FF2D78, transparent);
   box-shadow: 0 0 12px #FF2D78;
   z-index: 4;
-  animation: scan-laser 2.5s ease-in-out infinite;
+  /* Optimizado con linear para evitar tirones al inicio/final */
+  animation: scan-laser 2.5s linear infinite;
   pointer-events: none;
+  will-change: transform;
   transform: translate3d(0, 0, 0);
 }
 
@@ -204,7 +207,6 @@
   position: absolute;
   top: 0; left: 0; width: 120%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
-  /* Cambiado a 'linear' para que la velocidad sea constante de principio a fin */
   animation: loading-bar-slide 1.5s infinite linear;
   will-change: transform;
   transform: translate3d(0, 0, 0);
