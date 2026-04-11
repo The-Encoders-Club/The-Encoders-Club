@@ -268,24 +268,26 @@ export default function Home() {
 
             {/* Right: Text */}
             <div className="flex flex-col justify-center lg:pl-8 order-2 lg:order-2">
-              {/* T              <motion.h1
+              {/* Title */}
+              <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6 text-center lg:text-left"
+                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                THE ENCODERS <br />
-                <span className="brand-gradient-text drop-shadow-[0_0_15px_rgba(255,45,120,0.3)]">CLUB</span>
-              </motion.h1>       <span className="text-white">Club</span>
+                <span className="text-white">The</span>{" "}
+                <span className="brand-gradient-text">Encoders</span>
+                <br />
+                <span className="text-white">Club</span>
               </motion.h1>
 
               {/* Subtitle */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="text-base sm:text-xl text-white/70 mb-10 max-w-xl leading-relaxed text-center lg:text-left mx-auto lg:mx-0"
+                transition={{ duration: 0.6, delay: 0.25 }}
+                className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg"
               >
                 Tu portal a las mejores experiencias de novelas visuales en español. Aprende Ren'Py, crea historias únicas y comparte tu arte con la comunidad.
               </motion.p>
@@ -294,8 +296,8 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
-                className="flex flex-wrap gap-4 justify-center lg:justify-start"
+                transition={{ duration: 0.6, delay: 0.35 }}
+                className="flex flex-wrap gap-4"
               >
                 <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
                   Ver Proyectos
