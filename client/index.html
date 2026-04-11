@@ -23,13 +23,13 @@
     <link rel="stylesheet" href="/splash.css" />
   </head>
   <body>
-    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out;">
+    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out; will-change: opacity;">
       <!-- Fondo Artístico -->
       <div class="splash-nebula-1"></div>
       <div class="splash-nebula-2"></div>
       <div id="starfield" class="splash-starfield"></div>
       
-      <!-- Partículas decorativas -->
+      <!-- Partículas decorativas (Optimizadas con CSS) -->
       <div id="particles-container" style="position: absolute; inset: 0; pointer-events: none; z-index: 4;"></div>
 
       <div class="splash-logo-container">
@@ -47,26 +47,31 @@
       </div>
 
       <script>
-        // Generador de estrellas estáticas
+        // Generador de estrellas estáticas (Optimizado: Menos estrellas en móvil)
         const starfield = document.getElementById('starfield');
         if (starfield) {
-          for (let i = 0; i < 80; i++) {
+          const isMobile = window.innerWidth < 768;
+          const starCount = isMobile ? 40 : 80;
+          const fragment = document.createDocumentFragment();
+          
+          for (let i = 0; i < starCount; i++) {
             const star = document.createElement('div');
             star.className = 'star';
-            const size = Math.random() * 2 + 1;
+            const size = Math.random() * 1.5 + 0.5;
             star.style.width = size + 'px';
             star.style.height = size + 'px';
             star.style.left = (Math.random() * 100) + '%';
             star.style.top = (Math.random() * 100) + '%';
             star.style.setProperty('--s-duration', (Math.random() * 3 + 2) + 's');
-            starfield.appendChild(star);
+            fragment.appendChild(star);
           }
+          starfield.appendChild(fragment);
         }
 
-        // Generador de estrellas fugaces
+        // Generador de estrellas fugaces (Optimizado: Menos frecuencia)
         function createShootingStar() {
           const sf = document.getElementById('starfield');
-          if (!sf) return;
+          if (!sf || document.hidden) return;
           const s = document.createElement('div');
           s.className = 'shooting-star';
           s.style.left = (Math.random() * 100 + 20) + '%';
@@ -74,17 +79,20 @@
           sf.appendChild(s);
           setTimeout(function() { s.remove(); }, 2000);
         }
-        const shootingStarInterval = setInterval(createShootingStar, 4000);
+        const shootingStarInterval = setInterval(createShootingStar, 6000);
 
-        // Generador de partículas centrales
+        // Generador de partículas centrales (Optimizado: Menos frecuencia y GPU acceleration)
         const container = document.getElementById('particles-container');
         const colors = ['#FF2D78', '#4D9FFF', '#a855f7', '#ffffff'];
         
         function createParticle() {
-          if (!container) return;
+          if (!container || document.hidden) return;
+          const isMobile = window.innerWidth < 768;
+          if (isMobile && Math.random() > 0.5) return; // Reduce partículas en móvil
+
           const p = document.createElement('div');
           p.className = 'particle';
-          const size = Math.random() * 4 + 2;
+          const size = Math.random() * 3 + 1;
           p.style.width = size + 'px';
           p.style.height = size + 'px';
           p.style.background = colors[Math.floor(Math.random() * colors.length)];
@@ -93,18 +101,18 @@
           p.style.left = startX + 'px';
           p.style.top = startY + 'px';
           const angle = Math.random() * Math.PI * 2;
-          const dist = Math.random() * 300 + 100;
+          const dist = Math.random() * 200 + 50;
           const tx = Math.cos(angle) * dist;
           const ty = Math.sin(angle) * dist;
           p.style.setProperty('--p-tx', tx + 'px');
           p.style.setProperty('--p-ty', ty + 'px');
-          const duration = Math.random() * 2 + 1;
+          const duration = Math.random() * 1.5 + 1;
           p.style.animation = 'particle-float ' + duration + 's ease-out forwards';
           container.appendChild(p);
           setTimeout(function() { p.remove(); }, duration * 1000);
         }
 
-        const particleInterval = setInterval(createParticle, 100);
+        const particleInterval = setInterval(createParticle, 200);
         
         window.stopParticles = function() {
           clearInterval(particleInterval);
