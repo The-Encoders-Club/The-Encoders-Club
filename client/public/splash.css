@@ -1,4 +1,4 @@
-/* --- ANIMACIONES DEFINITIVAS (CERO LAG) --- */
+/* --- ANIMACIONES DEFINITIVAS (CERO LAG - VERSIÓN FINAL) --- */
 /* Usamos transform: translateZ(0) para forzar aceleración por hardware */
 
 @keyframes pulse-neon {
@@ -30,10 +30,10 @@
   to { opacity: 1; transform: translateY(0) translateZ(0); }
 }
 
-/* Barra de carga: Animación de desplazamiento de color visible */
-@keyframes loading-bar-move {
-  0% { transform: translateX(-100%) translateZ(0); }
-  100% { transform: translateX(100%) translateZ(0); }
+/* Barra de carga: Animación de fondo (background-position) para máxima fluidez */
+@keyframes loading-bar-flow {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 @keyframes particle-float {
@@ -60,7 +60,6 @@
 }
 
 /* --- FONDO ARTÍSTICO --- */
-/* Optimizamos las nebulosas usando degradados radiales sin filtros de blur pesados */
 .splash-nebula-1 {
   position: absolute;
   top: -10%;
@@ -194,11 +193,12 @@
   color: #FF2D78; 
 }
 
+/* Barra de carga rediseñada para máxima visibilidad y fluidez */
 .splash-loader {
   margin-top: 20px;
   width: 180px;
-  height: 2px;
-  background: rgba(255,255,255,0.08);
+  height: 4px; /* Un poco más gruesa para que se vea mejor */
+  background: rgba(255,255,255,0.05);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
@@ -211,9 +211,18 @@
   position: absolute;
   inset: 0;
   width: 100%;
-  background: linear-gradient(90deg, transparent, #FF2D78, #4D9FFF, transparent);
-  animation: loading-bar-move 1.5s linear infinite;
-  will-change: transform;
+  height: 100%;
+  /* Usamos un degradado de fondo que se repite */
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #FF2D78 25%, 
+    #4D9FFF 50%, 
+    #FF2D78 75%, 
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: loading-bar-flow 2s linear infinite;
+  will-change: background-position;
 }
 
 .particle {
