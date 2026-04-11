@@ -1,112 +1,63 @@
-/* --- ANIMACIONES DEFINITIVAS (CERO LAG - VERSIÓN FINAL) --- */
-/* Usamos transform: translateZ(0) para forzar aceleración por hardware */
+/* --- ANIMACIONES ULTRA-COMPATIBLES (CERO LAG) --- */
 
 @keyframes pulse-neon {
-  0%, 100% { 
-    opacity: 0.85;
-    transform: scale(1) translateZ(0); 
-  }
-  50% { 
-    opacity: 1;
-    transform: scale(1.03) translateZ(0); 
-  }
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.03); }
 }
 
-/* Escáner: Recorre el logo de arriba a abajo de forma fluida */
 @keyframes scan-laser {
-  0% { transform: translateY(0) translateZ(0); opacity: 0; }
+  0% { transform: translateY(0); opacity: 0; }
   10%, 90% { opacity: 1; }
-  50% { transform: translateY(160px) translateZ(0); }
-  100% { transform: translateY(0) translateZ(0); opacity: 0; }
+  50% { transform: translateY(160px); }
+  100% { transform: translateY(0); opacity: 0; }
 }
 
 @keyframes ring-rotate {
-  from { transform: rotate(0deg) translateZ(0); }
-  to { transform: rotate(360deg) translateZ(0); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(15px) translateZ(0); }
-  to { opacity: 1; transform: translateY(0) translateZ(0); }
+/* Animación de escala: La más fluida y compatible para móviles */
+@keyframes loading-bar-scale {
+  0% { transform: scaleX(0); transform-origin: left; }
+  50% { transform: scaleX(1); transform-origin: left; }
+  50.1% { transform: scaleX(1); transform-origin: right; }
+  100% { transform: scaleX(0); transform-origin: right; }
 }
 
-/* Barra de carga: Animación de fondo (background-position) para máxima fluidez */
-@keyframes loading-bar-flow {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-@keyframes particle-float {
-  0% { transform: translate(0, 0) scale(1) translateZ(0); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translate(var(--p-tx), var(--p-ty)) scale(0) translateZ(0); opacity: 0; }
-}
-
-/* Nebulosas: Animación de opacidad suave (sin blur animado para evitar lag) */
 @keyframes nebula-fade {
-  0%, 100% { opacity: 0.3; transform: scale(1) translateZ(0); }
-  50% { opacity: 0.5; transform: scale(1.05) translateZ(0); }
-}
-
-@keyframes star-twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(0.8) translateZ(0); }
-  50% { opacity: 0.7; transform: scale(1.1) translateZ(0); }
-}
-
-@keyframes shooting-star {
-  0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translateZ(0); opacity: 0; }
-  10% { opacity: 1; scale(1); }
-  100% { transform: translateX(-350px) translateY(350px) rotate(-45deg) scale(1) translateZ(0); opacity: 0; }
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.5; }
 }
 
 /* --- FONDO ARTÍSTICO --- */
 .splash-nebula-1 {
   position: absolute;
-  top: -10%;
-  left: -10%;
-  width: 70%;
-  height: 70%;
+  top: -10%; left: -10%; width: 70%; height: 70%;
   background: radial-gradient(circle, rgba(255,45,120,0.1) 0%, transparent 70%);
   animation: nebula-fade 8s ease-in-out infinite;
   z-index: 0;
-  pointer-events: none;
 }
 
 .splash-nebula-2 {
   position: absolute;
-  bottom: -10%;
-  right: -10%;
-  width: 80%;
-  height: 80%;
+  bottom: -10%; right: -10%; width: 80%; height: 80%;
   background: radial-gradient(circle, rgba(77,159,255,0.1) 0%, transparent 70%);
   animation: nebula-fade 10s ease-in-out infinite reverse;
   z-index: 0;
-  pointer-events: none;
 }
 
 .splash-starfield {
   position: absolute;
   inset: 0;
   z-index: 1;
-  pointer-events: none;
 }
 
 .star {
   position: absolute;
   background: white;
   border-radius: 50%;
-  animation: star-twinkle var(--s-duration) ease-in-out infinite;
-  will-change: transform, opacity;
-}
-
-.shooting-star {
-  position: absolute;
-  width: 60px;
-  height: 1px;
-  background: linear-gradient(90deg, white, transparent);
-  z-index: 2;
-  pointer-events: none;
-  will-change: transform, opacity;
+  opacity: 0.5;
 }
 
 /* --- ELEMENTOS CENTRALES --- */
@@ -120,32 +71,12 @@
   z-index: 5;
 }
 
-.splash-logo-glow {
-  position: absolute;
-  inset: -20px;
-  background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
-  border-radius: 50%;
-  z-index: 1;
-}
-
 .splash-ring {
   position: absolute;
   inset: 0;
   border: 1.5px dashed rgba(255,45,120,0.3);
   border-radius: 50%;
   animation: ring-rotate 4s linear infinite;
-  z-index: 2;
-  will-change: transform;
-}
-
-.splash-ring-outer {
-  position: absolute;
-  inset: -15px;
-  border: 1px solid rgba(77,159,255,0.15);
-  border-radius: 50%;
-  animation: ring-rotate 8s linear infinite reverse;
-  z-index: 2;
-  will-change: transform;
 }
 
 .splash-logo {
@@ -154,28 +85,19 @@
   object-fit: contain;
   animation: pulse-neon 3s ease-in-out infinite;
   z-index: 3;
-  will-change: transform, opacity;
-  filter: drop-shadow(0 0 8px rgba(255,45,120,0.3));
 }
 
 .splash-scan {
   position: absolute;
-  top: 30px;
-  left: 15%;
-  right: 15%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #FF2D78, transparent);
+  top: 30px; left: 15%; right: 15%; height: 2px;
+  background: #FF2D78;
   box-shadow: 0 0 12px #FF2D78;
-  z-index: 4;
   animation: scan-laser 2.5s ease-in-out infinite;
-  pointer-events: none;
-  will-change: transform;
 }
 
 .splash-text-container {
   margin-top: 35px;
   text-align: center;
-  animation: fade-in-up 0.8s ease-out both;
   z-index: 5;
 }
 
@@ -186,25 +108,19 @@
   font-weight: bold;
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  margin: 0;
 }
 
-.splash-title span { 
-  color: #FF2D78; 
-}
+.splash-title span { color: #FF2D78; }
 
-/* Barra de carga rediseñada para máxima visibilidad y fluidez */
+/* Barra de carga: Técnica de escala (Indestructible) */
 .splash-loader {
   margin-top: 20px;
   width: 180px;
-  height: 4px; /* Un poco más gruesa para que se vea mejor */
-  background: rgba(255,255,255,0.05);
+  height: 4px;
+  background: rgba(255,255,255,0.1);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
-  margin-left: auto;
-  margin-right: auto;
-  border: 1px solid rgba(255,255,255,0.1);
 }
 
 .splash-loader-bar {
@@ -212,30 +128,9 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  /* Degradado neón vibrante (Arcoíris) */
-  background: linear-gradient(90deg, 
-    #FF2D78, #4D9FFF, #a855f7, #FF2D78
-  ) !important;
-  background-size: 300% 100% !important;
-  animation: splash-loading-vibrant 2s linear infinite !important;
-  box-shadow: 0 0 15px rgba(255, 45, 120, 0.6);
-  will-change: background-position;
-}
-
-@keyframes splash-loading-vibrant {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
-}
-
-/* Clase para proteger el degradado de la barra en index.css */
-.splash-bar {
-  /* Ya manejado arriba con !important para asegurar la animación */
-}
-
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 4;
-  will-change: transform, opacity;
+  /* Degradado arcoíris estático */
+  background: linear-gradient(90deg, #FF2D78, #4D9FFF, #a855f7, #FF2D78) !important;
+  /* Animación de escala: Mucho más ligera que background-position */
+  animation: loading-bar-scale 2s ease-in-out infinite !important;
+  box-shadow: 0 0 10px rgba(255, 45, 120, 0.5);
 }
