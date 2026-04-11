@@ -142,8 +142,11 @@
 
   @media (max-width: 768px) {
     body:not(.loading) {
-      background-attachment: scroll !important; /* Evita fondos fijos que causan lag */
-      transform: translateZ(0); /* Fuerza aceleración por hardware en toda la página */
+      background-attachment: scroll !important;
+      /* Optimizamos el scroll ascendente y descendente */
+      will-change: scroll-position;
+      backface-visibility: hidden;
+      perspective: 1000;
     }
   }
 
@@ -198,7 +201,11 @@
 
   @media (max-width: 768px) {
     .brand-gradient:not(.splash-bar) {
-      background: #FF2D78 !important; /* Color sólido en móviles para evitar lag de degradados */
+      background: #FF2D78 !important;
+    }
+    /* Forzamos que los elementos con degradados no se repinten al subir */
+    .brand-gradient {
+      transform: translateZ(0);
     }
   }
 
