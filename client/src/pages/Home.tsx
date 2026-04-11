@@ -255,15 +255,15 @@ export default function Home() {
         </div>
 
         {/* Decorative orbs */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/8 blur-2xl pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/8 blur-2xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
             {/* Left: Content Spacer (Logo removed) */}
             <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
               {/* Glow remains for atmosphere */}
-              <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
+              <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/6 blur-2xl" />
             </div>
 
             {/* Right: Text */}
@@ -507,8 +507,8 @@ export default function Home() {
             className="glass-card p-10 lg:p-16 relative overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/6 blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/6 blur-2xl pointer-events-none" />
 
             <div className="relative z-10">
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">
