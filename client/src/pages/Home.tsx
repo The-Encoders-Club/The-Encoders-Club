@@ -16,42 +16,10 @@ import { useCountUp } from "@/hooks/useCountUp";
 const BG_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/hero_bg-nZF9vsy8Qjc3eRVqRoEgy7.webp";
 
 const newsItems = [
-  {
-    id: 1,
-    title: "Nuevo Tutorial de Ren'Py",
-    description: "Aprende los conceptos básicos de programación en Ren'Py con nuestro nuevo tutorial interactivo paso a paso.",
-    image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=220&fit=crop",
-    date: "1 Abr 2026",
-    tag: "Tutorial",
-    tagColor: "#4D9FFF",
-  },
-  {
-    id: 2,
-    title: "Concurso de Novelas Visuales",
-    description: "Participa en nuestro concurso anual y gana premios increíbles. ¡Las inscripciones ya están abiertas!",
-    image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=220&fit=crop",
-    date: "28 Mar 2026",
-    tag: "Evento",
-    tagColor: "#FF2D78",
-  },
-  {
-    id: 3,
-    title: "Webinar: Diseño de Personajes",
-    description: "Únete a nuestro webinar gratuito sobre técnicas avanzadas de diseño de personajes para novelas visuales.",
-    image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=220&fit=crop",
-    date: "25 Mar 2026",
-    tag: "Webinar",
-    tagColor: "#a855f7",
-  },
-  {
-    id: 4,
-    title: "Actualización de Herramientas",
-    description: "Descubre las nuevas herramientas y mejoras que hemos añadido a nuestra plataforma de desarrollo.",
-    image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=220&fit=crop",
-    date: "20 Mar 2026",
-    tag: "Actualización",
-    tagColor: "#22c55e",
-  },
+  { id: 1, title: "Nuevo Tutorial de Ren'Py", description: "Aprende los conceptos básicos de programación en Ren'Py con nuestro nuevo tutorial interactivo paso a paso.", image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=220&fit=crop", date: "1 Abr 2026", tag: "Tutorial", tagColor: "#4D9FFF" },
+  { id: 2, title: "Concurso de Novelas Visuales", description: "Participa en nuestro concurso anual y gana premios increíbles. ¡Las inscripciones ya están abiertas!", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=220&fit=crop", date: "28 Mar 2026", tag: "Evento", tagColor: "#FF2D78" },
+  { id: 3, title: "Webinar: Diseño de Personajes", description: "Únete a nuestro webinar gratuito sobre técnicas avanzadas de diseño de personajes para novelas visuales.", image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=220&fit=crop", date: "25 Mar 2026", tag: "Webinar", tagColor: "#a855f7" },
+  { id: 4, title: "Actualización de Herramientas", description: "Descubre las nuevas herramientas y mejoras que hemos añadido a nuestra plataforma de desarrollo.", image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=220&fit=crop", date: "20 Mar 2026", tag: "Actualización", tagColor: "#22c55e" },
 ];
 
 const teamMembers = [
@@ -90,13 +58,17 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
 
 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
-// Animaciones simplificadas para móviles
+// Animaciones OPTIMIZADAS (No eliminadas)
 const fadeUp = {
-  hidden: { opacity: 0, y: isMobile ? 0 : 20 },
+  hidden: { opacity: 0, y: isMobile ? 10 : 20 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: isMobile ? 0.3 : 0.5, delay: isMobile ? 0 : i * 0.05, ease: "easeOut" },
+    transition: { 
+      duration: isMobile ? 0.3 : 0.5, 
+      delay: isMobile ? 0.02 : i * 0.05, 
+      ease: "easeOut" 
+    },
   }),
 };
 
@@ -111,7 +83,16 @@ function TeamCarousel() {
         <div className="overflow-x-auto pb-4 -mx-4 px-4">
           <div className="flex gap-4 w-max">
             {teamMembers.map((member, i) => (
-              <motion.div key={member.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-20px" }} className="glass-card p-6 flex flex-col items-center text-center flex-shrink-0 w-52 sm:w-60">
+              <motion.div 
+                key={member.id} 
+                custom={i} 
+                variants={fadeUp} 
+                initial="hidden" 
+                whileInView="visible" 
+                viewport={{ once: true, margin: "-20px" }} 
+                className="glass-card p-6 flex flex-col items-center text-center flex-shrink-0 w-52 sm:w-60"
+                style={{ transform: "translateZ(0)" }} // Aceleración por hardware
+              >
                 <div className="w-28 h-28 rounded-2xl mb-4 flex items-center justify-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${member.color}15, ${member.color}05)`, border: `1px solid ${member.color}30` }}>
                   <img src={member.image} alt={member.name} loading="lazy" className="w-full h-full object-cover" />
                 </div>
@@ -141,14 +122,32 @@ export default function Home() {
         </div>
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="max-w-3xl">
-            <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5 }} className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <motion.h1 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.5 }} 
+              className="text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-4" 
+              style={{ fontFamily: "'Space Grotesk', sans-serif", transform: "translateZ(0)" }}
+            >
               Crea tu propia <br />
               <span className="brand-gradient-text">Novela Visual</span>
             </motion.h1>
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.1 }} className="text-base sm:text-lg text-white/60 mb-8 max-w-xl leading-relaxed">
+            <motion.p 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.5, delay: 0.1 }} 
+              className="text-base sm:text-lg text-white/60 mb-8 max-w-xl leading-relaxed"
+              style={{ transform: "translateZ(0)" }}
+            >
               Únete a la comunidad más grande de creadores de novelas visuales en español. Aprende Ren'Py, comparte tus proyectos y colabora con otros artistas.
             </motion.p>
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="flex flex-wrap gap-4">
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              transition={{ duration: 0.5, delay: 0.2 }} 
+              className="flex flex-wrap gap-4"
+              style={{ transform: "translateZ(0)" }}
+            >
               <Link href="/proyectos" className="btn-primary text-base px-8 py-3">Ver Proyectos <ArrowRight size={18} /></Link>
               <Link href="/cursos" className="btn-outline text-base px-8 py-3">Aprender Ren'Py</Link>
             </motion.div>
@@ -168,11 +167,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── ABOUT (Optimized: No Mascot, Less Space) ── */}
+      {/* ── ABOUT (Optimized: No Mascot, Less Space, Restored Animations) ── */}
       <section className="py-16 lg:py-24 relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
-            <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} transition={{ duration: 0.5 }}>
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }} 
+              whileInView={{ opacity: 1, y: 0 }} 
+              viewport={{ once: true, margin: "-50px" }} 
+              transition={{ duration: 0.5 }}
+              style={{ transform: "translateZ(0)" }}
+            >
               <span className="text-[#FF2D78] text-xs font-semibold uppercase tracking-widest mb-3 block">Sobre el Club</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Impulsando la creatividad en <span className="brand-gradient-text">Español</span></h2>
               <p className="text-white/50 text-base mb-8 leading-relaxed max-w-2xl mx-auto">
@@ -184,10 +189,17 @@ export default function Home() {
                   { icon: Star, text: "Recursos Ren'Py" },
                   { icon: Eye, text: "Visibilidad total" }
                 ].map((item, i) => (
-                  <div key={i} className="flex items-center justify-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5">
+                  <motion.div 
+                    key={i} 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-center justify-center gap-3 p-3 rounded-xl bg-white/[0.03] border border-white/5"
+                  >
                     <item.icon size={16} className="text-[#4D9FFF]" />
                     <span className="text-white/70 text-xs font-medium">{item.text}</span>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </motion.div>
@@ -207,7 +219,16 @@ export default function Home() {
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
             {newsItems.map((item, i) => (
-              <motion.div key={item.id} custom={i} variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-20px" }} className="glass-card group overflow-hidden flex flex-col h-full">
+              <motion.div 
+                key={item.id} 
+                custom={i} 
+                variants={fadeUp} 
+                initial="hidden" 
+                whileInView="visible" 
+                viewport={{ once: true, margin: "-20px" }} 
+                className="glass-card group overflow-hidden flex flex-col h-full"
+                style={{ transform: "translateZ(0)" }}
+              >
                 <div className="relative h-40 overflow-hidden">
                   <img src={item.image} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                   <div className="absolute top-3 left-3"><span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md text-white" style={{ backgroundColor: item.tagColor }}>{item.tag}</span></div>
@@ -230,7 +251,13 @@ export default function Home() {
       {/* ── CTA ── */}
       <section className="py-16 lg:py-24">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} viewport={{ once: true }} className="glass-card p-8 lg:p-12 relative overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0, y: 15 }} 
+            whileInView={{ opacity: 1, y: 0 }} 
+            viewport={{ once: true }} 
+            className="glass-card p-8 lg:p-12 relative overflow-hidden"
+            style={{ transform: "translateZ(0)" }}
+          >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
             <div className="relative z-10">
               <span className="text-[#FF2D78] text-xs font-semibold uppercase tracking-widest mb-3 block">Únete a nosotros</span>
