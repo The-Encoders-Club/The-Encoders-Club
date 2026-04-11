@@ -144,9 +144,9 @@
     body:not(.loading) {
       background-attachment: scroll !important;
       /* Optimizamos el scroll ascendente y descendente */
-      will-change: scroll-position;
+      contain: paint; /* Técnica de contención para evitar re-pintados al subir */
+      -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
-      perspective: 1000;
     }
   }
 
@@ -205,7 +205,11 @@
     }
     /* Forzamos que los elementos con degradados no se repinten al subir */
     .brand-gradient {
-      transform: translateZ(0);
+      transform: translate3d(0,0,0);
+    }
+    /* Reducimos el coste de las secciones al subir */
+    section {
+      contain: content;
     }
   }
 
