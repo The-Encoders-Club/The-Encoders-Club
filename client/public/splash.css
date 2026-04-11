@@ -179,13 +179,13 @@
 /* Barra de carga: Técnica de deslizamiento físico (MÁS VISIBLE) */
 .splash-loader {
   margin-top: 20px;
-  width: 180px; height: 4px;
-  background: rgba(255,255,255,0.05);
+  width: 200px; height: 6px; /* Un poco más ancha y gruesa */
+  background: rgba(255,255,255,0.08);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
   margin-left: auto; margin-right: auto;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
   transform: translateZ(0);
 }
 
@@ -193,18 +193,18 @@
   position: absolute;
   inset: 0;
   width: 100%; height: 100%;
-  /* Degradado arcoíris vibrante */
+  /* Degradado arcoíris más saturado y vibrante */
   background: linear-gradient(90deg, #FF2D78, #4D9FFF, #a855f7, #FF2D78) !important;
-  box-shadow: 0 0 15px rgba(255, 45, 120, 0.6);
+  box-shadow: 0 0 20px rgba(255, 45, 120, 0.8); /* Más resplandor */
   transform: translateZ(0);
 }
 
-/* Brillo deslizable (Técnica infalible para móviles) */
+/* Brillo deslizable (MÁS NOTABLE) */
 .splash-loader-bar::after {
   content: "";
   position: absolute;
-  top: 0; left: 0; width: 100%; height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
-  animation: loading-bar-slide 1.5s infinite linear;
+  top: 0; left: 0; width: 120%; height: 100%; /* Brillo más ancho */
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
+  animation: loading-bar-slide 1.2s infinite linear; /* Un poco más rápido */
   transform: translateZ(0);
 }
