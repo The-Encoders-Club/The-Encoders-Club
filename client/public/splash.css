@@ -219,15 +219,15 @@
     #4D9FFF 50%, 
     #FF2D78 75%, 
     transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: loading-bar-flow 2s linear infinite;
+  ) !important;
+  background-size: 200% 100% !important;
+  animation: loading-bar-flow 2s linear infinite !important;
   will-change: background-position;
 }
 
 /* Clase para proteger el degradado de la barra en index.css */
 .splash-bar {
-  background: linear-gradient(90deg, transparent 0%, #FF2D78 25%, #4D9FFF 50%, #FF2D78 75%, transparent 100%) !important;
+  /* Ya manejado arriba con !important para asegurar la animación */
 }
 
 .particle {
