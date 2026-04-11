@@ -212,32 +212,19 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  /* Color base sólido para evitar lag de degradados */
-  background: #FF2D78 !important;
-  overflow: hidden;
-}
-
-.splash-loader-bar::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  /* Brillo que se desplaza (Efecto arcoíris/brillo) */
+  /* Degradado neón vibrante (Arcoíris) */
   background: linear-gradient(90deg, 
-    transparent, 
-    rgba(255, 255, 255, 0.4), 
-    #4D9FFF, 
-    rgba(255, 255, 255, 0.4), 
-    transparent
-  );
-  animation: splash-loading-shine 1.5s infinite linear;
+    #FF2D78, #4D9FFF, #a855f7, #FF2D78
+  ) !important;
+  background-size: 300% 100% !important;
+  animation: splash-loading-vibrant 2s linear infinite !important;
+  box-shadow: 0 0 15px rgba(255, 45, 120, 0.6);
+  will-change: background-position;
 }
 
-@keyframes splash-loading-shine {
-  from { transform: translateX(-100%); }
-  to { transform: translateX(100%); }
+@keyframes splash-loading-vibrant {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
 }
 
 /* Clase para proteger el degradado de la barra en index.css */
