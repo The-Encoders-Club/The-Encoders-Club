@@ -12,11 +12,11 @@
   }
 }
 
+/* Escáner corregido: Recorre toda la pantalla de arriba a abajo */
 @keyframes scan-laser {
-  0% { transform: translateY(-100%) translateZ(0); opacity: 0; }
+  0% { transform: translateY(-100vh) translateZ(0); opacity: 0; }
   10%, 90% { opacity: 1; }
-  50% { transform: translateY(3300%) translateZ(0); } /* Ajustado para el contenedor del logo */
-  100% { transform: translateY(-100%) translateZ(0); opacity: 0; }
+  100% { transform: translateY(100vh) translateZ(0); opacity: 0; }
 }
 
 @keyframes ring-rotate {
@@ -29,9 +29,10 @@
   to { opacity: 1; transform: translateY(0) translateZ(0); }
 }
 
+/* Barra de carga restaurada y optimizada */
 @keyframes loading-bar {
-  from { transform: translateX(-100%) translateZ(0); }
-  to { transform: translateX(100%) translateZ(0); }
+  0% { transform: translateX(-100%) translateZ(0); }
+  100% { transform: translateX(100%) translateZ(0); }
 }
 
 @keyframes particle-float {
@@ -64,7 +65,6 @@
   width: 70%;
   height: 70%;
   background: radial-gradient(circle, rgba(255,45,120,0.12) 0%, transparent 70%);
-  /* Reducimos el blur para móviles */
   filter: blur(40px);
   animation: nebula-drift 12s ease-in-out infinite;
   z-index: 0;
@@ -158,16 +158,16 @@
   will-change: transform, opacity;
 }
 
+/* Escáner corregido: Posición fija en toda la pantalla */
 .splash-scan {
-  position: absolute;
-  top: 0;
-  left: -5%;
-  right: -5%;
+  position: fixed;
+  left: 0;
+  right: 0;
   height: 2px;
   background: linear-gradient(90deg, transparent, #FF2D78, transparent);
   box-shadow: 0 0 10px #FF2D78;
-  z-index: 4;
-  animation: scan-laser 3s ease-in-out infinite;
+  z-index: 99999;
+  animation: scan-laser 4s ease-in-out infinite;
   pointer-events: none;
   will-change: transform;
 }
@@ -187,7 +187,6 @@
   letter-spacing: 0.25em;
   text-transform: uppercase;
   margin: 0;
-  /* Eliminamos text-shadow pesado */
 }
 
 .splash-title span { 
