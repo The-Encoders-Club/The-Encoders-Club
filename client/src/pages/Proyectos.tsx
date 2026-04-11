@@ -107,7 +107,7 @@ export default function Proyectos() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
               onClick={() => setActiveProject(project.id)}
-              className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 relative cursor-pointer group hover:border-[#FF2D78]/40 transition-all backdrop-blur-sm will-change-transform"
+              className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 relative cursor-pointer group hover:border-[#FF2D78]/40 transition-all backdrop-blur-none will-change-transform"
               style={{ contain: 'layout style paint' }}
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
@@ -118,7 +118,7 @@ export default function Proyectos() {
                   <img
                     src={project.image}
                     alt=""
-                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110"
+                    className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110"
                   />
                   {/* Main Image (Complete) */}
                   <img
@@ -130,7 +130,7 @@ export default function Proyectos() {
                   <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
                     DESTACADO
                   </span>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-[2px]">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-none">
                     <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold">
                       <Sparkles size={16} className="text-[#FF2D78]" />
                       Explorar Proyecto
@@ -187,7 +187,7 @@ export default function Proyectos() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 onClick={() => setActiveProject(project.id)}
-                className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all backdrop-blur-sm will-change-transform"
+                className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all backdrop-blur-none will-change-transform"
                 style={{ contain: 'layout style paint' }}
               >
                 {/* Image - SIN OPACIDAD */}
@@ -196,7 +196,7 @@ export default function Proyectos() {
                   <img
                     src={project.image}
                     alt=""
-                    className="absolute inset-0 w-full h-full object-cover blur-xl opacity-40 scale-110"
+                    className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110"
                   />
                   {/* Main Image (Complete) */}
                   <img
@@ -221,7 +221,7 @@ export default function Proyectos() {
                       <span>{project.rating}</span>
                     </div>
                   </div>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-[2px]">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-none">
                     <Sparkles size={24} className="text-[#00F3FF]" />
                   </div>
                 </div>
@@ -253,7 +253,7 @@ export default function Proyectos() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="mt-10 bg-white/5 border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden backdrop-blur-sm"
+            className="mt-10 bg-white/5 border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden backdrop-blur-none"
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-[#a855f7]/5 to-[#00F3FF]/5 pointer-events-none" />
             <Gamepad2 size={32} className="text-[#FF2D78] mx-auto mb-3" />
