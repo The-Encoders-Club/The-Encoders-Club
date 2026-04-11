@@ -22,7 +22,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Animación de la barra de carga: Técnica de GPU-Layering */
+/* Animación de la barra de carga: Técnica de movimiento de fondo ultra-compatible */
 @keyframes loading-bar-flow {
   0% { background-position: 0% 50%; }
   100% { background-position: 200% 50%; }
@@ -199,4 +199,5 @@
   animation: loading-bar-flow 1.5s linear infinite !important;
   box-shadow: 0 0 15px rgba(255, 45, 120, 0.6);
   transform: translateZ(0);
+  will-change: background-position;
 }
