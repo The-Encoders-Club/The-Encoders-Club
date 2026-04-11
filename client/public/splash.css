@@ -1,16 +1,24 @@
-/* --- ANIMACIONES OPTIMIZADAS (ESTÉTICA ORIGINAL) --- */
+/* --- ANIMACIONES OPTIMIZADAS (ESTÉTICA ORIGINAL SIN LAG) --- */
 /* Usamos transform: translateZ(0) para forzar aceleración por hardware */
 
 @keyframes pulse-neon {
-  0%, 100% { filter: drop-shadow(0 0 15px rgba(255,45,120,0.5)); transform: scale(1) translateZ(0); }
-  50% { filter: drop-shadow(0 0 35px rgba(255,45,120,0.9)); transform: scale(1.05) translateZ(0); }
+  0%, 100% { 
+    opacity: 0.8;
+    transform: scale(1) translateZ(0); 
+    /* Eliminamos drop-shadow animado que causa lag en móviles */
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.05) translateZ(0); 
+  }
 }
 
 /* Escáner Original: Recorre el logo de arriba a abajo */
 @keyframes scan-laser {
-  0%, 100% { transform: translateY(0) translateZ(0); opacity: 0; }
+  0% { transform: translateY(0) translateZ(0); opacity: 0; }
   10%, 90% { opacity: 1; }
-  50% { transform: translateY(200px) translateZ(0); } /* Ajustado al alto del contenedor */
+  50% { transform: translateY(160px) translateZ(0); } /* Ajustado al alto del logo (160px) */
+  100% { transform: translateY(0) translateZ(0); opacity: 0; }
 }
 
 @keyframes ring-rotate {
@@ -36,19 +44,19 @@
 }
 
 @keyframes nebula-drift {
-  0%, 100% { transform: scale(1) translate(0, 0) translateZ(0); opacity: 0.4; }
-  50% { transform: scale(1.2) translate(20px, 10px) translateZ(0); opacity: 0.7; }
+  0%, 100% { transform: scale(1) translate(0, 0) translateZ(0); opacity: 0.3; }
+  50% { transform: scale(1.1) translate(10px, 5px) translateZ(0); opacity: 0.5; }
 }
 
 @keyframes star-twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(0.8) translateZ(0); }
-  50% { opacity: 1; transform: scale(1.2) translateZ(0); }
+  0%, 100% { opacity: 0.2; transform: scale(0.8) translateZ(0); }
+  50% { opacity: 0.8; transform: scale(1.1) translateZ(0); }
 }
 
 @keyframes shooting-star {
   0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translateZ(0); opacity: 0; }
   10% { opacity: 1; scale(1); }
-  100% { transform: translateX(-500px) translateY(500px) rotate(-45deg) scale(1) translateZ(0); opacity: 0; }
+  100% { transform: translateX(-400px) translateY(400px) rotate(-45deg) scale(1) translateZ(0); opacity: 0; }
 }
 
 /* --- FONDO ARTÍSTICO --- */
@@ -58,9 +66,9 @@
   left: -10%;
   width: 80%;
   height: 80%;
-  background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
-  filter: blur(60px);
-  animation: nebula-drift 8s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(255,45,120,0.12) 0%, transparent 70%);
+  filter: blur(50px); /* Reducido ligeramente para fluidez */
+  animation: nebula-drift 10s ease-in-out infinite;
   z-index: 0;
   will-change: transform, opacity;
 }
@@ -71,9 +79,9 @@
   right: -10%;
   width: 90%;
   height: 90%;
-  background: radial-gradient(circle, rgba(77,159,255,0.15) 0%, transparent 70%);
-  filter: blur(80px);
-  animation: nebula-drift 10s ease-in-out infinite reverse;
+  background: radial-gradient(circle, rgba(77,159,255,0.12) 0%, transparent 70%);
+  filter: blur(60px);
+  animation: nebula-drift 12s ease-in-out infinite reverse;
   z-index: 0;
   will-change: transform, opacity;
 }
@@ -95,8 +103,8 @@
 
 .shooting-star {
   position: absolute;
-  width: 100px;
-  height: 2px;
+  width: 80px;
+  height: 1px;
   background: linear-gradient(90deg, white, transparent);
   z-index: 2;
   pointer-events: none;
@@ -112,34 +120,34 @@
   align-items: center;
   justify-content: center;
   z-index: 5;
-  overflow: hidden; /* Para contener el escáner */
+  /* Eliminamos overflow: hidden para quitar el cuadro */
 }
 
 .splash-logo-glow {
   position: absolute;
-  inset: -40px;
-  background: radial-gradient(circle, rgba(255,45,120,0.2) 0%, transparent 70%);
+  inset: -30px;
+  background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 1;
-  filter: blur(20px);
+  filter: blur(15px);
 }
 
 .splash-ring {
   position: absolute;
   inset: 0;
-  border: 2px dashed rgba(255,45,120,0.4);
+  border: 1.5px dashed rgba(255,45,120,0.3);
   border-radius: 50%;
-  animation: ring-rotate 3s linear infinite;
+  animation: ring-rotate 4s linear infinite;
   z-index: 2;
   will-change: transform;
 }
 
 .splash-ring-outer {
   position: absolute;
-  inset: -20px;
-  border: 1px solid rgba(77,159,255,0.2);
+  inset: -15px;
+  border: 1px solid rgba(77,159,255,0.15);
   border-radius: 50%;
-  animation: ring-rotate 6s linear infinite reverse;
+  animation: ring-rotate 8s linear infinite reverse;
   z-index: 2;
   will-change: transform;
 }
@@ -148,27 +156,29 @@
   width: 160px;
   height: 160px;
   object-fit: contain;
-  animation: pulse-neon 2s ease-in-out infinite;
+  animation: pulse-neon 3s ease-in-out infinite;
   z-index: 3;
-  will-change: transform, filter;
+  will-change: transform, opacity;
+  /* Sombra estática ligera para evitar lag */
+  filter: drop-shadow(0 0 10px rgba(255,45,120,0.3));
 }
 
 .splash-scan {
   position: absolute;
-  top: 0;
-  left: -10%;
-  right: -10%;
-  height: 3px;
+  top: 30px; /* Ajustado para empezar sobre el logo */
+  left: 15%;
+  right: 15%;
+  height: 2px;
   background: linear-gradient(90deg, transparent, #FF2D78, transparent);
-  box-shadow: 0 0 20px #FF2D78;
+  box-shadow: 0 0 15px #FF2D78;
   z-index: 4;
-  animation: scan-laser 2s ease-in-out infinite;
+  animation: scan-laser 2.5s ease-in-out infinite;
   pointer-events: none;
   will-change: transform;
 }
 
 .splash-text-container {
-  margin-top: 50px;
+  margin-top: 40px;
   text-align: center;
   animation: fade-in-up 0.8s ease-out both;
   z-index: 5;
@@ -177,34 +187,35 @@
 .splash-title {
   color: white;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 28px;
+  font-size: 26px;
   font-weight: bold;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
   margin: 0;
-  text-shadow: 0 0 15px rgba(255,255,255,0.2);
 }
 
-.splash-title span { color: #FF2D78; text-shadow: 0 0 15px rgba(255,45,120,0.6); }
+.splash-title span { 
+  color: #FF2D78; 
+}
 
 .splash-loader {
-  margin-top: 25px;
-  width: 200px;
-  height: 3px;
+  margin-top: 20px;
+  width: 180px;
+  height: 2px;
   background: rgba(255,255,255,0.05);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
   margin-left: auto;
   margin-right: auto;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.08);
 }
 
 .splash-loader-bar {
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg, transparent, #FF2D78, #4D9FFF, transparent);
-  animation: loading-bar 1.5s linear infinite;
+  animation: loading-bar 2s linear infinite;
   will-change: transform;
 }
 
