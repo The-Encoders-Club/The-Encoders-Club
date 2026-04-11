@@ -22,7 +22,7 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* Animación de la barra de carga: Técnica de deslizamiento físico (MÁS VISIBLE) */
+/* Animación de la barra de carga: Velocidad LINEAL para evitar tirones o cambios de ritmo */
 @keyframes loading-bar-slide {
   0% { transform: translate3d(-100%, 0, 0); }
   100% { transform: translate3d(100%, 0, 0); }
@@ -198,14 +198,14 @@
   transform: translate3d(0, 0, 0);
 }
 
-/* Brillo deslizable (Optimizado para evitar tirones) */
+/* Brillo deslizable (Velocidad LINEAL para evitar tirones) */
 .splash-loader-bar::after {
   content: "";
   position: absolute;
   top: 0; left: 0; width: 120%; height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255,255,255,0.9), transparent);
-  /* Usamos translate3d para forzar el uso de la GPU y evitar tirones de CPU */
-  animation: loading-bar-slide 1.2s infinite linear;
+  /* Cambiado a 'linear' para que la velocidad sea constante de principio a fin */
+  animation: loading-bar-slide 1.5s infinite linear;
   will-change: transform;
   transform: translate3d(0, 0, 0);
 }
