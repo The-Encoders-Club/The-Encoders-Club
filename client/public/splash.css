@@ -212,20 +212,32 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  /* Degradado arcoíris ultra-fluido con técnica de desplazamiento */
+  /* Color base sólido para evitar lag de degradados */
+  background: #FF2D78 !important;
+  overflow: hidden;
+}
+
+.splash-loader-bar::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  /* Brillo que se desplaza (Efecto arcoíris/brillo) */
   background: linear-gradient(90deg, 
-    #FF2D78 0%, 
-    #4D9FFF 25%, 
-    #a855f7 50%, 
-    #FF2D78 75%, 
-    #4D9FFF 100%
-  ) !important;
-  background-size: 200% 100% !important;
-  animation: loading-bar-flow 1.5s linear infinite !important;
-  /* Forzamos que la animación sea visible */
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    #4D9FFF, 
+    rgba(255, 255, 255, 0.4), 
+    transparent
+  );
+  animation: splash-loading-shine 1.5s infinite linear;
+}
+
+@keyframes splash-loading-shine {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(100%); }
 }
 
 /* Clase para proteger el degradado de la barra en index.css */
