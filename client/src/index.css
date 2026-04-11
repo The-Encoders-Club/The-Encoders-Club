@@ -196,25 +196,25 @@
   }
 
   .glass-card {
-    background: rgba(13, 13, 36, 0.92); /* Más opaco para no depender tanto del blur */
-    backdrop-filter: blur(8px); /* Reducido de 12px a 8px para móviles */
+    background: rgba(13, 13, 36, 0.92);
+    backdrop-filter: blur(8px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
-    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, border-color 0.3s ease;
     will-change: transform;
   }
 
   @media (max-width: 768px) {
     .glass-card {
-      backdrop-filter: none; /* Desactivamos blur en móviles para máximo rendimiento */
-      background: rgba(13, 13, 36, 0.98);
+      backdrop-filter: none !important; /* Eliminación total de blur en móviles */
+      background: #0d0d24 !important; /* Color sólido para evitar transparencias pesadas */
+      box-shadow: none !important; /* Eliminación de sombras en móviles */
     }
   }
 
   .glass-card:hover {
     border-color: rgba(255, 45, 120, 0.35);
     transform: translateY(-4px) translateZ(0);
-    box-shadow: 0 10px 25px rgba(255, 45, 120, 0.15);
   }
 
   .glow-pink {
@@ -394,14 +394,14 @@
 
   @media (max-width: 768px) {
     .glass-card-enhanced {
-      backdrop-filter: none;
-      background: rgba(20, 20, 40, 0.95);
+      backdrop-filter: none !important;
+      background: #141428 !important;
+      box-shadow: none !important;
     }
   }
 
   .glass-card-enhanced:hover {
     border-color: rgba(255, 45, 120, 0.4);
     transform: translateY(-6px) translateZ(0);
-    box-shadow: 0 15px 30px rgba(255, 45, 120, 0.2);
   }
 }
