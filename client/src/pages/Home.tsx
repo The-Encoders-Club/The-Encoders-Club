@@ -158,12 +158,19 @@ function StatCounter({
   );
 }
 
+// Optimizamos las variantes de animación para móviles
+const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: isMobile ? 15 : 30 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay: i * 0.1 },
+    transition: { 
+      duration: isMobile ? 0.4 : 0.6, 
+      delay: isMobile ? 0.05 : i * 0.1,
+      ease: "easeOut"
+    },
   }),
 };
 
@@ -181,7 +188,6 @@ function TeamCarousel() {
           </h2>
         </div>
 
-        {/* Scrollable Container - 4 visible items */}
         <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
           <div className="flex gap-6 lg:gap-8 w-max">
             {teamMembers.map((member, i) => (
@@ -191,10 +197,9 @@ function TeamCarousel() {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true }}
+                viewport={{ once: true, margin: "-50px" }}
                 className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
               >
-                {/* Avatar - Larger */}
                 <div
                   className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
                   style={{
@@ -205,6 +210,7 @@ function TeamCarousel() {
                   <img
                     src={member.image}
                     alt={member.name}
+                    loading="lazy"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div
@@ -243,239 +249,195 @@ export default function Home() {
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Background */}
+        {/* Background - Optimized with lazy loading and reduced opacity */}
         <div className="absolute inset-0 z-0">
           <img
             src={BG_URL}
             alt=""
-            className="w-full h-full object-cover opacity-30"
+            loading="eager"
+            className="w-full h-full object-cover opacity-20"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#080818]/60 via-transparent to-[#080818]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" />
         </div>
 
-        {/* Decorative orbs */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/8 blur-2xl pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/8 blur-2xl pointer-events-none" />
+        {/* Decorative orbs - Reduced blur and size for mobile performance */}
+        <div className="absolute top-1/4 left-1/4 w-48 h-48 rounded-full bg-[#FF2D78]/5 blur-2xl pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-64 h-64 rounded-full bg-[#4D9FFF]/5 blur-2xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            {/* Left: Content Spacer (Logo removed) */}
             <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
-              {/* Glow remains for atmosphere */}
-              <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/6 blur-2xl" />
+              <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
             </div>
 
-            {/* Right: Text */}
             <div className="flex flex-col justify-center lg:pl-8 order-2 lg:order-2">
-              {/* T              <motion.h1
-                initial={{ opacity: 0, y: 30 }}
+              <motion.h1
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6 text-center lg:text-left"
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                THE ENCODERS <br />
-                <span className="brand-gradient-text drop-shadow-[0_0_15px_rgba(255,45,120,0.3)]">CLUB</span>
-              </motion.h1>       <span className="text-white">Club</span>
+                Crea tu propia <br />
+                <span className="brand-gradient-text">Novela Visual</span>
               </motion.h1>
 
-              {/* Subtitle */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.2 }}
-                className="text-base sm:text-xl text-white/70 mb-10 max-w-xl leading-relaxed text-center lg:text-left mx-auto lg:mx-0"
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-lg sm:text-xl text-white/70 mb-10 max-w-xl leading-relaxed"
               >
-                Tu portal a las mejores experiencias de novelas visuales en español. Aprende Ren'Py, crea historias únicas y comparte tu arte con la comunidad.
+                Únete a la comunidad más grande de creadores de novelas visuales en español. Aprende Ren'Py, comparte tus proyectos y colabora con otros artistas.
               </motion.p>
 
-              {/* CTA Buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
-                className="flex flex-wrap gap-4 justify-center lg:justify-start"
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="flex flex-wrap gap-5"
               >
-                <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
+                <Link href="/proyectos" className="btn-primary text-lg px-10 py-4">
                   Ver Proyectos
-                  <ArrowRight size={18} />
+                  <ArrowRight size={20} />
                 </Link>
-                <Link href="/cursos" className="btn-outline text-base px-7 py-3.5">
-                  <BookOpen size={18} />
-                  Aprender
+                <Link href="/cursos" className="btn-outline text-lg px-10 py-4">
+                  Aprender Ren'Py
                 </Link>
-              </motion.div>
-
-              {/* Mini stats */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10"
-              >
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3+</p>
-                  <p className="text-xs text-white/45">Proyectos</p>
-                </div>
-                <div className="w-px h-10 bg-white/15" />
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>7+</p>
-                  <p className="text-xs text-white/45">Cursos</p>
-                </div>
-                <div className="w-px h-10 bg-white/15" />
-                <div className="text-center">
-                  <p className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>∞</p>
-                  <p className="text-xs text-white/45">Creatividad</p>
-                </div>
               </motion.div>
             </div>
           </div>
         </div>
+      </section>
 
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
-          <span className="text-xs">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
-        </motion.div>
+      {/* ── STATS ── */}
+      <section className="py-12 border-y border-white/5 bg-white/[0.02]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            <StatCounter value={1500} label="Miembros" icon={Users} color="#FF2D78" suffix="+" />
+            <StatCounter value={120} label="Proyectos" icon={Gamepad2} color="#4D9FFF" />
+            <StatCounter value={45} label="Cursos" icon={BookOpen} color="#a855f7" />
+            <StatCounter value={50000} label="Descargas" icon={Download} color="#22c55e" suffix="+" />
+          </div>
+        </div>
       </section>
 
       {/* ── ABOUT ── */}
-      <section className="py-20 lg:py-28 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Visual */}
+      <section className="py-24 lg:py-32 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
               className="relative"
             >
-              <div className="glass-card p-8 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center">
-                    <Gamepad2 size={24} className="text-[#FF2D78]" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Motor Ren'Py</h3>
-                    <p className="text-sm text-white/50">Novelas Visuales</p>
-                  </div>
-                </div>
-                <p className="text-white/65 text-sm leading-relaxed mb-6">
-                  Ren'Py es el motor de referencia para crear novelas visuales. Con Python como base, permite crear historias interactivas con múltiples finales, personajes expresivos y música envolvente.
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {["Fácil de aprender", "Python-based", "Multiplataforma", "Comunidad activa"].map((feat) => (
-                    <div key={feat} className="flex items-center gap-2 text-xs text-white/60">
-                      <Star size={12} className="text-[#FF2D78] flex-shrink-0" />
-                      {feat}
-                    </div>
-                  ))}
-                </div>
+              <div className="absolute -top-10 -left-10 w-40 h-40 bg-[#4D9FFF]/10 blur-3xl rounded-full" />
+              <div className="glass-card p-2 relative z-10 overflow-hidden rounded-3xl">
+                <img
+                  src={PERSONAJE_URL}
+                  alt="Mascota"
+                  loading="lazy"
+                  className="w-full h-auto rounded-2xl animate-float"
+                />
               </div>
             </motion.div>
 
-            {/* Right: Text */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
+              viewport={{ once: true, margin: "-100px" }}
+              transition={{ duration: 0.6 }}
             >
-              <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">
-                Sobre nosotros
+              <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">
+                Sobre el Club
               </span>
-              <h2 className="section-title text-white mb-5">
-                Nuestro <span className="brand-gradient-text">Enfoque</span>
+              <h2 className="section-title text-white mb-6">
+                Impulsando la creatividad en <span className="brand-gradient-text">Español</span>
               </h2>
-              <p className="text-white/65 leading-relaxed mb-5">
-                En The Encoders Club nos dedicamos a fomentar la creación y el aprendizaje de novelas visuales utilizando el motor Ren'Py. Nuestro objetivo es crear una comunidad vibrante donde desarrolladores, escritores y artistas puedan colaborar.
+              <p className="text-white/60 text-lg mb-8 leading-relaxed">
+                The Encoders Club nació con la misión de centralizar y potenciar el desarrollo de novelas visuales en el mundo hispanohablante. Proporcionamos las herramientas, el conocimiento y la plataforma necesaria para que cualquier persona pueda contar su historia.
               </p>
-              <p className="text-white/65 leading-relaxed mb-8">
-                Desde tutoriales para principiantes hasta proyectos avanzados, aquí encontrarás todo lo que necesitas para dar vida a tus historias en español.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
-                  Ver Cursos
-                  <ChevronRight size={16} />
-                </Link>
-                <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
-                  Explorar Proyectos
-                </Link>
+              <div className="space-y-4">
+                {[
+                  { icon: Sparkles, text: "Comunidad activa y colaborativa" },
+                  { icon: Star, text: "Recursos exclusivos para Ren'Py" },
+                  { icon: Eye, text: "Visibilidad para tus proyectos" }
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center">
+                      <item.icon size={20} className="text-[#4D9FFF]" />
+                    </div>
+                    <span className="text-white/80 font-medium">{item.text}</span>
+                  </div>
+                ))}
               </div>
             </motion.div>
           </div>
         </div>
       </section>
 
-      {/* ── NOTICIAS ── */}
-      <section className="py-20 lg:py-28 bg-[#06060f]">
+      {/* ── NEWS ── */}
+      <section className="py-24 lg:py-32 bg-white/[0.01]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+          <div className="flex flex-col md:flex-row md:items-end justify-between mb-14 gap-6">
             <div>
               <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">
-                Lo último
+                Novedades
               </span>
               <h2 className="section-title text-white">
-                Noticias <span className="brand-gradient-text">Recientes</span>
+                Últimas <span className="brand-gradient-text">Noticias</span>
               </h2>
             </div>
-            <Link href="/noticias" className="btn-outline text-sm px-5 py-2.5 whitespace-nowrap">
-              Ver todas
-              <ArrowRight size={15} />
+            <Link href="/noticias" className="text-white/50 hover:text-[#FF2D78] transition-colors flex items-center gap-2 font-medium">
+              Ver todas las noticias
+              <ChevronRight size={18} />
             </Link>
           </div>
 
-          {/* Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {newsItems.map((item, i) => (
-              <motion.article
+              <motion.div
                 key={item.id}
                 custom={i}
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true }}
-                className="glass-card overflow-hidden group"
+                viewport={{ once: true, margin: "-50px" }}
+                className="glass-card group overflow-hidden flex flex-col h-full"
               >
-                <div className="relative overflow-hidden h-40">
+                <div className="relative h-48 overflow-hidden">
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span
-                    className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{
-                      background: `${item.tagColor}25`,
-                      border: `1px solid ${item.tagColor}50`,
-                      color: item.tagColor,
-                    }}
-                  >
-                    {item.tag}
-                  </span>
+                  <div className="absolute top-4 left-4">
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-md text-white"
+                      style={{ backgroundColor: item.tagColor }}
+                    >
+                      {item.tag}
+                    </span>
+                  </div>
                 </div>
-                <div className="p-4">
-                  <p className="text-xs text-white/40 mb-2">{item.date}</p>
-                  <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                <div className="p-6 flex flex-col flex-grow">
+                  <span className="text-xs text-white/40 mb-2">{item.date}</span>
+                  <h3 className="text-lg font-bold text-white mb-3 group-hover:text-[#FF2D78] transition-colors line-clamp-2">
                     {item.title}
                   </h3>
-                  <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">
+                  <p className="text-sm text-white/50 line-clamp-3 mb-6">
                     {item.description}
                   </p>
-                  <button className="text-xs text-[#FF2D78] font-semibold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
-                    Leer más <ChevronRight size={13} />
-                  </button>
+                  <Link href={`/noticias/${item.id}`} className="mt-auto text-sm font-bold text-[#4D9FFF] flex items-center gap-2 group/link">
+                    Leer más
+                    <ArrowRight size={14} className="group-hover/link:translate-x-1 transition-transform" />
+                  </Link>
                 </div>
-              </motion.article>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -484,31 +446,19 @@ export default function Home() {
       {/* ── TEAM ── */}
       <TeamCarousel />
 
-      {/* ── STATS ── */}
-      <section className="py-16 bg-[#06060f] border-y border-white/6">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
-            <StatCounter value={3} label="Proyectos" icon={BookOpen} color="#FF2D78" suffix="+" />
-            <StatCounter value={15000} label="Descargas" icon={Download} color="#4D9FFF" suffix="+" />
-            <StatCounter value={7} label="Cursos" icon={Users} color="#a855f7" suffix="+" />
-            <StatCounter value={50000} label="Visitas" icon={Eye} color="#22c55e" suffix="+" />
-          </div>
-        </div>
-      </section>
-
-      {/* ── CTA BANNER ── */}
+      {/* ── CTA ── */}
       <section className="py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.5 }}
             className="glass-card p-10 lg:p-16 relative overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/6 blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/6 blur-2xl pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/5 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/5 blur-3xl pointer-events-none" />
 
             <div className="relative z-10">
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">
