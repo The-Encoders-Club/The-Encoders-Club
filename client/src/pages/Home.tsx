@@ -31,10 +31,14 @@ const teamMembers = [
   { id: 7, name: "Manu", cargo: ["Traductor"], color: "#a855f7", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/bIiIQjvPOSUKgAUl.jpg" },
 ];
 
-// Hook para animaciones CSS nativas (Intersection Observer)
+// Hook para animaciones CSS nativas (Intersection Observer) - Optimizado para móviles
 function useReveal() {
   const ref = useRef<any>(null);
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
   useEffect(() => {
+    if (isMobile) return; // Desactivamos observer en móviles para ahorrar CPU
+    
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -46,7 +50,8 @@ function useReveal() {
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, []);
+  }, [isMobile]);
+  
   return ref;
 }
 
@@ -54,12 +59,18 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
   const ref = useRef<HTMLDivElement>(null);
   const { count, start } = useCountUp(value, 1500);
   const [triggered, setTriggered] = useState(false);
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
   useEffect(() => {
+    if (isMobile) {
+      setTriggered(true);
+      start();
+      return;
+    }
     const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting && !triggered) { setTriggered(true); start(); } }, { threshold: 0.5 });
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [triggered, start]);
+  }, [triggered, start, isMobile]);
 
   const formatted = count >= 1000 ? count >= 1000000 ? `${(count / 1000000).toFixed(1)}M` : `${(count / 1000).toFixed(0)}K` : count.toString();
 
@@ -74,48 +85,12 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
   );
 }
 
-function TeamCarousel() {
-  return (
-    <section className="py-12 lg:py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <span className="text-[#a855f7] text-xs font-semibold uppercase tracking-widest mb-2 block">Quiénes somos</span>
-          <h2 className="text-3xl font-bold text-white">Integrantes del <span className="brand-gradient-text">Equipo</span></h2>
-        </div>
-        <div className="overflow-x-auto pb-4 -mx-4 px-4">
-          <div className="flex gap-4 w-max">
-            {teamMembers.map((member, i) => {
-              const revealRef = useReveal();
-              return (
-                <div 
-                  key={member.id} 
-                  ref={revealRef}
-                  className="reveal-on-scroll glass-card p-6 flex flex-col items-center text-center flex-shrink-0 w-52 sm:w-60"
-                  style={{ transitionDelay: `${i * 0.05}s` }}
-                >
-                  <div className="w-28 h-28 rounded-2xl mb-4 flex items-center justify-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${member.color}15, ${member.color}05)`, border: `1px solid ${member.color}30` }}>
-                    <img src={member.image} alt={member.name} loading="lazy" className="w-full h-full object-cover" />
-                  </div>
-                  <h3 className="font-bold text-sm mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}>{member.name}</h3>
-                  <div className="flex flex-col gap-0.5">
-                    {Array.isArray(member.cargo) ? member.cargo.map((role, idx) => (<p key={idx} className="text-[10px] text-white/40">{role}</p>)) : (<p className="text-[10px] text-white/40">{member.cargo}</p>)}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 export default function Home() {
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   const heroTitleRef = useReveal();
   const heroTextRef = useReveal();
   const heroBtnRef = useReveal();
   const aboutRef = useReveal();
-  const ctaRef = useReveal();
 
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
@@ -131,7 +106,7 @@ export default function Home() {
           <div className="max-w-3xl">
             <h1 
               ref={heroTitleRef}
-              className="reveal-on-scroll text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-4" 
+              className={`${!isMobile ? 'reveal-on-scroll' : ''} text-4xl sm:text-6xl lg:text-7xl font-bold leading-tight mb-4`} 
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
               Crea tu propia <br />
@@ -139,14 +114,14 @@ export default function Home() {
             </h1>
             <p 
               ref={heroTextRef}
-              className="reveal-on-scroll text-base sm:text-lg text-white/60 mb-8 max-w-xl leading-relaxed"
+              className={`${!isMobile ? 'reveal-on-scroll' : ''} text-base sm:text-lg text-white/60 mb-8 max-w-xl leading-relaxed`}
               style={{ transitionDelay: "0.1s" }}
             >
               Únete a la comunidad más grande de creadores de novelas visuales en español. Aprende Ren'Py, comparte tus proyectos y colabora con otros artistas.
             </p>
             <div 
               ref={heroBtnRef}
-              className="reveal-on-scroll flex flex-wrap gap-4"
+              className={`${!isMobile ? 'reveal-on-scroll' : ''} flex flex-wrap gap-4`}
               style={{ transitionDelay: "0.2s" }}
             >
               <Link href="/proyectos" className="btn-primary text-base px-8 py-3">Ver Proyectos <ArrowRight size={18} /></Link>
@@ -172,7 +147,7 @@ export default function Home() {
       <section className="py-16 lg:py-24 relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="text-center">
-            <div ref={aboutRef} className="reveal-on-scroll">
+            <div ref={aboutRef} className={!isMobile ? 'reveal-on-scroll' : ''}>
               <span className="text-[#FF2D78] text-xs font-semibold uppercase tracking-widest mb-3 block">Sobre el Club</span>
               <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6">Impulsando la creatividad en <span className="brand-gradient-text">Español</span></h2>
               <p className="text-white/50 text-base mb-8 leading-relaxed max-w-2xl mx-auto">
@@ -198,6 +173,34 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── TEAM ── */}
+      <section className="py-12 lg:py-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-10">
+            <span className="text-[#a855f7] text-xs font-semibold uppercase tracking-widest mb-2 block">Quiénes somos</span>
+            <h2 className="text-3xl font-bold text-white">Integrantes del <span className="brand-gradient-text">Equipo</span></h2>
+          </div>
+          <div className="overflow-x-auto pb-4 -mx-4 px-4">
+            <div className="flex gap-4 w-max">
+              {teamMembers.map((member) => (
+                <div 
+                  key={member.id} 
+                  className="glass-card p-6 flex flex-col items-center text-center flex-shrink-0 w-52 sm:w-60"
+                >
+                  <div className="w-28 h-28 rounded-2xl mb-4 flex items-center justify-center relative overflow-hidden" style={{ background: `linear-gradient(135deg, ${member.color}15, ${member.color}05)`, border: `1px solid ${member.color}30` }}>
+                    <img src={member.image} alt={member.name} loading="lazy" className="w-full h-full object-cover" />
+                  </div>
+                  <h3 className="font-bold text-sm mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}>{member.name}</h3>
+                  <div className="flex flex-col gap-0.5">
+                    {member.cargo.map((role, idx) => (<p key={idx} className="text-[10px] text-white/40">{role}</p>))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── NEWS ── */}
       <section className="py-16 lg:py-24 bg-white/[0.01]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -209,52 +212,20 @@ export default function Home() {
             <Link href="/noticias" className="text-white/40 hover:text-[#FF2D78] transition-colors flex items-center gap-1 text-xs font-medium">Ver todas <ChevronRight size={14} /></Link>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {newsItems.map((item, i) => {
-              const revealRef = useReveal();
-              return (
-                <div 
-                  key={item.id} 
-                  ref={revealRef}
-                  className="reveal-on-scroll glass-card group overflow-hidden flex flex-col h-full"
-                  style={{ transitionDelay: `${i * 0.05}s` }}
-                >
-                  <div className="relative h-40 overflow-hidden">
-                    <img src={item.image} alt={item.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
-                    <div className="absolute top-3 left-3"><span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-md text-white" style={{ backgroundColor: item.tagColor }}>{item.tag}</span></div>
-                  </div>
-                  <div className="p-5 flex flex-col flex-grow">
-                    <span className="text-[10px] text-white/30 mb-1">{item.date}</span>
-                    <h3 className="text-base font-bold text-white mb-2 group-hover:text-[#FF2D78] transition-colors line-clamp-2">{item.title}</h3>
-                    <p className="text-xs text-white/40 line-clamp-2 mb-4">{item.description}</p>
-                    <Link href={`/noticias/${item.id}`} className="mt-auto text-xs font-bold text-[#4D9FFF] flex items-center gap-1">Leer más <ArrowRight size={12} /></Link>
-                  </div>
+            {newsItems.map((item) => (
+              <div key={item.id} className="glass-card overflow-hidden group">
+                <div className="relative h-40 overflow-hidden">
+                  <img src={item.image} alt={item.title} loading="lazy" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                  <div className="absolute top-3 left-3 px-2 py-1 rounded text-[10px] font-bold text-white" style={{ backgroundColor: item.tagColor }}>{item.tag}</div>
                 </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TEAM ── */}
-      <TeamCarousel />
-
-      {/* ── CTA ── */}
-      <section className="py-16 lg:py-24">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div 
-            ref={ctaRef}
-            className="reveal-on-scroll glass-card p-8 lg:p-12 relative overflow-hidden"
-          >
-            <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <div className="relative z-10">
-              <span className="text-[#FF2D78] text-xs font-semibold uppercase tracking-widest mb-3 block">Únete a nosotros</span>
-              <h2 className="text-2xl lg:text-3xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>¿Listo para crear tu <span className="brand-gradient-text">novela visual?</span></h2>
-              <p className="text-white/50 text-sm mb-6 max-w-lg mx-auto leading-relaxed">Únete a nuestra comunidad, aprende con nuestros cursos y comparte tus proyectos con cientos de creadores.</p>
-              <div className="flex flex-wrap gap-3 justify-center">
-                <a href="https://discord.gg/2DB5k7sb8" target="_blank" rel="noopener noreferrer" className="btn-primary text-sm px-6 py-2.5">Unirse al Discord <ArrowRight size={16} /></a>
-                <Link href="/cursos" className="btn-outline text-sm px-6 py-2.5">Empezar a Aprender</Link>
+                <div className="p-4">
+                  <div className="text-[10px] text-white/30 mb-2">{item.date}</div>
+                  <h3 className="font-bold text-sm mb-2 line-clamp-1 group-hover:text-primary transition-colors">{item.title}</h3>
+                  <p className="text-xs text-white/50 line-clamp-2 mb-4">{item.description}</p>
+                  <Link href={`/noticias/${item.id}`} className="text-[10px] font-bold text-primary flex items-center gap-1 uppercase tracking-wider">Leer más <ArrowRight size={10} /></Link>
+                </div>
               </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
