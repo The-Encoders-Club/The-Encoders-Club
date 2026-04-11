@@ -143,10 +143,11 @@
   @media (max-width: 768px) {
     body:not(.loading) {
       background-attachment: scroll !important;
-      /* Optimizamos el scroll ascendente y descendente */
-      contain: paint; /* Técnica de contención para evitar re-pintados al subir */
+      /* Eliminamos contain: paint para evitar la línea blanca en la barra de navegación */
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
+      /* Usamos overflow-x: hidden para evitar scroll lateral sin afectar al sistema */
+      overflow-x: hidden;
     }
   }
 
