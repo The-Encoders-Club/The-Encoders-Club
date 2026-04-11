@@ -146,11 +146,18 @@
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
       overflow-x: hidden;
+      /* Optimizamos el scroll nativo */
+      scroll-behavior: auto !important;
     }
     /* Aplicamos contención SOLO a las secciones para evitar lag sin afectar al sistema */
     section {
       contain: paint;
-      will-change: transform;
+      /* Forzamos que cada sección sea una capa de composición independiente */
+      transform: translate3d(0,0,0);
+    }
+    /* Desactivamos transiciones complejas durante el scroll */
+    * {
+      transition-duration: 0.1s !important;
     }
   }
 
