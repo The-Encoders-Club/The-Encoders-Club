@@ -12,11 +12,11 @@
   }
 }
 
-/* Escáner corregido: Recorre toda la pantalla de arriba a abajo */
+/* Escáner corregido: Recorre solo el contenedor del logo (de arriba a abajo) */
 @keyframes scan-laser {
-  0% { transform: translateY(-100vh) translateZ(0); opacity: 0; }
+  0% { transform: translateY(-100%) translateZ(0); opacity: 0; }
   10%, 90% { opacity: 1; }
-  100% { transform: translateY(100vh) translateZ(0); opacity: 0; }
+  100% { transform: translateY(100%) translateZ(0); opacity: 0; }
 }
 
 @keyframes ring-rotate {
@@ -118,6 +118,7 @@
   align-items: center;
   justify-content: center;
   z-index: 5;
+  overflow: hidden; /* Importante para que el escáner no se salga del logo */
 }
 
 .splash-logo-glow {
@@ -158,16 +159,17 @@
   will-change: transform, opacity;
 }
 
-/* Escáner corregido: Posición fija en toda la pantalla */
+/* Escáner corregido: Posición relativa al contenedor del logo */
 .splash-scan {
-  position: fixed;
-  left: 0;
-  right: 0;
-  height: 2px;
+  position: absolute;
+  top: 0;
+  left: -10%;
+  right: -10%;
+  height: 3px;
   background: linear-gradient(90deg, transparent, #FF2D78, transparent);
-  box-shadow: 0 0 10px #FF2D78;
-  z-index: 99999;
-  animation: scan-laser 4s ease-in-out infinite;
+  box-shadow: 0 0 15px #FF2D78;
+  z-index: 4;
+  animation: scan-laser 3s ease-in-out infinite;
   pointer-events: none;
   will-change: transform;
 }
