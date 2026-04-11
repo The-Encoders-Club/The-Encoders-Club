@@ -15,7 +15,7 @@ export default function Cursos() {
       {/* Main Content - Centrado absoluto con padding para Navbar y Footer */}
       <main className="flex-grow flex items-center justify-center py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
         {/* Background effects */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-[#FF2D78]/5 blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl h-96 bg-[#FF2D78]/3 blur-[80px] pointer-events-none" />
         
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
@@ -26,8 +26,8 @@ export default function Cursos() {
           {/* Icon with glow */}
           <div className="flex justify-center mb-8">
             <div className="relative inline-block">
-              <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF] rounded-full blur-2xl opacity-30 animate-pulse" />
-              <div className="relative bg-white/5 backdrop-blur-md p-8 rounded-full border border-white/10 shadow-[0_0_40px_rgba(255,45,120,0.2)]">
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF] rounded-full blur-sm opacity-20 animate-pulse" />
+              <div className="relative bg-white/5 backdrop-blur-sm p-8 rounded-full border border-white/10 shadow-[0_0_40px_rgba(255,45,120,0.2)]">
                 <Hammer size={56} className="text-[#FF2D78]" />
               </div>
             </div>
