@@ -1,53 +1,53 @@
-/* --- ANIMACIONES OPTIMIZADAS (GPU ACCELERATED) --- */
-@keyframes pulse-neon {
-  0%, 100% { filter: drop-shadow(0 0 8px rgba(255,45,120,0.3)); transform: scale(1) translate3d(0,0,0); }
-  50% { filter: drop-shadow(0 0 20px rgba(255,45,120,0.6)); transform: scale(1.02) translate3d(0,0,0); }
+/* --- ANIMACIONES DE ALTO RENDIMIENTO (CERO LAG) --- */
+@keyframes pulse-neon-lite {
+  0%, 100% { transform: scale(1) translate3d(0,0,0); opacity: 0.9; }
+  50% { transform: scale(1.02) translate3d(0,0,0); opacity: 1; }
 }
-@keyframes scan-laser {
+@keyframes scan-laser-lite {
   0%, 100% { top: 0%; opacity: 0; }
-  10%, 90% { opacity: 1; }
+  10%, 90% { opacity: 0.8; }
   50% { top: 100%; }
 }
-@keyframes ring-rotate {
+@keyframes ring-rotate-lite {
   from { transform: rotate(0deg) translate3d(0,0,0); }
   to { transform: rotate(360deg) translate3d(0,0,0); }
 }
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(10px) translate3d(0,0,0); }
+@keyframes fade-in-up-lite {
+  from { opacity: 0; transform: translateY(8px) translate3d(0,0,0); }
   to { opacity: 1; transform: translateY(0) translate3d(0,0,0); }
 }
-@keyframes loading-bar {
+@keyframes loading-bar-lite {
   from { transform: translateX(-100%) translate3d(0,0,0); }
   to { transform: translateX(100%) translate3d(0,0,0); }
 }
-@keyframes nebula-drift {
-  0%, 100% { transform: scale(1) translate3d(0,0,0); opacity: 0.2; }
-  50% { transform: scale(1.05) translate3d(5px, 2px, 0); opacity: 0.4; }
+@keyframes nebula-drift-lite {
+  0%, 100% { transform: translate3d(0,0,0); opacity: 0.2; }
+  50% { transform: translate3d(5px, 2px, 0); opacity: 0.35; }
 }
-@keyframes star-twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(0.8) translate3d(0,0,0); }
-  50% { opacity: 0.7; transform: scale(1.1) translate3d(0,0,0); }
+@keyframes star-twinkle-lite {
+  0%, 100% { opacity: 0.2; transform: scale(0.9) translate3d(0,0,0); }
+  50% { opacity: 0.6; transform: scale(1) translate3d(0,0,0); }
 }
-@keyframes shooting-star {
+@keyframes shooting-star-lite {
   0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translate3d(0,0,0); opacity: 0; }
-  10% { opacity: 1; scale(1); }
-  100% { transform: translateX(-300px) translateY(300px) rotate(-45deg) scale(1) translate3d(0,0,0); opacity: 0; }
+  10% { opacity: 0.8; scale(1); }
+  100% { transform: translateX(-250px) translateY(250px) rotate(-45deg) scale(1) translate3d(0,0,0); opacity: 0; }
 }
-@keyframes p-float-static {
-  0%, 100% { transform: translate3d(0,0,0) scale(1); opacity: 0.2; }
-  50% { transform: translate3d(var(--tx), var(--ty), 0) scale(1.2); opacity: 0.5; }
+@keyframes p-float-static-lite {
+  0%, 100% { transform: translate3d(0,0,0); opacity: 0.2; }
+  50% { transform: translate3d(var(--tx), var(--ty), 0); opacity: 0.4; }
 }
 
-/* --- FONDO ARTÍSTICO --- */
+/* --- FONDO ARTÍSTICO (OPTIMIZADO: SIN FILTROS BLUR PESADOS) --- */
 .splash-nebula-1 {
   position: absolute;
   top: -10%;
   left: -5%;
   width: 60%;
   height: 60%;
-  background: radial-gradient(circle, rgba(255,45,120,0.1) 0%, transparent 70%);
-  filter: blur(40px);
-  animation: nebula-drift 12s ease-in-out infinite;
+  /* Usamos gradientes radiales suaves en lugar de filtros blur pesados */
+  background: radial-gradient(circle at center, rgba(255,45,120,0.08) 0%, rgba(255,45,120,0.04) 30%, transparent 70%);
+  animation: nebula-drift-lite 15s ease-in-out infinite;
   z-index: 0;
   will-change: transform, opacity;
 }
@@ -57,9 +57,8 @@
   right: -5%;
   width: 70%;
   height: 70%;
-  background: radial-gradient(circle, rgba(77,159,255,0.1) 0%, transparent 70%);
-  filter: blur(50px);
-  animation: nebula-drift 15s ease-in-out infinite reverse;
+  background: radial-gradient(circle at center, rgba(77,159,255,0.08) 0%, rgba(77,159,255,0.04) 30%, transparent 70%);
+  animation: nebula-drift-lite 18s ease-in-out infinite reverse;
   z-index: 0;
   will-change: transform, opacity;
 }
@@ -71,27 +70,27 @@
 }
 .star {
   position: absolute;
-  background: white;
+  background: rgba(255, 255, 255, 0.8);
   border-radius: 50%;
-  animation: star-twinkle var(--s-duration) ease-in-out infinite;
+  animation: star-twinkle-lite var(--s-duration) ease-in-out infinite;
   will-change: transform, opacity;
 }
 .shooting-star {
   position: absolute;
-  width: 60px;
+  width: 50px;
   height: 1px;
-  background: linear-gradient(90deg, white, transparent);
+  background: linear-gradient(90deg, rgba(255,255,255,0.8), transparent);
   z-index: 2;
   pointer-events: none;
-  animation: shooting-star 3s linear infinite;
+  animation: shooting-star-lite 4s linear infinite;
   will-change: transform, opacity;
 }
 
 /* --- ELEMENTOS CENTRALES --- */
 .splash-logo-container {
   position: relative;
-  width: clamp(150px, 35vw, 200px);
-  height: clamp(150px, 35vw, 200px);
+  width: clamp(140px, 32vw, 180px);
+  height: clamp(140px, 32vw, 180px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,85 +98,83 @@
 }
 .splash-logo-glow {
   position: absolute;
-  inset: -20px;
-  background: radial-gradient(circle, rgba(255,45,120,0.1) 0%, transparent 70%);
+  inset: -15px;
+  background: radial-gradient(circle, rgba(255,45,120,0.08) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 1;
-  filter: blur(10px);
 }
 .splash-ring {
   position: absolute;
   inset: 0;
-  border: 1px dashed rgba(255,45,120,0.2);
+  border: 1px dashed rgba(255,45,120,0.15);
   border-radius: 50%;
-  animation: ring-rotate 5s linear infinite;
+  animation: ring-rotate-lite 6s linear infinite;
   z-index: 2;
   will-change: transform;
 }
 .splash-ring-outer {
   position: absolute;
-  inset: -10px;
-  border: 1px solid rgba(77,159,255,0.1);
+  inset: -8px;
+  border: 1px solid rgba(77,159,255,0.08);
   border-radius: 50%;
-  animation: ring-rotate 10s linear infinite reverse;
+  animation: ring-rotate-lite 12s linear infinite reverse;
   z-index: 2;
   will-change: transform;
 }
 .splash-logo {
-  width: 70%;
-  height: 70%;
+  width: 65%;
+  height: 65%;
   object-fit: contain;
-  animation: pulse-neon 3s ease-in-out infinite;
+  /* Eliminamos drop-shadow dinámico para máximo rendimiento en móvil */
+  animation: pulse-neon-lite 3.5s ease-in-out infinite;
   z-index: 3;
-  will-change: transform, filter;
+  will-change: transform, opacity;
 }
 .splash-scan {
   position: absolute;
-  left: -2%;
-  right: -2%;
-  height: 1.5px;
-  background: linear-gradient(90deg, transparent, #FF2D78, transparent);
-  box-shadow: 0 0 10px #FF2D78;
+  left: 0%;
+  right: 0%;
+  height: 1px;
+  background: rgba(255, 45, 120, 0.6);
+  box-shadow: 0 0 8px rgba(255, 45, 120, 0.4);
   z-index: 4;
-  animation: scan-laser 3s ease-in-out infinite;
+  animation: scan-laser-lite 3.5s ease-in-out infinite;
   pointer-events: none;
 }
 .splash-text-container {
-  margin-top: clamp(25px, 6vw, 40px);
+  margin-top: clamp(20px, 5vw, 35px);
   text-align: center;
-  animation: fade-in-up 0.8s ease-out both;
+  animation: fade-in-up-lite 0.8s ease-out both;
   z-index: 5;
   padding: 0 20px;
 }
 .splash-title {
-  color: white;
+  color: rgba(255, 255, 255, 0.9);
   font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(16px, 4.5vw, 24px);
+  font-size: clamp(15px, 4vw, 22px);
   font-weight: bold;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   margin: 0;
-  text-shadow: 0 0 8px rgba(255,255,255,0.1);
 }
-.splash-title span { color: #FF2D78; text-shadow: 0 0 10px rgba(255,45,120,0.4); }
+.splash-title span { color: #FF2D78; }
 
 .splash-loader {
-  margin-top: 15px;
-  width: clamp(120px, 30vw, 180px);
-  height: 1.5px;
-  background: rgba(255,255,255,0.05);
+  margin-top: 12px;
+  width: clamp(110px, 28vw, 160px);
+  height: 1px;
+  background: rgba(255,255,255,0.03);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
   margin-left: auto;
   margin-right: auto;
-  border: 1px solid rgba(255,255,255,0.05);
 }
 .splash-loader-bar {
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg, transparent, #FF2D78, #4D9FFF, transparent);
-  animation: loading-bar 2.5s linear infinite;
+  animation: loading-bar-lite 3s linear infinite;
   will-change: transform;
 }
 
@@ -190,37 +187,27 @@
 }
 .p-static {
   position: absolute;
-  width: 3px;
-  height: 3px;
+  width: 2px;
+  height: 2px;
   border-radius: 50%;
   background: #FF2D78;
-  animation: p-float-static 4s ease-in-out infinite;
+  animation: p-float-static-lite 5s ease-in-out infinite;
   will-change: transform, opacity;
 }
-.p1 { top: 30%; left: 20%; --tx: 20px; --ty: -30px; background: #FF2D78; animation-delay: 0s; }
-.p2 { top: 70%; left: 15%; --tx: -15px; --ty: 25px; background: #4D9FFF; animation-delay: 1s; }
-.p3 { top: 25%; left: 80%; --tx: 10px; --ty: 20px; background: #a855f7; animation-delay: 2s; }
-.p4 { top: 80%; left: 75%; --tx: -20px; --ty: -15px; background: #ffffff; animation-delay: 0.5s; }
-.p5 { top: 45%; left: 10%; --tx: 30px; --ty: 10px; background: #FF2D78; animation-delay: 1.5s; }
-.p6 { top: 15%; left: 50%; --tx: -10px; --ty: 40px; background: #4D9FFF; animation-delay: 2.5s; }
+.p1 { top: 30%; left: 20%; --tx: 15px; --ty: -20px; background: rgba(255,45,120,0.5); animation-delay: 0s; }
+.p2 { top: 70%; left: 15%; --tx: -10px; --ty: 15px; background: rgba(77,159,255,0.5); animation-delay: 1s; }
+.p3 { top: 25%; left: 80%; --tx: 8px; --ty: 12px; background: rgba(168,85,247,0.5); animation-delay: 2s; }
+.p4 { top: 80%; left: 75%; --tx: -12px; --ty: -10px; background: rgba(255,255,255,0.5); animation-delay: 0.5s; }
 
 /* --- OPTIMIZACIÓN PARA MÓVILES --- */
 @media (max-width: 768px) {
   .splash-nebula-1, .splash-nebula-2 {
-    filter: blur(25px);
-    opacity: 0.3;
-  }
-  .splash-logo-glow {
-    filter: blur(8px);
+    opacity: 0.25;
   }
   .splash-ring, .splash-ring-outer {
-    animation-duration: 8s, 16s;
+    animation-duration: 10s, 20s;
   }
   .splash-scan {
-    animation-duration: 4s;
-  }
-  .p-static {
-    width: 2px;
-    height: 2px;
+    animation-duration: 5s;
   }
 }
