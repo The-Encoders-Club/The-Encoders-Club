@@ -1,75 +1,96 @@
-/* --- ANIMACIONES ORIGINALES (OPTIMIZADAS CON GPU) --- */
+/* --- ANIMACIONES OPTIMIZADAS --- */
+/* Usamos transform: translateZ(0) para forzar aceleración por hardware */
+
 @keyframes pulse-neon {
-  0%, 100% { filter: drop-shadow(0 0 15px rgba(255,45,120,0.5)); transform: scale(1) translate3d(0,0,0); }
-  50% { filter: drop-shadow(0 0 35px rgba(255,45,120,0.9)); transform: scale(1.05) translate3d(0,0,0); }
-}
-@keyframes scan-laser {
-  0%, 100% { top: 0%; opacity: 0; }
-  10%, 90% { opacity: 1; }
-  50% { top: 100%; }
-}
-@keyframes ring-rotate {
-  from { transform: rotate(0deg) translate3d(0,0,0); }
-  to { transform: rotate(360deg) translate3d(0,0,0); }
-}
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(20px) translate3d(0,0,0); }
-  to { opacity: 1; transform: translateY(0) translate3d(0,0,0); }
-}
-@keyframes loading-bar {
-  from { transform: translateX(-100%) translate3d(0,0,0); }
-  to { transform: translateX(100%) translate3d(0,0,0); }
-}
-@keyframes particle-float {
-  0% { transform: translate3d(0, 0, 0) scale(1); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translate3d(var(--p-tx), var(--p-ty), 0) scale(0); opacity: 0; }
-}
-@keyframes nebula-drift {
-  0%, 100% { transform: scale(1) translate3d(0, 0, 0); opacity: 0.4; }
-  50% { transform: scale(1.2) translate3d(20px, 10px, 0); opacity: 0.7; }
-}
-@keyframes star-twinkle {
-  0%, 100% { opacity: 0.3; transform: scale(0.8) translate3d(0,0,0); }
-  50% { opacity: 1; transform: scale(1.2) translate3d(0,0,0); }
-}
-@keyframes shooting-star {
-  0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translate3d(0,0,0); opacity: 0; }
-  10% { opacity: 1; scale(1); }
-  100% { transform: translateX(-500px) translateY(500px) rotate(-45deg) scale(1) translate3d(0,0,0); opacity: 0; }
+  0%, 100% { 
+    opacity: 0.8;
+    transform: scale(1) translateZ(0); 
+  }
+  50% { 
+    opacity: 1;
+    transform: scale(1.05) translateZ(0); 
+  }
 }
 
-/* --- FONDO ARTÍSTICO (DISEÑO ORIGINAL) --- */
+@keyframes scan-laser {
+  0% { transform: translateY(-100%) translateZ(0); opacity: 0; }
+  10%, 90% { opacity: 1; }
+  50% { transform: translateY(3300%) translateZ(0); } /* Ajustado para el contenedor del logo */
+  100% { transform: translateY(-100%) translateZ(0); opacity: 0; }
+}
+
+@keyframes ring-rotate {
+  from { transform: rotate(0deg) translateZ(0); }
+  to { transform: rotate(360deg) translateZ(0); }
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px) translateZ(0); }
+  to { opacity: 1; transform: translateY(0) translateZ(0); }
+}
+
+@keyframes loading-bar {
+  from { transform: translateX(-100%) translateZ(0); }
+  to { transform: translateX(100%) translateZ(0); }
+}
+
+@keyframes particle-float {
+  0% { transform: translate(0, 0) scale(1) translateZ(0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(var(--p-tx), var(--p-ty)) scale(0) translateZ(0); opacity: 0; }
+}
+
+@keyframes nebula-drift {
+  0%, 100% { transform: scale(1) translate(0, 0) translateZ(0); opacity: 0.3; }
+  50% { transform: scale(1.1) translate(10px, 5px) translateZ(0); opacity: 0.5; }
+}
+
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.2; transform: scale(0.8) translateZ(0); }
+  50% { opacity: 0.8; transform: scale(1.1) translateZ(0); }
+}
+
+@keyframes shooting-star {
+  0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translateZ(0); opacity: 0; }
+  10% { opacity: 1; scale(1); }
+  100% { transform: translateX(-400px) translateY(400px) rotate(-45deg) scale(1) translateZ(0); opacity: 0; }
+}
+
+/* --- FONDO ARTÍSTICO --- */
 .splash-nebula-1 {
   position: absolute;
-  top: -20%;
+  top: -15%;
   left: -10%;
-  width: 80%;
-  height: 80%;
-  background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
-  filter: blur(60px);
-  animation: nebula-drift 8s ease-in-out infinite;
+  width: 70%;
+  height: 70%;
+  background: radial-gradient(circle, rgba(255,45,120,0.12) 0%, transparent 70%);
+  /* Reducimos el blur para móviles */
+  filter: blur(40px);
+  animation: nebula-drift 12s ease-in-out infinite;
   z-index: 0;
   will-change: transform, opacity;
 }
+
 .splash-nebula-2 {
   position: absolute;
-  bottom: -20%;
+  bottom: -15%;
   right: -10%;
-  width: 90%;
-  height: 90%;
-  background: radial-gradient(circle, rgba(77,159,255,0.15) 0%, transparent 70%);
-  filter: blur(80px);
-  animation: nebula-drift 10s ease-in-out infinite reverse;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(77,159,255,0.12) 0%, transparent 70%);
+  filter: blur(50px);
+  animation: nebula-drift 15s ease-in-out infinite reverse;
   z-index: 0;
   will-change: transform, opacity;
 }
+
 .splash-starfield {
   position: absolute;
   inset: 0;
   z-index: 1;
   pointer-events: none;
 }
+
 .star {
   position: absolute;
   background: white;
@@ -77,141 +98,127 @@
   animation: star-twinkle var(--s-duration) ease-in-out infinite;
   will-change: transform, opacity;
 }
+
 .shooting-star {
   position: absolute;
-  width: 100px;
-  height: 2px;
+  width: 80px;
+  height: 1px;
   background: linear-gradient(90deg, white, transparent);
   z-index: 2;
   pointer-events: none;
-  animation: shooting-star 2s linear infinite;
   will-change: transform, opacity;
 }
 
-/* --- ELEMENTOS CENTRALES (DISEÑO ORIGINAL) --- */
+/* --- ELEMENTOS CENTRALES --- */
 .splash-logo-container {
   position: relative;
-  width: 220px;
-  height: 220px;
+  width: 200px;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 5;
 }
+
 .splash-logo-glow {
   position: absolute;
-  inset: -40px;
-  background: radial-gradient(circle, rgba(255,45,120,0.2) 0%, transparent 70%);
+  inset: -30px;
+  background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 1;
-  filter: blur(20px);
+  filter: blur(15px);
 }
+
 .splash-ring {
   position: absolute;
   inset: 0;
-  border: 2px dashed rgba(255,45,120,0.4);
+  border: 1.5px dashed rgba(255,45,120,0.3);
   border-radius: 50%;
-  animation: ring-rotate 3s linear infinite;
+  animation: ring-rotate 4s linear infinite;
   z-index: 2;
   will-change: transform;
 }
+
 .splash-ring-outer {
   position: absolute;
-  inset: -20px;
-  border: 1px solid rgba(77,159,255,0.2);
+  inset: -15px;
+  border: 1px solid rgba(77,159,255,0.15);
   border-radius: 50%;
-  animation: ring-rotate 6s linear infinite reverse;
+  animation: ring-rotate 8s linear infinite reverse;
   z-index: 2;
   will-change: transform;
 }
+
 .splash-logo {
-  width: 160px;
-  height: 160px;
+  width: 140px;
+  height: 140px;
   object-fit: contain;
-  animation: pulse-neon 2s ease-in-out infinite;
+  animation: pulse-neon 3s ease-in-out infinite;
   z-index: 3;
-  display: block !important; /* Aseguramos que se vea */
-  will-change: transform, filter;
+  will-change: transform, opacity;
 }
+
 .splash-scan {
   position: absolute;
-  left: -10%;
-  right: -10%;
-  height: 3px;
+  top: 0;
+  left: -5%;
+  right: -5%;
+  height: 2px;
   background: linear-gradient(90deg, transparent, #FF2D78, transparent);
-  box-shadow: 0 0 20px #FF2D78;
+  box-shadow: 0 0 10px #FF2D78;
   z-index: 4;
-  animation: scan-laser 2s ease-in-out infinite;
+  animation: scan-laser 3s ease-in-out infinite;
   pointer-events: none;
+  will-change: transform;
 }
+
 .splash-text-container {
-  margin-top: 50px;
+  margin-top: 40px;
   text-align: center;
   animation: fade-in-up 0.8s ease-out both;
   z-index: 5;
 }
+
 .splash-title {
   color: white;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
-  letter-spacing: 0.3em;
+  letter-spacing: 0.25em;
   text-transform: uppercase;
   margin: 0;
-  text-shadow: 0 0 15px rgba(255,255,255,0.2);
+  /* Eliminamos text-shadow pesado */
 }
-.splash-title span { color: #FF2D78; text-shadow: 0 0 15px rgba(255,45,120,0.6); }
+
+.splash-title span { 
+  color: #FF2D78; 
+}
 
 .splash-loader {
-  margin-top: 25px;
-  width: 200px;
-  height: 3px;
+  margin-top: 20px;
+  width: 180px;
+  height: 2px;
   background: rgba(255,255,255,0.05);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
   margin-left: auto;
   margin-right: auto;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.08);
 }
+
 .splash-loader-bar {
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg, transparent, #FF2D78, #4D9FFF, transparent);
-  animation: loading-bar 1.5s linear infinite;
+  animation: loading-bar 2s linear infinite;
   will-change: transform;
 }
 
 .particle {
   position: absolute;
-  width: 4px;
-  height: 4px;
-  background: #FF2D78;
   border-radius: 50%;
   pointer-events: none;
   z-index: 4;
   will-change: transform, opacity;
-}
-
-/* --- OPTIMIZACIÓN PARA MÓVILES (SIN QUITAR NADA) --- */
-@media (max-width: 768px) {
-  .splash-logo-container {
-    width: 180px;
-    height: 180px;
-  }
-  .splash-logo {
-    width: 130px;
-    height: 130px;
-  }
-  .splash-title {
-    font-size: 20px;
-  }
-  /* Forzamos a que el navegador use capas de hardware para todo en móvil */
-  * {
-    -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
-    -webkit-perspective: 1000;
-    perspective: 1000;
-    transform: translate3d(0,0,0);
-  }
 }
