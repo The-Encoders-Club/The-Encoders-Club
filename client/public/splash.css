@@ -212,16 +212,16 @@
   inset: 0;
   width: 100%;
   height: 100%;
-  /* Usamos un degradado de fondo que se repite */
+  /* Degradado arcoíris ultra-fluido */
   background: linear-gradient(90deg, 
-    transparent 0%, 
-    #FF2D78 25%, 
-    #4D9FFF 50%, 
+    #FF2D78 0%, 
+    #4D9FFF 25%, 
+    #a855f7 50%, 
     #FF2D78 75%, 
-    transparent 100%
+    #4D9FFF 100%
   ) !important;
   background-size: 200% 100% !important;
-  animation: loading-bar-flow 2s linear infinite !important;
+  animation: loading-bar-flow 1.5s linear infinite !important;
   will-change: background-position;
 }
 
