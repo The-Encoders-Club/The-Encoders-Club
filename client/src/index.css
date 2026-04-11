@@ -137,6 +137,14 @@
     font-family: 'DM Sans', sans-serif;
     background-color: #080818;
     color: #F0F0FF;
+    -webkit-overflow-scrolling: touch; /* Scroll suave en iOS/Android */
+  }
+
+  @media (max-width: 768px) {
+    body {
+      background-attachment: scroll !important; /* Evita fondos fijos que causan lag */
+      transform: translateZ(0); /* Fuerza aceleración por hardware en toda la página */
+    }
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -188,11 +196,25 @@
     background: linear-gradient(135deg, #FF2D78 0%, #7C3AED 50%, #4D9FFF 100%);
   }
 
+  @media (max-width: 768px) {
+    .brand-gradient {
+      background: #FF2D78 !important; /* Color sólido en móviles para evitar lag de degradados */
+    }
+  }
+
   .brand-gradient-text {
     background: linear-gradient(135deg, #FF2D78 0%, #a855f7 50%, #4D9FFF 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  @media (max-width: 768px) {
+    .brand-gradient-text {
+      background: none !important;
+      -webkit-text-fill-color: #FF2D78 !important;
+      color: #FF2D78 !important;
+    }
   }
 
   .glass-card {
