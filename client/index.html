@@ -23,7 +23,8 @@
     <link rel="stylesheet" href="/splash.css" />
   </head>
   <body class="loading">
-    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out;">
+    <!-- Transición de opacidad reducida a 0.5s para mayor rapidez -->
+    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 0.5s ease-in-out;">
       <!-- Fondo Artístico -->
       <div class="splash-nebula-1"></div>
       <div class="splash-nebula-2"></div>
@@ -42,7 +43,6 @@
       <div class="splash-text-container">
         <h1 class="splash-title">The Encoders <span>Club</span></h1>
         <div class="splash-loader">
-          <!-- Clase sincronizada con splash.css -->
           <div class="splash-loader-bar"></div>
         </div>
       </div>
@@ -50,7 +50,7 @@
       <script>
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
-        // Generador de estrellas estáticas (Reducción radical en móviles para eliminar lag)
+        // Generador de estrellas estáticas
         const starfield = document.getElementById('starfield');
         if (starfield) {
           const starCount = isMobile ? 25 : 80; 
@@ -69,7 +69,7 @@
           starfield.appendChild(fragment);
         }
 
-        // Generador de estrellas fugaces (Muy lento en móviles)
+        // Generador de estrellas fugaces
         function createShootingStar() {
           const sf = document.getElementById('starfield');
           if (!sf || (isMobile && Math.random() > 0.15)) return; 
@@ -82,7 +82,7 @@
         }
         const shootingStarInterval = setInterval(createShootingStar, isMobile ? 12000 : 4000);
 
-        // Generador de partículas centrales (Optimización máxima)
+        // Generador de partículas centrales
         const container = document.getElementById('particles-container');
         const colors = ['#FF2D78', '#4D9FFF', '#a855f7', '#ffffff'];
         let activeParticles = 0;
@@ -125,6 +125,7 @@
 
         const particleInterval = setInterval(createParticle, isMobile ? 350 : 150);
         
+        // Función de cierre optimizada para ser más rápida
         window.stopParticles = function() {
           clearInterval(particleInterval);
           clearInterval(shootingStarInterval);
@@ -132,10 +133,11 @@
           const splash = document.getElementById('splash-screen');
           if (splash) {
             splash.style.opacity = '0';
+            // Reducimos el tiempo de espera para que coincida con la transición de 0.5s
             setTimeout(() => {
               splash.style.display = 'none';
               document.body.classList.remove('loading');
-            }, 1000);
+            }, 500);
           }
         };
       </script>
