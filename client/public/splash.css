@@ -1,64 +1,66 @@
-/* --- ANIMACIONES DE ALTO RENDIMIENTO (CERO LAG) --- */
-@keyframes pulse-neon-lite {
-  0%, 100% { transform: scale(1) translate3d(0,0,0); opacity: 0.9; }
-  50% { transform: scale(1.02) translate3d(0,0,0); opacity: 1; }
+/* --- ANIMACIONES ORIGINALES (OPTIMIZADAS CON GPU) --- */
+@keyframes pulse-neon {
+  0%, 100% { filter: drop-shadow(0 0 15px rgba(255,45,120,0.5)); transform: scale(1) translateZ(0); }
+  50% { filter: drop-shadow(0 0 35px rgba(255,45,120,0.9)); transform: scale(1.05) translateZ(0); }
 }
-@keyframes scan-laser-lite {
+@keyframes scan-laser {
   0%, 100% { top: 0%; opacity: 0; }
-  10%, 90% { opacity: 0.8; }
+  10%, 90% { opacity: 1; }
   50% { top: 100%; }
 }
-@keyframes ring-rotate-lite {
-  from { transform: rotate(0deg) translate3d(0,0,0); }
-  to { transform: rotate(360deg) translate3d(0,0,0); }
+@keyframes ring-rotate {
+  from { transform: rotate(0deg) translateZ(0); }
+  to { transform: rotate(360deg) translateZ(0); }
 }
-@keyframes fade-in-up-lite {
-  from { opacity: 0; transform: translateY(8px) translate3d(0,0,0); }
-  to { opacity: 1; transform: translateY(0) translate3d(0,0,0); }
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px) translateZ(0); }
+  to { opacity: 1; transform: translateY(0) translateZ(0); }
 }
-@keyframes loading-bar-lite {
-  from { transform: translateX(-100%) translate3d(0,0,0); }
-  to { transform: translateX(100%) translate3d(0,0,0); }
+@keyframes loading-bar {
+  from { transform: translateX(-100%) translateZ(0); }
+  to { transform: translateX(100%) translateZ(0); }
 }
-@keyframes nebula-drift-lite {
-  0%, 100% { transform: translate3d(0,0,0); opacity: 0.2; }
-  50% { transform: translate3d(5px, 2px, 0); opacity: 0.35; }
+@keyframes particle-float {
+  0% { transform: translate(0, 0) scale(1) translateZ(0); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(var(--p-tx), var(--p-ty)) scale(0) translateZ(0); opacity: 0; }
 }
-@keyframes star-twinkle-lite {
-  0%, 100% { opacity: 0.2; transform: scale(0.9) translate3d(0,0,0); }
-  50% { opacity: 0.6; transform: scale(1) translate3d(0,0,0); }
+@keyframes nebula-drift {
+  0%, 100% { transform: scale(1) translate(0, 0) translateZ(0); opacity: 0.4; }
+  50% { transform: scale(1.2) translate(20px, 10px) translateZ(0); opacity: 0.7; }
 }
-@keyframes shooting-star-lite {
-  0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translate3d(0,0,0); opacity: 0; }
-  10% { opacity: 0.8; scale(1); }
-  100% { transform: translateX(-250px) translateY(250px) rotate(-45deg) scale(1) translate3d(0,0,0); opacity: 0; }
+@keyframes star-twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.8) translateZ(0); }
+  50% { opacity: 1; transform: scale(1.2) translateZ(0); }
 }
-@keyframes p-float-static-lite {
-  0%, 100% { transform: translate3d(0,0,0); opacity: 0.2; }
-  50% { transform: translate3d(var(--tx), var(--ty), 0); opacity: 0.4; }
+@keyframes shooting-star {
+  0% { transform: translateX(0) translateY(0) rotate(-45deg) scale(0) translateZ(0); opacity: 0; }
+  10% { opacity: 1; scale(1); }
+  100% { transform: translateX(-500px) translateY(500px) rotate(-45deg) scale(1) translateZ(0); opacity: 0; }
 }
 
-/* --- FONDO ARTÍSTICO (OPTIMIZADO: SIN FILTROS BLUR PESADOS) --- */
+/* --- FONDO ARTÍSTICO (DISEÑO ORIGINAL) --- */
 .splash-nebula-1 {
   position: absolute;
-  top: -10%;
-  left: -5%;
-  width: 60%;
-  height: 60%;
-  /* Usamos gradientes radiales suaves en lugar de filtros blur pesados */
-  background: radial-gradient(circle at center, rgba(255,45,120,0.08) 0%, rgba(255,45,120,0.04) 30%, transparent 70%);
-  animation: nebula-drift-lite 15s ease-in-out infinite;
+  top: -20%;
+  left: -10%;
+  width: 80%;
+  height: 80%;
+  background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
+  filter: blur(60px);
+  animation: nebula-drift 8s ease-in-out infinite;
   z-index: 0;
   will-change: transform, opacity;
 }
 .splash-nebula-2 {
   position: absolute;
-  bottom: -10%;
-  right: -5%;
-  width: 70%;
-  height: 70%;
-  background: radial-gradient(circle at center, rgba(77,159,255,0.08) 0%, rgba(77,159,255,0.04) 30%, transparent 70%);
-  animation: nebula-drift-lite 18s ease-in-out infinite reverse;
+  bottom: -20%;
+  right: -10%;
+  width: 90%;
+  height: 90%;
+  background: radial-gradient(circle, rgba(77,159,255,0.15) 0%, transparent 70%);
+  filter: blur(80px);
+  animation: nebula-drift 10s ease-in-out infinite reverse;
   z-index: 0;
   will-change: transform, opacity;
 }
@@ -70,27 +72,27 @@
 }
 .star {
   position: absolute;
-  background: rgba(255, 255, 255, 0.8);
+  background: white;
   border-radius: 50%;
-  animation: star-twinkle-lite var(--s-duration) ease-in-out infinite;
+  animation: star-twinkle var(--s-duration) ease-in-out infinite;
   will-change: transform, opacity;
 }
 .shooting-star {
   position: absolute;
-  width: 50px;
-  height: 1px;
-  background: linear-gradient(90deg, rgba(255,255,255,0.8), transparent);
+  width: 100px;
+  height: 2px;
+  background: linear-gradient(90deg, white, transparent);
   z-index: 2;
   pointer-events: none;
-  animation: shooting-star-lite 4s linear infinite;
+  animation: shooting-star 2s linear infinite;
   will-change: transform, opacity;
 }
 
-/* --- ELEMENTOS CENTRALES --- */
+/* --- ELEMENTOS CENTRALES (DISEÑO ORIGINAL) --- */
 .splash-logo-container {
   position: relative;
-  width: clamp(140px, 32vw, 180px);
-  height: clamp(140px, 32vw, 180px);
+  width: 220px;
+  height: 220px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,116 +100,116 @@
 }
 .splash-logo-glow {
   position: absolute;
-  inset: -15px;
-  background: radial-gradient(circle, rgba(255,45,120,0.08) 0%, transparent 70%);
+  inset: -40px;
+  background: radial-gradient(circle, rgba(255,45,120,0.2) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 1;
+  filter: blur(20px);
 }
 .splash-ring {
   position: absolute;
   inset: 0;
-  border: 1px dashed rgba(255,45,120,0.15);
+  border: 2px dashed rgba(255,45,120,0.4);
   border-radius: 50%;
-  animation: ring-rotate-lite 6s linear infinite;
+  animation: ring-rotate 3s linear infinite;
   z-index: 2;
   will-change: transform;
 }
 .splash-ring-outer {
   position: absolute;
-  inset: -8px;
-  border: 1px solid rgba(77,159,255,0.08);
+  inset: -20px;
+  border: 1px solid rgba(77,159,255,0.2);
   border-radius: 50%;
-  animation: ring-rotate-lite 12s linear infinite reverse;
+  animation: ring-rotate 6s linear infinite reverse;
   z-index: 2;
   will-change: transform;
 }
 .splash-logo {
-  width: 65%;
-  height: 65%;
+  width: 160px;
+  height: 160px;
   object-fit: contain;
-  /* Eliminamos drop-shadow dinámico para máximo rendimiento en móvil */
-  animation: pulse-neon-lite 3.5s ease-in-out infinite;
+  animation: pulse-neon 2s ease-in-out infinite;
   z-index: 3;
-  will-change: transform, opacity;
+  will-change: transform, filter;
 }
 .splash-scan {
   position: absolute;
-  left: 0%;
-  right: 0%;
-  height: 1px;
-  background: rgba(255, 45, 120, 0.6);
-  box-shadow: 0 0 8px rgba(255, 45, 120, 0.4);
+  left: -10%;
+  right: -10%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #FF2D78, transparent);
+  box-shadow: 0 0 20px #FF2D78;
   z-index: 4;
-  animation: scan-laser-lite 3.5s ease-in-out infinite;
+  animation: scan-laser 2s ease-in-out infinite;
   pointer-events: none;
 }
 .splash-text-container {
-  margin-top: clamp(20px, 5vw, 35px);
+  margin-top: 50px;
   text-align: center;
-  animation: fade-in-up-lite 0.8s ease-out both;
+  animation: fade-in-up 0.8s ease-out both;
   z-index: 5;
-  padding: 0 20px;
 }
 .splash-title {
-  color: rgba(255, 255, 255, 0.9);
+  color: white;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(15px, 4vw, 22px);
+  font-size: 28px;
   font-weight: bold;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   margin: 0;
+  text-shadow: 0 0 15px rgba(255,255,255,0.2);
 }
-.splash-title span { color: #FF2D78; }
+.splash-title span { color: #FF2D78; text-shadow: 0 0 15px rgba(255,45,120,0.6); }
 
 .splash-loader {
-  margin-top: 12px;
-  width: clamp(110px, 28vw, 160px);
-  height: 1px;
-  background: rgba(255,255,255,0.03);
+  margin-top: 25px;
+  width: 200px;
+  height: 3px;
+  background: rgba(255,255,255,0.05);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
   margin-left: auto;
   margin-right: auto;
+  border: 1px solid rgba(255,255,255,0.1);
 }
 .splash-loader-bar {
   position: absolute;
   inset: 0;
   background: linear-gradient(90deg, transparent, #FF2D78, #4D9FFF, transparent);
-  animation: loading-bar-lite 3s linear infinite;
+  animation: loading-bar 1.5s linear infinite;
   will-change: transform;
 }
 
-/* --- PARTÍCULAS ESTÁTICAS (CERO JS LAG) --- */
-.splash-particles-static {
+.particle {
   position: absolute;
-  inset: 0;
-  z-index: 4;
-  pointer-events: none;
-}
-.p-static {
-  position: absolute;
-  width: 2px;
-  height: 2px;
-  border-radius: 50%;
+  width: 4px;
+  height: 4px;
   background: #FF2D78;
-  animation: p-float-static-lite 5s ease-in-out infinite;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 4;
   will-change: transform, opacity;
 }
-.p1 { top: 30%; left: 20%; --tx: 15px; --ty: -20px; background: rgba(255,45,120,0.5); animation-delay: 0s; }
-.p2 { top: 70%; left: 15%; --tx: -10px; --ty: 15px; background: rgba(77,159,255,0.5); animation-delay: 1s; }
-.p3 { top: 25%; left: 80%; --tx: 8px; --ty: 12px; background: rgba(168,85,247,0.5); animation-delay: 2s; }
-.p4 { top: 80%; left: 75%; --tx: -12px; --ty: -10px; background: rgba(255,255,255,0.5); animation-delay: 0.5s; }
 
-/* --- OPTIMIZACIÓN PARA MÓVILES --- */
+/* --- OPTIMIZACIÓN PARA MÓVILES (SIN QUITAR NADA) --- */
 @media (max-width: 768px) {
-  .splash-nebula-1, .splash-nebula-2 {
-    opacity: 0.25;
+  .splash-logo-container {
+    width: 180px;
+    height: 180px;
   }
-  .splash-ring, .splash-ring-outer {
-    animation-duration: 10s, 20s;
+  .splash-logo {
+    width: 130px;
+    height: 130px;
   }
-  .splash-scan {
-    animation-duration: 5s;
+  .splash-title {
+    font-size: 20px;
+  }
+  /* Forzamos a que el navegador use capas de hardware para todo en móvil */
+  * {
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+    -webkit-perspective: 1000;
+    perspective: 1000;
   }
 }
