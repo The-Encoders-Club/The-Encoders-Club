@@ -22,9 +22,9 @@
     <!-- Splash Screen Styles (External to avoid Tailwind build errors) -->
     <link rel="stylesheet" href="/splash.css" />
   </head>
-  <body class="loading">
-    <!-- Transición de opacidad reducida a 0.5s para mayor rapidez -->
-    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 0.5s ease-in-out;">
+  <body>
+    <!-- Restaurada la transición original de 1s -->
+    <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out;">
       <!-- Fondo Artístico -->
       <div class="splash-nebula-1"></div>
       <div class="splash-nebula-2"></div>
@@ -50,7 +50,7 @@
       <script>
         const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
         
-        // Generador de estrellas estáticas
+        // Generador de estrellas estáticas (Optimizado para móviles)
         const starfield = document.getElementById('starfield');
         if (starfield) {
           const starCount = isMobile ? 25 : 80; 
@@ -69,7 +69,7 @@
           starfield.appendChild(fragment);
         }
 
-        // Generador de estrellas fugaces
+        // Generador de estrellas fugaces (Optimizado para móviles)
         function createShootingStar() {
           const sf = document.getElementById('starfield');
           if (!sf || (isMobile && Math.random() > 0.15)) return; 
@@ -82,7 +82,7 @@
         }
         const shootingStarInterval = setInterval(createShootingStar, isMobile ? 12000 : 4000);
 
-        // Generador de partículas centrales
+        // Generador de partículas centrales (Optimizado para móviles)
         const container = document.getElementById('particles-container');
         const colors = ['#FF2D78', '#4D9FFF', '#a855f7', '#ffffff'];
         let activeParticles = 0;
@@ -125,7 +125,7 @@
 
         const particleInterval = setInterval(createParticle, isMobile ? 350 : 150);
         
-        // Función de cierre optimizada para ser más rápida
+        // Restaurada la lógica de cierre original exacta
         window.stopParticles = function() {
           clearInterval(particleInterval);
           clearInterval(shootingStarInterval);
@@ -133,11 +133,12 @@
           const splash = document.getElementById('splash-screen');
           if (splash) {
             splash.style.opacity = '0';
-            // Reducimos el tiempo de espera para que coincida con la transición de 0.5s
+            // El original no tenía setTimeout para display:none, 
+            // se desvanecía y quedaba con opacidad 0.
+            // Pero para optimizar, lo ocultaremos después de la transición de 1s.
             setTimeout(() => {
               splash.style.display = 'none';
-              document.body.classList.remove('loading');
-            }, 500);
+            }, 1000);
           }
         };
       </script>
