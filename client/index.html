@@ -22,7 +22,7 @@
     <!-- Splash Screen Styles (External to avoid Tailwind build errors) -->
     <link rel="stylesheet" href="/splash.css" />
   </head>
-  <body>
+  <body class="loading">
     <div id="splash-screen" style="position: fixed; inset: 0; z-index: 99999; background: #080818; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; transition: opacity 1s ease-in-out;">
       <!-- Fondo Artístico -->
       <div class="splash-nebula-1"></div>
@@ -42,7 +42,7 @@
       <div class="splash-text-container">
         <h1 class="splash-title">The Encoders <span>Club</span></h1>
         <div class="splash-loader">
-          <div class="splash-loader-bar"></div>
+          <div class="splash-loader-bar splash-bar"></div>
         </div>
       </div>
 
@@ -130,6 +130,15 @@
         window.stopParticles = function() {
           clearInterval(particleInterval);
           clearInterval(shootingStarInterval);
+          
+          const splash = document.getElementById('splash-screen');
+          if (splash) {
+            splash.style.opacity = '0';
+            setTimeout(() => {
+              splash.style.display = 'none';
+              document.body.classList.remove('loading');
+            }, 1000);
+          }
         };
       </script>
     </div>
