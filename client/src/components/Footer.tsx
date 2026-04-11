@@ -20,9 +20,9 @@ export default function Footer() {
       <div className="h-px w-full brand-gradient opacity-60" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           {/* Brand column */}
-          <div className="sm:col-span-2 lg:col-span-1">
+          <div className="col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
               <img src={LOGO_URL} alt="Logo" className="w-10 h-10 object-contain rounded-full" />
               <span className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -153,7 +153,7 @@ export default function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-10 pt-6 border-t border-white/8 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="mt-10 pt-6 border-t border-white/8 flex flex-col items-center sm:flex-row sm:justify-between gap-4 text-center sm:text-left">
           <p className="text-xs text-white/35 flex items-center gap-1.5">
             <Code2 size={12} />
             © 2026 The Encoders Club. Todos los derechos reservados.

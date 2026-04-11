@@ -205,8 +205,6 @@ function TeamCarousel() {
                   <img
                     src={member.image}
                     alt={member.name}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div
@@ -270,26 +268,24 @@ export default function Home() {
 
             {/* Right: Text */}
             <div className="flex flex-col justify-center lg:pl-8 order-2 lg:order-2">
-              {/* Title */}
-              <motion.h1
+              {/* T              <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
+                className="text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6 text-center lg:text-left"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                <span className="text-white">The</span>{" "}
-                <span className="brand-gradient-text">Encoders</span>
-                <br />
-                <span className="text-white">Club</span>
+                THE ENCODERS <br />
+                <span className="brand-gradient-text drop-shadow-[0_0_15px_rgba(255,45,120,0.3)]">CLUB</span>
+              </motion.h1>       <span className="text-white">Club</span>
               </motion.h1>
 
               {/* Subtitle */}
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.25 }}
-                className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg"
+                transition={{ duration: 0.7, delay: 0.2 }}
+                className="text-base sm:text-xl text-white/70 mb-10 max-w-xl leading-relaxed text-center lg:text-left mx-auto lg:mx-0"
               >
                 Tu portal a las mejores experiencias de novelas visuales en español. Aprende Ren'Py, crea historias únicas y comparte tu arte con la comunidad.
               </motion.p>
@@ -298,8 +294,8 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.35 }}
-                className="flex flex-wrap gap-4"
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="flex flex-wrap gap-4 justify-center lg:justify-start"
               >
                 <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
                   Ver Proyectos
@@ -337,11 +333,15 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator — animación CSS pura, sin framer-motion */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 animate-float">
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
           <span className="text-xs">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
-        </div>
+        </motion.div>
       </section>
 
       {/* ── ABOUT ── */}
@@ -449,8 +449,6 @@ export default function Home() {
                   <img
                     src={item.image}
                     alt={item.title}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
