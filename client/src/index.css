@@ -143,11 +143,14 @@
   @media (max-width: 768px) {
     body:not(.loading) {
       background-attachment: scroll !important;
-      /* Eliminamos contain: paint para evitar la línea blanca en la barra de navegación */
       -webkit-backface-visibility: hidden;
       backface-visibility: hidden;
-      /* Usamos overflow-x: hidden para evitar scroll lateral sin afectar al sistema */
       overflow-x: hidden;
+    }
+    /* Aplicamos contención SOLO a las secciones para evitar lag sin afectar al sistema */
+    section {
+      contain: paint;
+      will-change: transform;
     }
   }
 
