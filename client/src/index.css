@@ -346,6 +346,27 @@
     animation: cyber-pulse 2s ease-in-out infinite;
   }
 
+  /* Animaciones CSS nativas ultra-ligeras para móviles */
+  @keyframes css-fade-up {
+    from { opacity: 0; transform: translateY(15px) translateZ(0); }
+    to { opacity: 1; transform: translateY(0) translateZ(0); }
+  }
+
+  .reveal-on-scroll {
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  .reveal-on-scroll.is-visible {
+    animation: css-fade-up 0.5s ease-out forwards;
+  }
+
+  @media (max-width: 768px) {
+    .reveal-on-scroll.is-visible {
+      animation-duration: 0.3s; /* Más rápido en móviles */
+    }
+  }
+
   /* Scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
