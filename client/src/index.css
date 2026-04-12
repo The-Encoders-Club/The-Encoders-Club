@@ -420,6 +420,18 @@
     background: #ffffff;
   }
 
+  .donar-btn {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .donar-btn:active {
+    transform: scale(0.96);
+  }
+  @media (hover: hover) {
+    .donar-btn:hover {
+      transform: scale(1.04);
+    }
+  }
+
   .project-detail-cover-contain {
     background: #ffffff !important;
   }
