@@ -1,13 +1,12 @@
 /* ============================================================
    DONAR PAGE — The Encoders Club
-   Style: Neon Synthwave Gaming
+   Style: Neon Synthwave Gaming — Optimized for mobile performance
    ============================================================ */
-import { motion } from "framer-motion";
 import { Heart, Star, Zap, Crown, Coffee, ExternalLink, CheckCircle2, HelpCircle } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 const KOFI_URL = "https://ko-fi.com/theencodersclub";
 
@@ -82,9 +81,44 @@ const faqs = [
   },
 ];
 
+function useInView(ref: React.RefObject<HTMLElement | null>) {
+  const [visible, setVisible] = useState(false);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [ref]);
+  return visible;
+}
+
+function FadeInSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const visible = useInView(ref);
+  return (
+    <div
+      ref={ref}
+      className={className}
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? "translateY(0)" : "translateY(24px)",
+        transition: `opacity 0.5s ease ${delay}s, transform 0.5s ease ${delay}s`,
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function Donar() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState("");
+  const headerRef = useRef<HTMLDivElement>(null);
+  const headerVisible = useInView(headerRef);
 
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
@@ -96,25 +130,24 @@ export default function Donar() {
         <div className="absolute top-20 right-1/3 w-72 h-72 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-1/4 w-64 h-64 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
+          <div
+            ref={headerRef}
+            style={{
+              opacity: headerVisible ? 1 : 0,
+              transform: headerVisible ? "translateY(0)" : "translateY(24px)",
+              transition: "opacity 0.6s ease, transform 0.6s ease",
+            }}
           >
-            <motion.div
-              animate={{ scale: [1, 1.1, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6 animate-neon-glow"
-            >
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6 animate-pulse-glow">
               <Heart size={28} className="text-[#FF2D78]" fill="currentColor" />
-            </motion.div>
+            </div>
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               Apoya el <span className="brand-gradient-text">Proyecto</span>
             </h1>
             <p className="text-white/60 text-lg max-w-2xl mx-auto">
               Tu contribución nos ayuda a mantener la plataforma, crear nuevos cursos y proyectos, y mantener una comunidad vibrante para todos.
             </p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -125,12 +158,9 @@ export default function Donar() {
             {donationTiers.map((tier, i) => {
               const Icon = tier.icon;
               return (
-                <motion.div
+                <FadeInSection
                   key={tier.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: i * 0.1 }}
+                  delay={i * 0.1}
                   className={`glass-card-enhanced p-7 flex flex-col relative overflow-hidden ${
                     tier.featured ? "ring-2 ring-[#FF2D78]/50 scale-105 animate-neon-glow" : ""
                   }`}
@@ -180,13 +210,11 @@ export default function Donar() {
                     ))}
                   </ul>
 
-                  <motion.a
+                  <a
                     href={KOFI_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`w-full py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                    className={`donar-btn w-full py-3 rounded-xl text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
                       tier.featured ? "btn-primary" : "btn-outline"
                     }`}
                     style={tier.featured ? {} : { borderColor: tier.color, color: tier.color }}
@@ -194,21 +222,15 @@ export default function Donar() {
                     <Heart size={15} />
                     Donar ${tier.amount}
                     <ExternalLink size={13} />
-                  </motion.a>
-                </motion.div>
+                  </a>
+                </FadeInSection>
               );
             })}
           </div>
 
           {/* Custom Amount */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="mt-8 glass-card-enhanced p-8 text-center relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/6 via-[#a855f7]/6 to-[#4D9FFF]/6 pointer-events-none animate-pulse" />
+          <FadeInSection className="mt-8 glass-card-enhanced p-8 text-center relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/6 via-[#a855f7]/6 to-[#4D9FFF]/6 pointer-events-none" />
             <div className="relative z-10">
               <Zap size={28} className="text-[#a855f7] mx-auto mb-3" />
               <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -228,13 +250,11 @@ export default function Donar() {
                     className="w-full pl-8 pr-4 py-3 rounded-xl bg-white/6 border border-white/12 text-white placeholder-white/30 text-sm focus:outline-none focus:border-[#FF2D78]/50 focus:bg-white/8 transition-all"
                   />
                 </div>
-                <motion.a
+                <a
                   href={KOFI_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="btn-primary text-sm px-6 py-3 whitespace-nowrap"
+                  className="donar-btn btn-primary text-sm px-6 py-3 whitespace-nowrap"
                   onClick={() => {
                     if (customAmount && parseFloat(customAmount) > 0) {
                       toast.success(`¡Gracias por tu apoyo de $${customAmount}! Serás redirigido a Ko-fi.`);
@@ -243,10 +263,10 @@ export default function Donar() {
                 >
                   Donar Ahora
                   <ExternalLink size={14} />
-                </motion.a>
+                </a>
               </div>
             </div>
-          </motion.div>
+          </FadeInSection>
         </div>
       </section>
 
@@ -254,13 +274,9 @@ export default function Donar() {
       <section className="py-16 bg-[#06060f]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <motion.div
-              animate={{ y: [0, -8, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              className="inline-block"
-            >
-              <HelpCircle size={28} className="text-[#4D9FFF] mx-auto mb-3 animate-neon-glow" />
-            </motion.div>
+            <div className="inline-block animate-float">
+              <HelpCircle size={28} className="text-[#4D9FFF] mx-auto mb-3" />
+            </div>
             <h2 className="text-2xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               Preguntas <span className="brand-gradient-text">Frecuentes</span>
             </h2>
@@ -268,12 +284,9 @@ export default function Donar() {
 
           <div className="space-y-3">
             {faqs.map((faq, i) => (
-              <motion.div
+              <FadeInSection
                 key={i}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: i * 0.07 }}
+                delay={i * 0.07}
                 className="glass-card-enhanced overflow-hidden"
               >
                 <button
@@ -290,13 +303,19 @@ export default function Donar() {
                     +
                   </span>
                 </button>
-                {openFaq === i && (
+                <div
+                  className="overflow-hidden transition-all duration-300 ease-out"
+                  style={{
+                    maxHeight: openFaq === i ? "200px" : "0px",
+                    opacity: openFaq === i ? 1 : 0,
+                  }}
+                >
                   <div className="px-5 pb-5">
                     <div className="h-px bg-white/8 mb-4" />
                     <p className="text-white/55 text-sm leading-relaxed">{faq.a}</p>
                   </div>
-                )}
-              </motion.div>
+                </div>
+              </FadeInSection>
             ))}
           </div>
         </div>
