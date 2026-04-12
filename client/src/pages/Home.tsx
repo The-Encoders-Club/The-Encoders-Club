@@ -9,14 +9,12 @@ import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
   ArrowRight, BookOpen, Download, Users, Eye,
-  Gamepad2, Sparkles, ChevronRight, Star
+  Gamepad2, ChevronRight, Star
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCountUp } from "@/hooks/useCountUp";
 
-const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
-const PERSONAJE_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518852144/ZbUNPMDpcLvHgznH.png";
 const BG_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/hero_bg-nZF9vsy8Qjc3eRVqRoEgy7.webp";
 
 const newsItems = [
@@ -110,7 +108,7 @@ const teamMembers = [
   },
 ];
 
-/* ── Hook: detecta si estamos en móvil ── */
+/* ── Detecta si es móvil (solo para los orbes blur, no para animaciones) ── */
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -119,24 +117,33 @@ function useIsMobile() {
   return isMobile;
 }
 
-/* ── Hook: anima entrada al hacer scroll (CSS-based, sin framer-motion) ── */
-function useFadeInView(options?: IntersectionObserverInit) {
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        el.style.opacity = "1";
-        el.style.transform = "translateY(0)";
-        observer.disconnect();
-      }
-    }, { threshold: 0.15, ...options });
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-  return ref;
-}
+/* ── Variantes framer-motion — ligeras, un solo disparo con once:true ── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.45, delay: i * 0.07, ease: "easeOut" },
+  }),
+};
+
+const fadeLeft = {
+  hidden: { opacity: 0, x: -24 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.55, ease: "easeOut" },
+  },
+};
+
+const fadeRight = {
+  hidden: { opacity: 0, x: 24 },
+  visible: {
+    opacity: 1,
+    x: 0,
+    transition: { duration: 0.55, ease: "easeOut" },
+  },
+};
 
 /* ── Stat Counter ── */
 function StatCounter({
@@ -156,7 +163,7 @@ function StatCounter({
           start();
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.4 }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
@@ -187,32 +194,18 @@ function StatCounter({
   );
 }
 
-/* ── Variantes framer-motion — solo desktop ── */
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, delay: i * 0.08 },
-  }),
-};
-
 /* ── Team Carousel ── */
 function TeamCarousel() {
-  const isMobile = useIsMobile();
-  const headerRef = useFadeInView();
-
   return (
-    <section className="py-20 lg:py-28" style={{ contain: "content" }}>
+    <section className="py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div
-          ref={headerRef}
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          variants={fadeUp}
+          custom={0}
           className="text-center mb-14"
-          style={{
-            opacity: 0,
-            transform: "translateY(20px)",
-            transition: "opacity 0.5s ease, transform 0.5s ease",
-          }}
         >
           <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">
             Quiénes somos
@@ -220,162 +213,60 @@ function TeamCarousel() {
           <h2 className="section-title text-white">
             Integrantes del <span className="brand-gradient-text">Equipo</span>
           </h2>
-        </div>
+        </motion.div>
 
         <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
           <div className="flex gap-6 lg:gap-8 w-max">
-            {teamMembers.map((member, i) =>
-              isMobile ? (
-                /* En móvil: tarjeta estática con CSS, sin framer-motion */
+            {teamMembers.map((member, i) => (
+              <motion.div
+                key={member.id}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
+              >
                 <div
-                  key={member.id}
-                  className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
+                  className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
+                  style={{
+                    background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
+                    border: `2px solid ${member.color}40`,
+                  }}
                 >
-                  <TeamMemberAvatar member={member} />
-                  <TeamMemberInfo member={member} />
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
+                    style={{ background: member.color }}
+                  />
                 </div>
-              ) : (
-                /* En desktop: framer-motion con stagger */
-                <motion.div
-                  key={member.id}
-                  custom={i}
-                  variants={fadeUp}
-                  initial="hidden"
-                  whileInView="visible"
-                  viewport={{ once: true }}
-                  className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
+                <h3
+                  className="font-bold text-base lg:text-lg mb-3"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
                 >
-                  <TeamMemberAvatar member={member} />
-                  <TeamMemberInfo member={member} />
-                </motion.div>
-              )
-            )}
+                  {member.name}
+                </h3>
+                <div className="flex flex-col gap-1">
+                  {Array.isArray(member.cargo) ? (
+                    member.cargo.map((role, idx) => (
+                      <p key={idx} className="text-xs text-white/50">{role}</p>
+                    ))
+                  ) : (
+                    <p className="text-xs text-white/50">{member.cargo}</p>
+                  )}
+                </div>
+              </motion.div>
+            ))}
           </div>
         </div>
       </div>
     </section>
-  );
-}
-
-function TeamMemberAvatar({ member }: { member: typeof teamMembers[0] }) {
-  return (
-    <div
-      className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
-      style={{
-        background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
-        border: `2px solid ${member.color}40`,
-      }}
-    >
-      <img
-        src={member.image}
-        alt={member.name}
-        loading="lazy"
-        decoding="async"
-        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-      />
-      <div
-        className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
-        style={{ background: member.color }}
-      />
-    </div>
-  );
-}
-
-function TeamMemberInfo({ member }: { member: typeof teamMembers[0] }) {
-  return (
-    <>
-      <h3
-        className="font-bold text-base lg:text-lg mb-3"
-        style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
-      >
-        {member.name}
-      </h3>
-      <div className="flex flex-col gap-1">
-        {Array.isArray(member.cargo) ? (
-          member.cargo.map((role, idx) => (
-            <p key={idx} className="text-xs text-white/50">{role}</p>
-          ))
-        ) : (
-          <p className="text-xs text-white/50">{member.cargo}</p>
-        )}
-      </div>
-    </>
-  );
-}
-
-/* ── Componente: card de noticia (separado para evitar re-renders) ── */
-function NewsCard({ item, index, isMobile }: { item: typeof newsItems[0]; index: number; isMobile: boolean }) {
-  const ref = useFadeInView();
-
-  if (isMobile) {
-    return (
-      <article
-        ref={ref}
-        className="glass-card overflow-hidden group"
-        style={{
-          opacity: 0,
-          transform: "translateY(16px)",
-          transition: `opacity 0.45s ease ${index * 0.06}s, transform 0.45s ease ${index * 0.06}s`,
-        }}
-      >
-        <NewsCardContent item={item} />
-      </article>
-    );
-  }
-
-  return (
-    <motion.article
-      custom={index}
-      variants={fadeUp}
-      initial="hidden"
-      whileInView="visible"
-      viewport={{ once: true }}
-      className="glass-card overflow-hidden group"
-    >
-      <NewsCardContent item={item} />
-    </motion.article>
-  );
-}
-
-function NewsCardContent({ item }: { item: typeof newsItems[0] }) {
-  return (
-    <>
-      <div className="relative overflow-hidden h-40">
-        <img
-          src={item.image}
-          alt={item.title}
-          loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <span
-          className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
-          style={{
-            background: `${item.tagColor}25`,
-            border: `1px solid ${item.tagColor}50`,
-            color: item.tagColor,
-          }}
-        >
-          {item.tag}
-        </span>
-      </div>
-      <div className="p-4">
-        <p className="text-xs text-white/40 mb-2">{item.date}</p>
-        <h3
-          className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2"
-          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-        >
-          {item.title}
-        </h3>
-        <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">
-          {item.description}
-        </p>
-        <button className="text-xs text-[#FF2D78] font-semibold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
-          Leer más <ChevronRight size={13} />
-        </button>
-      </div>
-    </>
   );
 }
 
@@ -384,16 +275,13 @@ function NewsCardContent({ item }: { item: typeof newsItems[0] }) {
 ══════════════════════════════════════════ */
 export default function Home() {
   const isMobile = useIsMobile();
-  const aboutLeftRef = useFadeInView();
-  const aboutRightRef = useFadeInView();
-  const ctaRef = useFadeInView();
 
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
       <Navbar />
 
       {/* ── HERO ── */}
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden" style={{ contain: "layout" }}>
+      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <img
@@ -406,7 +294,7 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" />
         </div>
 
-        {/* Orbes decorativos — solo desktop para evitar blur en móvil */}
+        {/* Orbes decorativos — solo desktop (blur costoso en móvil) */}
         {!isMobile && (
           <>
             <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
@@ -416,7 +304,7 @@ export default function Home() {
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            {/* Left: spacer decorativo */}
+            {/* Left: espaciador */}
             <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
               <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
             </div>
@@ -486,7 +374,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator — CSS animation en vez de framer-motion */}
+        {/* Scroll indicator — CSS animation (sin framer-motion repeat:Infinity) */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 scroll-indicator">
           <span className="text-xs">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
@@ -494,18 +382,16 @@ export default function Home() {
       </section>
 
       {/* ── ABOUT ── */}
-      <section className="py-20 lg:py-28 relative" style={{ contain: "content" }}>
+      <section className="py-20 lg:py-28 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Visual */}
-            <div
-              ref={aboutLeftRef}
+            {/* Left */}
+            <motion.div
+              variants={fadeLeft}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
               className="relative"
-              style={{
-                opacity: 0,
-                transform: "translateX(-20px)",
-                transition: "opacity 0.6s ease, transform 0.6s ease",
-              }}
             >
               <div className="glass-card p-8 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
@@ -530,16 +416,14 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Right: Text */}
-            <div
-              ref={aboutRightRef}
-              style={{
-                opacity: 0,
-                transform: "translateX(20px)",
-                transition: "opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s",
-              }}
+            {/* Right */}
+            <motion.div
+              variants={fadeRight}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
             >
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">
                 Sobre nosotros
@@ -562,13 +446,13 @@ export default function Home() {
                   Explorar Proyectos
                 </Link>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* ── NOTICIAS ── */}
-      <section className="py-20 lg:py-28 bg-[#06060f]" style={{ contain: "content" }}>
+      <section className="py-20 lg:py-28 bg-[#06060f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
             <div>
@@ -585,9 +469,54 @@ export default function Home() {
             </Link>
           </div>
 
+          {/* Grid — siempre framer-motion whileInView (once:true = un solo disparo, eficiente) */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {newsItems.map((item, i) => (
-              <NewsCard key={item.id} item={item} index={i} isMobile={isMobile} />
+              <motion.article
+                key={item.id}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+                className="glass-card overflow-hidden group"
+              >
+                <div className="relative overflow-hidden h-40">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <span
+                    className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
+                    style={{
+                      background: `${item.tagColor}25`,
+                      border: `1px solid ${item.tagColor}50`,
+                      color: item.tagColor,
+                    }}
+                  >
+                    {item.tag}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <p className="text-xs text-white/40 mb-2">{item.date}</p>
+                  <h3
+                    className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2"
+                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">
+                    {item.description}
+                  </p>
+                  <button className="text-xs text-[#FF2D78] font-semibold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
+                    Leer más <ChevronRight size={13} />
+                  </button>
+                </div>
+              </motion.article>
             ))}
           </div>
         </div>
@@ -596,29 +525,29 @@ export default function Home() {
       {/* ── TEAM ── */}
       <TeamCarousel />
 
-      {/* ── STATS ── */}
-      <section className="py-16 bg-[#06060f] border-y border-white/6" style={{ contain: "content" }}>
+      {/* ── STATS ──
+          border + overflow-hidden para que el último stat tenga su borde completo */}
+      <section className="py-16 bg-[#06060f] border-y border-white/6">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
-            <StatCounter value={3} label="Proyectos" icon={BookOpen} color="#FF2D78" suffix="+" />
-            <StatCounter value={15000} label="Descargas" icon={Download} color="#4D9FFF" suffix="+" />
-            <StatCounter value={7} label="Cursos" icon={Users} color="#a855f7" suffix="+" />
-            <StatCounter value={50000} label="Visitas" icon={Eye} color="#22c55e" suffix="+" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8 border border-white/8 rounded-2xl overflow-hidden">
+            <StatCounter value={3}     label="Proyectos" icon={BookOpen} color="#FF2D78" suffix="+" />
+            <StatCounter value={15000} label="Descargas"  icon={Download} color="#4D9FFF" suffix="+" />
+            <StatCounter value={7}     label="Cursos"     icon={Users}    color="#a855f7" suffix="+" />
+            <StatCounter value={50000} label="Visitas"    icon={Eye}      color="#22c55e" suffix="+" />
           </div>
         </div>
       </section>
 
       {/* ── CTA BANNER ── */}
-      <section className="py-20 lg:py-28" style={{ contain: "content" }}>
+      <section className="py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div
-            ref={ctaRef}
+          <motion.div
+            variants={fadeUp}
+            custom={0}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
             className="glass-card p-10 lg:p-16 relative overflow-hidden"
-            style={{
-              opacity: 0,
-              transform: "translateY(24px)",
-              transition: "opacity 0.6s ease, transform 0.6s ease",
-            }}
           >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
             {!isMobile && (
@@ -654,7 +583,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
