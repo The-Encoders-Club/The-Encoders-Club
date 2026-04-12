@@ -55,7 +55,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto monika-theme"
+        className="project-modal-root fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto monika-theme"
       >
         {/* FONDO TEMÁTICO - DEGRADADO MONIKA */}
         <div 
@@ -67,12 +67,12 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
           className="project-music-frame"
           width="120"
           height="80"
-          src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=1"
+          src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=2&playsinline=1"
           allow="autoplay; encrypted-media"
           title="Monika Theme Music"
         />
 
-        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a1a]/90 to-[#0a0a1a]/95 w-full overflow-x-hidden">
+        <div className="project-modal-shell relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a1a]/90 to-[#0a0a1a]/95 w-full overflow-x-hidden">
           <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#FF2D78]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
             <button 
               onClick={onClose}
