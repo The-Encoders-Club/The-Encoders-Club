@@ -9,6 +9,7 @@ interface ProjectViewProps {
 
 const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('info');
+  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -159,15 +160,15 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                           </h4>
                           <div className="project-preview-strip flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
                             {previewImages.map((src, idx) => (
-                              <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start">
+                              <button key={idx} type="button" onClick={() => setLightboxSrc(src)} className="project-preview-thumb flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start text-left">
                                 <img src={src} alt={`Vista Previa ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" loading="lazy" decoding="async" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                   <ImageIcon className="text-white w-8 h-8" />
                                 </div>
-                              </div>
+                              </button>
                             ))}
                           </div>
-                          <p className="text-xs text-gray-500 mt-2 italic">← Desliza para ver más →</p>
+                          <p className="text-xs text-gray-500 mt-2 italic">← Desliza para ver más · toca una imagen para ampliar →</p>
                         </div>
                       </div>
                     )}
@@ -247,6 +248,25 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
             </div>
           </main>
         </div>
+        <AnimatePresence>
+          {lightboxSrc && (
+            <motion.button
+              type="button"
+              className="project-lightbox"
+              onClick={() => setLightboxSrc(null)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              aria-label="Cerrar imagen ampliada"
+            >
+              <span className="project-lightbox-close">
+                <X className="w-5 h-5" />
+                Cerrar
+              </span>
+              <img src={lightboxSrc} alt="Vista previa ampliada" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );
