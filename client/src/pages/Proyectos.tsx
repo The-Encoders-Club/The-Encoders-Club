@@ -123,11 +123,11 @@ export default function Proyectos() {
                     decoding="async"
                     aria-hidden="true"
                   />
-                  {/* Main Image (Complete) */}
+                  {/* Main Image */}
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="project-cover-img relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-3 sm:p-4"
+                    className="project-cover-img relative z-10 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
                     loading="eager"
                     decoding="async"
                     fetchPriority="high"
@@ -207,11 +207,11 @@ export default function Proyectos() {
                     decoding="async"
                     aria-hidden="true"
                   />
-                  {/* Main Image (Complete) */}
+                  {/* Main Image */}
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="project-cover-img relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4"
+                    className="project-cover-img relative z-10 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
                     loading="lazy"
                     decoding="async"
                   />
