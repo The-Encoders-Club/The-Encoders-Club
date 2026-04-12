@@ -2,6 +2,7 @@
    HOME PAGE — The Encoders Club
    Style: Neon Synthwave Gaming
    Sections: Hero, About, News, Team, Stats
+   Optimizado para móviles (Honor X5 Plus y gama media)
    ============================================================ */
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
@@ -109,7 +110,35 @@ const teamMembers = [
   },
 ];
 
-// Stat counter component
+/* ── Hook: detecta si estamos en móvil ── */
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+  return isMobile;
+}
+
+/* ── Hook: anima entrada al hacer scroll (CSS-based, sin framer-motion) ── */
+function useFadeInView(options?: IntersectionObserverInit) {
+  const ref = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        el.style.opacity = "1";
+        el.style.transform = "translateY(0)";
+        observer.disconnect();
+      }
+    }, { threshold: 0.15, ...options });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+  return ref;
+}
+
+/* ── Stat Counter ── */
 function StatCounter({
   value, label, icon: Icon, color, suffix = ""
 }: {
@@ -158,21 +187,33 @@ function StatCounter({
   );
 }
 
+/* ── Variantes framer-motion — solo desktop ── */
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.6, delay: i * 0.1 },
+    transition: { duration: 0.5, delay: i * 0.08 },
   }),
 };
 
-// Team Carousel Component
+/* ── Team Carousel ── */
 function TeamCarousel() {
+  const isMobile = useIsMobile();
+  const headerRef = useFadeInView();
+
   return (
-    <section className="py-20 lg:py-28">
+    <section className="py-20 lg:py-28" style={{ contain: "content" }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-14">
+        <div
+          ref={headerRef}
+          className="text-center mb-14"
+          style={{
+            opacity: 0,
+            transform: "translateY(20px)",
+            transition: "opacity 0.5s ease, transform 0.5s ease",
+          }}
+        >
           <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">
             Quiénes somos
           </span>
@@ -181,54 +222,34 @@ function TeamCarousel() {
           </h2>
         </div>
 
-        {/* Scrollable Container - 4 visible items */}
         <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
           <div className="flex gap-6 lg:gap-8 w-max">
-            {teamMembers.map((member, i) => (
-              <motion.div
-                key={member.id}
-                custom={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
-              >
-                {/* Avatar - Larger */}
+            {teamMembers.map((member, i) =>
+              isMobile ? (
+                /* En móvil: tarjeta estática con CSS, sin framer-motion */
                 <div
-                  className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
-                  style={{
-                    background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
-                    border: `2px solid ${member.color}40`,
-                  }}
+                  key={member.id}
+                  className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
                 >
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
-                    style={{ background: member.color }}
-                  />
+                  <TeamMemberAvatar member={member} />
+                  <TeamMemberInfo member={member} />
                 </div>
-                <h3
-                  className="font-bold text-base lg:text-lg mb-3"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
+              ) : (
+                /* En desktop: framer-motion con stagger */
+                <motion.div
+                  key={member.id}
+                  custom={i}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
                 >
-                  {member.name}
-                </h3>
-                <div className="flex flex-col gap-1">
-                  {Array.isArray(member.cargo) ? (
-                    member.cargo.map((role, idx) => (
-                      <p key={idx} className="text-xs text-white/50">{role}</p>
-                    ))
-                  ) : (
-                    <p className="text-xs text-white/50">{member.cargo}</p>
-                  )}
-                </div>
-              </motion.div>
-            ))}
+                  <TeamMemberAvatar member={member} />
+                  <TeamMemberInfo member={member} />
+                </motion.div>
+              )
+            )}
           </div>
         </div>
       </div>
@@ -236,43 +257,176 @@ function TeamCarousel() {
   );
 }
 
+function TeamMemberAvatar({ member }: { member: typeof teamMembers[0] }) {
+  return (
+    <div
+      className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
+      style={{
+        background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`,
+        border: `2px solid ${member.color}40`,
+      }}
+    >
+      <img
+        src={member.image}
+        alt={member.name}
+        loading="lazy"
+        decoding="async"
+        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+      />
+      <div
+        className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
+        style={{ background: member.color }}
+      />
+    </div>
+  );
+}
+
+function TeamMemberInfo({ member }: { member: typeof teamMembers[0] }) {
+  return (
+    <>
+      <h3
+        className="font-bold text-base lg:text-lg mb-3"
+        style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}
+      >
+        {member.name}
+      </h3>
+      <div className="flex flex-col gap-1">
+        {Array.isArray(member.cargo) ? (
+          member.cargo.map((role, idx) => (
+            <p key={idx} className="text-xs text-white/50">{role}</p>
+          ))
+        ) : (
+          <p className="text-xs text-white/50">{member.cargo}</p>
+        )}
+      </div>
+    </>
+  );
+}
+
+/* ── Componente: card de noticia (separado para evitar re-renders) ── */
+function NewsCard({ item, index, isMobile }: { item: typeof newsItems[0]; index: number; isMobile: boolean }) {
+  const ref = useFadeInView();
+
+  if (isMobile) {
+    return (
+      <article
+        ref={ref}
+        className="glass-card overflow-hidden group"
+        style={{
+          opacity: 0,
+          transform: "translateY(16px)",
+          transition: `opacity 0.45s ease ${index * 0.06}s, transform 0.45s ease ${index * 0.06}s`,
+        }}
+      >
+        <NewsCardContent item={item} />
+      </article>
+    );
+  }
+
+  return (
+    <motion.article
+      custom={index}
+      variants={fadeUp}
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true }}
+      className="glass-card overflow-hidden group"
+    >
+      <NewsCardContent item={item} />
+    </motion.article>
+  );
+}
+
+function NewsCardContent({ item }: { item: typeof newsItems[0] }) {
+  return (
+    <>
+      <div className="relative overflow-hidden h-40">
+        <img
+          src={item.image}
+          alt={item.title}
+          loading="lazy"
+          decoding="async"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+        <span
+          className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
+          style={{
+            background: `${item.tagColor}25`,
+            border: `1px solid ${item.tagColor}50`,
+            color: item.tagColor,
+          }}
+        >
+          {item.tag}
+        </span>
+      </div>
+      <div className="p-4">
+        <p className="text-xs text-white/40 mb-2">{item.date}</p>
+        <h3
+          className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2"
+          style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+        >
+          {item.title}
+        </h3>
+        <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">
+          {item.description}
+        </p>
+        <button className="text-xs text-[#FF2D78] font-semibold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
+          Leer más <ChevronRight size={13} />
+        </button>
+      </div>
+    </>
+  );
+}
+
+/* ══════════════════════════════════════════
+   PÁGINA PRINCIPAL
+══════════════════════════════════════════ */
 export default function Home() {
+  const isMobile = useIsMobile();
+  const aboutLeftRef = useFadeInView();
+  const aboutRightRef = useFadeInView();
+  const ctaRef = useFadeInView();
+
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
       <Navbar />
 
       {/* ── HERO ── */}
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden" style={{ contain: "layout" }}>
         {/* Background */}
         <div className="absolute inset-0 z-0">
           <img
             src={BG_URL}
             alt=""
+            fetchPriority="high"
             className="w-full h-full object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#080818]/60 via-transparent to-[#080818]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" />
         </div>
 
-        {/* Decorative orbs */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
+        {/* Orbes decorativos — solo desktop para evitar blur en móvil */}
+        {!isMobile && (
+          <>
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
+            <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
+          </>
+        )}
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            {/* Left: Content Spacer (Logo removed) */}
+            {/* Left: spacer decorativo */}
             <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
-              {/* Glow remains for atmosphere */}
               <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
             </div>
 
-            {/* Right: Text */}
+            {/* Right: Texto */}
             <div className="flex flex-col justify-center lg:pl-8 order-2 lg:order-2">
-              {/* Title */}
               <motion.h1
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.1 }}
+                transition={{ duration: 0.6, delay: 0.1 }}
                 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
@@ -282,21 +436,19 @@ export default function Home() {
                 <span className="text-white">Club</span>
               </motion.h1>
 
-              {/* Subtitle */}
               <motion.p
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.25 }}
+                transition={{ duration: 0.5, delay: 0.22 }}
                 className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg"
               >
                 Tu portal a las mejores experiencias de novelas visuales en español. Aprende Ren'Py, crea historias únicas y comparte tu arte con la comunidad.
               </motion.p>
 
-              {/* CTA Buttons */}
               <motion.div
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.35 }}
+                transition={{ duration: 0.5, delay: 0.32 }}
                 className="flex flex-wrap gap-4"
               >
                 <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
@@ -309,11 +461,10 @@ export default function Home() {
                 </Link>
               </motion.div>
 
-              {/* Mini stats */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
+                transition={{ duration: 0.5, delay: 0.45 }}
                 className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10"
               >
                 <div className="text-center">
@@ -335,28 +486,26 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-        >
+        {/* Scroll indicator — CSS animation en vez de framer-motion */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 scroll-indicator">
           <span className="text-xs">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
-        </motion.div>
+        </div>
       </section>
 
       {/* ── ABOUT ── */}
-      <section className="py-20 lg:py-28 relative">
+      <section className="py-20 lg:py-28 relative" style={{ contain: "content" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Visual */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
+            <div
+              ref={aboutLeftRef}
               className="relative"
+              style={{
+                opacity: 0,
+                transform: "translateX(-20px)",
+                transition: "opacity 0.6s ease, transform 0.6s ease",
+              }}
             >
               <div className="glass-card p-8 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
@@ -381,14 +530,16 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-            </motion.div>
+            </div>
 
             {/* Right: Text */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
+            <div
+              ref={aboutRightRef}
+              style={{
+                opacity: 0,
+                transform: "translateX(20px)",
+                transition: "opacity 0.6s ease 0.1s, transform 0.6s ease 0.1s",
+              }}
             >
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">
                 Sobre nosotros
@@ -411,15 +562,14 @@ export default function Home() {
                   Explorar Proyectos
                 </Link>
               </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ── NOTICIAS ── */}
-      <section className="py-20 lg:py-28 bg-[#06060f]">
+      <section className="py-20 lg:py-28 bg-[#06060f]" style={{ contain: "content" }}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
             <div>
               <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">
@@ -435,49 +585,9 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {newsItems.map((item, i) => (
-              <motion.article
-                key={item.id}
-                custom={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="glass-card overflow-hidden group"
-              >
-                <div className="relative overflow-hidden h-40">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span
-                    className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{
-                      background: `${item.tagColor}25`,
-                      border: `1px solid ${item.tagColor}50`,
-                      color: item.tagColor,
-                    }}
-                  >
-                    {item.tag}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <p className="text-xs text-white/40 mb-2">{item.date}</p>
-                  <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">
-                    {item.description}
-                  </p>
-                  <button className="text-xs text-[#FF2D78] font-semibold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
-                    Leer más <ChevronRight size={13} />
-                  </button>
-                </div>
-              </motion.article>
+              <NewsCard key={item.id} item={item} index={i} isMobile={isMobile} />
             ))}
           </div>
         </div>
@@ -487,7 +597,7 @@ export default function Home() {
       <TeamCarousel />
 
       {/* ── STATS ── */}
-      <section className="py-16 bg-[#06060f] border-y border-white/6">
+      <section className="py-16 bg-[#06060f] border-y border-white/6" style={{ contain: "content" }}>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
             <StatCounter value={3} label="Proyectos" icon={BookOpen} color="#FF2D78" suffix="+" />
@@ -499,18 +609,24 @@ export default function Home() {
       </section>
 
       {/* ── CTA BANNER ── */}
-      <section className="py-20 lg:py-28">
+      <section className="py-20 lg:py-28" style={{ contain: "content" }}>
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
+          <div
+            ref={ctaRef}
             className="glass-card p-10 lg:p-16 relative overflow-hidden"
+            style={{
+              opacity: 0,
+              transform: "translateY(24px)",
+              transition: "opacity 0.6s ease, transform 0.6s ease",
+            }}
           >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
+            {!isMobile && (
+              <>
+                <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
+              </>
+            )}
 
             <div className="relative z-10">
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">
@@ -538,7 +654,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
