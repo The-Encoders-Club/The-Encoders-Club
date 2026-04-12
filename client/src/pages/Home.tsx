@@ -2,7 +2,7 @@
    HOME PAGE — The Encoders Club
    Style: Neon Synthwave Gaming
    Sections: Hero, About, News, Team, Stats
-   Optimizado para móviles (gama media)
+   Optimizado para móviles (Honor X5 Plus y gama media)
    ============================================================ */
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
@@ -220,7 +220,6 @@ function TeamCarousel() {
           style={{
             overflowX: "auto",
             overflowY: "hidden",
-            touchAction: "pan-x",
             WebkitOverflowScrolling: "touch",
             scrollbarWidth: "none",
             msOverflowStyle: "none",
