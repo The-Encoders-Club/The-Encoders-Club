@@ -25,7 +25,7 @@ const projects = [
     statusColor: "#FF2D78",
     rating: 4.8,
     featured: true,
-    coverMode: "contain",
+    coverMode: "cover",
   },
   {
     id: 2,
@@ -39,7 +39,7 @@ const projects = [
     statusColor: "#22c55e",
     rating: 4.5,
     featured: false,
-    coverMode: "contain",
+    coverMode: "cover",
   },
   {
     id: 3,
