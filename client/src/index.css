@@ -1,5 +1,5 @@
 /* ============================================================
-   THE ENCODERS CLUB — Design System
+   THE ENCODERS CLUB ā€” Design System
    Style: Neon Synthwave Gaming
    Primary: #FF2D78 (magenta-pink) | Secondary: #4D9FFF (electric blue)
    Background: #080818 (deep blue-black) | Text: #F0F0FF (near-white)
@@ -384,7 +384,7 @@
 }
 
 /* ================================================================
-   OPTIMIZACIONES MÓVIL (max-width: 768px)
+   OPTIMIZACIONES MĆ“VIL (max-width: 768px)
    ================================================================ */
 @media (max-width: 768px) {
   /* Splash screen */
@@ -396,8 +396,8 @@
     display: none !important;
   }
 
-  /* Sin backdrop-filter en móvil: muy costoso en GPU de gama media.
-     El fondo sólido semiopaco da el mismo efecto visual. */
+  /* Sin backdrop-filter en mĆ³vil: muy costoso en GPU de gama media.
+     El fondo sĆ³lido semiopaco da el mismo efecto visual. */
   .glass-card,
   .glass-card-enhanced {
     backdrop-filter: none !important;
@@ -405,7 +405,7 @@
     background: rgba(13, 13, 36, 0.96) !important;
   }
 
-  /* Deshabilitar hover transforms en pantallas táctiles */
+  /* Deshabilitar hover transforms en pantallas tĆ�ctiles */
   @media (pointer: coarse) {
     .glass-card:hover,
     .glass-card-enhanced:hover {
@@ -418,18 +418,18 @@
     }
   }
 
-  /* Reducir blur de la navbar en móvil */
+  /* Reducir blur de la navbar en mĆ³vil */
   nav {
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
   }
 
-  /* Evitar repaints en imágenes */
+  /* Evitar repaints en imĆ�genes */
   img {
     transform: translateZ(0);
   }
 
-  /* Deshabilitar smooth scroll en móvil */
+  /* Deshabilitar smooth scroll en mĆ³vil */
   html {
     scroll-behavior: auto !important;
   }
