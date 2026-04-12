@@ -88,7 +88,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
             </div>
           </nav>
 
-          <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <main className="project-modal-content w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 w-full">
               <div className="lg:col-span-2 space-y-8">
                 <header>
