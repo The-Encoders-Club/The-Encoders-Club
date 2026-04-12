@@ -390,6 +390,41 @@
   .scroll-indicator {
     animation: scroll-bounce 2s ease-in-out infinite;
   }
+
+  .project-card {
+    transform: translateZ(0);
+    content-visibility: auto;
+    contain-intrinsic-size: 520px;
+  }
+
+  .project-card-media {
+    isolation: isolate;
+  }
+
+  .project-cover-backdrop {
+    filter: blur(10px);
+  }
+
+  .project-cover-img,
+  .project-detail-cover img {
+    object-position: center;
+  }
+
+  .project-music-frame {
+    pointer-events: none;
+    width: 1px;
+    height: 1px;
+    opacity: 0.01;
+    border: 0;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+
+  .project-preview-strip {
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
 }
 
 /* ================================================================
@@ -429,8 +464,8 @@
 
   /* Reducir blur de la navbar en móvil */
   nav {
-    backdrop-filter: blur(8px) !important;
-    -webkit-backdrop-filter: blur(8px) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
   }
 
   /* Evitar repaints en imágenes */
@@ -442,6 +477,55 @@
   html {
     scroll-behavior: auto !important;
   }
+
+  .projects-page {
+    background-attachment: scroll !important;
+  }
+
+  .project-card {
+    content-visibility: auto;
+    contain-intrinsic-size: 420px;
+    will-change: auto !important;
+  }
+
+  .project-card:hover,
+  .project-card:active {
+    transform: none !important;
+  }
+
+  .project-card-media {
+    background: radial-gradient(circle at center, rgba(255, 45, 120, 0.12), rgba(13, 13, 36, 0.96) 64%);
+  }
+
+  .project-cover-backdrop {
+    display: none !important;
+  }
+
+  .project-cover-img {
+    transform: none !important;
+    padding: 0.75rem !important;
+  }
+
+  .project-detail-cover {
+    box-shadow: none !important;
+    background: rgba(8, 8, 24, 0.96) !important;
+  }
+
+  .project-detail-cover img {
+    transform: none !important;
+  }
+
+  .project-detail-panel {
+    position: static !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: rgba(255, 255, 255, 0.06) !important;
+  }
+
+  .project-preview-strip img {
+    transform: none !important;
+  }
+
 }
 
 /* ================================================================
