@@ -59,7 +59,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
           className="project-music-frame"
           width="120"
           height="80"
-          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=2"
+          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=1"
           allow="autoplay; encrypted-media"
           title="Yuri Theme Music"
         />
