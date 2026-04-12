@@ -1,64 +1,84 @@
-import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
+interface Particle {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  duration: number;
+  delay: number;
+  driftX: number;
+  driftY: number;
+}
+
 export default function BackgroundParticles() {
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; duration: number; delay: number }[]>([]);
+  const [particles, setParticles] = useState<Particle[]>([]);
 
   useEffect(() => {
-    // Reducir partículas en dispositivos móviles para mejor rendimiento
     const isMobile = window.innerWidth < 768;
-    const particleCount = isMobile ? 15 : 25;
-    
-    const newParticles = Array.from({ length: particleCount }).map((_, i) => ({
+    const count = isMobile ? 12 : 25;
+
+    const generated = Array.from({ length: count }).map((_, i) => ({
       id: i,
       x: Math.random() * 100,
       y: Math.random() * 100,
       size: Math.random() * 2.5 + 0.8,
       duration: Math.random() * 12 + 12,
-      delay: Math.random() * 5,
+      delay: Math.random() * 8,
+      driftX: (Math.random() - 0.5) * 6,
+      driftY: -(Math.random() * 15 + 8),
     }));
-    setParticles(newParticles);
+
+    setParticles(generated);
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" style={{ willChange: 'transform' }}>
-      {particles.map((p) => (
-        <motion.div
-          key={p.id}
-          initial={{ 
-            x: `${p.x}%`, 
-            y: `${p.y}%`, 
-            opacity: 0,
-            scale: 0 
-          }}
-          animate={{ 
-            y: [`${p.y}%`, `${p.y - 15}%`, `${p.y}%`],
-            x: [`${p.x}%`, `${p.x + 3}%`, `${p.x}%`],
-            opacity: [0, 0.25, 0],
-            scale: [0, 1, 0]
-          }}
-          transition={{ 
-            duration: p.duration, 
-            repeat: Infinity, 
-            delay: p.delay,
-            ease: "linear"
-          }}
-          className="absolute rounded-full bg-[#FF2D78]/20 blur-[1px] will-change-transform"
-          style={{ 
-            width: p.size, 
-            height: p.size,
-            boxShadow: "0 0 8px rgba(255, 45, 120, 0.3)",
-            transform: 'translate3d(0, 0, 0)' // Fuerza GPU acceleration
-          }}
-        />
-      ))}
-      
-      {/* Líneas decorativas sutiles - optimizadas */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ contain: 'layout' }}>
-        <div className="absolute top-0 left-1/4 w-[1px] h-full bg-gradient-to-b from-transparent via-white to-transparent" />
-        <div className="absolute top-0 left-2/4 w-[1px] h-full bg-gradient-to-b from-transparent via-white to-transparent" />
-        <div className="absolute top-0 left-3/4 w-[1px] h-full bg-gradient-to-b from-transparent via-white to-transparent" />
+    <>
+      <style>{`
+        @keyframes particle-float {
+          0%   { opacity: 0; transform: translate(0, 0) scale(0); }
+          20%  { opacity: 0.25; }
+          80%  { opacity: 0.2; }
+          100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(0); }
+        }
+      `}</style>
+
+      <div
+        className="fixed inset-0 pointer-events-none z-0 overflow-hidden"
+        style={{ contain: "strict" }}
+      >
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            style={
+              {
+                position: "absolute",
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                width: p.size,
+                height: p.size,
+                borderRadius: "50%",
+                background: "rgba(255, 45, 120, 0.35)",
+                boxShadow: "0 0 6px rgba(255, 45, 120, 0.25)",
+                animation: `particle-float ${p.duration}s ease-in-out ${p.delay}s infinite`,
+                "--dx": `${p.driftX}%`,
+                "--dy": `${p.driftY}%`,
+                willChange: "transform, opacity",
+              } as React.CSSProperties
+            }
+          />
+        ))}
+
+        {/* Líneas decorativas sutiles */}
+        <div
+          className="absolute inset-0 opacity-[0.02] pointer-events-none"
+          style={{ contain: "layout" }}
+        >
+          <div className="absolute top-0 left-1/4 w-[1px] h-full bg-gradient-to-b from-transparent via-white to-transparent" />
+          <div className="absolute top-0 left-2/4 w-[1px] h-full bg-gradient-to-b from-transparent via-white to-transparent" />
+          <div className="absolute top-0 left-3/4 w-[1px] h-full bg-gradient-to-b from-transparent via-white to-transparent" />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
