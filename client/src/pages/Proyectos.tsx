@@ -51,6 +51,7 @@ const projects = [
     statusColor: "#22c55e",
     rating: 4.6,
     featured: false,
+    coverMode: "contain",
   },
 ];
 
@@ -211,7 +212,7 @@ export default function Proyectos() {
                   <img
                     src={project.image}
                     alt={project.name}
-                    className="project-cover-img relative z-10 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
+                    className={`project-cover-img ${project.coverMode === "contain" ? "project-cover-img-contain" : ""} relative z-10 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700`}
                     loading="lazy"
                     decoding="async"
                   />
