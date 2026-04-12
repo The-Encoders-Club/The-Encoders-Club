@@ -16,7 +16,8 @@ export default function BackgroundParticles() {
 
   useEffect(() => {
     const isMobile = window.innerWidth < 768;
-    const count = isMobile ? 12 : 25;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const count = reduceMotion ? 0 : isMobile ? 6 : 25;
 
     const generated = Array.from({ length: count }).map((_, i) => ({
       id: i,
