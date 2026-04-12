@@ -2,7 +2,7 @@
    HOME PAGE — The Encoders Club
    Style: Neon Synthwave Gaming
    Sections: Hero, About, News, Team, Stats
-   Optimizado para móviles (Honor X5 Plus y gama media)
+   Optimizado para móviles (gama media)
    ============================================================ */
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
@@ -215,8 +215,18 @@ function TeamCarousel() {
           </h2>
         </motion.div>
 
-        <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
-          <div className="flex gap-6 lg:gap-8 w-max">
+        <div
+          className="no-scrollbar -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
+          style={{
+            overflowX: "auto",
+            overflowY: "hidden",
+            touchAction: "pan-x",
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+        >
+          <div className="flex gap-6 lg:gap-8 w-max pb-2">
             {teamMembers.map((member, i) => (
               <motion.div
                 key={member.id}
