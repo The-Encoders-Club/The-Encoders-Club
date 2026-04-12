@@ -56,7 +56,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
           className="project-music-frame"
           width="120"
           height="80"
-          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=4&playsinline=9"
+          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=4&playsinline=1"
           allow="autoplay; encrypted-media"
           title="Natsuki Theme Music"
         />
