@@ -67,7 +67,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
           className="project-music-frame"
           width="120"
           height="80"
-          src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=2"
+          src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=1"
           allow="autoplay; encrypted-media"
           title="Monika Theme Music"
         />
