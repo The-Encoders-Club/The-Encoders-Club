@@ -44,7 +44,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[#1a0a1a] text-white overflow-y-auto natsuki-theme"
+        className="project-modal-root fixed inset-0 z-[100] bg-[#1a0a1a] text-white overflow-y-auto natsuki-theme"
       >
         {/* FONDO TEMÁTICO - DEGRADADO NATSUKI */}
         <div 
@@ -56,12 +56,12 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
           className="project-music-frame"
           width="120"
           height="80"
-          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=3"
+          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=3&playsinline=1"
           allow="autoplay; encrypted-media"
           title="Natsuki Theme Music"
         />
 
-        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#1a0a1a]/95 via-[#2a0a1a]/90 to-[#1a0a1a]/95 w-full overflow-x-hidden">
+        <div className="project-modal-shell relative z-10 min-h-screen bg-gradient-to-br from-[#1a0a1a]/95 via-[#2a0a1a]/90 to-[#1a0a1a]/95 w-full overflow-x-hidden">
           <nav className="sticky top-0 z-50 bg-[#1a0a1a]/90 backdrop-blur-md border-b border-[#FF2D78]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
             <button 
               onClick={onClose}
