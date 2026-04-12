@@ -50,6 +50,21 @@
   50% { transform: translate3d(var(--orbit-x), var(--orbit-y), 0) rotate(180deg); opacity: 0.32; }
 }
 
+@keyframes circuit-glow {
+  0%, 100% { opacity: 0.18; filter: drop-shadow(0 0 4px rgba(255,45,120,0.18)); }
+  50% { opacity: 0.34; filter: drop-shadow(0 0 9px rgba(77,159,255,0.24)); }
+}
+
+@keyframes glyph-drift {
+  0%, 100% { transform: translate3d(0,0,0); opacity: 0.14; }
+  50% { transform: translate3d(var(--glyph-x), var(--glyph-y), 0); opacity: 0.32; }
+}
+
+@keyframes title-shine {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
 @keyframes halo-pulse {
   0%, 100% { opacity: 0.24; transform: translate3d(0,0,0) scale(0.94); }
   50% { opacity: 0.72; transform: translate3d(0,0,0) scale(1.08); }
@@ -127,6 +142,87 @@
   z-index: 2;
   pointer-events: none;
   animation: grid-drift 12s linear infinite;
+}
+
+.splash-circuit {
+  position: absolute;
+  width: 168px;
+  height: 210px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.22;
+  animation: circuit-glow 4.5s ease-in-out infinite;
+}
+
+.splash-circuit::before,
+.splash-circuit::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255,45,120,0.42) 0 2px, transparent 2px) 0 24px / 64px 2px no-repeat,
+    linear-gradient(90deg, rgba(77,159,255,0.34) 0 2px, transparent 2px) 30px 78px / 92px 2px no-repeat,
+    linear-gradient(rgba(255,45,120,0.32) 0 2px, transparent 2px) 28px 24px / 2px 56px no-repeat,
+    linear-gradient(rgba(77,159,255,0.34) 0 2px, transparent 2px) 122px 78px / 2px 72px no-repeat,
+    radial-gradient(circle, rgba(255,255,255,0.4) 0 2px, transparent 3px) 24px 20px / 10px 10px no-repeat,
+    radial-gradient(circle, rgba(0,243,255,0.38) 0 2px, transparent 3px) 118px 74px / 10px 10px no-repeat,
+    radial-gradient(circle, rgba(255,45,120,0.38) 0 2px, transparent 3px) 118px 146px / 10px 10px no-repeat;
+}
+
+.splash-circuit::after {
+  transform: translate3d(26px,44px,0);
+  opacity: 0.62;
+}
+
+.splash-circuit-left {
+  left: 5%;
+  bottom: 8%;
+}
+
+.splash-circuit-right {
+  right: 4%;
+  top: 11%;
+  transform: scaleX(-1);
+  animation-delay: -1.5s;
+}
+
+.splash-glyph {
+  position: absolute;
+  z-index: 4;
+  pointer-events: none;
+  color: rgba(255,255,255,0.28);
+  font-family: 'Space Grotesk', monospace;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 14px rgba(255,45,120,0.2), 0 0 18px rgba(77,159,255,0.16);
+  animation: glyph-drift 5.5s ease-in-out infinite;
+}
+
+.splash-glyph-1 {
+  top: 19%;
+  left: 14%;
+  font-size: 18px;
+  --glyph-x: 10px;
+  --glyph-y: -12px;
+}
+
+.splash-glyph-2 {
+  right: 14%;
+  bottom: 24%;
+  font-size: 20px;
+  --glyph-x: -12px;
+  --glyph-y: 10px;
+  animation-delay: -1.8s;
+}
+
+.splash-glyph-3 {
+  right: 20%;
+  top: 25%;
+  font-size: 14px;
+  color: rgba(0,243,255,0.28);
+  --glyph-x: 8px;
+  --glyph-y: 12px;
+  animation-delay: -3s;
 }
 
 .splash-code-orbit {
@@ -373,9 +469,17 @@
   letter-spacing: 0.25em;
   text-transform: uppercase;
   margin: 0;
+  text-shadow: 0 0 18px rgba(255,255,255,0.08);
 }
 
-.splash-title span { color: #FF2D78; }
+.splash-title span {
+  color: transparent;
+  background: linear-gradient(90deg, #FF2D78, #00F3FF, #a855f7, #FF2D78);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: title-shine 4s linear infinite;
+}
 
 /* Barra de carga: Técnica de flujo arcoíris (ESTÉTICA ORIGINAL + RENDIMIENTO GPU) */
 .splash-loader {
@@ -413,6 +517,42 @@
     background-size: 78px 78px;
     opacity: 0.65;
     animation-duration: 18s;
+  }
+
+  .splash-circuit {
+    width: 120px;
+    height: 160px;
+    opacity: 0.2;
+    animation-duration: 6s;
+  }
+
+  .splash-circuit-left {
+    left: -2%;
+    bottom: 8%;
+  }
+
+  .splash-circuit-right {
+    right: -4%;
+    top: 8%;
+  }
+
+  .splash-glyph {
+    font-size: 13px;
+    opacity: 0.72;
+  }
+
+  .splash-glyph-1 {
+    left: 7%;
+    top: 18%;
+  }
+
+  .splash-glyph-2 {
+    right: 8%;
+    bottom: 21%;
+  }
+
+  .splash-glyph-3 {
+    display: none;
   }
 
   .splash-code-orbit {
@@ -475,6 +615,8 @@
   .splash-project-bg,
   .splash-grid-glow,
   .splash-code-orbit,
+  .splash-circuit,
+  .splash-glyph,
   .splash-logo-glow,
   .splash-logo-glow-blue,
   .splash-logo-glow-purple,
