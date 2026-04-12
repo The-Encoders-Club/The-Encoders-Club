@@ -80,7 +80,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
             </div>
           </nav>
 
-          <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <main className="project-modal-content w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 w-full">
               <div className="lg:col-span-2 space-y-8">
                 <header>
@@ -95,7 +95,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                 </header>
 
                 {/* PORTADA - AJUSTE TOTAL */}
-                <div className="project-detail-cover rounded-2xl overflow-hidden border border-[#9C27B0]/50 shadow-[0_0_30px_rgba(156,39,176,0.3)] aspect-video relative group bg-[#12091c]">
+                <div className="project-detail-cover project-detail-cover-contain rounded-2xl overflow-hidden border border-[#9C27B0]/50 shadow-[0_0_30px_rgba(156,39,176,0.3)] aspect-video relative group bg-[#12091c]">
                   <img 
                     src={mainImage} 
                     alt="Just Yuri" 
