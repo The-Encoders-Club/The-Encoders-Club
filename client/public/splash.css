@@ -242,14 +242,12 @@
 
 .splash-logo-glow {
   position: absolute;
-  inset: -42px;
-  background:
-    radial-gradient(circle, rgba(255,45,120,0.34) 0%, rgba(168,85,247,0.16) 42%, transparent 72%);
+  inset: 24px;
+  background: radial-gradient(circle, rgba(255,45,120,0.22) 0%, rgba(77,159,255,0.1) 38%, transparent 68%);
   border-radius: 50%;
   z-index: 1;
   transform: translate3d(0,0,0);
-  animation: glow-shift 5s ease-in-out infinite;
-  filter: blur(2px);
+  animation: glow-shift 6s ease-in-out infinite;
 }
 
 .splash-logo-glow-blue {
@@ -276,23 +274,23 @@
 .splash-ring {
   position: absolute;
   inset: 0;
-  border: 2px dashed rgba(255,45,120,0.5);
+  border: 1.5px dashed rgba(255,45,120,0.38);
   border-radius: 50%;
   animation: ring-rotate 4s linear infinite;
   z-index: 2;
   transform: translate3d(0,0,0);
-  box-shadow: 0 0 18px rgba(255,45,120,0.18), inset 0 0 18px rgba(255,45,120,0.08);
+  box-shadow: 0 0 10px rgba(255,45,120,0.12);
 }
 
 .splash-ring-outer {
   position: absolute;
   inset: -15px;
-  border: 1.5px solid rgba(77,159,255,0.34);
+  border: 1px solid rgba(77,159,255,0.22);
   border-radius: 50%;
   animation: ring-rotate 8s linear infinite reverse;
   z-index: 2;
   transform: translate3d(0,0,0);
-  box-shadow: 0 0 24px rgba(77,159,255,0.16), inset 0 0 18px rgba(77,159,255,0.08);
+  box-shadow: 0 0 12px rgba(77,159,255,0.1);
 }
 
 .splash-ring-inner {
@@ -342,9 +340,8 @@
   animation: pulse-neon 3s ease-in-out infinite;
   z-index: 3;
   filter:
-    drop-shadow(0 0 12px rgba(255,45,120,0.62))
-    drop-shadow(0 0 22px rgba(77,159,255,0.35))
-    drop-shadow(0 0 34px rgba(168,85,247,0.24));
+    drop-shadow(0 0 7px rgba(255,45,120,0.38))
+    drop-shadow(0 0 12px rgba(77,159,255,0.2));
   transform: translate3d(0,0,0);
 }
 
@@ -447,7 +444,7 @@
   }
 
   .splash-logo-glow {
-    inset: -34px;
+    inset: 22px;
     filter: none;
   }
 
