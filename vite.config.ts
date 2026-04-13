@@ -5,6 +5,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
 import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+import { ViteImageOptimizer } from "vite-plugin-image-optimizer";
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -150,7 +151,59 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+const plugins = [
+  react(),
+  tailwindcss(),
+  jsxLocPlugin(),
+  vitePluginManusRuntime(),
+  vitePluginManusDebugCollector(),
+  ViteImageOptimizer({
+    test: /\.(jpe?g|png|gif|tiff|webp|svg|avif)$/i,
+    exclude: undefined,
+    include: undefined,
+    includePublic: true,
+    logStats: true,
+    ansiColors: true,
+    svg: {
+      multipass: true,
+      plugins: [
+        {
+          name: "preset-default",
+          params: {
+            overrides: {
+              cleanupNumericValues: false,
+              removeViewBox: false, // keep viewBox for responsive SVGs
+            },
+          },
+        },
+        "sortAttrs",
+        {
+          name: "addAttributesToSVGElement",
+          params: {
+            attributes: [{ xmlns: "http://www.w3.org/2000/svg" }],
+          },
+        },
+      ],
+    },
+    png: {
+      quality: 80,
+    },
+    jpeg: {
+      quality: 80,
+    },
+    jpg: {
+      quality: 80,
+    },
+    webp: {
+      lossless: true,
+    },
+    avif: {
+      lossless: true,
+    },
+    cache: false,
+    cacheLocation: undefined,
+  }),
+];
 
 export default defineConfig({
   plugins,
