@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2, Star, Cpu, BookOpen, Image as ImageIcon, Monitor } from 'lucide-react';
+import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, Image as ImageIcon, Monitor } from 'lucide-react';
 
 interface ProjectViewProps {
   isOpen: boolean;
@@ -9,7 +9,6 @@ interface ProjectViewProps {
 
 const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('info');
-  const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -47,7 +46,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="project-modal-root fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto yuri-theme"
+        className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto yuri-theme"
       >
         {/* FONDO TEMÁTICO - DEGRADADO YURI */}
         <div 
@@ -55,16 +54,16 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
           style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, rgba(156, 39, 176, 0.15) 50%, rgba(10, 10, 26, 0.95) 100%)`, backgroundColor: '#0a0a1a' }}
         />
 
-        <iframe
-          className="project-music-frame"
-          width="120"
-          height="80"
-          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&modestbranding=1&controls=0&rel=0&iv_load_policy=3&start=1&playsinline=1"
-          allow="autoplay; encrypted-media"
+        {/* MÚSICA - IMPLEMENTACIÓN MEJORADA */}
+        <iframe 
+          className="hidden"
+          width="0" height="0" 
+          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3&mute=0&origin=https://www.youtube.com&start=2" 
+          allow="autoplay"
           title="Yuri Theme Music"
         />
 
-        <div className="project-modal-shell relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a2a]/90 to-[#0a0a1a]/95 w-full overflow-x-hidden">
+        <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a2a]/90 to-[#0a0a1a]/95 w-full overflow-x-hidden">
           <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#9C27B0]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
             <button 
               onClick={onClose}
@@ -80,14 +79,14 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
             </div>
           </nav>
 
-          <main className="project-modal-content w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12 w-full">
               <div className="lg:col-span-2 space-y-8">
                 <header>
                   <motion.h1 
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    className="text-4xl sm:text-6xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7] mb-4"
+                    className="text-6xl font-black italic tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-[#9C27B0] to-[#E1BEE7] mb-4"
                   >
                     Just Yuri
                   </motion.h1>
@@ -95,13 +94,11 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                 </header>
 
                 {/* PORTADA - AJUSTE TOTAL */}
-                <div className="project-detail-cover project-detail-cover-contain rounded-2xl overflow-hidden border border-[#9C27B0]/50 shadow-[0_0_30px_rgba(156,39,176,0.3)] aspect-video relative group bg-[#12091c]">
+                <div className="rounded-2xl overflow-hidden border border-[#9C27B0]/50 shadow-[0_0_30px_rgba(156,39,176,0.3)] aspect-video relative group">
                   <img 
                     src={mainImage} 
                     alt="Just Yuri" 
-                    className="absolute inset-0 w-full h-full object-contain transition-transform duration-700 group-hover:scale-105"
-                    loading="eager"
-                    decoding="async"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/30 to-transparent pointer-events-none" />
                 </div>
@@ -149,17 +146,17 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
                           <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                             <ImageIcon className="w-5 h-5 text-[#9C27B0]" /> Vista Previa
                           </h4>
-                          <div className="project-preview-strip flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
                             {previewImages.map((src, idx) => (
-                              <button key={idx} type="button" onClick={() => setLightboxSrc(src)} className="project-preview-thumb flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start text-left">
-                                <img src={src} alt={`Vista Previa ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" loading="lazy" decoding="async" />
+                              <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start">
+                                <img src={src} alt={`Vista Previa ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                   <ImageIcon className="text-white w-8 h-8" />
                                 </div>
-                              </button>
+                              </div>
                             ))}
                           </div>
-                          <p className="text-xs text-gray-500 mt-2 italic">← Desliza para ver más · toca una imagen para ampliar →</p>
+                          <p className="text-xs text-gray-500 mt-2 italic">← Desliza para ver más →</p>
                         </div>
                       </div>
                     )}
@@ -175,7 +172,7 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
               {activeTab === 'info' && (
               <div className="space-y-8">
-                <div className="project-detail-panel p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32">
+                <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32">
                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                     <Cpu className="w-5 h-5 text-[#E1BEE7]" /> Detalles
                   </h3>
@@ -213,25 +210,6 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
             </div>
           </main>
         </div>
-        <AnimatePresence>
-          {lightboxSrc && (
-            <motion.button
-              type="button"
-              className="project-lightbox"
-              onClick={() => setLightboxSrc(null)}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              aria-label="Cerrar imagen ampliada"
-            >
-              <span className="project-lightbox-close">
-                <X className="w-5 h-5" />
-                Cerrar
-              </span>
-              <img src={lightboxSrc} alt="Vista previa ampliada" />
-            </motion.button>
-          )}
-        </AnimatePresence>
       </motion.div>
     </AnimatePresence>
   );

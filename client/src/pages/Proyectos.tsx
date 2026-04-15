@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Star, Sparkles, ArrowRight, Gamepad2 } from 'lucide-react';
+import { Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, ChevronRight, Play, Download, Share2, Filter, Search, Grid, List, Sparkles, ArrowRight, Gamepad2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BackgroundParticles from '../components/BackgroundParticles';
@@ -25,7 +25,6 @@ const projects = [
     statusColor: "#FF2D78",
     rating: 4.8,
     featured: true,
-    coverMode: "cover",
   },
   {
     id: 2,
@@ -39,7 +38,6 @@ const projects = [
     statusColor: "#22c55e",
     rating: 4.5,
     featured: false,
-    coverMode: "cover",
   },
   {
     id: 3,
@@ -53,7 +51,6 @@ const projects = [
     statusColor: "#22c55e",
     rating: 4.6,
     featured: false,
-    coverMode: "contain",
   },
 ];
 
@@ -61,7 +58,7 @@ export default function Proyectos() {
   const [activeProject, setActiveProject] = useState<number | null>(null);
 
   return (
-    <div className="projects-page min-h-screen text-white overflow-x-hidden relative bg-[#080818]" style={{ backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.88) 0%, rgba(26, 10, 26, 0.84) 50%, rgba(8, 8, 24, 0.88) 100%), url("${PROYECTOS_BG}")`, backgroundSize: 'cover', backgroundPosition: 'center' }}>
+    <div className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]" style={{ backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <BackgroundParticles />
       <Navbar />
 
@@ -110,30 +107,24 @@ export default function Proyectos() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7 }}
               onClick={() => setActiveProject(project.id)}
-              className="project-card bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 relative cursor-pointer group hover:border-[#FF2D78]/40 transition-all backdrop-blur-none"
+              className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 relative cursor-pointer group hover:border-[#FF2D78]/40 transition-all backdrop-blur-none will-change-transform"
               style={{ contain: 'layout style paint' }}
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
               <div className="grid lg:grid-cols-2 gap-0">
                 {/* Image - SIN OPACIDAD */}
-                <div className="project-card-media relative h-48 sm:h-64 lg:h-auto min-h-[200px] sm:min-h-64 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5 group">
+                <div className="relative h-48 sm:h-64 lg:h-auto min-h-[200px] sm:min-h-64 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5 group">
                   {/* Background Blur Fill */}
                   <img
                     src={project.image}
                     alt=""
-                    className="project-cover-backdrop absolute inset-0 w-full h-full object-cover opacity-30 scale-105"
-                    loading="lazy"
-                    decoding="async"
-                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110"
                   />
-                  {/* Main Image */}
+                  {/* Main Image (Complete) */}
                   <img
                     src={project.image}
                     alt={project.name}
-                    className={`project-cover-img ${project.coverMode === "contain" ? "project-cover-img-contain" : ""} relative z-10 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700`}
-                    loading="eager"
-                    decoding="async"
-                    fetchPriority="high"
+                    className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-2"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d24]/40 hidden lg:block" />
                   <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
@@ -196,27 +187,22 @@ export default function Proyectos() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.6, delay: i * 0.1 }}
                 onClick={() => setActiveProject(project.id)}
-                className="project-card bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all backdrop-blur-none"
+                className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all backdrop-blur-none will-change-transform"
                 style={{ contain: 'layout style paint' }}
               >
                 {/* Image - SIN OPACIDAD */}
-                <div className="project-card-media relative h-48 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5 group">
+                <div className="relative h-48 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5 group">
                   {/* Background Blur Fill */}
                   <img
                     src={project.image}
                     alt=""
-                    className="project-cover-backdrop absolute inset-0 w-full h-full object-cover opacity-30 scale-105"
-                    loading="lazy"
-                    decoding="async"
-                    aria-hidden="true"
+                    className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110"
                   />
-                  {/* Main Image */}
+                  {/* Main Image (Complete) */}
                   <img
                     src={project.image}
                     alt={project.name}
-                    className={`project-cover-img ${project.coverMode === "contain" ? "project-cover-img-contain" : ""} relative z-10 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700`}
-                    loading="lazy"
-                    decoding="async"
+                    className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24]/60 to-transparent" />
                   <div className="absolute bottom-3 left-4 flex items-center gap-2">

@@ -2,19 +2,20 @@
    HOME PAGE — The Encoders Club
    Style: Neon Synthwave Gaming
    Sections: Hero, About, News, Team, Stats
-   Optimizado para móviles (Honor X5 Plus y gama media)
    ============================================================ */
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import {
   ArrowRight, BookOpen, Download, Users, Eye,
-  Gamepad2, ChevronRight, Star
+  Gamepad2, Sparkles, ChevronRight, Star
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCountUp } from "@/hooks/useCountUp";
 
+const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
+const PERSONAJE_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518852144/ZbUNPMDpcLvHgznH.png";
 const BG_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/hero_bg-nZF9vsy8Qjc3eRVqRoEgy7.webp";
 
 const newsItems = [
@@ -108,44 +109,7 @@ const teamMembers = [
   },
 ];
 
-/* ── Detecta si es móvil (solo para los orbes blur, no para animaciones) ── */
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    setIsMobile(window.innerWidth < 768);
-  }, []);
-  return isMobile;
-}
-
-/* ── Variantes framer-motion — ligeras, un solo disparo con once:true ── */
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: (i: number) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.45, delay: i * 0.07, ease: "easeOut" },
-  }),
-};
-
-const fadeLeft = {
-  hidden: { opacity: 0, x: -24 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.55, ease: "easeOut" },
-  },
-};
-
-const fadeRight = {
-  hidden: { opacity: 0, x: 24 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { duration: 0.55, ease: "easeOut" },
-  },
-};
-
-/* ── Stat Counter ── */
+// Stat counter component
 function StatCounter({
   value, label, icon: Icon, color, suffix = ""
 }: {
@@ -163,7 +127,7 @@ function StatCounter({
           start();
         }
       },
-      { threshold: 0.4 }
+      { threshold: 0.5 }
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
@@ -194,38 +158,32 @@ function StatCounter({
   );
 }
 
-/* ── Team Carousel ── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: i * 0.1 },
+  }),
+};
+
+// Team Carousel Component
 function TeamCarousel() {
   return (
     <section className="py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true }}
-          variants={fadeUp}
-          custom={0}
-          className="text-center mb-14"
-        >
+        <div className="text-center mb-14">
           <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">
             Quiénes somos
           </span>
           <h2 className="section-title text-white">
             Integrantes del <span className="brand-gradient-text">Equipo</span>
           </h2>
-        </motion.div>
+        </div>
 
-        <div
-          className="no-scrollbar -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
-          style={{
-            overflowX: "auto",
-            overflowY: "hidden",
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }}
-        >
-          <div className="flex gap-6 lg:gap-8 w-max pb-2">
+        {/* Scrollable Container - 4 visible items */}
+        <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+          <div className="flex gap-6 lg:gap-8 w-max">
             {teamMembers.map((member, i) => (
               <motion.div
                 key={member.id}
@@ -236,6 +194,7 @@ function TeamCarousel() {
                 viewport={{ once: true }}
                 className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
               >
+                {/* Avatar - Larger */}
                 <div
                   className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
                   style={{
@@ -246,8 +205,6 @@ function TeamCarousel() {
                   <img
                     src={member.image}
                     alt={member.name}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
                   <div
@@ -279,12 +236,7 @@ function TeamCarousel() {
   );
 }
 
-/* ══════════════════════════════════════════
-   PÁGINA PRINCIPAL
-══════════════════════════════════════════ */
 export default function Home() {
-  const isMobile = useIsMobile();
-
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
       <Navbar />
@@ -296,34 +248,31 @@ export default function Home() {
           <img
             src={BG_URL}
             alt=""
-            fetchPriority="high"
             className="w-full h-full object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#080818]/60 via-transparent to-[#080818]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" />
         </div>
 
-        {/* Orbes decorativos — solo desktop (blur costoso en móvil) */}
-        {!isMobile && (
-          <>
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
-            <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
-          </>
-        )}
+        {/* Decorative orbs */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            {/* Left: espaciador */}
+            {/* Left: Content Spacer (Logo removed) */}
             <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
+              {/* Glow remains for atmosphere */}
               <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
             </div>
 
-            {/* Right: Texto */}
+            {/* Right: Text */}
             <div className="flex flex-col justify-center lg:pl-8 order-2 lg:order-2">
+              {/* Title */}
               <motion.h1
-                initial={{ opacity: 0, y: 24 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
+                transition={{ duration: 0.7, delay: 0.1 }}
                 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
@@ -333,19 +282,21 @@ export default function Home() {
                 <span className="text-white">Club</span>
               </motion.h1>
 
+              {/* Subtitle */}
               <motion.p
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.22 }}
+                transition={{ duration: 0.6, delay: 0.25 }}
                 className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg"
               >
                 Tu portal a las mejores experiencias de novelas visuales en español. Aprende Ren'Py, crea historias únicas y comparte tu arte con la comunidad.
               </motion.p>
 
+              {/* CTA Buttons */}
               <motion.div
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.32 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
                 className="flex flex-wrap gap-4"
               >
                 <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
@@ -358,10 +309,11 @@ export default function Home() {
                 </Link>
               </motion.div>
 
+              {/* Mini stats */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.5, delay: 0.45 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
                 className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10"
               >
                 <div className="text-center">
@@ -383,23 +335,27 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator — CSS animation (sin framer-motion repeat:Infinity) */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 scroll-indicator">
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
           <span className="text-xs">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
-        </div>
+        </motion.div>
       </section>
 
       {/* ── ABOUT ── */}
       <section className="py-20 lg:py-28 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left */}
+            {/* Left: Visual */}
             <motion.div
-              variants={fadeLeft}
-              initial="hidden"
-              whileInView="visible"
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
               className="relative"
             >
               <div className="glass-card p-8 relative overflow-hidden">
@@ -427,12 +383,12 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Right */}
+            {/* Right: Text */}
             <motion.div
-              variants={fadeRight}
-              initial="hidden"
-              whileInView="visible"
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
             >
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">
                 Sobre nosotros
@@ -463,6 +419,7 @@ export default function Home() {
       {/* ── NOTICIAS ── */}
       <section className="py-20 lg:py-28 bg-[#06060f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
             <div>
               <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">
@@ -478,7 +435,7 @@ export default function Home() {
             </Link>
           </div>
 
-          {/* Grid — siempre framer-motion whileInView (once:true = un solo disparo, eficiente) */}
+          {/* Grid */}
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {newsItems.map((item, i) => (
               <motion.article
@@ -487,15 +444,13 @@ export default function Home() {
                 variants={fadeUp}
                 initial="hidden"
                 whileInView="visible"
-                viewport={{ once: true, margin: "0px 0px -50px 0px" }}
+                viewport={{ once: true }}
                 className="glass-card overflow-hidden group"
               >
                 <div className="relative overflow-hidden h-40">
                   <img
                     src={item.image}
                     alt={item.title}
-                    loading="lazy"
-                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -512,10 +467,7 @@ export default function Home() {
                 </div>
                 <div className="p-4">
                   <p className="text-xs text-white/40 mb-2">{item.date}</p>
-                  <h3
-                    className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
+                  <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {item.title}
                   </h3>
                   <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">
@@ -534,15 +486,14 @@ export default function Home() {
       {/* ── TEAM ── */}
       <TeamCarousel />
 
-      {/* ── STATS ──
-          border + overflow-hidden para que el último stat tenga su borde completo */}
+      {/* ── STATS ── */}
       <section className="py-16 bg-[#06060f] border-y border-white/6">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8 border border-white/8 rounded-2xl overflow-hidden">
-            <StatCounter value={3}     label="Proyectos" icon={BookOpen} color="#FF2D78" suffix="+" />
-            <StatCounter value={15000} label="Descargas"  icon={Download} color="#4D9FFF" suffix="+" />
-            <StatCounter value={7}     label="Cursos"     icon={Users}    color="#a855f7" suffix="+" />
-            <StatCounter value={50000} label="Visitas"    icon={Eye}      color="#22c55e" suffix="+" />
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
+            <StatCounter value={3} label="Proyectos" icon={BookOpen} color="#FF2D78" suffix="+" />
+            <StatCounter value={15000} label="Descargas" icon={Download} color="#4D9FFF" suffix="+" />
+            <StatCounter value={7} label="Cursos" icon={Users} color="#a855f7" suffix="+" />
+            <StatCounter value={50000} label="Visitas" icon={Eye} color="#22c55e" suffix="+" />
           </div>
         </div>
       </section>
@@ -551,20 +502,15 @@ export default function Home() {
       <section className="py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
-            variants={fadeUp}
-            custom={0}
-            initial="hidden"
-            whileInView="visible"
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
             className="glass-card p-10 lg:p-16 relative overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            {!isMobile && (
-              <>
-                <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
-                <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
-              </>
-            )}
+            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
 
             <div className="relative z-10">
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">

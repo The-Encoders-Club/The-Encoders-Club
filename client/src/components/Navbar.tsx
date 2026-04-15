@@ -5,6 +5,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { Menu, X, Youtube, MessageCircle, Heart, Send } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
 
@@ -123,54 +124,57 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu Overlay - CSS transitions instead of framer-motion for performance */}
-      <div
-        className={`fixed inset-0 z-40 md:hidden transition-visibility ${menuOpen ? "visible" : "invisible"}`}
-        style={{ transitionDuration: menuOpen ? "0s" : "0.3s", transitionDelay: menuOpen ? "0s" : "0.3s" }}
-      >
-        {/* Backdrop */}
-        <div
-          className="absolute inset-0 bg-black/60 transition-opacity duration-300"
-          style={{ opacity: menuOpen ? 1 : 0 }}
-          onClick={() => setMenuOpen(false)}
-        />
-        {/* Drawer */}
-        <div
-          className="absolute top-0 right-0 h-full w-72 bg-[#080818] border-l border-white/10 shadow-2xl flex flex-col p-6 pt-24 transition-transform duration-300 ease-out"
-          style={{ transform: menuOpen ? "translateX(0)" : "translateX(100%)" }}
-        >
-          <nav className="flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-5 py-3.5 rounded-xl text-base font-semibold transition-all ${
-                  location === link.href
-                    ? "bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 text-white shadow-[0_0_15px_rgba(255,45,120,0.3)]"
-                    : "text-white/70 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: "100%" }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            className="fixed inset-0 z-40 md:hidden"
+          >
+            {/* Backdrop */}
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setMenuOpen(false)}
+            />
+            {/* Drawer */}
+            <div className="absolute top-0 right-0 h-full w-72 bg-[#080818] border-l border-white/10 shadow-2xl flex flex-col p-6 pt-24">
+              <nav className="flex flex-col gap-2">
+                {navLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`px-5 py-3.5 rounded-xl text-base font-semibold transition-all ${
+                      location === link.href
+                        ? "bg-gradient-to-r from-[#FF2D78] to-[#FF2D78]/60 text-white shadow-[0_0_15px_rgba(255,45,120,0.3)]"
+                        : "text-white/70 bg-white/5 border border-white/10 hover:bg-white/10 hover:text-white"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                ))}
+              </nav>
 
-          <div className="mt-auto space-y-6">
-            <div className="flex items-center justify-around p-4 bg-white/5 rounded-2xl border border-white/5">
-              <a href={socialLinks.discord} target="_blank" rel="noopener noreferrer" className="p-3 text-white/60 hover:text-[#5865F2] transition-colors"><MessageCircle size={24} /></a>
-              <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="p-3 text-white/60 hover:text-red-500 transition-colors"><Youtube size={24} /></a>
-              <a href={socialLinks.kofi} target="_blank" rel="noopener noreferrer" className="p-3 text-white/60 hover:text-[#FF2D78] transition-colors"><Heart size={24} /></a>
+              <div className="mt-auto space-y-6">
+                <div className="flex items-center justify-around p-4 bg-white/5 rounded-2xl border border-white/5">
+                  <a href={socialLinks.discord} target="_blank" rel="noopener noreferrer" className="p-3 text-white/60 hover:text-[#5865F2] transition-colors"><MessageCircle size={24} /></a>
+                  <a href={socialLinks.youtube} target="_blank" rel="noopener noreferrer" className="p-3 text-white/60 hover:text-red-500 transition-colors"><Youtube size={24} /></a>
+                  <a href={socialLinks.kofi} target="_blank" rel="noopener noreferrer" className="p-3 text-white/60 hover:text-[#FF2D78] transition-colors"><Heart size={24} /></a>
+                </div>
+                <Link
+                  href="/comunidad"
+                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] text-white font-bold text-center shadow-[0_0_20px_rgba(255,45,120,0.3)] flex items-center justify-center gap-2"
+                >
+                  Únete al equipo
+                  <Send size={16} />
+                </Link>
+              </div>
             </div>
-            <Link
-              href="/comunidad"
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] text-white font-bold text-center shadow-[0_0_20px_rgba(255,45,120,0.3)] flex items-center justify-center gap-2"
-            >
-              Únete al equipo
-              <Send size={16} />
-            </Link>
-          </div>
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }

@@ -198,7 +198,6 @@
   .glass-card {
     background: rgba(13, 13, 36, 0.85);
     backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 1rem;
     transition: all 0.3s ease;
@@ -359,7 +358,6 @@
   .glass-card-enhanced {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     border: 1px solid rgba(255, 45, 120, 0.15);
     border-radius: 1rem;
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -371,325 +369,26 @@
     transform: translateY(-6px);
     box-shadow: 0 25px 50px rgba(255, 45, 120, 0.2), 0 0 40px rgba(168, 85, 247, 0.15);
   }
-
-  /* Oculta scrollbar manteniendo el scroll funcional */
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  /* === Scroll indicator: CSS puro en lugar de framer-motion === */
-  @keyframes scroll-bounce {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50%       { transform: translateX(-50%) translateY(8px); }
-  }
-
-  .scroll-indicator {
-    animation: scroll-bounce 2s ease-in-out infinite;
-  }
-
-  .project-card {
-    transform: translateZ(0);
-    content-visibility: auto;
-    contain-intrinsic-size: 520px;
-  }
-
-  .project-card-media {
-    isolation: isolate;
-  }
-
-  .project-cover-backdrop {
-    filter: blur(10px);
-  }
-
-  .project-cover-img,
-  .project-detail-cover img {
-    object-position: center;
-  }
-
-  .project-cover-img {
-    object-fit: cover !important;
-    padding: 0 !important;
-  }
-
-  .project-cover-img-contain {
-    object-fit: contain !important;
-    background: #ffffff;
-  }
-
-  .donar-btn {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  .donar-btn:active {
-    transform: scale(0.96);
-  }
-  @media (hover: hover) {
-    .donar-btn:hover {
-      transform: scale(1.04);
-    }
-  }
-
-  .project-detail-cover-contain {
-    background: #ffffff !important;
-  }
-
-  .project-modal-root,
-  .project-modal-shell {
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
-    overflow-x: hidden;
-    box-sizing: border-box;
-  }
-
-  .project-modal-root {
-    left: 0;
-    right: 0;
-    scrollbar-width: none;
-  }
-
-  .project-modal-root::-webkit-scrollbar {
-    width: 0;
-    height: 0;
-  }
-
-  .project-music-frame {
-    pointer-events: none;
-    width: 120px;
-    height: 80px;
-    opacity: 0.001;
-    border: 0;
-    position: fixed;
-    left: 0;
-    top: 0;
-    transform: translate3d(-140px, -100px, 0);
-    z-index: -1;
-  }
-
-  .project-preview-strip {
-    overscroll-behavior-x: contain;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .project-preview-thumb {
-    cursor: zoom-in;
-  }
-
-  .project-lightbox {
-    position: fixed;
-    inset: 0;
-    z-index: 200;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    background: rgba(0, 0, 0, 0.92);
-    border: 0;
-    cursor: zoom-out;
-  }
-
-  .project-lightbox img {
-    max-width: min(96vw, 1200px);
-    max-height: 86vh;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-    border-radius: 1rem;
-    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.55);
-  }
-
-  .project-lightbox-close {
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.45rem;
-    padding: 0.65rem 0.9rem;
-    border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(10, 10, 26, 0.9);
-    color: #fff;
-    font-size: 0.8rem;
-    font-weight: 800;
-  }
 }
 
-/* ================================================================
-   OPTIMIZACIONES MÓVIL (max-width: 768px)
-   ================================================================ */
+/* --- OPTIMIZACIONES PARA MÓVILES (AÑADIDAS AL FINAL) --- */
 @media (max-width: 768px) {
-  /* Splash screen */
   body.loading {
     overflow: hidden !important;
     height: 100vh !important;
   }
+  
   body.loading #root {
     display: none !important;
   }
 
-  /* Sin backdrop-filter en móvil: muy costoso en GPU de gama media.
-     El fondo sólido semiopaco da el mismo efecto visual. */
-  .glass-card,
-  .glass-card-enhanced {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background: rgba(13, 13, 36, 0.96) !important;
+  .glass-card, .glass-card-enhanced {
+    backdrop-filter: blur(6px) !important; /* Reducido para fluidez */
+    background: rgba(13, 13, 36, 0.92) !important;
   }
-
-  /* Deshabilitar hover transforms en pantallas táctiles */
-  @media (pointer: coarse) {
-    .glass-card:hover,
-    .glass-card-enhanced:hover {
-      transform: none !important;
-      box-shadow: none !important;
-    }
-    .btn-primary:hover,
-    .btn-outline:hover {
-      transform: none !important;
-    }
-  }
-
-  /* Reducir blur de la navbar en móvil */
-  nav {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-
-  /* Evitar repaints en imágenes */
-  img {
-    transform: translateZ(0);
-  }
-
-  /* Deshabilitar smooth scroll en móvil */
-  html {
-    scroll-behavior: auto !important;
-  }
-
-  .projects-page {
-    background-attachment: scroll !important;
-  }
-
-  .project-card {
-    content-visibility: auto;
-    contain-intrinsic-size: 420px;
-    will-change: auto !important;
-  }
-
-  .project-card:hover,
-  .project-card:active {
-    transform: none !important;
-  }
-
-  .project-card-media {
-    background: radial-gradient(circle at center, rgba(255, 45, 120, 0.12), rgba(13, 13, 36, 0.96) 64%);
-  }
-
-  .project-cover-img-contain {
-    object-fit: contain !important;
-    background: #ffffff;
-  }
-
-  .project-detail-cover-contain {
-    background: #ffffff !important;
-  }
-
-  .project-modal-root,
-  .project-modal-shell {
-    width: 100% !important;
-    min-width: 100% !important;
-    max-width: 100% !important;
-    overflow-x: hidden !important;
-  }
-
-  .project-modal-root {
-    overscroll-behavior-y: contain;
-  }
-
-  .project-modal-content {
-    width: 100% !important;
-    max-width: none !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-    overflow-x: hidden !important;
-  }
-
-  .project-modal-content > .grid {
-    width: 100% !important;
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-  }
-
-  .project-modal-content > .grid > div {
-    min-width: 0;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-  }
-
-  .project-preview-strip {
-    width: 100vw;
-    max-width: 100vw;
-    margin-left: -1.25rem;
-    margin-right: -1.25rem;
-    padding-left: 1.25rem;
-    padding-right: 1.25rem;
-    box-sizing: border-box;
-  }
-
-  .project-cover-backdrop {
-    display: none !important;
-  }
-
-  .project-cover-img {
-    transform: none !important;
-    padding: 0 !important;
-  }
-
-  .project-detail-cover {
-    box-shadow: none !important;
-    background: rgba(8, 8, 24, 0.96) !important;
-  }
-
-  .project-detail-cover img {
-    transform: none !important;
-  }
-
-  .project-detail-panel {
-    position: static !important;
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background: rgba(255, 255, 255, 0.06) !important;
-  }
-
-  .project-preview-strip img {
-    transform: none !important;
-  }
-
-  .project-lightbox {
-    padding: 0.75rem;
-  }
-
-  .project-lightbox img {
-    max-width: 96vw;
-    max-height: 82vh;
-    border-radius: 0.85rem;
-  }
-
-}
-
-/* ================================================================
-   DESKTOP: conserva todos los efectos originales
-   ================================================================ */
-@media (min-width: 769px) {
-  .glass-card {
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-  }
-  .glass-card-enhanced {
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+  
+  /* Forzar GPU en elementos clave */
+  .section-title, .btn-primary, .btn-outline, img, .motion-div {
+    transform: translate3d(0,0,0) !important;
   }
 }
