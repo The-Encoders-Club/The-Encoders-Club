@@ -192,7 +192,7 @@ function TeamCarousel() {
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72 hover:translate3d(0, -8px, 0) transition-transform duration-500"
+                className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
               >
                 {/* Avatar - Larger */}
                 <div
@@ -206,7 +206,6 @@ function TeamCarousel() {
                     src={member.image}
                     alt={member.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                    loading="lazy"
                   />
                   <div
                     className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
