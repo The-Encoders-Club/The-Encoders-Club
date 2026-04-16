@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, Image as ImageIcon, Smartphone, Monitor } from 'lucide-react';
 
@@ -9,22 +9,12 @@ interface ProjectViewProps {
 
 const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('info');
-  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      // Reproducir audio inmediatamente
-      if (audioRef.current) {
-        audioRef.current.play().catch(err => console.log('Audio play error:', err));
-      }
     } else {
       document.body.style.overflow = 'unset';
-      // Pausar audio al cerrar
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current.currentTime = 0;
-      }
     }
     return () => {
       document.body.style.overflow = 'unset';
@@ -72,25 +62,15 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
           style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, rgba(255, 45, 120, 0.15) 50%, rgba(10, 10, 26, 0.95) 100%)`, backgroundColor: '#0a0a1a' }}
         />
 
-        {/* ÁUDIO OPTIMIZADO - YOUTUBE */}
-        <audio 
-          ref={audioRef}
-          className="hidden"
-          loop
-          preload="metadata"
-          style={{ display: 'none' }}
-          crossOrigin="anonymous"
-        >
-          <source src="https://www.youtube.com/watch?v=QIHUK68L9qQ" type="audio/mpeg" />
-        </audio>
-        {/* Fallback: Embed YouTube optimizado */}
+        {/* ÁUDIO OPTIMIZADO - YOUTUBE EMBED */}
         <iframe
           className="hidden"
           width="0"
           height="0"
-          src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&controls=0&modestbranding=1&rel=0&iv_load_policy=3&mute=0"
-          allow="autoplay"
-          style={{ display: 'none' }}
+          src="https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&controls=0&modestbranding=1&rel=0&iv_load_policy=3&mute=0&fs=0"
+          allow="autoplay; encrypted-media"
+          style={{ display: 'none', pointerEvents: 'none' }}
+          title="Monika Theme"
         />
 
         <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a1a]/90 to-[#0a0a1a]/95 w-full overflow-x-hidden">
