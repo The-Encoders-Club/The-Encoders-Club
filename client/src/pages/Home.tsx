@@ -1,9 +1,11 @@
 /* ============================================================
    HOME PAGE — The Encoders Club
-   OPTIMIZED for low-end devices
+   Style: Neon Synthwave Gaming
+   Sections: Hero, About, News, Team, Stats
    ============================================================ */
 import { useEffect, useRef, useState } from "react";
 import { Link } from "wouter";
+import { motion } from "framer-motion";
 import {
   ArrowRight, BookOpen, Download, Users, Eye,
   Gamepad2, Sparkles, ChevronRight, Star
@@ -12,6 +14,8 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { useCountUp } from "@/hooks/useCountUp";
 
+const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
+const PERSONAJE_URL = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663518852144/ZbUNPMDpcLvHgznH.png";
 const BG_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/hero_bg-nZF9vsy8Qjc3eRVqRoEgy7.webp";
 
 const newsItems = [
@@ -105,14 +109,14 @@ const teamMembers = [
   },
 ];
 
-// Optimized Stat counter with CSS animation
+// Stat counter component
 function StatCounter({
   value, label, icon: Icon, color, suffix = ""
 }: {
   value: number; label: string; icon: React.ElementType; color: string; suffix?: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const { count, start } = useCountUp(value, 2000);
+  const { count, start } = useCountUp(value, 2200);
   const [triggered, setTriggered] = useState(false);
 
   useEffect(() => {
@@ -154,57 +158,43 @@ function StatCounter({
   );
 }
 
-// CSS-based scroll reveal hook
-function useScrollReveal() {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
+const fadeUp = {
+  hidden: { opacity: 0, y: 30 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, delay: i * 0.1 },
+  }),
+};
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
-  return { ref, isVisible };
-}
-
-// Team Carousel - Optimized
+// Team Carousel Component
 function TeamCarousel() {
-  const { ref, isVisible } = useScrollReveal();
-
   return (
-    <section className="py-20 lg:py-28 section-glow">
+    <section className="py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-14">
           <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">
             Quiénes somos
           </span>
           <h2 className="section-title text-white">
-            Integrantes del <span className="text-shimmer">Equipo</span>
+            Integrantes del <span className="brand-gradient-text">Equipo</span>
           </h2>
         </div>
 
-        <div 
-          ref={ref}
-          className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 scrollbar-hide"
-        >
+        {/* Scrollable Container - 4 visible items */}
+        <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
           <div className="flex gap-6 lg:gap-8 w-max">
             {teamMembers.map((member, i) => (
-              <div
+              <motion.div
                 key={member.id}
-                className={`glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72 corner-accent ${
-                  isVisible ? 'fade-up' : 'opacity-0'
-                }`}
-                style={{ animationDelay: `${i * 0.1}s` }}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72 hover:translate3d(0, -8px, 0) transition-transform duration-500"
               >
+                {/* Avatar - Larger */}
                 <div
                   className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center text-2xl font-bold relative overflow-hidden"
                   style={{
@@ -215,8 +205,12 @@ function TeamCarousel() {
                   <img
                     src={member.image}
                     alt={member.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                     loading="lazy"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                  <div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity"
+                    style={{ background: member.color }}
                   />
                 </div>
                 <h3
@@ -234,7 +228,7 @@ function TeamCarousel() {
                     <p className="text-xs text-white/50">{member.cargo}</p>
                   )}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
         </div>
@@ -244,60 +238,68 @@ function TeamCarousel() {
 }
 
 export default function Home() {
-  const aboutRef = useScrollReveal();
-  const newsRef = useScrollReveal();
-
   return (
-    <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden scanline-overlay">
+    <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
       <Navbar />
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
-        {/* Background - optimized */}
+        {/* Background */}
         <div className="absolute inset-0 z-0">
           <img
             src={BG_URL}
             alt=""
-            loading="eager"
-            className="w-full h-full object-cover opacity-25"
+            className="w-full h-full object-cover opacity-30"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#080818]/60 via-transparent to-[#080818]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" />
         </div>
 
-        {/* Decorative orbs - static, no animation */}
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
+        {/* Decorative orbs */}
+        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            {/* Left: decorative space */}
-            <div className="hidden lg:flex flex-col items-center justify-center relative order-1">
+            {/* Left: Content Spacer (Logo removed) */}
+            <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
+              {/* Glow remains for atmosphere */}
               <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
-              {/* Floating decorative element */}
-              <div className="relative w-48 h-48 animate-float">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-[#FF2D78]/20 to-[#4D9FFF]/20 border border-white/10" />
-                <Sparkles className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[#FF2D78] w-12 h-12" />
-              </div>
             </div>
 
-            {/* Right: Text - CSS animations only */}
-            <div className="flex flex-col justify-center lg:pl-8 order-2">
-              <h1
-                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6 fade-up"
+            {/* Right: Text */}
+            <div className="flex flex-col justify-center lg:pl-8 order-2 lg:order-2">
+              {/* Title */}
+              <motion.h1
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.1 }}
+                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 <span className="text-white">The</span>{" "}
-                <span className="text-shimmer">Encoders</span>
+                <span className="brand-gradient-text">Encoders</span>
                 <br />
                 <span className="text-white">Club</span>
-              </h1>
+              </motion.h1>
 
-              <p className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg fade-up delay-1">
+              {/* Subtitle */}
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.25 }}
+                className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg"
+              >
                 Tu portal a las mejores experiencias de novelas visuales en español. Aprende Ren'Py, crea historias únicas y comparte tu arte con la comunidad.
-              </p>
+              </motion.p>
 
-              <div className="flex flex-wrap gap-4 fade-up delay-2">
+              {/* CTA Buttons */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.35 }}
+                className="flex flex-wrap gap-4"
+              >
                 <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
                   Ver Proyectos
                   <ArrowRight size={18} />
@@ -306,10 +308,15 @@ export default function Home() {
                   <BookOpen size={18} />
                   Aprender
                 </Link>
-              </div>
+              </motion.div>
 
               {/* Mini stats */}
-              <div className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10 fade-up delay-3">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6, delay: 0.5 }}
+                className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10"
+              >
                 <div className="text-center">
                   <p className="text-2xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3+</p>
                   <p className="text-xs text-white/45">Proyectos</p>
@@ -320,35 +327,39 @@ export default function Home() {
                   <p className="text-xs text-white/45">Cursos</p>
                 </div>
                 <div className="w-px h-10 bg-white/15" />
-                <div className="text-center flex flex-col items-center">
-                  <div className="flex items-center gap-1">
-                    <span className="pulse-dot" />
-                    <p className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>∞</p>
-                  </div>
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>∞</p>
                   <p className="text-xs text-white/45">Creatividad</p>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
 
-        {/* Scroll indicator - CSS animation */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 animate-float">
+        {/* Scroll indicator */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+        >
           <span className="text-xs">Scroll</span>
           <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
-        </div>
+        </motion.div>
       </section>
 
       {/* ── ABOUT ── */}
-      <section className="py-20 lg:py-28 relative section-glow">
+      <section className="py-20 lg:py-28 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div 
-            ref={aboutRef.ref}
-            className="grid lg:grid-cols-2 gap-12 items-center"
-          >
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
             {/* Left: Visual */}
-            <div className={`relative ${aboutRef.isVisible ? 'fade-up' : 'opacity-0'}`}>
-              <div className="glass-card p-8 relative overflow-hidden corner-accent">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+              className="relative"
+            >
+              <div className="glass-card p-8 relative overflow-hidden">
                 <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
                 <div className="flex items-center gap-4 mb-6">
                   <div className="w-12 h-12 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center">
@@ -371,10 +382,15 @@ export default function Home() {
                   ))}
                 </div>
               </div>
-            </div>
+            </motion.div>
 
             {/* Right: Text */}
-            <div className={`${aboutRef.isVisible ? 'fade-up delay-1' : 'opacity-0'}`}>
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.7 }}
+            >
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">
                 Sobre nosotros
               </span>
@@ -396,13 +412,13 @@ export default function Home() {
                   Explorar Proyectos
                 </Link>
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* ── NOTICIAS ── */}
-      <section className="py-20 lg:py-28 bg-[#06060f] grid-pattern">
+      <section className="py-20 lg:py-28 bg-[#06060f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Header */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
@@ -421,24 +437,23 @@ export default function Home() {
           </div>
 
           {/* Grid */}
-          <div 
-            ref={newsRef.ref}
-            className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5"
-          >
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {newsItems.map((item, i) => (
-              <article
+              <motion.article
                 key={item.id}
-                className={`glass-card overflow-hidden group ${
-                  newsRef.isVisible ? 'fade-up' : 'opacity-0'
-                }`}
-                style={{ animationDelay: `${i * 0.1}s` }}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="glass-card overflow-hidden group"
               >
                 <div className="relative overflow-hidden h-40">
                   <img
                     src={item.image}
                     alt={item.title}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                     loading="lazy"
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <span
@@ -464,7 +479,7 @@ export default function Home() {
                     Leer más <ChevronRight size={13} />
                   </button>
                 </div>
-              </article>
+              </motion.article>
             ))}
           </div>
         </div>
@@ -488,10 +503,16 @@ export default function Home() {
       {/* ── CTA BANNER ── */}
       <section className="py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="glass-card p-10 lg:p-16 relative overflow-hidden corner-accent">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="glass-card p-10 lg:p-16 relative overflow-hidden"
+          >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/5 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/5 blur-3xl pointer-events-none" />
+            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
 
             <div className="relative z-10">
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">
@@ -499,7 +520,7 @@ export default function Home() {
               </span>
               <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 ¿Listo para crear tu{" "}
-                <span className="text-shimmer">novela visual?</span>
+                <span className="brand-gradient-text">novela visual?</span>
               </h2>
               <p className="text-white/60 mb-8 max-w-xl mx-auto leading-relaxed">
                 Únete a nuestra comunidad, aprende con nuestros cursos y comparte tus proyectos con cientos de creadores hispanohablantes.
@@ -519,7 +540,7 @@ export default function Home() {
                 </Link>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
