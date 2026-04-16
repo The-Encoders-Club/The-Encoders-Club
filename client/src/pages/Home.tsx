@@ -500,6 +500,97 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── FEATURES SECTION ── */}
+      <section className="py-20 lg:py-28 bg-gradient-to-b from-[#06060f] to-transparent">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">
+              Características
+            </span>
+            <h2 className="section-title text-white mb-4">
+              Todo lo que necesitas para <span className="brand-gradient-text">crear</span>
+            </h2>
+            <p className="text-white/60 max-w-2xl mx-auto">
+              Herramientas, recursos y comunidad para llevar tus ideas al siguiente nivel
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { icon: Sparkles, title: "Cursos Interactivos", desc: "Aprende Ren'Py desde cero" },
+              { icon: BookOpen, title: "Documentación", desc: "Guías completas y tutoriales" },
+              { icon: Users, title: "Comunidad Activa", desc: "Conecta con otros creadores" },
+              { icon: Download, title: "Proyectos Gratis", desc: "Descarga ejemplos y plantillas" },
+            ].map((feature, i) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className="glass-card p-6 text-center group hover:translate3d(0, -8px, 0) transition-transform duration-500"
+                >
+                  <Icon size={32} className="text-[#FF2D78] mx-auto mb-4 group-hover:scale-110 transition-transform" />
+                  <h3 className="font-bold text-white mb-2">{feature.title}</h3>
+                  <p className="text-white/60 text-sm">{feature.desc}</p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ── SHOWCASE SECTION ── */}
+      <section className="py-20 lg:py-28 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-transparent to-[#4D9FFF]/5 pointer-events-none" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+          <div className="text-center mb-16">
+            <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">
+              Proyectos Destacados
+            </span>
+            <h2 className="section-title text-white mb-4">
+              Creaciones de la <span className="brand-gradient-text">comunidad</span>
+            </h2>
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-6">
+            {[
+              { title: "Monika After Story", desc: "Una continuación emotiva de DDLC", color: "#FF2D78" },
+              { title: "Just Natsuki", desc: "La historia de Natsuki en español", color: "#FF6B9D" },
+              { title: "Just Yuri", desc: "Una aventura literaria con Yuri", color: "#9D4EDD" },
+            ].map((project, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1 }}
+                className="glass-card p-6 hover:translate3d(0, -12px, 0) transition-transform duration-500 group cursor-pointer"
+              >
+                <div
+                  className="w-full h-32 rounded-xl mb-4 flex items-center justify-center group-hover:scale-105 transition-transform duration-500"
+                  style={{
+                    background: `linear-gradient(135deg, ${project.color}20, ${project.color}05)`,
+                    border: `2px solid ${project.color}30`,
+                  }}
+                >
+                  <Star size={40} style={{ color: project.color }} />
+                </div>
+                <h3 className="font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {project.title}
+                </h3>
+                <p className="text-white/60 text-sm mb-4">{project.desc}</p>
+                <Link href="/proyectos" className="text-sm font-semibold flex items-center gap-1" style={{ color: project.color }}>
+                  Ver más <ChevronRight size={14} />
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA BANNER ── */}
       <section className="py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
