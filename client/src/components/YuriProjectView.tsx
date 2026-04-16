@@ -9,12 +9,22 @@ interface ProjectViewProps {
 
 const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState('info');
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      // Reproducir audio inmediatamente
+      if (audioRef.current) {
+        audioRef.current.play().catch(err => console.log('Audio play error:', err));
+      }
     } else {
       document.body.style.overflow = 'unset';
+      // Pausar audio al cerrar
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
     }
     return () => {
       document.body.style.overflow = 'unset';
@@ -54,16 +64,26 @@ const YuriProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
           style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, rgba(156, 39, 176, 0.15) 50%, rgba(10, 10, 26, 0.95) 100%)`, backgroundColor: '#0a0a1a' }}
         />
 
-        {/* ÁUDIO OPTIMIZADO - HTML5 */}
+        {/* ÁUDIO OPTIMIZADO - YOUTUBE */}
         <audio 
+          ref={audioRef}
           className="hidden"
-          autoPlay
           loop
-          preload="none"
+          preload="metadata"
           style={{ display: 'none' }}
+          crossOrigin="anonymous"
         >
-          <source src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663553525744/VedhLozCFSEPnJnz.mp3" type="audio/mpeg" />
+          <source src="https://www.youtube.com/watch?v=VGwfIloNM8w" type="audio/mpeg" />
         </audio>
+        {/* Fallback: Embed YouTube optimizado */}
+        <iframe
+          className="hidden"
+          width="0"
+          height="0"
+          src="https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&controls=0&modestbranding=1&rel=0&iv_load_policy=3&mute=0"
+          allow="autoplay"
+          style={{ display: 'none' }}
+        />
 
         <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#0a0a1a]/95 via-[#1a0a2a]/90 to-[#0a0a1a]/95 w-full overflow-x-hidden">
           <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-[#9C27B0]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
