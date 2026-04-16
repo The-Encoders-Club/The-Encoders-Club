@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
-import { Star, Sparkles, ArrowRight, Gamepad2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, ChevronRight, Play, Download, Share2, Filter, Search, Grid, List, Sparkles, ArrowRight, Gamepad2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import BackgroundParticles from '../components/BackgroundParticles';
 
-// Import project views
+// Importar los nuevos componentes de vista de proyecto
 import MonikaProjectView from '../components/MonikaProjectView';
 import NatsukiProjectView from '../components/NatsukiProjectView';
 import YuriProjectView from '../components/YuriProjectView';
@@ -18,7 +19,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png", // PORTADA MONIKA
     tags: ["Fan-Made", "Drama", "Romance"],
     status: "En desarrollo",
     statusColor: "#FF2D78",
@@ -31,7 +32,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png", // PORTADA NATSUKI
     tags: ["Fan-Made", "Slice of Life"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -44,7 +45,7 @@ const projects = [
     subtitle: "Novela Visual Fan-Made",
     description:
       "Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural en una narrativa única.",
-    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663522621232/wWSuFRWkAQVXHGQp.png",
+    image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663522621232/wWSuFRWkAQVXHGQp.png", // PORTADA YURI
     tags: ["Fan-Made", "Misterio", "Literatura"],
     status: "Disponible",
     statusColor: "#22c55e",
@@ -57,33 +58,31 @@ export default function Proyectos() {
   const [activeProject, setActiveProject] = useState<number | null>(null);
 
   return (
-    <div 
-      className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]" 
-      style={{ 
-        backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`, 
-        backgroundSize: 'cover', 
-        backgroundPosition: 'center', 
-        backgroundAttachment: 'scroll' // Changed from fixed for mobile performance
-      }}
-    >
+    <div className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]" style={{ backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`, backgroundSize: 'cover', backgroundPosition: 'center', backgroundAttachment: 'fixed' }}>
       <BackgroundParticles />
       <Navbar />
 
-      {/* Project Views */}
-      {activeProject === 1 && (
-        <MonikaProjectView isOpen={true} onClose={() => setActiveProject(null)} />
-      )}
-      {activeProject === 2 && (
-        <NatsukiProjectView isOpen={true} onClose={() => setActiveProject(null)} />
-      )}
-      {activeProject === 3 && (
-        <YuriProjectView isOpen={true} onClose={() => setActiveProject(null)} />
-      )}
+      <AnimatePresence>
+        {activeProject === 1 && (
+          <MonikaProjectView isOpen={true} onClose={() => setActiveProject(null)} />
+        )}
+        {activeProject === 2 && (
+          <NatsukiProjectView isOpen={true} onClose={() => setActiveProject(null)} />
+        )}
+        {activeProject === 3 && (
+          <YuriProjectView isOpen={true} onClose={() => setActiveProject(null)} />
+        )}
+      </AnimatePresence>
 
       {/* Page Header */}
       <section className="pt-24 sm:pt-32 pb-12 sm:pb-16 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="text-center sm:text-left fade-up">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center sm:text-left"
+          >
             <span className="text-[#FF2D78] text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3 block">
               Nuestras creaciones
             </span>
@@ -93,7 +92,7 @@ export default function Proyectos() {
             <p className="text-white/60 text-base sm:text-lg max-w-2xl mx-auto sm:mx-0">
               Novelas visuales creadas con pasión por nuestra comunidad usando el motor Ren'Py. Historias únicas en español.
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -101,33 +100,37 @@ export default function Proyectos() {
       <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Featured project */}
-          {projects.filter(p => p.featured).map((project, i) => (
-            <div
+          {projects.filter(p => p.featured).map((project) => (
+            <motion.div
               key={project.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
               onClick={() => setActiveProject(project.id)}
-              className={`bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 relative cursor-pointer group hover:border-[#FF2D78]/40 transition-colors fade-up`}
-              style={{ animationDelay: `${i * 0.1}s` }}
+              className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 relative cursor-pointer group hover:border-[#FF2D78]/40 transition-all backdrop-blur-none will-change-transform"
+              style={{ contain: 'layout style paint' }}
             >
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
               <div className="grid lg:grid-cols-2 gap-0">
-                {/* Image */}
-                <div className="relative h-48 sm:h-64 lg:h-auto min-h-[200px] sm:min-h-64 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5">
+                {/* Image - Estandarizado con aspect-video */}
+                <div className="relative aspect-video bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5 group">
+                  {/* Background Blur Fill */}
                   <img
                     src={project.image}
                     alt=""
                     className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110"
                   />
+                  {/* Main Image (Complete) */}
                   <img
                     src={project.image}
                     alt={project.name}
-                    loading="lazy"
-                    className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 p-2"
+                    className="relative z-10 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-transparent to-[#0d0d24]/40 hidden lg:block" />
                   <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
                     DESTACADO
                   </span>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-none">
                     <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold">
                       <Sparkles size={16} className="text-[#FF2D78]" />
                       Explorar Proyecto
@@ -171,30 +174,35 @@ export default function Proyectos() {
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
 
           {/* Other projects */}
           <div className="grid sm:grid-cols-2 gap-6">
             {projects.filter(p => !p.featured).map((project, i) => (
-              <div
+              <motion.div
                 key={project.id}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: i * 0.1 }}
                 onClick={() => setActiveProject(project.id)}
-                className={`bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-colors fade-up`}
-                style={{ animationDelay: `${(i + 1) * 0.1}s` }}
+                className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all backdrop-blur-none will-change-transform"
+                style={{ contain: 'layout style paint' }}
               >
-                {/* Image */}
-                <div className="relative h-48 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5">
+                {/* Image - Estandarizado con aspect-video */}
+                <div className="relative aspect-video bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5 group">
+                  {/* Background Blur Fill */}
                   <img
                     src={project.image}
                     alt=""
                     className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110"
                   />
+                  {/* Main Image (Complete) */}
                   <img
                     src={project.image}
                     alt={project.name}
-                    loading="lazy"
-                    className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 p-4"
+                    className="relative z-10 w-full h-full object-cover opacity-100 group-hover:scale-105 transition-transform duration-700"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24]/60 to-transparent" />
                   <div className="absolute bottom-3 left-4 flex items-center gap-2">
@@ -213,7 +221,7 @@ export default function Proyectos() {
                       <span>{project.rating}</span>
                     </div>
                   </div>
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 backdrop-blur-none">
                     <Sparkles size={24} className="text-[#00F3FF]" />
                   </div>
                 </div>
@@ -235,12 +243,18 @@ export default function Proyectos() {
                     Explorar <ArrowRight size={14} />
                   </div>
                 </div>
-              </div>
+              </motion.div>
             ))}
           </div>
 
           {/* Coming soon banner */}
-          <div className="mt-10 bg-white/5 border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden fade-up delay-3">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mt-10 bg-white/5 border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden backdrop-blur-none"
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-[#a855f7]/5 to-[#00F3FF]/5 pointer-events-none" />
             <Gamepad2 size={32} className="text-[#FF2D78] mx-auto mb-3" />
             <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
@@ -249,7 +263,7 @@ export default function Proyectos() {
             <p className="text-white/50 text-sm max-w-md mx-auto">
               Estamos trabajando en nuevas novelas visuales. Únete a nuestro Discord para ser el primero en enterarte.
             </p>
-          </div>
+          </motion.div>
         </div>
       </section>
 
