@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Download, Share2, Star, Clock, Globe, Cpu, MessageSquare, Heart, BookOpen, Image as ImageIcon, Monitor } from 'lucide-react';
+import { X, Download, Share2, Star, Cpu, BookOpen, Image as ImageIcon } from 'lucide-react';
+import ProjectAudioPlayer from './ProjectAudioPlayer';
 
 interface ProjectViewProps {
   isOpen: boolean;
@@ -23,10 +24,8 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
 
   if (!isOpen) return null;
 
-  // URLs de Cloudfront generadas
   const mainImage = "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png";
   
-  // Imágenes de Vista Previa
   const previewImages = [
     "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/fRwehLiQXmdlyzkT.png",
     "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/hfJDYHHcaghUPWDY.png",
@@ -34,7 +33,6 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
     "https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/pGPSAZuWYokOhDFV.png"
   ];
 
-  // Enlace de descarga
   const downloadLink = "https://github.com/The-Encoders-Club/Just-Natsuki-ES/releases/download/Actualizaci%C3%B3n/Jn-ES-1.3.5.zip";
 
   return (
@@ -45,25 +43,13 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-[100] bg-[#1a0a1a] text-white overflow-y-auto natsuki-theme"
       >
-        {/* FONDO TEMÁTICO - DEGRADADO NATSUKI */}
         <div 
           className="fixed inset-0 z-0 opacity-100 pointer-events-none"
           style={{ backgroundImage: `linear-gradient(135deg, rgba(26, 10, 26, 0.95) 0%, rgba(255, 45, 120, 0.12) 50%, rgba(26, 10, 26, 0.95) 100%)`, backgroundColor: '#1a0a1a' }}
         />
 
-        {/* ÁUDIO OPTIMIZADO - YOUTUBE EMBED */}
-        <iframe
-          className="hidden"
-          width="0"
-          height="0"
-          src="https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&loop=1&playlist=BDsCNVj72ig&controls=0&modestbranding=1&rel=0&iv_load_policy=3&mute=0&fs=0"
-          allow="autoplay; encrypted-media"
-          style={{ display: 'none', pointerEvents: 'none' }}
-          title="Natsuki Theme"
-        />
-
         <div className="relative z-10 min-h-screen bg-gradient-to-br from-[#1a0a1a]/95 via-[#2a0a1a]/90 to-[#1a0a1a]/95 w-full overflow-x-hidden">
-          <nav className="sticky top-0 z-50 bg-[#1a0a1a]/90 backdrop-blur-md border-b border-[#FF2D78]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
+          <nav className="sticky top-0 z-50 bg-[#1a0a1a]/90 border-b border-[#FF2D78]/30 px-4 sm:px-6 py-4 flex justify-between items-center w-full">
             <button 
               onClick={onClose}
               className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group"
@@ -92,7 +78,6 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                   <p className="text-xl text-gray-300 font-medium italic">Sumérgete en la historia de Natsuki, explorando su mundo más allá del club</p>
                 </header>
 
-                {/* PORTADA - AJUSTE TOTAL */}
                 <div className="rounded-2xl overflow-hidden border border-[#FF2D78]/50 shadow-[0_0_30px_rgba(255,45,120,0.3)] aspect-video relative group">
                   <img 
                     src={mainImage} 
@@ -101,6 +86,13 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#1a0a1a]/30 to-transparent pointer-events-none" />
                 </div>
+
+                {/* AUDIO PLAYER — reemplaza el iframe autoplay que causaba lag en móvil */}
+                <ProjectAudioPlayer
+                  videoId="BDsCNVj72ig"
+                  title="Natsuki's Theme — Just Natsuki"
+                  accentColor="#FF6B9D"
+                />
 
                 <div className="space-y-6">
                   <div className="flex gap-4 border-b border-white/10 pb-4">
@@ -140,15 +132,14 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                           </div>
                         </div>
 
-                        {/* SECCIÓN DE IMÁGENES ACTUALIZADA */}
                         <div className="mt-8 pt-8 border-t border-white/10">
                           <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                             <ImageIcon className="w-5 h-5 text-[#FF2D78]" /> Vista Previa
                           </h4>
-                          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x">
+                          <div className="flex gap-4 overflow-x-auto pb-4 snap-x" style={{ scrollbarWidth: 'none' }}>
                             {previewImages.map((src, idx) => (
                               <div key={idx} className="flex-none w-64 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start">
-                                <img src={src} alt={`Vista Previa ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                                <img src={src} alt={`Vista Previa ${idx + 1}`} className="w-full h-full object-cover transition-transform group-hover:scale-110" loading="lazy" />
                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                   <ImageIcon className="text-white w-8 h-8" />
                                 </div>
@@ -171,7 +162,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
 
               {activeTab === 'info' && (
               <div className="space-y-8">
-                <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32">
+                <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 sticky top-32">
                   <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                     <Cpu className="w-5 h-5 text-[#FF9EBC]" /> Detalles
                   </h3>
@@ -200,7 +191,7 @@ const NatsukiProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => 
                     rel="noopener noreferrer"
                     className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF2D78] to-[#FF9EBC] text-white font-black uppercase tracking-tighter flex items-center justify-center gap-3 hover:shadow-[0_0_30px_rgba(255,45,120,0.4)] transition-all group"
                   >
-                    <Download className="w-6 h-6 group-hover:bounce" />
+                    <Download className="w-6 h-6" />
                     Descargar Mod PC
                   </a>
                 </div>
