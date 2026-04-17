@@ -4,13 +4,10 @@
    ============================================================ */
 import { motion } from "framer-motion";
 import { Hammer, Sparkles } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 
 export default function Cursos() {
   return (
     <div className="min-h-screen bg-[#080818] text-white flex flex-col">
-      <Navbar />
 
       {/* Main Content - Centrado absoluto con padding para Navbar y Footer */}
       <main className="flex-grow flex items-center justify-center py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
@@ -67,7 +64,6 @@ export default function Cursos() {
         </motion.div>
       </main>
 
-      <Footer />
     </div>
   );
 }
