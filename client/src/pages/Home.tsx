@@ -180,7 +180,7 @@ function TeamCarousel() {
         </div>
 
         {/* Scrollable Container - 4 visible items */}
-        <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+        <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
           <div className="flex gap-6 lg:gap-8 w-max">
             {teamMembers.map((member, i) => (
               <motion.div
@@ -553,9 +553,9 @@ export default function Home() {
 
           <div className="grid sm:grid-cols-3 gap-6">
             {[
-              { title: "Monika After Story", desc: "Una continuación emotiva de DDLC", color: "#FF2D78" },
-              { title: "Just Natsuki", desc: "La historia de Natsuki en español", color: "#FF6B9D" },
-              { title: "Just Yuri", desc: "Una aventura literaria con Yuri", color: "#9D4EDD" },
+              { title: "Monika After History", desc: "Una continuación emotiva de DDLC", color: "#FF2D78", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png" },
+              { title: "Just Natsuki", desc: "La historia de Natsuki en español", color: "#FF6B9D", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png" },
+              { title: "Just Yuri", desc: "Una aventura literaria con Yuri", color: "#9D4EDD", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663522621232/wWSuFRWkAQVXHGQp.png" },
             ].map((project, i) => (
               <motion.div
                 key={i}
@@ -563,24 +563,27 @@ export default function Home() {
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="glass-card p-6 hover:translate3d(0, -12px, 0) transition-transform duration-500 group cursor-pointer"
+                className="glass-card overflow-hidden transition-all duration-500 group cursor-pointer hover:ring-1"
+                style={{ ['--tw-ring-color' as string]: project.color + '50' }}
               >
-                <div
-                  className="w-full h-32 rounded-xl mb-4 flex items-center justify-center group-hover:scale-105 transition-transform duration-500"
-                  style={{
-                    background: `linear-gradient(135deg, ${project.color}20, ${project.color}05)`,
-                    border: `2px solid ${project.color}30`,
-                  }}
-                >
-                  <Star size={40} style={{ color: project.color }} />
+                <div className="w-full h-40 overflow-hidden relative">
+                  <img
+                    src={project.image}
+                    alt={project.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    loading="lazy"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 </div>
-                <h3 className="font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {project.title}
-                </h3>
-                <p className="text-white/60 text-sm mb-4">{project.desc}</p>
-                <Link href="/proyectos" className="text-sm font-semibold flex items-center gap-1" style={{ color: project.color }}>
-                  Ver más <ChevronRight size={14} />
-                </Link>
+                <div className="p-5">
+                  <h3 className="font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    {project.title}
+                  </h3>
+                  <p className="text-white/60 text-sm mb-4">{project.desc}</p>
+                  <Link href="/proyectos" className="text-sm font-semibold flex items-center gap-1" style={{ color: project.color }}>
+                    Ver más <ChevronRight size={14} />
+                  </Link>
+                </div>
               </motion.div>
             ))}
           </div>
