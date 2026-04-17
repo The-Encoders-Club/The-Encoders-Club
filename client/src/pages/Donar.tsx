@@ -4,8 +4,6 @@
    ============================================================ */
 import { motion } from "framer-motion";
 import { Heart, Star, Zap, Crown, Coffee, ExternalLink, CheckCircle2, HelpCircle, Sparkles, Gift } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { toast } from "sonner";
 import { useState } from "react";
 
@@ -95,7 +93,6 @@ export default function Donar() {
 
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
-      <Navbar />
 
       {/* Hero Section - Mejorado */}
       <section className="pt-32 pb-20 relative overflow-hidden">
@@ -454,7 +451,6 @@ export default function Donar() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }
