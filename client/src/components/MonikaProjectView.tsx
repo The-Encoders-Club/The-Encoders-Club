@@ -174,7 +174,7 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
 
               {activeTab === 'info' && (
               <div className="space-y-8">
-                <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 sticky top-32 space-y-6">
+                <div className="p-8 rounded-3xl bg-[#0d0d24]/80 border border-white/8 sticky top-32 space-y-6">
                   <div>
                     <h3 className="text-xl font-bold mb-6 flex items-center gap-2">
                       <Cpu className="w-5 h-5 text-[#00F3FF]" /> Detalles
