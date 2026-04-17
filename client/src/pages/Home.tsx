@@ -10,8 +10,6 @@ import {
   ArrowRight, BookOpen, Download, Users, Eye,
   Gamepad2, Sparkles, ChevronRight, Star
 } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { useCountUp } from "@/hooks/useCountUp";
 
 const LOGO_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/logo_435f8d5a.png";
@@ -239,7 +237,6 @@ function TeamCarousel() {
 export default function Home() {
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
-      <Navbar />
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
@@ -634,7 +631,6 @@ export default function Home() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }
