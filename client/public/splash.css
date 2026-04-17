@@ -1,15 +1,19 @@
-/* --- ANIMACIONES DE ALTO RENDIMIENTO (60 FPS) --- */
+/* ============================================================
+   SPLASH SCREEN — The Encoders Club
+   Optimizado: GPU-only animations, 60fps, responsive
+   ============================================================ */
+
+/* --- KEYFRAMES DE ALTO RENDIMIENTO --- */
 
 @keyframes pulse-neon {
   0%, 100% { opacity: 0.85; transform: translate3d(0,0,0) scale(1); }
-  50% { opacity: 1; transform: translate3d(0,0,0) scale(1.03); }
+  50% { opacity: 1; transform: translate3d(0,0,0) scale(1.04); }
 }
 
-/* Animación del láser: Aislada en su propia capa de GPU para evitar tirones */
 @keyframes scan-laser {
   0% { transform: translate3d(0, 0, 0); opacity: 0; }
   10%, 90% { opacity: 1; }
-  50% { transform: translate3d(0, 160px, 0); }
+  50% { transform: translate3d(0, 150px, 0); }
   100% { transform: translate3d(0, 0, 0); opacity: 0; }
 }
 
@@ -18,25 +22,29 @@
   to { transform: rotate(360deg) translate3d(0,0,0); }
 }
 
+@keyframes ring-rotate-reverse {
+  from { transform: rotate(0deg) translate3d(0,0,0); }
+  to { transform: rotate(-360deg) translate3d(0,0,0); }
+}
+
 @keyframes fade-in-up {
-  from { opacity: 0; transform: translate3d(0, 15px, 0); }
+  from { opacity: 0; transform: translate3d(0, 20px, 0); }
   to { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-/* Animación de flujo arcoíris: Técnica de translate3d (LA MÁS FLUIDA Y BONITA) */
 @keyframes loading-bar-flow {
   0% { transform: translate3d(-50%, 0, 0); }
   100% { transform: translate3d(0%, 0, 0); }
 }
 
 @keyframes nebula-fade {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.5; }
+  0%, 100% { opacity: 0.25; transform: translate3d(0,0,0) scale(1); }
+  50% { opacity: 0.45; transform: translate3d(0,0,0) scale(1.05); }
 }
 
 @keyframes star-twinkle {
-  0%, 100% { opacity: 0.2; transform: translate3d(0,0,0) scale(0.8); }
-  50% { opacity: 0.7; transform: translate3d(0,0,0) scale(1.1); }
+  0%, 100% { opacity: 0.15; transform: translate3d(0,0,0) scale(0.8); }
+  50% { opacity: 0.75; transform: translate3d(0,0,0) scale(1.15); }
 }
 
 @keyframes particle-float {
@@ -44,11 +52,38 @@
   100% { transform: translate3d(var(--p-tx), var(--p-ty), 0) scale(0); opacity: 0; }
 }
 
+@keyframes shooting-star-anim {
+  0% { transform: translate3d(0, 0, 0) rotate(-45deg) scale(0); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate3d(-200px, 200px, 0) rotate(-45deg) scale(1); opacity: 0; }
+}
+
+/* 3D FLOAT — El logo flota en el espacio con perspectiva */
+@keyframes float-3d {
+  0%   { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
+  25%  { transform: translate3d(0, -8px, 0) rotateX(4deg) rotateY(3deg); }
+  50%  { transform: translate3d(0, -14px, 0) rotateX(0deg) rotateY(6deg); }
+  75%  { transform: translate3d(0, -8px, 0) rotateX(-4deg) rotateY(3deg); }
+  100% { transform: translate3d(0, 0, 0) rotateX(0deg) rotateY(0deg); }
+}
+
+/* Brillo exterior pulsante */
+@keyframes glow-pulse {
+  0%, 100% { box-shadow: 0 0 30px rgba(255,45,120,0.15), 0 0 60px rgba(77,159,255,0.08); opacity: 0.7; }
+  50% { box-shadow: 0 0 50px rgba(255,45,120,0.35), 0 0 100px rgba(77,159,255,0.2), 0 0 20px rgba(168,85,247,0.15); opacity: 1; }
+}
+
+/* Hexágono 3D girando */
+@keyframes hex-spin {
+  from { transform: rotateY(0deg) rotateX(15deg); }
+  to { transform: rotateY(360deg) rotateX(15deg); }
+}
+
 /* --- FONDO ARTÍSTICO --- */
 .splash-nebula-1 {
   position: absolute;
   top: -10%; left: -10%; width: 70%; height: 70%;
-  background: radial-gradient(circle, rgba(255,45,120,0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255,45,120,0.12) 0%, rgba(168,85,247,0.06) 40%, transparent 70%);
   animation: nebula-fade 8s ease-in-out infinite;
   z-index: 0;
   pointer-events: none;
@@ -58,7 +93,7 @@
 .splash-nebula-2 {
   position: absolute;
   bottom: -10%; right: -10%; width: 80%; height: 80%;
-  background: radial-gradient(circle, rgba(77,159,255,0.1) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(77,159,255,0.12) 0%, rgba(0,243,255,0.05) 40%, transparent 70%);
   animation: nebula-fade 10s ease-in-out infinite reverse;
   z-index: 0;
   pointer-events: none;
@@ -83,15 +118,9 @@
 .shooting-star {
   position: absolute;
   width: 2px; height: 2px;
-  background: linear-gradient(90deg, white, transparent);
+  background: linear-gradient(90deg, white, rgba(255,45,120,0.5), transparent);
   animation: shooting-star-anim 2s linear forwards;
   z-index: 2;
-}
-
-@keyframes shooting-star-anim {
-  0% { transform: translate3d(0, 0, 0) rotate(-45deg) scale(0); opacity: 1; }
-  70% { opacity: 1; }
-  100% { transform: translate3d(-200px, 200px, 0) rotate(-45deg) scale(1); opacity: 0; }
 }
 
 .particle {
@@ -101,27 +130,40 @@
   transform: translate3d(0,0,0);
 }
 
+/* --- CONTENEDOR 3D --- */
+.splash-3d-scene {
+  perspective: 800px;
+  perspective-origin: 50% 50%;
+}
+
 /* --- ELEMENTOS CENTRALES --- */
 .splash-logo-container {
   position: relative;
-  width: 220px; height: 220px;
-  display: flex; align-items: center; justify-content: center;
+  width: clamp(160px, 45vw, 220px);
+  height: clamp(160px, 45vw, 220px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   z-index: 5;
+  /* Perspectiva 3D */
+  transform-style: preserve-3d;
+  animation: float-3d 6s ease-in-out infinite;
 }
 
 .splash-logo-glow {
   position: absolute;
-  inset: -20px;
-  background: radial-gradient(circle, rgba(255,45,120,0.15) 0%, transparent 70%);
+  inset: -25px;
+  background: radial-gradient(circle, rgba(255,45,120,0.2) 0%, rgba(77,159,255,0.1) 40%, transparent 70%);
   border-radius: 50%;
   z-index: 1;
   transform: translate3d(0,0,0);
+  animation: glow-pulse 3s ease-in-out infinite;
 }
 
 .splash-ring {
   position: absolute;
   inset: 0;
-  border: 1.5px dashed rgba(255,45,120,0.3);
+  border: 1.5px dashed rgba(255,45,120,0.4);
   border-radius: 50%;
   animation: ring-rotate 4s linear infinite;
   z-index: 2;
@@ -130,30 +172,40 @@
 
 .splash-ring-outer {
   position: absolute;
-  inset: -15px;
-  border: 1px solid rgba(77,159,255,0.15);
+  inset: -18px;
+  border: 1px solid rgba(77,159,255,0.2);
   border-radius: 50%;
-  animation: ring-rotate 8s linear infinite reverse;
+  animation: ring-rotate-reverse 8s linear infinite;
+  z-index: 2;
+  transform: translate3d(0,0,0);
+}
+
+.splash-ring-outer2 {
+  position: absolute;
+  inset: -36px;
+  border: 1px dotted rgba(168,85,247,0.15);
+  border-radius: 50%;
+  animation: ring-rotate 12s linear infinite;
   z-index: 2;
   transform: translate3d(0,0,0);
 }
 
 .splash-logo {
-  width: 160px; height: 160px;
+  width: clamp(110px, 32vw, 160px);
+  height: clamp(110px, 32vw, 160px);
   object-fit: contain;
   animation: pulse-neon 3s ease-in-out infinite;
   z-index: 3;
-  filter: drop-shadow(0 0 8px rgba(255,45,120,0.3));
+  filter: drop-shadow(0 0 12px rgba(255,45,120,0.5)) drop-shadow(0 0 24px rgba(255,45,120,0.2));
   transform: translate3d(0,0,0);
 }
 
 .splash-scan {
   position: absolute;
-  top: 30px; left: 15%; right: 15%; height: 2px;
-  background: linear-gradient(90deg, transparent, #FF2D78, transparent);
-  box-shadow: 0 0 12px #FF2D78;
+  top: 25px; left: 10%; right: 10%; height: 2px;
+  background: linear-gradient(90deg, transparent, #FF2D78, #a855f7, transparent);
+  box-shadow: 0 0 16px #FF2D78, 0 0 8px #a855f7;
   z-index: 4;
-  /* Animación aislada en GPU para fluidez total */
   animation: scan-laser 2.5s linear infinite;
   pointer-events: none;
   will-change: transform;
@@ -161,45 +213,56 @@
 }
 
 .splash-text-container {
-  margin-top: 35px;
+  margin-top: clamp(20px, 4vw, 35px);
   text-align: center;
-  animation: fade-in-up 0.8s ease-out both;
+  animation: fade-in-up 0.8s ease-out 0.3s both;
   z-index: 5;
 }
 
 .splash-title {
   color: white;
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 24px;
+  font-size: clamp(16px, 4.5vw, 24px);
   font-weight: bold;
   letter-spacing: 0.25em;
   text-transform: uppercase;
   margin: 0;
+  text-shadow: 0 0 20px rgba(255,45,120,0.3);
 }
 
-.splash-title span { color: #FF2D78; }
+.splash-title span { color: #FF2D78; text-shadow: 0 0 20px rgba(255,45,120,0.6); }
 
-/* Barra de carga: Técnica de flujo arcoíris (ESTÉTICA ORIGINAL + RENDIMIENTO GPU) */
+.splash-subtitle {
+  color: rgba(255,255,255,0.35);
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(9px, 2.5vw, 11px);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  margin: 6px 0 0 0;
+}
+
+/* Barra de carga arcoíris */
 .splash-loader {
-  margin-top: 20px;
-  width: 200px; height: 6px;
-  background: rgba(255,255,255,0.08);
+  margin-top: 18px;
+  width: clamp(140px, 40vw, 200px);
+  height: 5px;
+  background: rgba(255,255,255,0.06);
   border-radius: 10px;
   overflow: hidden;
   position: relative;
-  margin-left: auto; margin-right: auto;
-  border: 1px solid rgba(255,255,255,0.15);
+  margin-left: auto;
+  margin-right: auto;
+  border: 1px solid rgba(255,255,255,0.12);
   transform: translate3d(0,0,0);
 }
 
 .splash-loader-bar {
   position: absolute;
   inset: 0;
-  width: 200%; height: 100%; /* Doble de ancho para el flujo infinito */
-  /* Degradado arcoíris vibrante y repetido para el flujo */
-  background: linear-gradient(90deg, #FF2D78, #4D9FFF, #a855f7, #FF2D78, #4D9FFF, #a855f7, #FF2D78) !important;
-  box-shadow: 0 0 20px rgba(255, 45, 120, 0.8);
-  /* Animación de flujo usando translate3d: la más fluida y bonita */
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(90deg, #FF2D78, #4D9FFF, #a855f7, #00F3FF, #FF2D78, #4D9FFF, #a855f7) !important;
+  box-shadow: 0 0 20px rgba(255, 45, 120, 0.7);
   animation: loading-bar-flow 2s linear infinite !important;
   will-change: transform;
   transform: translate3d(-50%, 0, 0);
