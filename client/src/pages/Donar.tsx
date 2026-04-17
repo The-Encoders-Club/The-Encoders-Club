@@ -94,7 +94,7 @@ export default function Donar() {
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
 
-      {/* Hero Section - Mejorado */}
+      {/* Hero Section */}
       <section className="pt-32 pb-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-[#FF2D78]/8 via-transparent to-[#4D9FFF]/5 pointer-events-none" />
         <div className="absolute top-20 right-1/3 w-96 h-96 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none animate-pulse" />
@@ -102,7 +102,6 @@ export default function Donar() {
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Left: Content */}
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -124,7 +123,6 @@ export default function Donar() {
                 Tu contribución nos ayuda a mantener la plataforma, crear nuevos cursos y proyectos, y mantener una comunidad vibrante para todos los amantes de las novelas visuales.
               </p>
 
-              {/* Impact Stats */}
               <div className="grid grid-cols-2 gap-4 mb-8">
                 {impactStats.map((stat, i) => {
                   const Icon = stat.icon;
@@ -157,7 +155,6 @@ export default function Donar() {
               </motion.p>
             </motion.div>
 
-            {/* Right: Visual */}
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
@@ -253,7 +250,6 @@ export default function Donar() {
                     </>
                   )}
 
-                  {/* Icon */}
                   <div
                     className="w-14 h-14 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500"
                     style={{
@@ -264,7 +260,6 @@ export default function Donar() {
                     <Icon size={24} style={{ color: tier.color }} />
                   </div>
 
-                  {/* Price */}
                   <div className="mb-3">
                     <span className="text-4xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif", color: tier.color }}>
                       ${tier.amount}
@@ -279,7 +274,6 @@ export default function Donar() {
                     {tier.description}
                   </p>
 
-                  {/* Benefits */}
                   <ul className="space-y-3 mb-8 flex-grow">
                     {tier.benefits.map((benefit) => (
                       <li key={benefit} className="flex items-start gap-3 text-sm text-white/70">
@@ -414,40 +408,6 @@ export default function Donar() {
               </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/10 via-transparent to-[#4D9FFF]/10 pointer-events-none" />
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="glass-card p-12"
-          >
-            <Heart size={48} className="text-[#FF2D78] mx-auto mb-6" fill="currentColor" />
-            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Gracias por tu apoyo
-            </h2>
-            <p className="text-white/70 text-lg mb-8 max-w-2xl mx-auto">
-              Sin importar si donas o no, estamos agradecidos por ser parte de nuestra comunidad. Juntos estamos creando algo especial.
-            </p>
-            <motion.a
-              href={KOFI_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="btn-primary text-lg px-8 py-4 inline-flex items-center gap-2"
-            >
-              <Heart size={20} />
-              Apoyar Ahora
-              <ExternalLink size={18} />
-            </motion.a>
-          </motion.div>
         </div>
       </section>
 
