@@ -4,8 +4,6 @@
    ============================================================ */
 import { motion } from "framer-motion";
 import { Calendar, Tag, ArrowRight, ChevronRight } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
 import { toast } from "sonner";
 
 const allNews = [
@@ -83,7 +81,6 @@ export default function Noticias() {
 
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
-      <Navbar />
 
       {/* Page Header */}
       <section className="pt-32 pb-16 relative overflow-hidden">
@@ -221,7 +218,6 @@ export default function Noticias() {
         </div>
       </section>
 
-      <Footer />
     </div>
   );
 }
