@@ -1,61 +1,96 @@
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
+
+// OPTIMIZACIÓN: Reemplaza la versión original basada en framer-motion.
+// Esta versión usa solo animaciones CSS (cero JavaScript por frame),
+// lo que elimina el layout thrash y los repaints en móviles de gama baja.
+
+const PARTICLE_COUNT = 16;
 
 export default function BackgroundParticles() {
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number; size: number; duration: number; delay: number }[]>([]);
-
-  useEffect(() => {
-    // Reducir partículas en dispositivos móviles para mejor rendimiento
-    const isMobile = window.innerWidth < 768;
-    const particleCount = isMobile ? 4 : 12; // Aún más reducido para máximo rendimiento
-    
-    const newParticles = Array.from({ length: particleCount }).map((_, i) => ({
+  const particles = useMemo(() => {
+    return Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
       id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 1.5 + 0.4,
-      duration: Math.random() * 20 + 20, // Mucho más lento para menos CPU
-      delay: Math.random() * 3,
+      left: `${(i * 6.3) % 100}%`,
+      top: `${(i * 7.7) % 100}%`,
+      size: `${2 + (i % 4)}px`,
+      duration: `${7 + (i % 8)}s`,
+      delay: `${-(i * 0.65)}s`,
+      color:
+        i % 3 === 0
+          ? "rgba(255, 45, 120, 0.2)"
+          : i % 3 === 1
+          ? "rgba(77, 159, 255, 0.18)"
+          : "rgba(168, 85, 247, 0.15)",
     }));
-    setParticles(newParticles);
   }, []);
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" style={{ willChange: 'transform', contain: 'strict' }}>
+    <div
+      aria-hidden="true"
+      style={{
+        position: "fixed",
+        inset: 0,
+        pointerEvents: "none",
+        zIndex: 0,
+        overflow: "hidden",
+      }}
+    >
+      {/* Nebulosidades — compositing GPU, sin repaint */}
+      <div
+        className="animate-nebula"
+        style={{
+          position: "absolute",
+          top: "5%", left: "15%",
+          width: "45vw", height: "45vw",
+          borderRadius: "50%",
+          background: "radial-gradient(ellipse at center, rgba(255,45,120,0.07) 0%, transparent 70%)",
+          filter: "blur(50px)",
+          willChange: "opacity",
+        }}
+      />
+      <div
+        className="animate-nebula"
+        style={{
+          position: "absolute",
+          bottom: "10%", right: "8%",
+          width: "38vw", height: "38vw",
+          borderRadius: "50%",
+          background: "radial-gradient(ellipse at center, rgba(77,159,255,0.06) 0%, transparent 70%)",
+          filter: "blur(40px)",
+          animationDelay: "-4s",
+          willChange: "opacity",
+        }}
+      />
+      <div
+        className="animate-nebula"
+        style={{
+          position: "absolute",
+          top: "55%", left: "55%",
+          width: "28vw", height: "28vw",
+          borderRadius: "50%",
+          background: "radial-gradient(ellipse at center, rgba(168,85,247,0.05) 0%, transparent 70%)",
+          filter: "blur(35px)",
+          animationDelay: "-2s",
+          willChange: "opacity",
+        }}
+      />
+
+      {/* Partículas CSS-only — sin JS por frame */}
       {particles.map((p) => (
-        <motion.div
+        <div
           key={p.id}
-          initial={{ 
-            x: `${p.x}%`, 
-            y: `${p.y}%`, 
-            opacity: 0,
-            scale: 0 
-          }}
-          animate={{ 
-            y: [`${p.y}%`, `${p.y - 8}%`, `${p.y}%`],
-            x: [`${p.x}%`, `${p.x + 1}%`, `${p.x}%`],
-            opacity: [0, 0.15, 0],
-            scale: [0, 0.6, 0]
-          }}
-          transition={{ 
-            duration: p.duration, 
-            repeat: Infinity, 
-            delay: p.delay,
-            ease: "linear"
-          }}
-          viewport={{ once: false }}
-          className="absolute rounded-full bg-[#FF2D78]/10 blur-[0.3px] will-change-transform"
-          style={{ 
-            width: p.size, 
+          className="particle-dot"
+          style={{
+            left: p.left,
+            top: p.top,
+            width: p.size,
             height: p.size,
-            boxShadow: "0 0 2px rgba(255, 45, 120, 0.1)",
-            transform: 'translate3d(0, 0, 0)',
-            backfaceVisibility: 'hidden'
+            background: p.color,
+            animationDuration: p.duration,
+            animationDelay: p.delay,
           }}
         />
       ))}
-      
-      {/* Líneas decorativas - DESHABILITADAS para rendimiento móvil */}
     </div>
   );
 }
