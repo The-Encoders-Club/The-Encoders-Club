@@ -52,8 +52,9 @@ const MonikaProjectView: React.FC<ProjectViewProps> = ({ isOpen, onClose }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto monika-theme"
+        className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto monika-theme encoders-view-scroll" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
+        <style>{`.encoders-view-scroll::-webkit-scrollbar{display:none}`}</style>
         <div 
           className="fixed inset-0 z-0 opacity-100 pointer-events-none"
           style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, rgba(255, 45, 120, 0.15) 50%, rgba(10, 10, 26, 0.95) 100%)`, backgroundColor: '#0a0a1a' }}
