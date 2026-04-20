@@ -82,6 +82,7 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@cloudflare/next-on-pages": "^1"
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "bun-types": "^1.3.4",
@@ -89,7 +90,6 @@
     "eslint-config-next": "^16.1.1",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.3.5",
-    "@cloudflare/next-on-pages": "^1"
     "typescript": "^5"
   }
 }
