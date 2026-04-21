@@ -1,9 +1,9 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { reactions, comments } from '@/drizzle/schema';
-import { eq, and, sql } from 'drizzle-orm';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
-import { generateId } from '@/lib/auth';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -13,33 +13,23 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     const { id } = await params;
-    const d1 = getD1();
-    const db = getDb(d1);
 
-    // Check if reaction already exists
-    const existing = await db.select().from(reactions)
-      .where(and(
-        eq(reactions.userId, session.id),
-        eq(reactions.commentId, id),
-        eq(reactions.type, 'like'),
-      ))
-      .limit(1);
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
+    
+    const existing = await db.reaction.findUnique({
+      where: { userId_commentId_type: { userId: session.id, commentId: id, type: 'like' } },
+    });
 
-    if (existing[0]) {
-      // Unlike: remove reaction and decrement likes
-      await db.delete(reactions).where(eq(reactions.id, existing[0].id));
-      await db.run(sql`UPDATE comments SET likes = MAX(likes - 1, 0) WHERE id = ${id}`);
+    if (existing) {
+      await db.reaction.delete({ where: { id: existing.id } });
+      await db.comment.update({ where: { id }, data: { likes: { decrement: 1 } } });
       return NextResponse.json({ liked: false });
     } else {
-      // Like: add reaction and increment likes
-      await db.insert(reactions).values({
-        id: generateId(),
-        type: 'like',
-        userId: session.id,
-        commentId: id,
-        createdAt: new Date().toISOString(),
+      await db.reaction.create({
+        data: { userId: session.id, commentId: id, type: 'like' },
       });
-      await db.run(sql`UPDATE comments SET likes = likes + 1 WHERE id = ${id}`);
+      await db.comment.update({ where: { id }, data: { likes: { increment: 1 } } });
       return NextResponse.json({ liked: true });
     }
   } catch (error) {
