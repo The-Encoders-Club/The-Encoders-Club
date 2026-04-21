@@ -1,18 +1,19 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { users, activityLogs } from '@/drizzle/schema';
-import { eq } from 'drizzle-orm';
-import { hashPassword, generateId } from '@/lib/auth';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
+import { hashPassword } from '@/lib/auth';
 
 // Run once to create the owner account
 // POST with { nickname, password } to create owner
 export async function POST(request: NextRequest) {
   try {
-    const d1 = getD1();
-    const db = getDb(d1);
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
 
-    const existingOwner = await db.select().from(users).where(eq(users.role, 'owner')).limit(1);
-    if (existingOwner[0]) {
+    const existingOwner = await db.user.findFirst({ where: { role: 'owner' } });
+    if (existingOwner) {
       return NextResponse.json({ error: 'Owner already exists' }, { status: 400 });
     }
 
@@ -22,28 +23,21 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nickname and password required' }, { status: 400 });
     }
 
-    const passwordHash = await hashPassword(password);
-    const now = new Date().toISOString();
+    const user = await db.user.create({
+      data: {
+        nickname,
+        passwordHash: await hashPassword(password),
+        role: 'owner',
+        avatar: null,
+      },
+    });
 
-    const user = await db.insert(users).values({
-      id: generateId(),
-      nickname,
-      passwordHash,
-      role: 'owner',
-      avatar: null,
-      isPremium: false,
-      isBanned: false,
-      locale: 'es',
-      createdAt: now,
-      updatedAt: now,
-    }).returning().get();
-
-    await db.insert(activityLogs).values({
-      id: generateId(),
-      userId: user.id,
-      action: 'owner_created',
-      details: 'Owner account created via seed',
-      createdAt: now,
+    await db.activityLog.create({
+      data: {
+        userId: user.id,
+        action: 'owner_created',
+        details: 'Owner account created via seed',
+      },
     });
 
     return NextResponse.json({ success: true, userId: user.id });
