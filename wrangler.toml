@@ -12,7 +12,7 @@ pages_build_output_dir = ".vercel/output/static"
 [[d1_databases]]
 binding = "DB"
 database_name = "the-encoders-db"
-database_id = "placeholder-replace-with-real-d1-id"
+database_id = "62dd94a6-0e03-42fc-ba20-60e5726bf572"
 
 # ============================================================
 # Environment variables
