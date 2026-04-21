@@ -1,8 +1,9 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { users, activityLogs } from '@/drizzle/schema';
-import { eq } from 'drizzle-orm';
-import { hashPassword, isValidNickname, isValidPassword, checkRateLimit, generateId } from '@/lib/auth';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
+import { hashPassword, isValidNickname, isValidPassword, checkRateLimit } from '@/lib/auth';
 import { createSession } from '@/lib/session';
 import { getServerLocale } from '@/lib/i18n';
 
@@ -31,40 +32,35 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
     }
 
-    const d1 = getD1();
-    const db = getDb(d1);
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
 
-    const existingUser = await db.select().from(users).where(eq(users.nickname, nickname)).limit(1);
-    if (existingUser[0]) {
+    const existingUser = await db.user.findUnique({ where: { nickname } });
+    if (existingUser) {
       return NextResponse.json({ error: 'Nickname already taken' }, { status: 409 });
     }
 
     const passwordHash = await hashPassword(password);
     const userLocale = getServerLocale(request.headers);
-    const now = new Date().toISOString();
     
-    const user = await db.insert(users).values({
-      id: generateId(),
-      nickname,
-      email: null,
-      passwordHash,
-      locale: locale || userLocale,
-      avatar: null,
-      role: 'user',
-      isPremium: false,
-      isBanned: false,
-      createdAt: now,
-      updatedAt: now,
-    }).returning().get();
+    const user = await db.user.create({
+      data: {
+        nickname,
+        email: null,
+        passwordHash,
+        locale: locale || userLocale,
+        avatar: null,
+      },
+    });
 
     // Log activity
-    await db.insert(activityLogs).values({
-      id: generateId(),
-      userId: user.id,
-      action: 'register',
-      details: JSON.stringify({ nickname }),
-      ipAddress: ip,
-      createdAt: now,
+    await db.activityLog.create({
+      data: {
+        userId: user.id,
+        action: 'register',
+        details: JSON.stringify({ nickname }),
+        ipAddress: ip,
+      },
     });
 
     await createSession(user.id, remember || false);
