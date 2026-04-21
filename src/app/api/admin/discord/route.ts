@@ -1,9 +1,9 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { discordConfigs, activityLogs } from '@/drizzle/schema';
-import { eq } from 'drizzle-orm';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
-import { generateId } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -12,26 +12,12 @@ export async function GET() {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const d1 = getD1();
-    const db = getDb(d1);
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
 
-    let configResults = await db.select().from(discordConfigs).limit(1);
-    let config = configResults[0];
-
+    let config = await db.discordConfig.findFirst();
     if (!config) {
-      const now = new Date().toISOString();
-      config = await db.insert(discordConfigs).values({
-        id: generateId(),
-        botToken: null,
-        serverId: null,
-        channelId: null,
-        webhookUrl: null,
-        modRoleId: null,
-        adminRoleId: null,
-        collabRoleId: null,
-        createdAt: now,
-        updatedAt: now,
-      }).returning().get();
+      config = await db.discordConfig.create({ data: {} });
     }
 
     // Mask sensitive data
@@ -60,46 +46,36 @@ export async function PUT(request: NextRequest) {
     }
 
     const { botToken, serverId, channelId, webhookUrl, modRoleId, adminRoleId, collabRoleId } = await request.json();
-    
-    const d1 = getD1();
-    const db = getDb(d1);
-    const now = new Date().toISOString();
 
-    let configResults = await db.select().from(discordConfigs).limit(1);
-    const config = configResults[0];
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
+    
+    let config = await db.discordConfig.findFirst();
     
     if (config) {
-      const updateData: Record<string, any> = { updatedAt: now };
-      if (botToken !== undefined) updateData.botToken = botToken;
-      if (serverId !== undefined) updateData.serverId = serverId;
-      if (channelId !== undefined) updateData.channelId = channelId;
-      if (webhookUrl !== undefined) updateData.webhookUrl = webhookUrl;
-      if (modRoleId !== undefined) updateData.modRoleId = modRoleId;
-      if (adminRoleId !== undefined) updateData.adminRoleId = adminRoleId;
-      if (collabRoleId !== undefined) updateData.collabRoleId = collabRoleId;
-
-      await db.update(discordConfigs).set(updateData).where(eq(discordConfigs.id, config.id));
+      await db.discordConfig.update({
+        where: { id: config.id },
+        data: {
+          ...(botToken !== undefined ? { botToken } : {}),
+          ...(serverId !== undefined ? { serverId } : {}),
+          ...(channelId !== undefined ? { channelId } : {}),
+          ...(webhookUrl !== undefined ? { webhookUrl } : {}),
+          ...(modRoleId !== undefined ? { modRoleId } : {}),
+          ...(adminRoleId !== undefined ? { adminRoleId } : {}),
+          ...(collabRoleId !== undefined ? { collabRoleId } : {}),
+        },
+      });
     } else {
-      await db.insert(discordConfigs).values({
-        id: generateId(),
-        botToken: botToken || null,
-        serverId: serverId || null,
-        channelId: channelId || null,
-        webhookUrl: webhookUrl || null,
-        modRoleId: modRoleId || null,
-        adminRoleId: adminRoleId || null,
-        collabRoleId: collabRoleId || null,
-        createdAt: now,
-        updatedAt: now,
+      await db.discordConfig.create({
+        data: { botToken, serverId, channelId, webhookUrl, modRoleId, adminRoleId, collabRoleId },
       });
     }
 
-    // Log activity
-    await db.insert(activityLogs).values({
-      id: generateId(),
-      userId: session.id,
-      action: 'discord_config_update',
-      createdAt: now,
+    await db.activityLog.create({
+      data: {
+        userId: session.id,
+        action: 'discord_config_update',
+      },
     });
 
     return NextResponse.json({ success: true });
