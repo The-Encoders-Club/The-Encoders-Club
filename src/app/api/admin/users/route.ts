@@ -1,9 +1,9 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { users, comments, activityLogs } from '@/drizzle/schema';
-import { eq, desc, sql } from 'drizzle-orm';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
-import { generateId } from '@/lib/auth';
 
 export async function GET() {
   try {
@@ -12,37 +12,27 @@ export async function GET() {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const d1 = getD1();
-    const db = getDb(d1);
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
 
-    // Fetch users
-    const allUsers = await db.select({
-      id: users.id,
-      nickname: users.nickname,
-      email: users.email,
-      avatar: users.avatar,
-      role: users.role,
-      isPremium: users.isPremium,
-      isBanned: users.isBanned,
-      banReason: users.banReason,
-      discordLinked: users.discordLinked,
-      createdAt: users.createdAt,
-    }).from(users).orderBy(desc(users.createdAt));
+    const users = await db.user.findMany({
+      select: {
+        id: true,
+        nickname: true,
+        email: true,
+        avatar: true,
+        role: true,
+        isPremium: true,
+        isBanned: true,
+        banReason: true,
+        discordLinked: true,
+        createdAt: true,
+        _count: { select: { comments: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
 
-    // Fetch comment counts per user
-    const commentCounts = await db.select({
-      authorId: comments.authorId,
-      _count: sql<number>`count(*)`.as('count'),
-    }).from(comments).groupBy(comments.authorId);
-
-    const countMap = Object.fromEntries(commentCounts.map(c => [c.authorId, c._count]));
-
-    const result = allUsers.map(u => ({
-      ...u,
-      _count: { comments: countMap[u.id] || 0 },
-    }));
-
-    return NextResponse.json({ users: result });
+    return NextResponse.json({ users });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -56,12 +46,11 @@ export async function PUT(request: NextRequest) {
     }
 
     const { userId, role, isBanned, banReason } = await request.json();
-    
-    const d1 = getD1();
-    const db = getDb(d1);
 
-    const targetUserResults = await db.select().from(users).where(eq(users.id, userId)).limit(1);
-    const targetUser = targetUserResults[0];
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
+    
+    const targetUser = await db.user.findUnique({ where: { id: userId } });
     if (!targetUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
@@ -76,22 +65,22 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Cannot modify other admins' }, { status: 403 });
     }
 
-    const updateData: Record<string, any> = { updatedAt: new Date().toISOString() };
+    const updateData: any = {};
     if (role) updateData.role = role;
     if (isBanned !== undefined) {
       updateData.isBanned = isBanned;
       updateData.banReason = isBanned ? banReason || 'No reason specified' : null;
     }
 
-    await db.update(users).set(updateData).where(eq(users.id, userId));
+    await db.user.update({ where: { id: userId }, data: updateData });
 
     // Log activity
-    await db.insert(activityLogs).values({
-      id: generateId(),
-      userId: session.id,
-      action: 'admin_user_update',
-      details: JSON.stringify({ targetUserId: userId, changes: updateData }),
-      createdAt: new Date().toISOString(),
+    await db.activityLog.create({
+      data: {
+        userId: session.id,
+        action: 'admin_user_update',
+        details: JSON.stringify({ targetUserId: userId, changes: updateData }),
+      },
     });
 
     return NextResponse.json({ success: true });
