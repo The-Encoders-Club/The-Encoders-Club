@@ -1,9 +1,30 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { users } from '@/drizzle/schema';
-import { eq } from 'drizzle-orm';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
+/**
+ * Convert ArrayBuffer to Base64 string (Edge-compatible, no Node.js Buffer).
+ * Uses chunk-based processing to handle files up to 5MB without stack overflow.
+ */
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  const bytes = new Uint8Array(buffer);
+  const chunkSize = 0x8000; // 32KB chunks
+  const chunks: string[] = [];
+  for (let i = 0; i < bytes.length; i += chunkSize) {
+    const chunk = bytes.subarray(i, i + chunkSize);
+    chunks.push(String.fromCharCode.apply(null, Array.from(chunk)));
+  }
+  return btoa(chunks.join(''));
+}
+
+/**
+ * Upload avatar image — stores as base64 data URL in the database.
+ * On Cloudflare Pages there is no writable filesystem, so we store
+ * the image inline as a data URI instead of saving to public/avatars/.
+ */
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
@@ -13,39 +34,32 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const avatarFile = formData.get('avatar') as File;
-    
+
     if (!avatarFile) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
 
-    // Validate file type
+    // Validate file
     if (!avatarFile.type.startsWith('image/')) {
       return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
     }
-
-    // Limit to 500KB (Cloudflare Workers don't have filesystem)
-    const MAX_SIZE = 500 * 1024; // 500KB
-    if (avatarFile.size > MAX_SIZE) {
-      return NextResponse.json({ error: 'File must be less than 500KB' }, { status: 400 });
+    if (avatarFile.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File must be less than 5MB' }, { status: 400 });
     }
 
-    // Convert to base64 data URL
-    const arrayBuffer = await avatarFile.arrayBuffer();
-    const uint8Array = new Uint8Array(arrayBuffer);
-    let binary = '';
-    for (let i = 0; i < uint8Array.length; i++) {
-      binary += String.fromCharCode(uint8Array[i]);
-    }
-    const base64 = btoa(binary);
-    const dataUrl = `data:${avatarFile.type};base64,${base64}`;
+    const bytes = await avatarFile.arrayBuffer();
+    const base64 = arrayBufferToBase64(bytes);
+    const avatarUrl = `data:${avatarFile.type};base64,${base64}`;
 
-    const d1 = getD1();
-    const db = getDb(d1);
-    const now = new Date().toISOString();
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
 
-    await db.update(users).set({ avatar: dataUrl, updatedAt: now }).where(eq(users.id, session.id));
+    await db.user.update({
+      where: { id: session.id },
+      data: { avatar: avatarUrl },
+    });
 
-    return NextResponse.json({ success: true, avatar: dataUrl });
+    return NextResponse.json({ success: true, avatar: avatarUrl });
   } catch (error) {
     console.error('Avatar upload error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
