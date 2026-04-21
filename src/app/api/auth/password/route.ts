@@ -1,8 +1,9 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { users } from '@/drizzle/schema';
-import { eq } from 'drizzle-orm';
-import { hashPassword, verifyPassword, checkRateLimit, generateId } from '@/lib/auth';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
+import { hashPassword, verifyPassword, checkRateLimit } from '@/lib/auth';
 import { getSession } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
@@ -13,19 +14,19 @@ export async function POST(request: NextRequest) {
     }
 
     const { currentPassword, newPassword } = await request.json();
-    
-    const d1 = getD1();
-    const db = getDb(d1);
 
-    const userResults = await db.select().from(users).where(eq(users.id, session.id)).limit(1);
-    const user = userResults[0];
-    if (!user || !await verifyPassword(currentPassword, user.passwordHash)) {
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
+
+    const user = await db.user.findUnique({ where: { id: session.id } });
+    if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
       return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
     }
 
-    const passwordHash = await hashPassword(newPassword);
-    const now = new Date().toISOString();
-    await db.update(users).set({ passwordHash, updatedAt: now }).where(eq(users.id, session.id));
+    await db.user.update({
+      where: { id: session.id },
+      data: { passwordHash: await hashPassword(newPassword) },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
@@ -42,18 +43,18 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const d1 = getD1();
-    const db = getDb(d1);
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
 
-    const userResults = await db.select().from(users).where(eq(users.nickname, nickname)).limit(1);
-    const user = userResults[0];
+    const user = await db.user.findUnique({ where: { nickname } });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    const passwordHash = await hashPassword(newPassword);
-    const now = new Date().toISOString();
-    await db.update(users).set({ passwordHash, updatedAt: now }).where(eq(users.id, user.id));
+    await db.user.update({
+      where: { id: user.id },
+      data: { passwordHash: await hashPassword(newPassword) },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
