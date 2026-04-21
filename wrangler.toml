@@ -1,9 +1,27 @@
 name = "the-encoders-club"
-compatibility_date = "2024-12-01"
+compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".open-next"
+pages_build_output_dir = ".vercel/output/static"
 
+# ============================================================
+# D1 Database binding
+# Replace the database_id below with the real ID after running:
+#   wrangler d1 create the-encoders-db
+# The output of that command will show you the database_id.
+# ============================================================
 [[d1_databases]]
 binding = "DB"
-database_name = "encoders-club-db"
-database_id = "62dd94a6-0e03-42fc-ba20-60e5726bf572"
+database_name = "the-encoders-db"
+database_id = "placeholder-replace-with-real-d1-id"
+
+# ============================================================
+# Environment variables
+# ============================================================
+[vars]
+NODE_ENV = "production"
+
+# ============================================================
+# Static assets
+# ============================================================
+[site]
+bucket = ".vercel/output/static"
