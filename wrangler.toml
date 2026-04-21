@@ -7,13 +7,4 @@ compatibility_flags = ["nodejs_compat"]
 [[d1_databases]]
 binding = "DB"
 database_name = "encoders-club-db"
-database_id = "62dd94a6-0e03-42fc-ba20-60e5726bf572"
-
-# Assets
-[assets]
-directory = ".open-next/assets"
-binding = "ASSETS"
-
-# Site configuration
-[site]
-bucket = ".open-next/assets"
+database_id = "TU_DATABASE_ID_AQUI"
