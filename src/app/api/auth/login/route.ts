@@ -1,7 +1,8 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { users, activityLogs } from '@/drizzle/schema';
-import { eq } from 'drizzle-orm';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
 import { verifyPassword, checkRateLimit } from '@/lib/auth';
 import { createSession } from '@/lib/session';
 
@@ -18,13 +19,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nickname and password are required' }, { status: 400 });
     }
 
-    const d1 = getD1();
-    const db = getDb(d1);
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
 
-    const userResults = await db.select().from(users).where(eq(users.nickname, nickname)).limit(1);
-    const user = userResults[0];
+    const user = await db.user.findUnique({ where: { nickname } });
     
-    if (!user || !await verifyPassword(password, user.passwordHash)) {
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
@@ -33,13 +33,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Log activity
-    const now = new Date().toISOString();
-    await db.insert(activityLogs).values({
-      id: (await import('@/lib/auth')).generateId(),
-      userId: user.id,
-      action: 'login',
-      ipAddress: ip,
-      createdAt: now,
+    await db.activityLog.create({
+      data: {
+        userId: user.id,
+        action: 'login',
+        ipAddress: ip,
+      },
     });
 
     await createSession(user.id, remember || false);
