@@ -1,7 +1,8 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { comments } from '@/drizzle/schema';
-import { eq, sql } from 'drizzle-orm';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -12,11 +13,14 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     const { id } = await params;
-    const d1 = getD1();
-    const db = getDb(d1);
-    const now = new Date().toISOString();
 
-    await db.run(sql`UPDATE comments SET report_count = report_count + 1, is_reported = 1, updated_at = ${now} WHERE id = ${id}`);
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
+    
+    await db.comment.update({
+      where: { id },
+      data: { reportCount: { increment: 1 }, isReported: true },
+    });
 
     return NextResponse.json({ success: true });
   } catch (error) {
