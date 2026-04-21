@@ -1,7 +1,8 @@
+export const runtime = 'edge';
+
 import { NextRequest, NextResponse } from 'next/server';
-import { getD1, getDb } from '@/lib/db';
-import { notifications } from '@/drizzle/schema';
-import { eq, and, desc, sql } from 'drizzle-orm';
+import { getRequestContext } from '@cloudflare/next-on-pages/worker';
+import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function GET() {
@@ -11,22 +12,20 @@ export async function GET() {
       return NextResponse.json({ notifications: [] });
     }
 
-    const d1 = getD1();
-    const db = getDb(d1);
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
 
-    const [notificationList, unreadResult] = await Promise.all([
-      db.select().from(notifications)
-        .where(eq(notifications.userId, session.id))
-        .orderBy(desc(notifications.createdAt))
-        .limit(50),
-      db.select({ count: sql<number>`count(*)` })
-        .from(notifications)
-        .where(and(eq(notifications.userId, session.id), eq(notifications.isRead, false))),
-    ]);
+    const notifications = await db.notification.findMany({
+      where: { userId: session.id },
+      orderBy: { createdAt: 'desc' },
+      take: 50,
+    });
 
-    const unreadCount = unreadResult[0].count;
+    const unreadCount = await db.notification.count({
+      where: { userId: session.id, isRead: false },
+    });
 
-    return NextResponse.json({ notifications: notificationList, unreadCount });
+    return NextResponse.json({ notifications, unreadCount });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -40,18 +39,20 @@ export async function PUT(request: NextRequest) {
     }
 
     const { notificationId, markAllRead } = await request.json();
-    
-    const d1 = getD1();
-    const db = getDb(d1);
+
+    const { env } = getRequestContext();
+    const db = getDb(env.DB);
 
     if (markAllRead) {
-      await db.update(notifications)
-        .set({ isRead: true })
-        .where(and(eq(notifications.userId, session.id), eq(notifications.isRead, false)));
+      await db.notification.updateMany({
+        where: { userId: session.id, isRead: false },
+        data: { isRead: true },
+      });
     } else if (notificationId) {
-      await db.update(notifications)
-        .set({ isRead: true })
-        .where(eq(notifications.id, notificationId));
+      await db.notification.update({
+        where: { id: notificationId },
+        data: { isRead: true },
+      });
     }
 
     return NextResponse.json({ success: true });
