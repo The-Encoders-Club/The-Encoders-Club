@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "wrangler pages dev --compatibility-flags=nodejs_compat --d1=DB=the-encoders-db -- npx next dev -p 3000",
-    "build": "npx @cloudflare/next-on-pages",
+    "build": "next build",
     "preview": "npx @cloudflare/next-on-pages && wrangler pages dev .vercel/output/static --compatibility-flags=nodejs_compat --d1=DB=the-encoders-db",
     "deploy": "npx @cloudflare/next-on-pages && wrangler pages deploy .vercel/output/static",
     "lint": "eslint .",
