@@ -1,30 +1,9 @@
-export const runtime = 'edge';
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequestContext } from '@cloudflare/next-on-pages/worker';
-import { getDb } from '@/lib/db';
+import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
+import { writeFile, mkdir } from 'fs/promises';
+import path from 'path';
 
-/**
- * Convert ArrayBuffer to Base64 string (Edge-compatible, no Node.js Buffer).
- * Uses chunk-based processing to handle files up to 5MB without stack overflow.
- */
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  const chunkSize = 0x8000; // 32KB chunks
-  const chunks: string[] = [];
-  for (let i = 0; i < bytes.length; i += chunkSize) {
-    const chunk = bytes.subarray(i, i + chunkSize);
-    chunks.push(String.fromCharCode.apply(null, Array.from(chunk)));
-  }
-  return btoa(chunks.join(''));
-}
-
-/**
- * Upload avatar image — stores as base64 data URL in the database.
- * On Cloudflare Pages there is no writable filesystem, so we store
- * the image inline as a data URI instead of saving to public/avatars/.
- */
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
@@ -34,7 +13,7 @@ export async function POST(request: NextRequest) {
 
     const formData = await request.formData();
     const avatarFile = formData.get('avatar') as File;
-
+    
     if (!avatarFile) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 });
     }
@@ -48,12 +27,17 @@ export async function POST(request: NextRequest) {
     }
 
     const bytes = await avatarFile.arrayBuffer();
-    const base64 = arrayBufferToBase64(bytes);
-    const avatarUrl = `data:${avatarFile.type};base64,${base64}`;
+    const buffer = Buffer.from(bytes);
+    
+    const uploadsDir = path.join(process.cwd(), 'public', 'avatars');
+    await mkdir(uploadsDir, { recursive: true });
+    
+    const fileName = `${session.id}-${Date.now()}.webp`;
+    const filePath = path.join(uploadsDir, fileName);
+    await writeFile(filePath, buffer);
 
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
-
+    const avatarUrl = `/avatars/${fileName}`;
+    
     await db.user.update({
       where: { id: session.id },
       data: { avatar: avatarUrl },
