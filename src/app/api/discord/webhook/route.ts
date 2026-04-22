@@ -1,16 +1,10 @@
-export const runtime = 'edge';
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequestContext } from '@cloudflare/next-on-pages/worker';
-import { getDb } from '@/lib/db';
+import { db } from '@/lib/db';
 
 // This endpoint receives webhook notifications from Discord bot
 export async function POST(request: NextRequest) {
   try {
     const { type, data } = await request.json();
-
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
     
     if (type === 'role_sync') {
       const { discordId, roles } = data;
