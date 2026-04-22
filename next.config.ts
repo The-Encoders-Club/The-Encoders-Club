@@ -8,6 +8,8 @@ const nextConfig: NextConfig = {
     ignoreDuringBuilds: true,
   },
   reactStrictMode: false,
+  // Cloudflare Pages requiere que el runtime sea compatible con Edge
+  // para funciones dinámicas y API routes.
 };
 
 export default nextConfig;
