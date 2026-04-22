@@ -1,93 +1,28 @@
-// ============================================================
-// Edge-compatible auth utilities using Web Crypto API
-// Replaces Node.js 'crypto' module for Cloudflare Workers/Pages
-// ============================================================
+import crypto from 'crypto';
 
-// Convert hex string to ArrayBuffer
-function hexToArrayBuffer(hex: string): ArrayBuffer {
-  const bytes = new Uint8Array(hex.length / 2);
-  for (let i = 0; i < hex.length; i += 2) {
-    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
-  }
-  return bytes.buffer;
+// Hash password with salt
+export function hashPassword(password: string): string {
+  const salt = crypto.randomBytes(16).toString('hex');
+  const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  return `${salt}:${hash}`;
 }
 
-// Convert ArrayBuffer to hex string
-function arrayBufferToHex(buffer: ArrayBuffer): string {
-  return Array.from(new Uint8Array(buffer))
-    .map((b) => b.toString(16).padStart(2, '0'))
-    .join('');
+// Verify password
+export function verifyPassword(password: string, hashedPassword: string): boolean {
+  const [salt, hash] = hashedPassword.split(':');
+  if (!salt || !hash) return false;
+  const verify = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+  return hash === verify;
 }
 
-// Hash password with salt using Web Crypto PBKDF2 (async)
-// Maintains backward compatibility with existing salt:hash format
-export async function hashPassword(password: string): Promise<string> {
-  const salt = new Uint8Array(16);
-  crypto.getRandomValues(salt);
-
-  const encoder = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(password),
-    'PBKDF2',
-    false,
-    ['deriveBits'],
-  );
-
-  const derivedBits = await crypto.subtle.deriveBits(
-    {
-      name: 'PBKDF2',
-      salt: salt,
-      iterations: 10000,
-      hash: 'SHA-512',
-    },
-    keyMaterial,
-    512, // 512 bits = 64 bytes (same as the original crypto.pbkdf2Sync with 64)
-  );
-
-  return `${arrayBufferToHex(salt)}:${arrayBufferToHex(derivedBits)}`;
-}
-
-// Verify password using Web Crypto PBKDF2 (async)
-export async function verifyPassword(password: string, hashedPassword: string): Promise<boolean> {
-  const [saltHex, hashHex] = hashedPassword.split(':');
-  if (!saltHex || !hashHex) return false;
-
-  const encoder = new TextEncoder();
-  const keyMaterial = await crypto.subtle.importKey(
-    'raw',
-    encoder.encode(password),
-    'PBKDF2',
-    false,
-    ['deriveBits'],
-  );
-
-  const derivedBits = await crypto.subtle.deriveBits(
-    {
-      name: 'PBKDF2',
-      salt: hexToArrayBuffer(saltHex),
-      iterations: 10000,
-      hash: 'SHA-512',
-    },
-    keyMaterial,
-    512,
-  );
-
-  return hashHex === arrayBufferToHex(derivedBits);
-}
-
-// Generate remember token using Web Crypto (sync - Edge compatible)
+// Generate remember token
 export function generateRememberToken(): string {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return arrayBufferToHex(bytes.buffer);
+  return crypto.randomBytes(32).toString('hex');
 }
 
-// Generate session token using Web Crypto (sync - Edge compatible)
+// Generate session token
 export function generateSessionToken(): string {
-  const bytes = new Uint8Array(32);
-  crypto.getRandomValues(bytes);
-  return arrayBufferToHex(bytes.buffer);
+  return crypto.randomBytes(32).toString('hex');
 }
 
 // Simple spam check - validate nickname
