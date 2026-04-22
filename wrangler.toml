@@ -1,13 +1,12 @@
 name = "the-encoders-club"
-type = "javascript"
-main = "src/index.ts"
+pages_build_output_dir = ".next"
 compatibility_date = "2024-04-21"
 
 # Configuración de D1 Database
 [[d1_databases]]
 binding = "DB"
 database_name = "encoders-db"
-database_id = "your-database-id-here"
+database_id = "62dd94a6-0e03-42fc-ba20-60e5726bf572"
 
 # Variables de entorno
 [env.production]
