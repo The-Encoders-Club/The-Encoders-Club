@@ -1,8 +1,5 @@
-export const runtime = 'edge';
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequestContext } from '@cloudflare/next-on-pages/worker';
-import { getDb } from '@/lib/db';
+import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { checkRateLimit } from '@/lib/auth';
 
@@ -23,9 +20,6 @@ export async function GET(request: NextRequest) {
     if (!targetId) {
       return NextResponse.json({ error: 'targetId is required' }, { status: 400 });
     }
-
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
 
     const comments = await db.comment.findMany({
       where: {
@@ -80,9 +74,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Comment contains prohibited content' }, { status: 400 });
     }
 
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
-
     const comment = await db.comment.create({
       data: {
         content,
@@ -121,9 +112,6 @@ export async function DELETE(request: NextRequest) {
 
     const { commentId } = await request.json();
     
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
-
     await db.comment.update({
       where: { id: commentId },
       data: { isDeleted: true },
