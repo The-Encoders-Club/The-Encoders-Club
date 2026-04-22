@@ -1,6 +1,5 @@
 import { cookies } from 'next/headers';
-import { getRequestContext } from '@cloudflare/next-on-pages/worker';
-import { getDb } from './db';
+import { db } from './db';
 import { verifyPassword } from './auth';
 
 export interface SessionUser {
@@ -17,13 +16,10 @@ export async function getSession(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('session')?.value;
   const rememberToken = cookieStore.get('remember_token')?.value;
-
+  
   if (!sessionId && !rememberToken) return null;
-
+  
   try {
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
-
     let user;
     if (rememberToken) {
       user = await db.user.findUnique({ where: { rememberToken } });
@@ -31,9 +27,9 @@ export async function getSession(): Promise<SessionUser | null> {
       // For session-based auth, we store userId in session cookie
       user = await db.user.findUnique({ where: { id: sessionId } });
     }
-
+    
     if (!user || user.isBanned) return null;
-
+    
     return {
       id: user.id,
       nickname: user.nickname,
@@ -50,29 +46,25 @@ export async function getSession(): Promise<SessionUser | null> {
 
 export async function createSession(userId: string, remember: boolean = false): Promise<void> {
   const cookieStore = await cookies();
-
+  
   if (remember) {
     const token = (await import('./auth')).generateRememberToken();
-
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
     await db.user.update({ where: { id: userId }, data: { rememberToken: token } });
-
-    cookieStore.set('remember_token', token, {
-      httpOnly: true,
-      secure: true,
+    cookieStore.set('remember_token', token, { 
+      httpOnly: true, 
+      secure: false, // set to true in production
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 365, // 1 year
-      path: '/',
+      path: '/' 
     });
   }
-
-  cookieStore.set('session', userId, {
-    httpOnly: true,
-    secure: true,
+  
+  cookieStore.set('session', userId, { 
+    httpOnly: true, 
+    secure: false,
     sameSite: 'lax',
     maxAge: remember ? 60 * 60 * 24 * 365 : 60 * 60 * 24, // 1 year or 1 day
-    path: '/',
+    path: '/' 
   });
 }
 
