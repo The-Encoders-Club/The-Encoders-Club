@@ -2,7 +2,8 @@ name = "the-encoders-club"
 pages_build_output_dir = ".next"
 compatibility_date = "2024-04-21"
 
+# Esta sección vincula tu base de datos D1 con el código de Next.js
 [[d1_databases]]
-binding = "DB"
+binding = "DB" # Este nombre DEBE coincidir con el que pongas en Settings > Functions > D1 Bindings
 database_name = "encoders-db"
-database_id = "62dd94a6-0e03-42fc-ba20-60e5726bf572"
+database_id = "62dd94a6-0e03-42fc-ba20-60e5726bf572" # Asegúrate de que este ID sea el de tu base de datos en Cloudflare
