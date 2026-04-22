@@ -1,8 +1,5 @@
-export const runtime = 'edge';
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequestContext } from '@cloudflare/next-on-pages/worker';
-import { getDb } from '@/lib/db';
+import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function GET() {
@@ -11,9 +8,6 @@ export async function GET() {
     if (!session) {
       return NextResponse.json({ notifications: [] });
     }
-
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
 
     const notifications = await db.notification.findMany({
       where: { userId: session.id },
@@ -39,10 +33,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const { notificationId, markAllRead } = await request.json();
-
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
-
+    
     if (markAllRead) {
       await db.notification.updateMany({
         where: { userId: session.id, isRead: false },
