@@ -2,26 +2,7 @@ name = "the-encoders-club"
 pages_build_output_dir = ".next"
 compatibility_date = "2024-04-21"
 
-# Configuración de D1 Database
 [[d1_databases]]
 binding = "DB"
 database_name = "encoders-db"
 database_id = "62dd94a6-0e03-42fc-ba20-60e5726bf572"
-
-# Variables de entorno
-[env.production]
-vars = { ENVIRONMENT = "production" }
-
-[env.development]
-vars = { ENVIRONMENT = "development" }
-
-# Configuración de compilación
-[build]
-command = "npm run build"
-cwd = "./"
-watch_paths = ["src/**/*.ts", "src/**/*.tsx"]
-
-# Configuración de rutas
-[routes]
-pattern = "example.com/*"
-zone_name = "example.com"
