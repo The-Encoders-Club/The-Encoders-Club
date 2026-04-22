@@ -1,8 +1,5 @@
-export const runtime = 'edge';
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequestContext } from '@cloudflare/next-on-pages/worker';
-import { getDb } from '@/lib/db';
+import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function GET(request: NextRequest) {
@@ -11,9 +8,6 @@ export async function GET(request: NextRequest) {
     if (!session) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
-
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
 
     const user = await db.user.findUnique({
       where: { id: session.id },
@@ -49,9 +43,6 @@ export async function PUT(request: NextRequest) {
     }
 
     const { nickname, email, locale, avatar } = await request.json();
-
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
     
     if (nickname) {
       const existing = await db.user.findFirst({ where: { nickname, NOT: { id: session.id } } });
