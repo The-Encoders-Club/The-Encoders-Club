@@ -1,15 +1,19 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  // Cloudflare Pages compatibility — do NOT use "standalone" output
-  // @cloudflare/next-on-pages handles the build output format.
+  output: "standalone",
+  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
   reactStrictMode: false,
-  // Allow images from external domains if needed
-  images: {
-    unoptimized: true,
+  // Configuración para Cloudflare Pages
+  experimental: {
+    runtime: "nodejs",
+  },
+  // Asegurarse de que las variables de entorno se pasen correctamente
+  env: {
+    DATABASE_URL: process.env.DATABASE_URL,
   },
 };
 
