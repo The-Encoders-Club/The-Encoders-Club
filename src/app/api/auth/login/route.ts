@@ -1,8 +1,5 @@
-export const runtime = 'edge';
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequestContext } from '@cloudflare/next-on-pages/worker';
-import { getDb } from '@/lib/db';
+import { db } from '@/lib/db';
 import { verifyPassword, checkRateLimit } from '@/lib/auth';
 import { createSession } from '@/lib/session';
 
@@ -19,12 +16,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nickname and password are required' }, { status: 400 });
     }
 
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
-
     const user = await db.user.findUnique({ where: { nickname } });
     
-    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+    if (!user || !verifyPassword(password, user.passwordHash)) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
