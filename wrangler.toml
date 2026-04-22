@@ -1,18 +1,28 @@
 name = "the-encoders-club"
-compatibility_date = "2024-09-23"
-compatibility_flags = ["nodejs_compat"]
-pages_build_output_dir = ".vercel/output/static"
+type = "javascript"
+main = "src/index.ts"
+compatibility_date = "2024-04-21"
 
-# ============================================================
-# D1 Database binding
-# ============================================================
+# Configuración de D1 Database
 [[d1_databases]]
 binding = "DB"
-database_name = "the-encoders-db"
-database_id = "62dd94a6-0e03-42fc-ba20-60e5726bf572"
+database_name = "encoders-db"
+database_id = "your-database-id-here"
 
-# ============================================================
-# Environment variables
-# ============================================================
-[vars]
-NODE_ENV = "production"
+# Variables de entorno
+[env.production]
+vars = { ENVIRONMENT = "production" }
+
+[env.development]
+vars = { ENVIRONMENT = "development" }
+
+# Configuración de compilación
+[build]
+command = "npm run build"
+cwd = "./"
+watch_paths = ["src/**/*.ts", "src/**/*.tsx"]
+
+# Configuración de rutas
+[routes]
+pattern = "example.com/*"
+zone_name = "example.com"
