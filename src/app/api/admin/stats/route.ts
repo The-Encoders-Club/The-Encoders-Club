@@ -1,8 +1,5 @@
-export const runtime = 'edge';
-
 import { NextResponse } from 'next/server';
-import { getRequestContext } from '@cloudflare/next-on-pages/worker';
-import { getDb } from '@/lib/db';
+import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function GET() {
@@ -11,9 +8,6 @@ export async function GET() {
     if (!session || !['admin', 'owner'].includes(session.role)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
-
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
 
     const [
       totalUsers,
