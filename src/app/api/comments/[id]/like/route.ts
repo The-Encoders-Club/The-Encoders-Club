@@ -1,8 +1,5 @@
-export const runtime = 'edge';
-
 import { NextRequest, NextResponse } from 'next/server';
-import { getRequestContext } from '@cloudflare/next-on-pages/worker';
-import { getDb } from '@/lib/db';
+import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -13,9 +10,6 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     const { id } = await params;
-
-    const { env } = getRequestContext();
-    const db = getDb(env.DB);
     
     const existing = await db.reaction.findUnique({
       where: { userId_commentId_type: { userId: session.id, commentId: id, type: 'like' } },
