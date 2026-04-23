@@ -1,4 +1,4 @@
-name = "the-encoders-club"
+name = "theencodersclub"
 main = ".open-next/worker.js"
 compatibility_date = "2025-03-25"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
