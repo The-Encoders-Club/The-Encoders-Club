@@ -1,0 +1,26 @@
+name = "the-encoders-club"
+main = ".open-next/worker.js"
+compatibility_date = "2025-03-25"
+compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+
+[assets]
+binding = "ASSETS"
+directory = ".open-next/assets"
+
+[observability]
+enabled = true
+
+# D1 SQLite database binding
+# After creating the DB with `wrangler d1 create encoders-db`,
+# Cloudflare will print the `database_id` — paste it here OR set it
+# in the Cloudflare dashboard (Workers > Settings > Bindings).
+[[d1_databases]]
+binding = "DB"
+database_name = "encoders-db"
+database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+migrations_dir = "migrations"
+
+# Public env vars (non-secret). Set NEXTAUTH_URL etc. in the dashboard
+# (Workers > Settings > Variables) so each environment has its own value.
+[vars]
+NODE_ENV = "production"
