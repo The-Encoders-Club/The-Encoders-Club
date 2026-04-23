@@ -9,7 +9,6 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   transpilePackages: ["framer-motion", "motion-dom", "motion-utils"],
-  serverExternalPackages: ["@prisma/client", "@prisma/adapter-d1"],
 };
 
 if (process.env.OPENNEXT_DEV === "1") {
