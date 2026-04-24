@@ -28,21 +28,31 @@ function getPrisma(): PrismaClient {
 }
 
 /**
- * Devuelve un PrismaClient listo para usar dentro del Worker.
- * Todas las rutas API (`/api/**`) la importan como:
- *   import { createDb } from '@/lib/db';
- *   const db = createDb();
+ * Crea/obtiene una instancia de PrismaClient para el contexto actual.
+ *
+ * Usa un Proxy para lazy-initialization: la conexión real a D1 se crea
+ * la primera vez que se accede a cualquier propiedad del cliente.
+ * Las llamadas subsiguientes reutilizarán el mismo cliente (cached via WeakMap).
  */
 export function createDb(): PrismaClient {
-  return getPrisma();
+  return new Proxy({} as PrismaClient, {
+    get(_t, prop) {
+      const client = getPrisma() as unknown as Record<string | symbol, unknown>;
+      const value = client[prop];
+      return typeof value === "function"
+        ? (value as Function).bind(client)
+        : value;
+    },
+  });
 }
 
-// Proxy por conveniencia: permite usar `db.user.create(...)` directamente
-// sin llamar a createDb() primero.
+// Exportación directa para quien prefiera `import { db }` en vez de `createDb()`.
 export const db = new Proxy({} as PrismaClient, {
   get(_t, prop) {
     const client = getPrisma() as unknown as Record<string | symbol, unknown>;
     const value = client[prop];
-    return typeof value === "function" ? (value as Function).bind(client) : value;
+    return typeof value === "function"
+      ? (value as Function).bind(client)
+      : value;
   },
 });
