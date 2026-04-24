@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function GET(request: NextRequest) {
@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
     }
 
+    const db = createDb();
     const user = await db.user.findUnique({
       where: { id: session.id },
       select: {
@@ -44,6 +45,7 @@ export async function PUT(request: NextRequest) {
 
     const { nickname, email, locale, avatar } = await request.json();
     
+    const db = createDb();
     if (nickname) {
       const existing = await db.user.findFirst({ where: { nickname, NOT: { id: session.id } } });
       if (existing) {
