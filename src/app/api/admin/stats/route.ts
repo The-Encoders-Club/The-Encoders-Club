@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function GET() {
@@ -9,6 +9,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    const db = createDb();
     const [
       totalUsers,
       totalComments,
@@ -22,7 +23,7 @@ export async function GET() {
       db.comment.count({ where: { isDeleted: false } }),
       db.donation.count(),
       db.user.findMany({ orderBy: { createdAt: 'desc' }, take: 10, select: { id: true, nickname: true, avatar: true, role: true, createdAt: true } }),
-      db.comment.findMany({ where: { isDeleted: false }, orderBy: { createdAt: 'desc' }, take: 10, include: { author: { select: { nickname: true } } } }),
+      db.comment.findMany({ where: { isDeleted: false }, orderBy: { createdAt: 'desc' }, include: { author: { select: { nickname: true } } } }),
       db.activityLog.findMany({ orderBy: { createdAt: 'desc' }, take: 20, include: { user: { select: { nickname: true } } } }),
       db.donation.findMany({ orderBy: { createdAt: 'desc' }, take: 20 }),
     ]);
