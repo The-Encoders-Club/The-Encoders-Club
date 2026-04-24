@@ -1,6 +1,5 @@
 import { cookies } from 'next/headers';
-import { db } from './db';
-import { verifyPassword } from './auth';
+import { createDb } from './db';
 
 export interface SessionUser {
   id: string;
@@ -20,6 +19,7 @@ export async function getSession(): Promise<SessionUser | null> {
   if (!sessionId && !rememberToken) return null;
   
   try {
+    const db = createDb();
     let user;
     if (rememberToken) {
       user = await db.user.findUnique({ where: { rememberToken } });
@@ -48,7 +48,9 @@ export async function createSession(userId: string, remember: boolean = false): 
   const cookieStore = await cookies();
   
   if (remember) {
-    const token = (await import('./auth')).generateRememberToken();
+    const { generateRememberToken } = await import('./auth');
+    const token = generateRememberToken();
+    const db = createDb();
     await db.user.update({ where: { id: userId }, data: { rememberToken: token } });
     cookieStore.set('remember_token', token, { 
       httpOnly: true, 
