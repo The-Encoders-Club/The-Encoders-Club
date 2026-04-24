@@ -9,10 +9,12 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   transpilePackages: ["framer-motion", "motion-dom", "motion-utils"],
-  serverExternalPackages: ["@prisma/client", "@prisma/adapter-d1"],
 };
 
-// OpenNext Cloudflare dev initialization moved to separate logic 
-// to avoid importing @opennextjs/cloudflare in the Worker build.
+if (process.env.OPENNEXT_DEV === "1") {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { initOpenNextCloudflareForDev } = require("@opennextjs/cloudflare");
+  initOpenNextCloudflareForDev();
+}
 
 export default nextConfig;
