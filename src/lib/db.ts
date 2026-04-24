@@ -35,3 +35,11 @@ export const db = new Proxy({} as PrismaClient, {
     return typeof value === "function" ? (value as Function).bind(client) : value;
   },
 });
+
+/**
+ * createDb() — alias de compatibilidad para todas las rutas que importan
+ * `{ createDb }` de '@/lib/db'. Devuelve el mismo PrismaClient que `db`.
+ */
+export function createDb(): PrismaClient {
+  return getPrisma();
+}
