@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { getSession } from '@/lib/session';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 
 export async function POST(request: NextRequest) {
   try {
@@ -28,15 +26,20 @@ export async function POST(request: NextRequest) {
 
     const bytes = await avatarFile.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    
-    const uploadsDir = path.join(process.cwd(), 'public', 'avatars');
-    await mkdir(uploadsDir, { recursive: true });
-    
-    const fileName = `${session.id}-${Date.now()}.webp`;
-    const filePath = path.join(uploadsDir, fileName);
-    await writeFile(filePath, buffer);
 
-    const avatarUrl = `/avatars/${fileName}`;
+    // In Cloudflare Workers, we cannot write to the filesystem.
+    // Instead, we store the avatar as a base64 data URL directly in the database,
+    // or return the base64 to the client. For a production app, consider using
+    // Cloudflare R2 for file storage.
+    const allowedTypes: Record<string, string> = {
+      'image/jpeg': 'image/jpeg',
+      'image/png': 'image/png',
+      'image/webp': 'image/webp',
+      'image/gif': 'image/gif',
+    };
+    const mimeType = allowedTypes[avatarFile.type] || 'image/jpeg';
+    const base64 = buffer.toString('base64');
+    const avatarUrl = `data:${mimeType};base64,${base64}`;
     
     await db.user.update({
       where: { id: session.id },
