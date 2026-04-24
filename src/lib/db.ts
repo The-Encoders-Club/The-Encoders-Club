@@ -1,41 +1,37 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from "@/generated/prisma/client";
+import { PrismaD1 } from "@prisma/adapter-d1";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
-/**
- * Creates a fresh PrismaClient for each request.
- *
- * IMPORTANT — Cloudflare Workers restriction:
- * D1 bindings are scoped to a single request. A PrismaClient (and its
- * underlying D1 adapter) MUST NOT be shared across requests. Using a
- * global/singleton client causes the runtime error:
- *   "Cannot perform I/O on behalf of a different request."
- *
- * For local development (no Cloudflare context) we fall back to the
- * standard PrismaClient which reads DATABASE_URL from the environment.
- */
-export function createDb(): PrismaClient {
+// Cachea un PrismaClient por instancia de `env` de Cloudflare.
+const clientCache = new WeakMap<object, PrismaClient>();
+
+function getPrisma(): PrismaClient {
+  let env: CloudflareEnv | undefined;
   try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { getCloudflareContext } = require("@opennextjs/cloudflare");
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { PrismaD1 } = require("@prisma/adapter-d1");
-    const { env } = getCloudflareContext();
-    if (env?.DB) {
-      const adapter = new PrismaD1(env.DB);
-      return new PrismaClient({ adapter });
-    }
+    env = getCloudflareContext().env;
   } catch {
-    // Not inside a Cloudflare Worker — fall through to standard client
-    // (e.g. during build, local dev)
+    // Fuera de un Worker (ej. `next dev` clásico). Cae a libsql/sqlite local.
   }
-  return new PrismaClient();
+
+  if (!env?.DB) {
+    throw new Error(
+      "Binding D1 'DB' no disponible. Verifica wrangler.toml y que la migración esté aplicada."
+    );
+  }
+
+  let client = clientCache.get(env as unknown as object);
+  if (!client) {
+    client = new PrismaClient({ adapter: new PrismaD1(env.DB) });
+    clientCache.set(env as unknown as object, client);
+  }
+  return client;
 }
 
-/**
- * @deprecated Use createDb() instead to get a per-request client.
- * This export is kept only for backward compatibility during migration.
- * All API routes should call createDb() at the top of each handler.
- */
-// In Cloudflare Workers, we MUST NOT initialize the DB client globally.
-// If you still have code importing { db }, it might fail or return a client 
-// without the correct request-scoped D1 binding.
-export const db = (null as unknown as PrismaClient);
+// Proxy para no tocar las 16 rutas que usan `db.user.create(...)`, etc.
+export const db = new Proxy({} as PrismaClient, {
+  get(_t, prop) {
+    const client = getPrisma() as unknown as Record<string | symbol, unknown>;
+    const value = client[prop];
+    return typeof value === "function" ? (value as Function).bind(client) : value;
+  },
+});
