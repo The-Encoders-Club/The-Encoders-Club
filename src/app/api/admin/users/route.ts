@@ -1,32 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session || !['admin', 'owner'].includes(session.role)) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const users = await db.user.findMany({
-      select: {
-        id: true,
-        nickname: true,
-        email: true,
-        avatar: true,
-        role: true,
-        isPremium: true,
-        isBanned: true,
-        banReason: true,
-        discordLinked: true,
-        createdAt: true,
-        _count: { select: { comments: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get('page') || '1');
+    const limit = parseInt(searchParams.get('limit') || '10');
+    const skip = (page - 1) * limit;
+    const search = searchParams.get('search') || '';
 
-    return NextResponse.json({ users });
+    const db = createDb();
+    const whereClause: any = {};
+    if (search) {
+      whereClause.OR = [
+        { nickname: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+      ];
+    }
+
+    const [users, totalUsers] = await Promise.all([
+      db.user.findMany({
+        where: whereClause,
+        select: { id: true, nickname: true, email: true, role: true, isPremium: true, isBanned: true, createdAt: true },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take: limit,
+      }),
+      db.user.count({ where: whereClause }),
+    ]);
+
+    return NextResponse.json({ users, totalUsers, page, limit });
   } catch (error) {
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
@@ -39,39 +48,12 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
-    const { userId, role, isBanned, banReason } = await request.json();
+    const { userId, role, isBanned, isPremium } = await request.json();
     
-    const targetUser = await db.user.findUnique({ where: { id: userId } });
-    if (!targetUser) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 });
-    }
-
-    // Owner cannot be demoted or banned
-    if (targetUser.role === 'owner') {
-      return NextResponse.json({ error: 'Cannot modify owner' }, { status: 403 });
-    }
-
-    // Non-owners cannot modify other admins (only owner can)
-    if (session.role === 'admin' && targetUser.role === 'admin') {
-      return NextResponse.json({ error: 'Cannot modify other admins' }, { status: 403 });
-    }
-
-    const updateData: any = {};
-    if (role) updateData.role = role;
-    if (isBanned !== undefined) {
-      updateData.isBanned = isBanned;
-      updateData.banReason = isBanned ? banReason || 'No reason specified' : null;
-    }
-
-    await db.user.update({ where: { id: userId }, data: updateData });
-
-    // Log activity
-    await db.activityLog.create({
-      data: {
-        userId: session.id,
-        action: 'admin_user_update',
-        details: JSON.stringify({ targetUserId: userId, changes: updateData }),
-      },
+    const db = createDb();
+    await db.user.update({
+      where: { id: userId },
+      data: { role, isBanned, isPremium },
     });
 
     return NextResponse.json({ success: true });
