@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createDb } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +18,25 @@ export const dynamic = "force-dynamic";
  * NOTE: The `runtime = "nodejs"` export has been removed because it is not
  * compatible with Cloudflare Workers. All crypto operations now use the
  * Web Crypto API (async) which works natively in Workers.
+ *
+ * NOTE: `process.env.SETUP_CODE` fue reemplazado por `getCloudflareContext().env.SETUP_CODE`
+ * porque en Cloudflare Workers las variables de entorno se acceden a través del contexto,
+ * no mediante `process.env`.
  */
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
-  const expected = process.env.SETUP_CODE;
+
+  // En Cloudflare Workers, las env vars se leen desde el contexto del Worker,
+  // no desde process.env.  Se intenta primero getCloudflareContext y se
+  // hace fallback a process.env para compatibilidad con `next dev` local.
+  let expected: string | undefined;
+  try {
+    const ctx = getCloudflareContext();
+    expected = ctx.env.SETUP_CODE;
+  } catch {
+    // No estamos dentro de un Worker (ej. next dev local)
+    expected = process.env.SETUP_CODE;
+  }
 
   if (!expected) {
     return NextResponse.json(

@@ -20,7 +20,14 @@ database_name = "encoders-db"
 database_id = "8b78b43b-46f1-416b-802b-0ff7d085da37"
 migrations_dir = "migrations"
 
-# Public env vars (non-secret). Set NEXTAUTH_URL etc. in the dashboard
-# (Workers > Settings > Variables) so each environment has its own value.
+# ── Public env vars (non-secret) ──────────────────────────────────────────────
+# Set these in the Cloudflare dashboard (Workers > Settings > Variables)
+# so each environment has its own value, OR define them here.
 [vars]
 NODE_ENV = "production"
+# SETUP_CODE — código de seguridad para el endpoint /api/setup.
+# ⚠️  IMPORTANTE: Cambia este valor por uno seguro y único antes de desplegar.
+#     También puedes definirlo como *secret* desde el panel de Cloudflare:
+#       wrangler secret put SETUP_CODE
+#     Si lo defines como secret, elimínalo de esta sección [vars].
+SETUP_CODE = "CHANGE_ME_TO_A_SECURE_RANDOM_STRING"

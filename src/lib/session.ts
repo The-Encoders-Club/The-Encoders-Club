@@ -11,6 +11,31 @@ export interface SessionUser {
   locale: string;
 }
 
+/**
+ * Determina si estamos en un entorno de producción.
+ *
+ * En Cloudflare Workers, `process.env.NODE_ENV` puede no estar
+ * disponible de forma fiable (depende de `nodejs_compat` y de que
+ * la variable esté declarada en `[vars]`). Como los Workers siempre
+ * se sirven sobre HTTPS, es más seguro comprobarlo indirectamente:
+ * si NO estamos en un `next dev` local, asumimos producción.
+ */
+function isProduction(): boolean {
+  try {
+    // Con nodejs_compat y wrangler.toml [vars] esto funciona
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') {
+      return true;
+    }
+  } catch {
+    // process no disponible — probablemente edge runtime puro
+  }
+  // En Cloudflare Workers todo es producción (siempre HTTPS)
+  // Si no hay process.env, asumimos producción
+  return typeof process === 'undefined' || typeof process.env === 'undefined'
+    ? true
+    : false;
+}
+
 export async function getSession(): Promise<SessionUser | null> {
   const cookieStore = await cookies();
   const sessionId = cookieStore.get('session')?.value;
@@ -46,6 +71,7 @@ export async function getSession(): Promise<SessionUser | null> {
 
 export async function createSession(userId: string, remember: boolean = false): Promise<void> {
   const cookieStore = await cookies();
+  const secure = isProduction();
   
   if (remember) {
     const { generateRememberToken } = await import('./auth');
@@ -54,7 +80,7 @@ export async function createSession(userId: string, remember: boolean = false): 
     await db.user.update({ where: { id: userId }, data: { rememberToken: token } });
     cookieStore.set('remember_token', token, { 
       httpOnly: true, 
-      secure: process.env.NODE_ENV === "production",
+      secure,
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 365, // 1 year
       path: '/' 
@@ -63,7 +89,7 @@ export async function createSession(userId: string, remember: boolean = false): 
   
   cookieStore.set('session', userId, { 
     httpOnly: true, 
-    secure: process.env.NODE_ENV === "production",
+    secure,
     sameSite: 'lax',
     maxAge: remember ? 60 * 60 * 24 * 365 : 60 * 60 * 24, // 1 year or 1 day
     path: '/' 
