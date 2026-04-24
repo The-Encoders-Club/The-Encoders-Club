@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { checkRateLimit } from '@/lib/auth';
 
@@ -21,6 +21,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'targetId is required' }, { status: 400 });
     }
 
+    const db = createDb();
     const comments = await db.comment.findMany({
       where: {
         targetId,
@@ -74,6 +75,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Comment contains prohibited content' }, { status: 400 });
     }
 
+    const db = createDb();
     const comment = await db.comment.create({
       data: {
         content,
@@ -112,6 +114,7 @@ export async function DELETE(request: NextRequest) {
 
     const { commentId } = await request.json();
     
+    const db = createDb();
     await db.comment.update({
       where: { id: commentId },
       data: { isDeleted: true },
