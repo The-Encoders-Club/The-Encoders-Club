@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { verifyPassword, checkRateLimit } from '@/lib/auth';
 import { createSession } from '@/lib/session';
 
@@ -16,9 +16,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nickname and password are required' }, { status: 400 });
     }
 
+    const db = createDb();
     const user = await db.user.findUnique({ where: { nickname } });
     
-    if (!user || !verifyPassword(password, user.passwordHash)) {
+    // verifyPassword is now async (uses Web Crypto API)
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
