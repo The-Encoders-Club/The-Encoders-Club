@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function GET() {
@@ -9,6 +9,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    const db = createDb();
     let config = await db.discordConfig.findFirst();
     if (!config) {
       config = await db.discordConfig.create({ data: {} });
@@ -41,6 +42,7 @@ export async function PUT(request: NextRequest) {
 
     const { botToken, serverId, channelId, webhookUrl, modRoleId, adminRoleId, collabRoleId } = await request.json();
     
+    const db = createDb();
     let config = await db.discordConfig.findFirst();
     
     if (config) {
