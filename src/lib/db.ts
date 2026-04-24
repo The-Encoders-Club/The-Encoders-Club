@@ -1,30 +1,32 @@
 import { PrismaClient } from "@prisma/client";
 
-let _client: PrismaClient | null = null;
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClient | undefined;
+};
 
-function getClient(): PrismaClient {
-  if (_client) return _client;
+function createPrismaClient(): PrismaClient {
+  // Cloudflare Workers runtime: use D1 binding via the driver adapter.
+  // Always try to get the Cloudflare context first — if we're running
+  // inside a Worker, getCloudflareContext() will succeed and we'll use
+  // the D1 adapter. If it fails (e.g. during build, local dev without
+  // OpenNext), we fall back to the standard Prisma client.
   try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { getCloudflareContext } = require("@opennextjs/cloudflare");
     // eslint-disable-next-line @typescript-eslint/no-var-requires
     const { PrismaD1 } = require("@prisma/adapter-d1");
-    const ctx = getCloudflareContext();
-    if (ctx?.env?.DB) {
-      _client = new PrismaClient({ adapter: new PrismaD1(ctx.env.DB) });
-      return _client;
+    const { env } = getCloudflareContext();
+    if (env?.DB) {
+      const adapter = new PrismaD1(env.DB);
+      return new PrismaClient({ adapter });
     }
   } catch {
-    // No estamos en Workers (dev local) → SQLite
+    // Not inside a Cloudflare Worker — fall through to standard client
+    // (e.g. during build, local dev)
   }
-  _client = new PrismaClient();
-  return _client;
+  return new PrismaClient();
 }
 
-// Proxy: difiere la creación hasta que se use db.user, db.comment, etc.
-// (necesario porque getCloudflareContext() solo funciona dentro de un request)
-export const db = new Proxy({} as PrismaClient, {
-  get(_target, prop) {
-    return (getClient() as any)[prop];
-  },
-});
+export const db = globalForPrisma.prisma ?? createPrismaClient();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
