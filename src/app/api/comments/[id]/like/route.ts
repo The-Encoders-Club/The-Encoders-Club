@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -10,6 +10,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     }
 
     const { id } = await params;
+    const db = createDb();
     
     const existing = await db.reaction.findUnique({
       where: { userId_commentId_type: { userId: session.id, commentId: id, type: 'like' } },
