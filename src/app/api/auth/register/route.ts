@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
-import { hashPassword, isValidNickname, isValidPassword, checkRateLimit, generateRememberToken } from '@/lib/auth';
+import { createDb } from '@/lib/db';
+import { hashPassword, isValidNickname, isValidPassword, checkRateLimit } from '@/lib/auth';
 import { createSession } from '@/lib/session';
 import { getServerLocale } from '@/lib/i18n';
 
@@ -29,12 +29,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
     }
 
+    const db = createDb();
+
     const existingUser = await db.user.findUnique({ where: { nickname } });
     if (existingUser) {
       return NextResponse.json({ error: 'Nickname already taken' }, { status: 409 });
     }
 
-    const passwordHash = hashPassword(password);
+    // hashPassword is now async (uses Web Crypto API)
+    const passwordHash = await hashPassword(password);
     const userLocale = getServerLocale(request.headers);
     
     const user = await db.user.create({
