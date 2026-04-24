@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { createDb } from "@/lib/db";
 import { hashPassword } from "@/lib/auth";
 
-export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 /**
@@ -14,6 +13,10 @@ export const dynamic = "force-dynamic";
  * Después de usarlo una vez, puedes:
  *  - Cambiar SETUP_CODE
  *  - O eliminar este archivo
+ *
+ * NOTE: The `runtime = "nodejs"` export has been removed because it is not
+ * compatible with Cloudflare Workers. All crypto operations now use the
+ * Web Crypto API (async) which works natively in Workers.
  */
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
@@ -33,6 +36,7 @@ export async function GET(req: NextRequest) {
   const password = req.nextUrl.searchParams.get("password") || "admin123";
   const email = req.nextUrl.searchParams.get("email") || "admin@encoders.club";
 
+  const db = createDb();
   const existing = await db.user.findUnique({ where: { nickname } });
   if (existing) {
     return NextResponse.json({
@@ -42,11 +46,12 @@ export async function GET(req: NextRequest) {
     });
   }
 
+  // hashPassword is now async (uses Web Crypto API)
   const user = await db.user.create({
     data: {
       nickname,
       email,
-      passwordHash: hashPassword(password),
+      passwordHash: await hashPassword(password),
       role: "owner",
       isPremium: true,
       locale: "es",
