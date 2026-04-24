@@ -14,7 +14,7 @@ function createPrismaClient(): PrismaClient {
       return new PrismaClient({ adapter });
     }
   } catch {
-    // No estamos en Cloudflare, usar cliente estándar
+    // build time o dev local
   }
   return new PrismaClient();
 }
