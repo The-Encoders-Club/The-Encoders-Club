@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { hashPassword } from '@/lib/auth';
+import { createSession } from '@/lib/session';
 
 // Run once to create the owner account
 // POST with { nickname, password } to create owner
 export async function POST(request: NextRequest) {
   try {
+    const db = createDb();
     const existingOwner = await db.user.findFirst({ where: { role: 'owner' } });
     if (existingOwner) {
       return NextResponse.json({ error: 'Owner already exists' }, { status: 400 });
@@ -17,10 +19,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nickname and password required' }, { status: 400 });
     }
 
+    // hashPassword is now async (uses Web Crypto API)
     const user = await db.user.create({
       data: {
         nickname,
-        passwordHash: hashPassword(password),
+        passwordHash: await hashPassword(password),
         role: 'owner',
         avatar: null,
       },
@@ -33,6 +36,9 @@ export async function POST(request: NextRequest) {
         details: 'Owner account created via seed',
       },
     });
+
+    // Automatically create a session so the owner is logged in right away
+    await createSession(user.id, false);
 
     return NextResponse.json({ success: true, userId: user.id });
   } catch (error: any) {
