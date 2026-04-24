@@ -52,7 +52,7 @@ export async function createSession(userId: string, remember: boolean = false): 
     await db.user.update({ where: { id: userId }, data: { rememberToken: token } });
     cookieStore.set('remember_token', token, { 
       httpOnly: true, 
-      secure: false, // set to true in production
+      secure: process.env.NODE_ENV === "production",
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 365, // 1 year
       path: '/' 
@@ -61,7 +61,7 @@ export async function createSession(userId: string, remember: boolean = false): 
   
   cookieStore.set('session', userId, { 
     httpOnly: true, 
-    secure: false,
+    secure: process.env.NODE_ENV === "production",
     sameSite: 'lax',
     maxAge: remember ? 60 * 60 * 24 * 365 : 60 * 60 * 24, // 1 year or 1 day
     path: '/' 
