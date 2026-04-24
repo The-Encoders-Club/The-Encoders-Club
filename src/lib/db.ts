@@ -27,7 +27,18 @@ function getPrisma(): PrismaClient {
   return client;
 }
 
-// Proxy para no tocar las 16 rutas que usan `db.user.create(...)`, etc.
+/**
+ * Devuelve un PrismaClient listo para usar dentro del Worker.
+ * Todas las rutas API (`/api/**`) la importan como:
+ *   import { createDb } from '@/lib/db';
+ *   const db = createDb();
+ */
+export function createDb(): PrismaClient {
+  return getPrisma();
+}
+
+// Proxy por conveniencia: permite usar `db.user.create(...)` directamente
+// sin llamar a createDb() primero.
 export const db = new Proxy({} as PrismaClient, {
   get(_t, prop) {
     const client = getPrisma() as unknown as Record<string | symbol, unknown>;
@@ -35,11 +46,3 @@ export const db = new Proxy({} as PrismaClient, {
     return typeof value === "function" ? (value as Function).bind(client) : value;
   },
 });
-
-/**
- * createDb() — alias de compatibilidad para todas las rutas que importan
- * `{ createDb }` de '@/lib/db'. Devuelve el mismo PrismaClient que `db`.
- */
-export function createDb(): PrismaClient {
-  return getPrisma();
-}
