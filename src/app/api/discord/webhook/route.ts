@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 
 // This endpoint receives webhook notifications from Discord bot
 export async function POST(request: NextRequest) {
   try {
     const { type, data } = await request.json();
+    const db = createDb();
     
     if (type === 'role_sync') {
       const { discordId, roles } = data;
