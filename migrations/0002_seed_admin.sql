@@ -1,9 +1,11 @@
--- Seed: usuario admin inicial
+-- Seed: usuario admin inicial (owner)
 -- Usuario: admin
 -- Contraseña: admin123
 -- IMPORTANTE: cambia la contraseña desde la app después del primer login.
--- Si necesitas regenerar el hash con otra contraseña, hazlo localmente con
--- la función hashPassword() en src/lib/auth.ts.
+--
+-- Hash generado con Web Crypto API (PBKDF2-SHA-512, 10000 iter, 64 bytes)
+-- usando la misma función hashPassword() de src/lib/auth.ts.
+-- Formato: <salt_hex>:<derived_key_hex>
 
 INSERT OR IGNORE INTO "User" (
   "id",
@@ -21,7 +23,7 @@ INSERT OR IGNORE INTO "User" (
   'admin-seed-0001',
   'admin',
   'admin@encoders.club',
-  '51c9d4fd5d1786e604d986316423bc32:0c81b30c6af52def12d03f0ed3c91a06c52893b7e7993e3b8902e2eedd1afdb50f37441ef3dcbe9e5921f98c4b9119ab7d27dc410bb510c4e680916a8bde2af9',
+  '51c9d4fd5d1786e604d986316423bc32:8994921a15716c7ef3a5981a2710278988fed76f68aea30f2b1c4310c988a070bb265254939f9e4ede1d9e2fa95950074a106e73809948098d0c5658f70d5bf5',
   'owner',
   1,
   0,
