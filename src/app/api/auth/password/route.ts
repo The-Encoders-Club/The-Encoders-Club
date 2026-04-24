@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { hashPassword, verifyPassword, checkRateLimit } from '@/lib/auth';
 import { getSession } from '@/lib/session';
 
@@ -12,14 +12,17 @@ export async function POST(request: NextRequest) {
 
     const { currentPassword, newPassword } = await request.json();
     
+    const db = createDb();
     const user = await db.user.findUnique({ where: { id: session.id } });
-    if (!user || !verifyPassword(currentPassword, user.passwordHash)) {
+    // verifyPassword is now async
+    if (!user || !(await verifyPassword(currentPassword, user.passwordHash))) {
       return NextResponse.json({ error: 'Current password is incorrect' }, { status: 400 });
     }
 
     await db.user.update({
       where: { id: session.id },
-      data: { passwordHash: hashPassword(newPassword) },
+      // hashPassword is now async
+      data: { passwordHash: await hashPassword(newPassword) },
     });
 
     return NextResponse.json({ success: true });
@@ -37,6 +40,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    const db = createDb();
     const user = await db.user.findUnique({ where: { nickname } });
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -44,7 +48,8 @@ export async function PUT(request: NextRequest) {
 
     await db.user.update({
       where: { id: user.id },
-      data: { passwordHash: hashPassword(newPassword) },
+      // hashPassword is now async
+      data: { passwordHash: await hashPassword(newPassword) },
     });
 
     return NextResponse.json({ success: true });
