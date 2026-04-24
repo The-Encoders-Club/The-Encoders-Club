@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { db } from '@/lib/db';
+import { createDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
 export async function POST(request: NextRequest) {
@@ -9,6 +9,7 @@ export async function POST(request: NextRequest) {
     const session = await getSession();
     const userId = session?.id || null;
 
+    const db = createDb();
     const donation = await db.donation.create({
       data: {
         userId,
@@ -38,6 +39,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
     }
 
+    const db = createDb();
     const donations = await db.donation.findMany({
       orderBy: { createdAt: 'desc' },
       take: 50,
