@@ -186,11 +186,16 @@ export default function Navbar() {
               <div className="mt-auto space-y-4">
                 {user ? (
                   <div className="flex flex-col gap-2">
-                    <Link href="/perfil" className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-center font-semibold">
-                      {t('profile.title')}
+                    <Link href="/perfil" className="w-full py-3 rounded-xl bg-white/5 border border-white/10 text-white text-center font-semibold flex items-center justify-center gap-2">
+                      <User size={16} /> {t('profile.title')}
                     </Link>
-                    <button onClick={handleLogout} className="w-full py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-center font-semibold">
-                      {t('auth.logout')}
+                    {['moderator', 'admin', 'owner'].includes(user.role) && (
+                      <Link href="/admin" onClick={() => setMenuOpen(false)} className="w-full py-3 rounded-xl bg-gradient-to-r from-red-500/20 to-purple-500/20 border border-red-500/30 text-white text-center font-semibold flex items-center justify-center gap-2">
+                        <Shield size={16} /> {t('admin.title')}
+                      </Link>
+                    )}
+                    <button onClick={handleLogout} className="w-full py-3 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-center font-semibold flex items-center justify-center gap-2">
+                      <LogOut size={16} /> {t('auth.logout')}
                     </button>
                   </div>
                 ) : (
