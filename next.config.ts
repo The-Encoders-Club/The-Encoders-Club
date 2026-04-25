@@ -1,13 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  typescript: { ignoreBuildErrors: true },
   reactStrictMode: false,
-  images: {
-    unoptimized: true,
-  },
+  images: { unoptimized: true },
   transpilePackages: ["framer-motion", "motion-dom", "motion-utils"],
   webpack: (config, { isServer }) => {
     config.experiments = {
@@ -17,35 +13,35 @@ const nextConfig: NextConfig = {
     };
 
     if (isServer) {
-      // ── Server build (→ Cloudflare Worker) ──────────────────────
-      // No dejes que webpack procese las importaciones .wasm del
-      // cliente Prisma.  Deben pasar intactas hasta esbuild (OpenNext),
-      // donde el plugin `prisma-wasm-external` las marca como externas
-      // para que Wrangler las resuelva de forma nativa.
+      // ── CRITICAL for Cloudflare Workers ──────────────────────
+      // By default, webpack converts ESM imports for "externals"
+      // into CJS require() calls. But Cloudflare Workers does NOT
+      // support require() — only ESM import.
+      //
+      // Setting externalsType + output.module makes webpack output
+      // `import ... from "..."` instead of `require("...")` for
+      // external modules (including the Prisma WASM).
+      config.output = { ...config.output, module: true };
+      config.externalsType = "module";
+
+      // Mark Prisma's WASM as external so webpack doesn't inline it
       const existingExternals = config.externals;
       if (Array.isArray(existingExternals)) {
-        config.externals = [
-          ...existingExternals,
-          /query_engine_bg\.wasm/,
-        ];
+        config.externals = [...existingExternals, /query_engine_bg\.wasm/];
       } else {
         config.externals = [/query_engine_bg\.wasm/];
       }
     } else {
-      // ── Client build ────────────────────────────────────────────
-      // Para el navegador, los .wasm se emiten como assets normales.
       config.module.rules.push({
         test: /\.wasm$/,
         type: "asset/resource",
       });
     }
-
     return config;
   },
 };
 
 if (process.env.OPENNEXT_DEV === "1") {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
   const { initOpenNextCloudflareForDev } = require("@opennextjs/cloudflare");
   initOpenNextCloudflareForDev();
 }
