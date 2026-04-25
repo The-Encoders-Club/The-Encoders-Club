@@ -3,7 +3,6 @@ import { createDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 import { checkRateLimit } from '@/lib/auth';
 
-// Spam filter keywords
 const SPAM_WORDS = ['viagra', 'casino', 'lottery', 'free money', 'click here', 'subscribe', 'buy now', 'http://', 'https://'];
 
 function containsSpam(content: string): boolean {
@@ -46,10 +45,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ comments });
   } catch (error: any) {
     console.error('Comments GET error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -93,7 +89,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Log activity
     await db.activityLog.create({
       data: {
         userId: session.id,
@@ -106,10 +101,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ comment });
   } catch (error: any) {
     console.error('Comments POST error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
 
@@ -131,9 +123,6 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error: any) {
     console.error('Comments DELETE error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
