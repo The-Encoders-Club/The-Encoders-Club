@@ -164,7 +164,7 @@ export default function AdminPanel() {
     try {
       const res = await fetch('/api/admin/stats');
       if (!res.ok) return;
-      const data = await res.json();
+      const data = await res.json() as StatsData;
       setStats(data);
       setAllComments(data.recentComments || []);
       setLogs(data.recentLogs || []);
@@ -178,7 +178,7 @@ export default function AdminPanel() {
     try {
       const res = await fetch('/api/admin/users');
       if (!res.ok) return;
-      const data = await res.json();
+      const data = await res.json() as { users: AdminUser[] };
       setUsers(data.users || []);
     } catch {
       // Silently fail
@@ -192,7 +192,7 @@ export default function AdminPanel() {
     try {
       const res = await fetch('/api/admin/discord');
       if (!res.ok) return;
-      const data = await res.json();
+      const data = await res.json() as { config: typeof discordConfig };
       setDiscordConfig(data.config);
       setDcForm({
         botToken: '',
