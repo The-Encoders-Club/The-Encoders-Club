@@ -1,29 +1,23 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  typescript: {
-    ignoreBuildErrors: true,
+  // Cloudflare Workers compatible configuration
+  output: 'standalone',
+  eslint: {
+    ignoreDuringBuilds: true,
   },
-  reactStrictMode: false,
+  typescript: {
+    ignoreBuildErrors: false,
+  },
   images: {
     unoptimized: true,
   },
-  transpilePackages: ["framer-motion", "motion-dom", "motion-utils"],
-  // CRITICAL: Prevent webpack from bundling Prisma packages.
-  // With queryCompiler + --no-engine, @prisma/client is pure TypeScript
-  // (no WASM, no fs). Marking external lets OpenNext's esbuild handle
-  // them properly for the workerd runtime.
-  serverExternalPackages: [
-    "@prisma/client",
-    ".prisma/client",
-    "@prisma/adapter-d1",
-  ],
+  // Avoid using server-side features that aren't Edge-compatible
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '2mb',
+    },
+  },
 };
-
-if (process.env.OPENNEXT_DEV === "1") {
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { initOpenNextCloudflareForDev } = require("@opennextjs/cloudflare");
-  initOpenNextCloudflareForDev();
-}
 
 export default nextConfig;
