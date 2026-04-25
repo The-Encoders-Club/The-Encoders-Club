@@ -11,7 +11,7 @@ binding = "ASSETS"
 [[d1_databases]]
 binding = "DB"
 database_name = "encoders-club-db"
-database_id = "TU_DATABASE_ID_AQUI"
+database_id = "40128b9d-9e00-406a-a80f-96c7830fbb75"
 
 # ========== R2 Storage (Avatars) ==========
 [[r2_buckets]]
@@ -21,7 +21,7 @@ bucket_name = "encoders-club-avatars"
 # ========== KV Namespace (Rate Limiting) ==========
 [[kv_namespaces]]
 binding = "RATE_LIMITER"
-id = "TU_KV_NAMESPACE_ID_AQUI"
+id = "1907cbbd211545bb85230d803d6abb5b"
 
 # ========== Environment Variables ==========
 [vars]
