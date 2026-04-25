@@ -215,8 +215,6 @@ function MonikaProjectDetail({ project, onClose }: { project: typeof projects[nu
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
 
-  const sectionDot = <span className="inline-block w-3 h-3 rounded-full bg-[#D14D7A] border-2 border-white shadow-sm mr-3 shrink-0" />;
-
   return (
     <>
       <style>{`
@@ -229,188 +227,192 @@ function MonikaProjectDetail({ project, onClose }: { project: typeof projects[nu
         .font-m1 { font-family: 'M1', sans-serif; }
       `}</style>
 
-      <div className="relative z-10 min-h-screen w-full overflow-x-hidden" style={{ backgroundColor: '#FFE6EA' }}>
+      <div className="relative z-10 min-h-screen w-full overflow-x-hidden text-gray-900" style={{ backgroundColor: '#FFE6EA' }}>
         <PinkDots />
 
-        {/* Close button - top right */}
-        <button
-          onClick={onClose}
-          className="fixed top-4 right-4 z-[200] w-10 h-10 rounded-full bg-white/90 border border-[#FFCDD2] flex items-center justify-center text-[#D14D7A] hover:bg-white hover:scale-110 transition-all shadow-sm"
-        >
-          <X size={20} />
-        </button>
+        {/* Nav bar - same structure as dark theme */}
+        <nav className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-[#FFCDD2] px-4 sm:px-6 py-4 flex justify-between items-center">
+          <button onClick={onClose} className="flex items-center gap-2 text-[#D14D7A] hover:text-[#ff6b9d] transition-colors group">
+            <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
+            <span className="font-bold tracking-wider uppercase text-sm font-m1">{t('projects.backToProjects')}</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={toggleMute} className="p-2 rounded-full bg-gray-50 border border-[#FFCDD2] text-[#D14D7A] hover:bg-white hover:text-[#ff6b9d] transition-all" title={muted ? 'Unmute' : 'Mute'}>
+              {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </button>
+            <button className="p-2 rounded-full bg-gray-50 border border-[#FFCDD2] text-[#D14D7A]/50 hover:text-[#D14D7A] transition-all">
+              <Share2 className="w-5 h-5" />
+            </button>
+          </div>
+        </nav>
 
-        {/* Audio toggle */}
-        <button
-          onClick={toggleMute}
-          className="fixed top-4 right-16 z-[200] w-10 h-10 rounded-full bg-white/90 border border-[#FFCDD2] flex items-center justify-center text-[#D14D7A] hover:bg-white hover:scale-110 transition-all shadow-sm"
-        >
-          {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-        </button>
+        <main className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+            {/* Main Content */}
+            <div className="lg:col-span-2 space-y-8">
+              <header>
+                <motion.h1
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  className="text-5xl sm:text-6xl font-black italic tracking-tighter mb-4 text-[#D14D7A] font-m1"
+                >
+                  {project.name}
+                </motion.h1>
+                <p className="text-xl text-[#555] font-medium italic font-m1">{project.subtitle}</p>
+              </header>
 
-        <main className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 pt-8 pb-16">
-          {/* Hero: Title + Image + Details Card */}
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            {/* Title */}
-            <h1 className="font-m1 text-4xl sm:text-5xl lg:text-6xl font-bold text-[#D14D7A] mb-1 tracking-tight">
-              {project.name}
-            </h1>
-            <p className="text-[#555] text-base sm:text-lg mb-6 font-m1">{project.subtitle}</p>
-
-            {/* Hero image + Details card */}
-            <div className="flex flex-col lg:flex-row gap-6 mb-8">
-              {/* Hero Image */}
-              <div className="lg:flex-[7] relative rounded-xl overflow-hidden" style={{ minHeight: '300px' }}>
-                <img src={project.image} alt={project.name} className="w-full h-full object-cover rounded-xl" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#FFE6EA]/40 to-transparent pointer-events-none rounded-xl" />
-                {/* Decorative circles */}
-                <div className="absolute -left-6 top-1/2 -translate-y-1/2 w-24 h-24 rounded-full border-4 border-white/60 bg-[#FFB6C8]/50 hidden lg:block" />
-                <div className="absolute -right-6 top-1/3 w-20 h-20 rounded-full border-4 border-white/60 bg-[#FFB6C8]/50 hidden lg:block" />
+              {/* Cover Image */}
+              <div className="rounded-2xl overflow-hidden border aspect-video relative group" style={{ borderColor: '#FFCDD2' }}>
+                <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#FFE6EA]/40 to-transparent" />
+                <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: 'linear-gradient(to top, #FFE6EA30, transparent)' }} />
               </div>
 
-              {/* Details Card */}
-              <div className="lg:flex-[3] bg-white rounded-xl border border-[#FFCDD2] p-5 shadow-sm self-start lg:sticky lg:top-24">
-                <h3 className="text-[#D14D7A] font-bold text-base mb-4 flex items-center font-m1">
-                  {sectionDot} Detalles
-                </h3>
-                <ul className="space-y-3">
-                  {[
-                    { label: isEs ? 'Tiempo de juego' : 'Play time', value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
-                    { label: isEs ? 'Idioma' : 'Language', value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
-                    { label: isEs ? 'Motor' : 'Engine', value: project.details.engine },
-                    { label: isEs ? 'Descargas' : 'Downloads', value: project.details.downloads },
-                  ].map(item => (
-                    <li key={item.label} className="flex justify-between text-sm">
-                      <span className="text-[#666]">{item.label}</span>
-                      <span className="text-[#333] font-medium">{item.value}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* About this project */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-              <div className="bg-white rounded-xl border border-[#FFCDD2] p-5 shadow-sm mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-[#D14D7A] font-bold text-base flex items-center font-m1">
-                    {sectionDot} {isEs ? 'Sobre este proyecto' : 'About this project'}
+              {/* About this project */}
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-2xl font-bold text-[#D14D7A] flex items-center gap-2 font-m1">
+                    <BookOpen className="w-6 h-6" /> {isEs ? 'Sobre este proyecto' : 'About this project'}
                   </h3>
                   <span className="text-[#999] text-xs font-m1">{project.version}</span>
                 </div>
-                <p className="text-[#333] text-sm leading-relaxed">{desc}</p>
-              </div>
-            </motion.div>
+                <p className="text-[#333] leading-relaxed text-lg">{desc}</p>
 
-            {/* Status + Rating */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="bg-white rounded-xl border border-[#FFCDD2] p-4 shadow-sm">
-                <span className="text-xs font-bold uppercase text-[#666] block mb-1 font-m1">{isEs ? 'Estado' : 'Status'}</span>
-                <span className="text-[#333] font-medium text-sm">{status}</span>
-              </motion.div>
-              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="bg-white rounded-xl border border-[#FFCDD2] p-4 shadow-sm">
-                <span className="text-xs font-bold uppercase text-[#666] block mb-1 font-m1">{isEs ? 'Calificación' : 'Rating'}</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-[#333] font-medium text-sm">{project.rating}</span>
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map(s => (
-                      <Star key={s} size={16} className={s <= Math.floor(project.rating) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'} />
-                    ))}
+                {/* Status + Rating */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="p-4 rounded-xl bg-white border border-[#FFCDD2] shadow-sm">
+                    <span className="text-xs font-bold uppercase block mb-1 text-[#999] font-m1">{t('projects.status')}</span>
+                    <span className="text-[#333] font-medium">{status}</span>
                   </div>
-                </div>
-              </motion.div>
-            </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 mb-8">
-              {project.tags.map(tag => (
-                <span key={tag} className="text-xs px-4 py-1.5 rounded-full bg-[#FFCDD2] text-white font-medium font-m1">
-                  {tag}
-                </span>
-              ))}
-            </div>
-
-            {/* Preview Carousel */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-8">
-              <h3 className="text-[#D14D7A] font-bold text-base flex items-center mb-4 font-m1">
-                {sectionDot} {isEs ? 'Vista Previa' : 'Preview'}
-              </h3>
-              <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x scroll-smooth">
-                {project.previews.map((src, idx) => (
-                  <div key={idx} className="flex-none w-64 sm:w-72 rounded-xl overflow-hidden relative group cursor-pointer snap-start">
-                    <img src={src} alt={`Preview ${idx + 1}`} className="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-105" />
-                    <span className="absolute bottom-2 right-2 bg-black/50 text-white/70 text-xs px-2 py-0.5 rounded-full font-mono">
-                      {idx + 1}/{project.previews.length}
+                  <div className="p-4 rounded-xl bg-white border border-[#FFCDD2] shadow-sm">
+                    <span className="text-xs font-bold uppercase block mb-1 text-[#999] font-m1">{t('projects.rating')}</span>
+                    <span className="text-[#333] font-medium flex items-center gap-1">
+                      {project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" />
                     </span>
                   </div>
-                ))}
-              </div>
-            </motion.div>
+                </div>
 
-            {/* Downloads */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }} className="mb-8">
-              <h3 className="text-[#D14D7A] font-bold text-base flex items-center mb-4 font-m1">
-                {sectionDot} {isEs ? 'Opciones de Descarga' : 'Download Options'}
-              </h3>
-              <div className="flex flex-col sm:flex-row gap-3">
-                {project.downloads.map((dl, i) => {
-                  const Icon = dl.icon;
-                  return (
-                    <a
-                      key={i}
-                      href={dl.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 text-white text-sm font-bold uppercase tracking-wide shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
-                      style={{ backgroundColor: dl.color }}
-                    >
-                      <Icon className="w-5 h-5" />
-                      {isEs ? dl.label : (dl.labelEn || dl.label)}
-                    </a>
-                  );
-                })}
-              </div>
-            </motion.div>
+                {/* Tags */}
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {project.tags.map(tag => (
+                    <span key={tag} className="text-xs px-3 py-1.5 rounded-full bg-[#FFCDD2] text-white font-medium transition-all">
+                      {tag}
+                    </span>
+                  ))}
+                </div>
 
-            {/* Resources */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mb-8">
-              <h3 className="text-[#D14D7A] font-bold text-base flex items-center mb-4 font-m1">
-                {sectionDot} {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
-              </h3>
-              <div className="grid sm:grid-cols-3 gap-4">
-                {'resources' in project && (project.resources as Array<{ title: string; titleEn?: string; desc: string; descEn?: string; icon: React.ComponentType<{ size?: number; className?: string }>; btnLabel?: string; btnLabelEn?: string; btns?: Array<{ label: string; labelEn?: string; url: string }>; url?: string; color: string }>).map((res, i) => {
-                  const RIcon = res.icon;
-                  return (
-                    <div key={i} className="bg-white rounded-xl border border-[#FFCDD2] p-5 shadow-sm">
-                      <div className="flex items-center gap-2 mb-2">
-                        <RIcon size={18} className="text-[#FF80AB]" />
-                        <h4 className="text-[#333] font-bold text-sm font-m1">{isEs ? res.title : (res.titleEn || res.title)}</h4>
-                      </div>
-                      <p className="text-[#666] text-xs mb-4 leading-relaxed">{isEs ? res.desc : (res.descEn || res.desc)}</p>
-                      {res.btns ? (
-                        <div className="flex gap-2">
-                          {res.btns.map((btn, bi) => (
-                            <a key={bi} href={btn.url} className="flex-1 py-2 rounded-lg bg-[#FF80AB] text-white text-xs font-bold text-center hover:bg-[#F06292] transition-colors font-m1">
-                              {isEs ? btn.label : (btn.labelEn || btn.label)}
-                            </a>
-                          ))}
+                {/* Preview Carousel - same as dark theme */}
+                <div className="pt-8 border-t border-[#FFCDD2]">
+                  <h4 className="text-xl font-bold text-[#D14D7A] mb-4 flex items-center gap-2 font-m1">
+                    <ImageIcon className="w-5 h-5" /> {t('projects.preview')}
+                  </h4>
+                  <div className="relative group/carousel">
+                    <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x scroll-smooth">
+                      {project.previews.map((src, idx) => (
+                        <div key={idx} className="flex-none w-64 sm:w-72 rounded-xl overflow-hidden border border-[#FFCDD2] aspect-video group relative snap-start hover:border-[#D14D7A]/40 transition-all">
+                          <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <ImageIcon className="text-[#333] w-8 h-8" />
+                          </div>
+                          <div className="absolute bottom-2 right-2 bg-black/50 text-white/60 text-xs px-2 py-1 rounded-full">
+                            {idx + 1}/{project.previews.length}
+                          </div>
                         </div>
-                      ) : (
-                        <a href={res.url || '#'} className="block w-full py-2 rounded-lg bg-[#FF80AB] text-white text-xs font-bold text-center hover:bg-[#F06292] transition-colors font-m1">
-                          {isEs ? (res.btnLabel || 'Ver') : (res.btnLabelEn || 'View')}
-                        </a>
-                      )}
+                      ))}
                     </div>
-                  );
-                })}
-              </div>
-            </motion.div>
+                    <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full bg-white/70 border border-[#FFCDD2] text-[#D14D7A] flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-white z-10">
+                      <ChevronLeft size={16} />
+                    </button>
+                    <button className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full bg-white/70 border border-[#FFCDD2] text-[#D14D7A] flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-white z-10">
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+                </div>
 
-            {/* Comments */}
-            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
-              <CommentSection targetId={project.id} targetType="project" />
-            </motion.div>
-          </motion.div>
+                {/* Resources */}
+                <div className="pt-8 border-t border-[#FFCDD2]">
+                  <h4 className="text-xl font-bold text-[#D14D7A] mb-4 flex items-center gap-2 font-m1">
+                    <Cpu className="w-5 h-5" /> {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
+                  </h4>
+                  <div className="grid sm:grid-cols-3 gap-4">
+                    {'resources' in project && (project.resources as Array<{ title: string; titleEn?: string; desc: string; descEn?: string; icon: React.ComponentType<{ size?: number; className?: string }>; btnLabel?: string; btnLabelEn?: string; btns?: Array<{ label: string; labelEn?: string; url: string }>; url?: string; color: string }>).map((res, i) => {
+                      const RIcon = res.icon;
+                      return (
+                        <div key={i} className="bg-white rounded-xl border border-[#FFCDD2] p-5 shadow-sm">
+                          <div className="flex items-center gap-2 mb-2">
+                            <RIcon size={18} className="text-[#FF80AB]" />
+                            <h4 className="text-[#333] font-bold text-sm font-m1">{isEs ? res.title : (res.titleEn || res.title)}</h4>
+                          </div>
+                          <p className="text-[#666] text-xs mb-4 leading-relaxed">{isEs ? res.desc : (res.descEn || res.desc)}</p>
+                          {res.btns ? (
+                            <div className="flex gap-2">
+                              {res.btns.map((btn, bi) => (
+                                <a key={bi} href={btn.url} className="flex-1 py-2 rounded-lg bg-[#FF80AB] text-white text-xs font-bold text-center hover:bg-[#F06292] transition-colors font-m1">
+                                  {isEs ? btn.label : (btn.labelEn || btn.label)}
+                                </a>
+                              ))}
+                            </div>
+                          ) : (
+                            <a href={res.url || '#'} className="block w-full py-2 rounded-lg bg-[#FF80AB] text-white text-xs font-bold text-center hover:bg-[#F06292] transition-colors font-m1">
+                              {isEs ? (res.btnLabel || 'Ver') : (res.btnLabelEn || 'View')}
+                            </a>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Comments */}
+                <div className="pt-8 border-t border-[#FFCDD2]">
+                  <CommentSection targetId={project.id} targetType="project" />
+                </div>
+              </div>
+            </div>
+
+            {/* Sidebar - same structure as dark theme */}
+            <div className="space-y-8">
+              <div className="p-8 rounded-3xl bg-white border border-[#FFCDD2] shadow-lg sticky top-24 space-y-6">
+                <h3 className="text-xl font-bold flex items-center gap-2 text-[#D14D7A] font-m1">
+                  <Cpu className="w-5 h-5" /> {t('projects.details')}
+                </h3>
+                <ul className="space-y-4">
+                  {[
+                    { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
+                    { label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
+                    { label: t('projects.engine'), value: project.details.engine },
+                    { label: t('projects.downloads'), value: project.details.downloads },
+                  ].map(item => (
+                    <li key={item.label} className="flex justify-between text-sm">
+                      <span className="text-[#999]">{item.label}</span>
+                      <span className="text-[#333] font-mono">{item.value}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="border-t border-[#FFCDD2] pt-6 space-y-3">
+                  <h4 className="text-sm font-bold uppercase tracking-wider text-[#D14D7A] font-m1">
+                    {isEs ? 'Opciones de Descarga' : 'Download Options'}
+                  </h4>
+                  {project.downloads.map((dl, i) => {
+                    const Icon = dl.icon;
+                    return (
+                      <a
+                        key={i}
+                        href={dl.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-full py-3 rounded-xl flex items-center justify-center gap-2 text-white text-sm font-bold uppercase tracking-wide shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] group transition-all"
+                        style={{ backgroundColor: dl.color }}
+                      >
+                        <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        {isEs ? dl.label : (dl.labelEn || dl.label)}
+                      </a>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
         </main>
 
         {/* Hidden music iframe */}
