@@ -1,6 +1,6 @@
 name = "the-encoders-club"
 main = ".open-next/worker.js"
-compatibility_date = "2025-03-25"
+compatibility_date = "2025-05-05"
 compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
 
 [assets]
@@ -25,9 +25,6 @@ migrations_dir = "migrations"
 # so each environment has its own value, OR define them here.
 [vars]
 NODE_ENV = "production"
-# SETUP_CODE — código de seguridad para el endpoint /api/setup.
-# ⚠️  IMPORTANTE: Cambia este valor por uno seguro y único antes de desplegar.
-#     También puedes definirlo como *secret* desde el panel de Cloudflare:
-#       wrangler secret put SETUP_CODE
-#     Si lo defines como secret, elimínalo de esta sección [vars].
-SETUP_CODE = "CHANGE_ME_TO_A_SECURE_RANDOM_STRING"
+# SETUP_CODE se definió como secret vía `wrangler secret put SETUP_CODE`.
+# Los secrets NO se declaran en [vars] — Cloudflare los inyecta automáticamente.
+# Si necesitas cambiarlo:  wrangler secret put SETUP_CODE
