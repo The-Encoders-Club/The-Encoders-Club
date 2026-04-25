@@ -10,18 +10,6 @@ export const dynamic = "force-dynamic";
  *
  * Crea el usuario admin inicial si no existe.
  * Protegido con la variable de entorno SETUP_CODE (configurala en Cloudflare).
- *
- * Después de usarlo una vez, puedes:
- *  - Cambiar SETUP_CODE
- *  - O eliminar este archivo
- *
- * NOTE: The `runtime = "nodejs"` export has been removed because it is not
- * compatible with Cloudflare Workers. All crypto operations now use the
- * Web Crypto API (async) which works natively in Workers.
- *
- * NOTE: `process.env.SETUP_CODE` fue reemplazado por `getCloudflareContext().env.SETUP_CODE`
- * porque en Cloudflare Workers las variables de entorno se acceden a través del contexto,
- * no mediante `process.env`.
  */
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
