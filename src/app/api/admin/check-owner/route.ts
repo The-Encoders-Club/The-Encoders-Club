@@ -1,13 +1,30 @@
 import { NextResponse } from 'next/server';
-import { createDb } from '@/lib/db';
+import { getDB, toBool } from '@/lib/db';
 
-// Check if an owner already exists
+// GET: Check if an owner account exists
 export async function GET() {
   try {
-    const db = createDb();
-    const owner = await db.user.findFirst({ where: { role: 'owner' }, select: { id: true, nickname: true } });
-    return NextResponse.json({ ownerExists: !!owner, ownerNickname: owner?.nickname || null });
-  } catch {
-    return NextResponse.json({ ownerExists: false, ownerNickname: null });
+    const db = await getDB();
+
+    const owner = await db
+      .prepare("SELECT id, nickname, avatar, createdAt FROM User WHERE role = 'owner'")
+      .first();
+
+    if (!owner) {
+      return NextResponse.json({ exists: false });
+    }
+
+    return NextResponse.json({
+      exists: true,
+      owner: {
+        id: owner.id,
+        nickname: owner.nickname,
+        avatar: owner.avatar,
+        createdAt: owner.createdAt,
+      },
+    });
+  } catch (error) {
+    console.error('Check owner error:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
