@@ -10,12 +10,11 @@ const nextConfig: NextConfig = {
   },
   transpilePackages: ["framer-motion", "motion-dom", "motion-utils"],
   // CRITICAL: Prevent webpack from bundling Prisma packages.
-  // The standard @prisma/client uses fs/path which DON'T EXIST in Workers.
-  // Marking them external lets OpenNext's esbuild handle them properly,
-  // and @prisma/client/edge (imported in db.ts) avoids all fs calls.
+  // With queryCompiler + --no-engine, @prisma/client is pure TypeScript
+  // (no WASM, no fs). Marking external lets OpenNext's esbuild handle
+  // them properly for the workerd runtime.
   serverExternalPackages: [
     "@prisma/client",
-    "@prisma/client/edge",
     ".prisma/client",
     "@prisma/adapter-d1",
   ],
