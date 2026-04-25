@@ -74,6 +74,15 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Register error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    // ── Diagnóstico temporal ──────────────────────────────────────
+    // Devuelve el error real para depuración.  Una vez resuelto el
+    // problema, reemplazar por el genérico:
+    //   return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const detail = error?.message || String(error);
+    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
+    return NextResponse.json({
+      error: 'Internal server error',
+      __debug: { detail, stack },
+    }, { status: 500 });
   }
 }
