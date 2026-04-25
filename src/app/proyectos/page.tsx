@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor, Download, Share2, X, Sparkles, ArrowRight, Gamepad2, Volume2, VolumeX, ChevronLeft, ChevronRight } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -41,6 +41,7 @@ const projects = [
     music: 'https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
     details: { playTime: '4-6 horas', playTimeEn: '4-6 hours', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloads: '1,250' },
     themeColor: '#FF2D78',
+    lightTheme: true,
   },
   {
     id: 'natsuki',
@@ -101,7 +102,55 @@ const projects = [
 
 const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/gdw63Pfk2mCpqaap3WKi6Q/ProyectoFondo_c3356f10.jpg';
 
-function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: string }) {
+// ─── Animated Pink Circles Background ───
+
+function FloatingCircles() {
+  const circles = useMemo(() =>
+    Array.from({ length: 18 }, (_, i) => ({
+      id: i,
+      size: 24 + (i * 17 + 31) % 96,
+      x: ((i * 37 + 11) % 100),
+      y: ((i * 53 + 7) % 100),
+      duration: 14 + (i * 3 + 5) % 18,
+      delay: (i * 1.7) % 8,
+      opacity: 0.35 + ((i * 13 + 7) % 45) / 100,
+    })),
+  []);
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+      {circles.map(c => (
+        <motion.div
+          key={c.id}
+          className="absolute rounded-full"
+          style={{
+            width: c.size,
+            height: c.size,
+            left: `${c.x}%`,
+            top: `${c.y}%`,
+            backgroundColor: '#ffeef8',
+            opacity: c.opacity,
+          }}
+          animate={{
+            x: [0, 50 + c.size * 0.4, -30 + c.size * 0.2, 50 + c.size * 0.4],
+            y: [0, -(35 + c.size * 0.25), 20 + c.size * 0.15, -(35 + c.size * 0.25)],
+          }}
+          transition={{
+            duration: c.duration,
+            delay: c.delay,
+            repeat: Infinity,
+            repeatType: 'reverse',
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// ─── Image Carousel ───
+
+function ImageCarousel({ images, themeColor, isLight }: { images: string[]; themeColor: string; isLight?: boolean }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -116,10 +165,10 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
     <div className="relative group/carousel">
       <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x scroll-smooth">
         {images.map((src, idx) => (
-          <div key={idx} className="flex-none w-64 sm:w-72 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start hover:border-white/20 transition-all">
+          <div key={idx} className={`flex-none w-64 sm:w-72 rounded-xl overflow-hidden border aspect-video group relative snap-start transition-all ${isLight ? 'border-gray-200 hover:border-gray-300' : 'border-white/10 hover:border-white/20'}`}>
             <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <ImageIcon className="text-white w-8 h-8" />
+            <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <ImageIcon className={`w-8 h-8 ${isLight ? 'text-gray-700' : 'text-white'}`} />
             </div>
             <div className="absolute bottom-2 right-2 bg-black/60 text-white/60 text-xs px-2 py-1 rounded-full">
               {idx + 1}/{images.length}
@@ -128,25 +177,28 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
         ))}
       </div>
       {/* Carousel controls */}
-      <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
+      <button onClick={() => scroll('left')} className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full text-sm flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10 ${isLight ? 'bg-white/70 border border-gray-300 text-gray-700 hover:bg-white' : 'bg-black/50 border border-white/20 text-white hover:bg-black/70'}`}>
         <ChevronLeft size={16} />
       </button>
-      <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
+      <button onClick={() => scroll('right')} className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full text-sm flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10 ${isLight ? 'bg-white/70 border border-gray-300 text-gray-700 hover:bg-white' : 'bg-black/50 border border-white/20 text-white hover:bg-black/70'}`}>
         <ChevronRight size={16} />
       </button>
     </div>
   );
 }
 
+// ─── Project Detail ───
+
 function ProjectDetail({ project, onClose }: { project: typeof projects[number]; onClose: () => void }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
-  // Cleanup music on unmount (when user leaves project)
+  const isLight = !!project.lightTheme;
+
+  // Cleanup music on unmount
   useEffect(() => {
     return () => {
-      // Destroy iframe to stop audio when leaving project
       if (musicRef.current) {
         musicRef.current.src = '';
       }
@@ -170,25 +222,36 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
 
+  // Theme-aware color classes
+  const txt = isLight ? 'text-gray-900' : 'text-white';
+  const txtSub = isLight ? 'text-gray-500' : 'text-gray-300';
+  const txtMuted = isLight ? 'text-gray-400' : 'text-white/50';
+  const txtLabel = isLight ? 'text-gray-500' : 'text-gray-400';
+  const card = isLight ? 'bg-white border-gray-200 shadow-sm' : 'bg-white/5 border-white/10';
+  const cardHover = isLight ? 'hover:border-gray-300' : 'hover:border-white/20';
+  const divider = isLight ? 'border-gray-200' : 'border-white/10';
+
   return (
     <div className="relative z-10 min-h-screen w-full overflow-x-hidden">
-      <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-white/20 px-4 sm:px-6 py-4 flex justify-between items-center">
-        <button onClick={onClose} className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group">
+      {/* Floating pink circles for light theme */}
+      {isLight && <FloatingCircles />}
+
+      <nav className={`sticky top-0 z-50 backdrop-blur-md border-b px-4 sm:px-6 py-4 flex justify-between items-center ${isLight ? 'bg-white/90 border-gray-200' : 'bg-[#0a0a1a]/90 border-white/20'}`}>
+        <button onClick={onClose} className="flex items-center gap-2 text-[#FF2D78] hover:text-[#ff6b9d] transition-colors group">
           <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
           <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
         </button>
         <div className="flex items-center gap-2">
-          {/* Audio toggle */}
-          <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
+          <button onClick={toggleMute} className={`p-2 rounded-full border transition-all ${isLight ? 'bg-gray-50 border-gray-200 text-gray-500 hover:text-gray-700' : 'bg-white/5 border-white/10 text-white/60 hover:text-white'}`} title={muted ? 'Unmute' : 'Mute'}>
             {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
-          <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
+          <button className={`p-2 rounded-full border transition-all ${isLight ? 'bg-gray-50 border-gray-200 text-gray-400 hover:text-gray-600' : 'bg-white/5 border-white/10 text-white/50 hover:text-white'}`}>
             <Share2 className="w-5 h-5" />
           </button>
         </div>
       </nav>
 
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
@@ -196,35 +259,42 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
               <motion.h1
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
-                className="text-5xl sm:text-6xl font-black italic tracking-tighter text-transparent bg-clip-text mb-4"
-                style={{ backgroundImage: `linear-gradient(to right, ${project.themeColor}, ${project.themeColor}99)` }}
+                className="text-5xl sm:text-6xl font-black italic tracking-tighter mb-4"
+                style={{
+                  color: project.themeColor,
+                }}
               >
                 {project.name}
               </motion.h1>
-              <p className="text-xl text-gray-300 font-medium italic">{project.subtitle}</p>
+              <p className={`text-xl font-medium italic ${txtSub}`}>{project.subtitle}</p>
             </header>
 
             {/* Cover Image */}
-            <div className="rounded-2xl overflow-hidden border aspect-video relative group" style={{ borderColor: `${project.themeColor}80` }}>
+            <div className="rounded-2xl overflow-hidden border aspect-video relative group" style={{ borderColor: `${project.themeColor}60` }}>
               <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/30 to-transparent" />
-              {/* Theme color glow */}
+              {isLight ? (
+                <div className="absolute inset-0 bg-gradient-to-t from-white/20 to-transparent" />
+              ) : (
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/30 to-transparent" />
+              )}
               <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: `linear-gradient(to top, ${project.themeColor}15, transparent)` }} />
             </div>
 
             <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+              <h3 className={`text-2xl font-bold flex items-center gap-2 ${txt}`}>
                 <BookOpen className="w-6 h-6" style={{ color: project.themeColor }} /> {isEs ? 'Sobre este proyecto' : 'About this project'}
               </h3>
-              <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>
+              <p className={`leading-relaxed text-lg ${txtSub}`}>{desc}</p>
+
+              {/* Status & Rating Cards */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                <div className={`p-4 rounded-xl border transition-all ${card} ${cardHover}`}>
                   <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.status')}</span>
-                  <span className="text-white font-medium">{status}</span>
+                  <span className={`font-medium ${txt}`}>{status}</span>
                 </div>
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                <div className={`p-4 rounded-xl border transition-all ${card} ${cardHover}`}>
                   <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.rating')}</span>
-                  <span className="text-white font-medium flex items-center gap-1">
+                  <span className={`font-medium flex items-center gap-1 ${txt}`}>
                     {project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" />
                   </span>
                 </div>
@@ -233,22 +303,26 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
               {/* Tags */}
               <div className="flex flex-wrap gap-2 pt-2">
                 {project.tags.map(tag => (
-                  <span key={tag} className="text-xs px-3 py-1.5 rounded-full border text-white/70 hover:text-white hover:bg-white/5 transition-all" style={{ borderColor: `${project.themeColor}40`, background: `${project.themeColor}10` }}>
+                  <span key={tag} className="text-xs px-3 py-1.5 rounded-full border transition-all cursor-default" style={{
+                    borderColor: `${project.themeColor}40`,
+                    background: isLight ? '#fff5f9' : `${project.themeColor}10`,
+                    color: project.themeColor,
+                  }}>
                     {tag}
                   </span>
                 ))}
               </div>
 
               {/* Preview Images Carousel */}
-              <div className="pt-8 border-t border-white/10">
-                <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+              <div className={`pt-8 border-t ${divider}`}>
+                <h4 className={`text-xl font-bold mb-4 flex items-center gap-2 ${txt}`}>
                   <ImageIcon className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.preview')}
                 </h4>
-                <ImageCarousel images={project.previews} themeColor={project.themeColor} />
+                <ImageCarousel images={project.previews} themeColor={project.themeColor} isLight={isLight} />
               </div>
 
               {/* Comments */}
-              <div className="pt-8 border-t border-white/10">
+              <div className={`pt-8 border-t ${divider}`}>
                 <CommentSection targetId={project.id} targetType="project" />
               </div>
             </div>
@@ -256,8 +330,8 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
 
           {/* Sidebar */}
           <div className="space-y-8">
-            <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32 space-y-6">
-              <h3 className="text-xl font-bold flex items-center gap-2">
+            <div className={`p-8 rounded-3xl border backdrop-blur-xl sticky top-32 space-y-6 ${isLight ? 'bg-white/90 border-gray-200 shadow-lg' : 'bg-gradient-to-b from-white/10 to-transparent border-white/10'}`}>
+              <h3 className={`text-xl font-bold flex items-center gap-2 ${txt}`}>
                 <Cpu className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.details')}
               </h3>
               <ul className="space-y-4">
@@ -268,12 +342,12 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
                   { label: t('projects.downloads'), value: project.details.downloads },
                 ].map(item => (
                   <li key={item.label} className="flex justify-between text-sm">
-                    <span className="text-gray-400">{item.label}</span>
-                    <span className="text-white font-mono">{item.value}</span>
+                    <span className={txtLabel}>{item.label}</span>
+                    <span className={`font-mono ${txt}`}>{item.value}</span>
                   </li>
                 ))}
               </ul>
-              <div className="border-t border-white/10 pt-6 space-y-3">
+              <div className={`border-t pt-6 space-y-3 ${divider}`}>
                 <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: project.themeColor }}>
                   {isEs ? 'Opciones de Descarga' : 'Download Options'}
                 </h4>
@@ -303,7 +377,7 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
         </div>
       </main>
 
-      {/* Hidden music iframe - auto-plays on mount, destroyed on unmount */}
+      {/* Hidden music iframe */}
       <iframe
         ref={musicRef}
         className="hidden"
@@ -355,14 +429,17 @@ export default function Proyectos() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-[100] bg-[#0a0a1a] text-white overflow-y-auto"
+            className={`fixed inset-0 z-[100] overflow-y-auto ${project.lightTheme ? 'bg-[#ffffff] text-gray-900' : 'bg-[#0a0a1a] text-white'}`}
           >
-            <div
-              className="fixed inset-0 z-0 opacity-100 pointer-events-none"
-              style={{
-                backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, ${project.themeColor}26 50%, rgba(10, 10, 26, 0.95) 100%)`,
-              }}
-            />
+            {/* Dark gradient overlay only for dark theme */}
+            {!project.lightTheme && (
+              <div
+                className="fixed inset-0 z-0 opacity-100 pointer-events-none"
+                style={{
+                  backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, ${project.themeColor}26 50%, rgba(10, 10, 26, 0.95) 100%)`,
+                }}
+              />
+            )}
             <ProjectDetail project={project} onClose={() => setActiveProject(null)} />
           </motion.div>
         )}
