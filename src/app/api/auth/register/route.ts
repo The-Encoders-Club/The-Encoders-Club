@@ -12,19 +12,19 @@ export async function POST(request: NextRequest) {
     }
 
     const { nickname, email, password, confirmPassword, remember, locale } = await request.json();
-    
+
     if (!nickname || !password) {
       return NextResponse.json({ error: 'Nickname and password are required' }, { status: 400 });
     }
-    
+
     if (!isValidNickname(nickname)) {
       return NextResponse.json({ error: 'Nickname must be 3-20 characters (letters, numbers, underscores)' }, { status: 400 });
     }
-    
+
     if (!isValidPassword(password)) {
       return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
     }
-    
+
     if (password !== confirmPassword) {
       return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
     }
@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
     // hashPassword is now async (uses Web Crypto API)
     const passwordHash = await hashPassword(password);
     const userLocale = getServerLocale(request.headers);
-    
+
     const user = await db.user.create({
       data: {
         nickname,
@@ -62,27 +62,21 @@ export async function POST(request: NextRequest) {
 
     await createSession(user.id, remember || false);
 
-    return NextResponse.json({ 
-      success: true, 
-      user: { 
-        id: user.id, 
-        nickname: user.nickname, 
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: user.id,
+        nickname: user.nickname,
         role: user.role,
         avatar: user.avatar,
         isPremium: user.isPremium,
-      } 
+      }
     });
   } catch (error: any) {
     console.error('Register error:', error);
-    // ── Diagnóstico temporal ──────────────────────────────────────
-    // Devuelve el error real para depuración.  Una vez resuelto el
-    // problema, reemplazar por el genérico:
-    //   return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-    const detail = error?.message || String(error);
-    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
-    return NextResponse.json({
-      error: 'Internal server error',
-      __debug: { detail, stack },
-    }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
