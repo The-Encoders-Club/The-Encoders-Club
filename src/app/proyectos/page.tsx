@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor, Download,
   Share2, X, Sparkles, ArrowRight, Gamepad2, Volume2, VolumeX,
-  ChevronLeft, ChevronRight, Search, Shirt, Puzzle
+  ChevronLeft, ChevronRight, Search, Shirt, Puzzle, FileText
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -147,8 +147,8 @@ function PinkDots() {
   );
 }
 
-/* ─── Image carousel (supports light/dark theme) ─── */
-function ImageCarousel({ images, themeColor, lightTheme }: { images: string[]; themeColor: string; lightTheme?: boolean }) {
+/* ─── Image carousel (dark theme) ─── */
+function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
@@ -162,32 +162,21 @@ function ImageCarousel({ images, themeColor, lightTheme }: { images: string[]; t
     <div className="relative group/carousel">
       <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x scroll-smooth">
         {images.map((src, idx) => (
-          <div
-            key={idx}
-            className={`flex-none w-64 sm:w-72 rounded-xl overflow-hidden border aspect-video group relative snap-start transition-all ${
-              lightTheme ? 'border-[#FFB6C8]/40 hover:border-[#FF2D78]/60' : 'border-white/10 hover:border-white/20'
-            }`}
-          >
+          <div key={idx} className="flex-none w-64 sm:w-72 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start hover:border-white/20 transition-all">
             <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
               <ImageIcon className="text-white w-8 h-8" />
             </div>
-            <div className={`absolute bottom-2 right-2 text-xs px-2 py-1 rounded-full ${
-              lightTheme ? 'bg-[#FF2D78]/80 text-white' : 'bg-black/60 text-white/60'
-            }`}>
+            <div className="absolute bottom-2 right-2 bg-black/60 text-white/60 text-xs px-2 py-1 rounded-full">
               {idx + 1}/{images.length}
             </div>
           </div>
         ))}
       </div>
-      <button onClick={() => scroll('left')} className={`absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full border text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10 ${
-        lightTheme ? 'bg-[#FF2D78]/80 border-[#FFB6C8] hover:bg-[#FF2D78]' : 'bg-black/50 border-white/20 hover:bg-black/70'
-      }`}>
+      <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
         <ChevronLeft size={16} />
       </button>
-      <button onClick={() => scroll('right')} className={`absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full border text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity z-10 ${
-        lightTheme ? 'bg-[#FF2D78]/80 border-[#FFB6C8] hover:bg-[#FF2D78]' : 'bg-black/50 border-white/20 hover:bg-black/70'
-      }`}>
+      <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
         <ChevronRight size={16} />
       </button>
     </div>
@@ -324,18 +313,9 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
                 {project.downloads.map((dl, i) => {
                   const Icon = dl.icon;
                   return (
-                    <a
-                      key={i}
-                      href={dl.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer"
                       className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight"
-                      style={{
-                        background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`,
-                        color: dl.textColor || '#ffffff',
-                        boxShadow: `0 4px 15px ${dl.color}30`,
-                      }}
-                    >
+                      style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
                       <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
                       {isEs ? dl.label : (dl.labelEn || dl.label)}
                     </a>
@@ -347,15 +327,7 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
         </div>
       </main>
 
-      <iframe
-        ref={musicRef}
-        className="hidden"
-        width="0"
-        height="0"
-        src={project.music}
-        allow="autoplay"
-        title={`${project.name} Music`}
-      />
+      <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
     </div>
   );
 }
@@ -365,19 +337,17 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    return () => {
-      if (musicRef.current) musicRef.current.src = '';
-    };
+    return () => { if (musicRef.current) musicRef.current.src = ''; };
   }, []);
 
   const toggleMute = () => {
     if (musicRef.current) {
       try {
         musicRef.current.contentWindow?.postMessage(
-          muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}',
-          '*'
+          muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'
         );
       } catch (e) { /* cross-origin */ }
     }
@@ -387,6 +357,51 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
+
+  /* Preview scroll helpers */
+  const scrollPreview = (dir: 'left' | 'right') => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -260 : 260, behavior: 'smooth' });
+    }
+  };
+
+  /* ─── Sidebar content (details + downloads) ─── */
+  const SidebarContent = () => (
+    <div className="bg-white rounded-2xl border border-[#FFB6C8]/40 shadow-sm p-6 space-y-5">
+      <h3 className="text-lg font-bold text-[#FF2D78] flex items-center gap-2">
+        <FileText className="w-5 h-5" /> {t('projects.details')}
+      </h3>
+      <ul className="space-y-3">
+        {[
+          { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
+          { label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
+          { label: t('projects.engine'), value: project.details.engine },
+          { label: t('projects.downloads'), value: project.details.downloads },
+        ].map(item => (
+          <li key={item.label} className="flex justify-between text-sm py-2 border-b border-[#FFB6C8]/20 last:border-0">
+            <span className="text-gray-500">{item.label}</span>
+            <span className="text-gray-800 font-mono">{item.value}</span>
+          </li>
+        ))}
+      </ul>
+      <div className="border-t border-[#FFB6C8]/20 pt-4 space-y-3">
+        <h4 className="text-sm font-bold uppercase tracking-wider text-[#FF2D78]">
+          {isEs ? 'Opciones de Descarga' : 'Download Options'}
+        </h4>
+        {project.downloads.map((dl, i) => {
+          const Icon = dl.icon;
+          return (
+            <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer"
+              className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight"
+              style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
+              <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+              {isEs ? dl.label : (dl.labelEn || dl.label)}
+            </a>
+          );
+        })}
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -403,39 +418,47 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
       <div className="relative z-10 min-h-screen w-full overflow-x-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#FFE6EA' }}>
         <PinkDots />
 
-        {/* Nav bar - NO white line/border, NO share button, NO volume here */}
-        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-4 flex justify-between items-center" style={{ backgroundColor: 'rgba(255,230,234,0.92)', backdropFilter: 'blur(12px)' }}>
+        {/* Nav - NO border, NO share button */}
+        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-4 flex items-center" style={{ backgroundColor: 'rgba(255,230,234,0.92)', backdropFilter: 'blur(12px)' }}>
           <button onClick={onClose} className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
             <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
           </button>
         </nav>
 
-        <main className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        <main ref={scrollRef} className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-6">
 
-          {/* Title */}
-          <header className="text-center">
+          {/* Title - left aligned */}
+          <header>
             <motion.h1
               initial={{ x: -20, opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              className="text-4xl sm:text-5xl font-black italic tracking-tighter text-[#FF2D78] mb-2"
+              className="text-4xl sm:text-5xl font-black italic tracking-tighter text-[#FF2D78] mb-1 text-left"
             >
               {project.name}
             </motion.h1>
-            <p className="text-lg text-[#d6336c]/70 font-medium italic">{project.subtitle}</p>
+            <p className="text-base text-[#d6336c]/60 font-medium italic text-left">{project.subtitle}</p>
           </header>
 
-          {/* Cover Image */}
-          <div className="rounded-2xl overflow-hidden border-2 border-[#FFB6C8] aspect-video relative group">
-            <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#FFE6EA]/30 to-transparent" />
+          {/* ─── Hero Image + Sidebar (side by side on desktop, stacked on mobile) ─── */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Cover Image - 2 cols on desktop */}
+            <div className="lg:col-span-2 rounded-2xl overflow-hidden border-2 border-[#FFB6C8] aspect-video relative group">
+              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#FFE6EA]/30 to-transparent" />
+            </div>
+
+            {/* Sidebar: Details + Downloads - 1 col on desktop, full width on mobile */}
+            <div className="lg:col-span-1 lg:sticky lg:top-24">
+              <SidebarContent />
+            </div>
           </div>
 
-          {/* Sobre este proyecto + Volume button */}
+          {/* ─── Sobre este proyecto (with volume button) ─── */}
           <div className="bg-white rounded-2xl p-6 border border-[#FFB6C8]/40 shadow-sm">
-            <h3 className="text-xl font-bold text-[#FF2D78] flex items-center justify-between mb-4">
+            <h3 className="text-lg font-bold text-[#FF2D78] flex items-center justify-between mb-3">
               <span className="flex items-center gap-2">
-                <BookOpen className="w-5 h-5" /> {isEs ? 'Sobre este proyecto' : 'About this project'}
+                <FileText className="w-5 h-5" /> {isEs ? 'Sobre este proyecto' : 'About this project'}
               </span>
               <button
                 onClick={toggleMute}
@@ -445,17 +468,17 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                 {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
               </button>
             </h3>
-            <p className="text-gray-600 leading-relaxed">{desc}</p>
+            <p className="text-gray-600 leading-relaxed text-sm">{desc}</p>
 
             {/* Status + Rating */}
-            <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="grid grid-cols-2 gap-4 mt-5">
               <div className="p-3 rounded-xl bg-[#FFE6EA]/50 border border-[#FFB6C8]/30">
                 <span className="text-xs font-bold uppercase block mb-1 text-[#FF2D78]">{t('projects.status')}</span>
-                <span className="text-gray-700 font-medium">{status}</span>
+                <span className="text-gray-700 font-medium text-sm">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-[#FFE6EA]/50 border border-[#FFB6C8]/30">
                 <span className="text-xs font-bold uppercase block mb-1 text-[#FF2D78]">{t('projects.rating')}</span>
-                <span className="text-gray-700 font-medium flex items-center gap-1">
+                <span className="text-gray-700 font-medium text-sm flex items-center gap-1">
                   {project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" />
                 </span>
               </div>
@@ -471,79 +494,54 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             </div>
           </div>
 
-          {/* Preview Carousel */}
+          {/* ─── Vista Previa (scrollable, multiple visible) ─── */}
           <div className="bg-white rounded-2xl p-6 border border-[#FFB6C8]/40 shadow-sm">
             <h4 className="text-lg font-bold text-[#FF2D78] mb-4 flex items-center gap-2">
               <ImageIcon className="w-5 h-5" /> {t('projects.preview')}
             </h4>
-            <ImageCarousel images={project.previews} themeColor={project.themeColor} lightTheme />
-          </div>
-
-          {/* Downloads (Detalles) - ABOVE Recursos y Contenido Extra */}
-          <div className="bg-white rounded-2xl p-6 border border-[#FFB6C8]/40 shadow-sm space-y-5">
-            <h3 className="text-xl font-bold text-[#FF2D78] flex items-center gap-2">
-              <Cpu className="w-5 h-5" /> {t('projects.details')}
-            </h3>
-            <ul className="space-y-3">
-              {[
-                { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
-                { label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
-                { label: t('projects.engine'), value: project.details.engine },
-                { label: t('projects.downloads'), value: project.details.downloads },
-              ].map(item => (
-                <li key={item.label} className="flex justify-between text-sm py-2 border-b border-[#FFB6C8]/20 last:border-0">
-                  <span className="text-gray-500">{item.label}</span>
-                  <span className="text-gray-800 font-mono">{item.value}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="border-t border-[#FFB6C8]/20 pt-4 space-y-3">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-[#FF2D78]">
-                {isEs ? 'Opciones de Descarga' : 'Download Options'}
-              </h4>
-              {project.downloads.map((dl, i) => {
-                const Icon = dl.icon;
-                return (
-                  <a
-                    key={i}
-                    href={dl.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight"
-                    style={{
-                      background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`,
-                      color: dl.textColor || '#ffffff',
-                      boxShadow: `0 4px 15px ${dl.color}30`,
-                    }}
-                  >
-                    <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                    {isEs ? dl.label : (dl.labelEn || dl.label)}
-                  </a>
-                );
-              })}
+            <div className="relative group/prev">
+              <div ref={scrollRef} className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x scroll-smooth">
+                {project.previews.map((src, idx) => (
+                  <div key={idx} className="flex-none w-48 sm:w-56 rounded-xl overflow-hidden border border-[#FFB6C8]/40 aspect-video group relative snap-start hover:border-[#FF2D78]/60 transition-all">
+                    <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <ImageIcon className="text-white w-6 h-6" />
+                    </div>
+                    <div className="absolute bottom-2 right-2 bg-[#FF2D78]/80 text-white text-[10px] px-2 py-0.5 rounded-full">
+                      {idx + 1}/{project.previews.length}
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button onClick={() => scrollPreview('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-7 h-7 rounded-full bg-[#FF2D78]/80 border border-[#FFB6C8] text-white flex items-center justify-center opacity-0 group-hover/prev:opacity-100 transition-opacity z-10">
+                <ChevronLeft size={14} />
+              </button>
+              <button onClick={() => scrollPreview('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-7 h-7 rounded-full bg-[#FF2D78]/80 border border-[#FFB6C8] text-white flex items-center justify-center opacity-0 group-hover/prev:opacity-100 transition-opacity z-10">
+                <ChevronRight size={14} />
+              </button>
             </div>
           </div>
 
-          {/* Recursos y Contenido Extra */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-[#FF2D78] flex items-center gap-2">
+          {/* ─── Recursos y Contenido Extra ─── */}
+          <div className="space-y-3">
+            <h3 className="text-lg font-bold text-[#FF2D78] flex items-center gap-2">
               <Sparkles className="w-5 h-5" /> {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
 
             {/* Wiki del Mod */}
-            <div className="bg-white rounded-2xl p-6 border border-[#FFB6C8]/40 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-[#FFB6C8]/40 shadow-sm">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#FFE6EA] flex items-center justify-center flex-shrink-0">
-                  <Search className="w-6 h-6 text-[#FF2D78]" />
+                <div className="w-11 h-11 rounded-xl bg-[#FFE6EA] flex items-center justify-center flex-shrink-0">
+                  <Search className="w-5 h-5 text-[#FF2D78]" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-bold text-gray-800 mb-1">Wiki del Mod</h4>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <h4 className="font-bold text-gray-800 text-sm mb-1">Wiki del Mod</h4>
+                  <p className="text-xs text-gray-500 mb-3">
                     {isEs
-                      ? 'Accede a la wiki completa del mod con toda la información sobre la historia, personajes y guías.'
-                      : 'Access the complete mod wiki with all information about the story, characters, and guides.'}
+                      ? 'Toda la información técnica, guías y lore del mod.'
+                      : 'All technical info, guides, and mod lore.'}
                   </p>
-                  <button className="px-4 py-2 rounded-lg bg-[#FF2D78] text-white text-sm font-semibold hover:bg-[#d6336c] transition-colors">
+                  <button className="px-4 py-2 rounded-lg bg-[#FF2D78] text-white text-xs font-semibold hover:bg-[#d6336c] transition-colors">
                     {isEs ? 'Ver Wiki' : 'View Wiki'}
                   </button>
                 </div>
@@ -551,23 +549,23 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             </div>
 
             {/* Spritepacks */}
-            <div className="bg-white rounded-2xl p-6 border border-[#FFB6C8]/40 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-[#FFB6C8]/40 shadow-sm">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#FFE6EA] flex items-center justify-center flex-shrink-0">
-                  <Shirt className="w-6 h-6 text-[#FF2D78]" />
+                <div className="w-11 h-11 rounded-xl bg-[#FFE6EA] flex items-center justify-center flex-shrink-0">
+                  <Shirt className="w-5 h-5 text-[#FF2D78]" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-bold text-gray-800 mb-1">Spritepacks</h4>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <h4 className="font-bold text-gray-800 text-sm mb-1">Spritepacks</h4>
+                  <p className="text-xs text-gray-500 mb-3">
                     {isEs
-                      ? 'Explora la colección de sprites y prendas disponibles para personalizar tu experiencia.'
-                      : 'Explore the sprite and clothing collection available to customize your experience.'}
+                      ? 'Cambia la ropa y accesorios de Monika.'
+                      : 'Change Monika\'s clothes and accessories.'}
                   </p>
                   <div className="flex gap-2">
-                    <button className="px-4 py-2 rounded-lg bg-[#FF2D78] text-white text-sm font-semibold hover:bg-[#d6336c] transition-colors">
+                    <button className="px-4 py-2 rounded-lg bg-[#FF2D78] text-white text-xs font-semibold hover:bg-[#d6336c] transition-colors">
                       {isEs ? 'Ver Ropa' : 'View Clothes'}
                     </button>
-                    <button className="px-4 py-2 rounded-lg border border-[#FFB6C8] text-[#FF2D78] text-sm font-semibold hover:bg-[#FFE6EA] transition-colors">
+                    <button className="px-4 py-2 rounded-lg border border-[#FFB6C8] text-[#FF2D78] text-xs font-semibold hover:bg-[#FFE6EA] transition-colors">
                       {isEs ? 'Ver Accesorios' : 'View Accessories'}
                     </button>
                   </div>
@@ -576,19 +574,19 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             </div>
 
             {/* Submods */}
-            <div className="bg-white rounded-2xl p-6 border border-[#FFB6C8]/40 shadow-sm">
+            <div className="bg-white rounded-2xl p-5 border border-[#FFB6C8]/40 shadow-sm">
               <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-[#FFE6EA] flex items-center justify-center flex-shrink-0">
-                  <Puzzle className="w-6 h-6 text-[#FF2D78]" />
+                <div className="w-11 h-11 rounded-xl bg-[#FFE6EA] flex items-center justify-center flex-shrink-0">
+                  <Puzzle className="w-5 h-5 text-[#FF2D78]" />
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-bold text-gray-800 mb-1">Submods</h4>
-                  <p className="text-sm text-gray-500 mb-3">
+                  <h4 className="font-bold text-gray-800 text-sm mb-1">Submods</h4>
+                  <p className="text-xs text-gray-500 mb-3">
                     {isEs
-                      ? 'Descubre submods creados por la comunidad que añaden contenido extra y nuevas experiencias.'
-                      : 'Discover community-created submods that add extra content and new experiences.'}
+                      ? 'Amplía las características y diálogos.'
+                      : 'Expand features and dialogues.'}
                   </p>
-                  <button className="px-4 py-2 rounded-lg bg-[#FF2D78] text-white text-sm font-semibold hover:bg-[#d6336c] transition-colors">
+                  <button className="px-4 py-2 rounded-lg bg-[#FF2D78] text-white text-xs font-semibold hover:bg-[#d6336c] transition-colors">
                     {isEs ? 'Explorar Submods' : 'Explore Submods'}
                   </button>
                 </div>
@@ -596,7 +594,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             </div>
           </div>
 
-          {/* Comments - white card with font applied, not transparent */}
+          {/* ─── Comentarios (solid white card with font) ─── */}
           <div className="bg-white rounded-2xl p-6 border border-[#FFB6C8]/40 shadow-sm">
             <CommentSection targetId={project.id} targetType="project" lightTheme />
           </div>
@@ -604,15 +602,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
         </main>
 
         {/* Hidden music iframe */}
-        <iframe
-          ref={musicRef}
-          className="hidden"
-          width="0"
-          height="0"
-          src={project.music}
-          allow="autoplay"
-          title={`${project.name} Music`}
-        />
+        <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
       </div>
     </>
   );
@@ -660,7 +650,6 @@ export default function Proyectos() {
               project.lightTheme ? 'bg-[#FFE6EA]' : 'bg-[#0a0a1a] text-white'
             }`}
           >
-            {/* Dark theme gradient overlay (only for non-light-theme) */}
             {!project.lightTheme && (
               <div
                 className="fixed inset-0 z-0 opacity-100 pointer-events-none"
@@ -706,7 +695,6 @@ export default function Proyectos() {
       {/* PROJECTS */}
       <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Featured project */}
           {projects
             .filter(p => p.featured)
             .map(project => (
@@ -722,11 +710,7 @@ export default function Proyectos() {
                 <div className="grid lg:grid-cols-2 gap-0">
                   <div className="relative h-48 sm:h-64 lg:h-auto min-h-[200px] bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5">
                     <img src={project.image} alt="" className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110" />
-                    <img
-                      src={project.image}
-                      alt={project.name}
-                      className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-2"
-                    />
+                    <img src={project.image} alt={project.name} className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-2" />
                     <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
                       {t('projects.featured')}
                     </span>
@@ -738,10 +722,7 @@ export default function Proyectos() {
                   </div>
                   <div className="p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
                     <div className="flex items-center gap-3 mb-2">
-                      <span
-                        className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                        style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}
-                      >
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
                         {isEs ? project.status : (project.statusEn || project.status)}
                       </span>
                       <div className="flex items-center gap-1 text-yellow-400 text-xs">
@@ -758,9 +739,7 @@ export default function Proyectos() {
                     </p>
                     <div className="flex flex-wrap gap-2 mb-6">
                       {project.tags.map(tag => (
-                        <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">
-                          {tag}
-                        </span>
+                        <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">{tag}</span>
                       ))}
                     </div>
                     <div className="flex items-center gap-2 text-[#FF2D78] font-bold text-sm group-hover:translate-x-2 transition-transform">
@@ -771,7 +750,6 @@ export default function Proyectos() {
               </motion.div>
             ))}
 
-          {/* Non-featured projects grid */}
           <div className="grid sm:grid-cols-2 gap-6">
             {projects
               .filter(p => !p.featured)
@@ -787,16 +765,9 @@ export default function Proyectos() {
                 >
                   <div className="relative h-48 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5">
                     <img src={project.image} alt="" className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110" />
-                    <img
-                      src={project.image}
-                      alt={project.name}
-                      className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4"
-                    />
+                    <img src={project.image} alt={project.name} className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4" />
                     <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                      <span
-                        className="text-xs font-semibold px-2.5 py-1 rounded-full"
-                        style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}
-                      >
+                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
                         {isEs ? project.status : (project.statusEn || project.status)}
                       </span>
                       <div className="flex items-center gap-1 text-yellow-400 text-xs">
@@ -821,7 +792,6 @@ export default function Proyectos() {
               ))}
           </div>
 
-          {/* Coming soon */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
