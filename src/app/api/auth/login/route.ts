@@ -11,14 +11,14 @@ export async function POST(request: NextRequest) {
     }
 
     const { nickname, password, remember } = await request.json();
-    
+
     if (!nickname || !password) {
       return NextResponse.json({ error: 'Nickname and password are required' }, { status: 400 });
     }
 
     const db = createDb();
     const user = await db.user.findUnique({ where: { nickname } });
-    
+
     // verifyPassword is now async (uses Web Crypto API)
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
@@ -39,21 +39,22 @@ export async function POST(request: NextRequest) {
 
     await createSession(user.id, remember || false);
 
-    return NextResponse.json({ 
-      success: true, 
-      user: { 
-        id: user.id, 
-        nickname: user.nickname, 
+    return NextResponse.json({
+      success: true,
+      user: {
+        id: user.id,
+        nickname: user.nickname,
         role: user.role,
         avatar: user.avatar,
         isPremium: user.isPremium,
         locale: user.locale,
-      } 
+      }
     });
   } catch (error: any) {
     console.error('Login error:', error);
-    const detail = error?.message || String(error);
-    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
-    return NextResponse.json({ error: 'Internal server error', __debug: { detail, stack } }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
