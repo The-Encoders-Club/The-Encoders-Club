@@ -44,8 +44,10 @@ export async function GET(request: NextRequest) {
     });
 
     return NextResponse.json({ comments });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error: any) {
+    const detail = error?.message || String(error);
+    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
+    return NextResponse.json({ error: 'Internal server error', __debug: { detail, stack } }, { status: 500 });
   }
 }
 
@@ -100,8 +102,10 @@ export async function POST(request: NextRequest) {
     });
 
     return NextResponse.json({ comment });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error: any) {
+    const detail = error?.message || String(error);
+    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
+    return NextResponse.json({ error: 'Internal server error', __debug: { detail, stack } }, { status: 500 });
   }
 }
 
@@ -121,7 +125,9 @@ export async function DELETE(request: NextRequest) {
     });
 
     return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } catch (error: any) {
+    const detail = error?.message || String(error);
+    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
+    return NextResponse.json({ error: 'Internal server error', __debug: { detail, stack } }, { status: 500 });
   }
 }
