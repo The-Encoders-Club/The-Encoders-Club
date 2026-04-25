@@ -1,55 +1,52 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createDb } from '@/lib/db';
+import { getDB, nowISO, toBool } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
-export async function GET() {
-  try {
-    const session = await getSession();
-    if (!session) {
-      return NextResponse.json({ notifications: [] });
-    }
-
-    const db = createDb();
-    const notifications = await db.notification.findMany({
-      where: { userId: session.id },
-      orderBy: { createdAt: 'desc' },
-      take: 50,
-    });
-
-    const unreadCount = await db.notification.count({
-      where: { userId: session.id, isRead: false },
-    });
-
-    return NextResponse.json({ notifications, unreadCount });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
-
+// PUT: Mark notification(s) as read
 export async function PUT(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
     }
 
-    const { notificationId, markAllRead } = await request.json();
-    
-    const db = createDb();
+    const body = await request.json() as Record<string, unknown>;
+    const { id, markAllRead } = body;
+
+    const db = await getDB();
+
     if (markAllRead) {
-      await db.notification.updateMany({
-        where: { userId: session.id, isRead: false },
-        data: { isRead: true },
-      });
-    } else if (notificationId) {
-      await db.notification.update({
-        where: { id: notificationId },
-        data: { isRead: true },
-      });
+      // Mark all unread notifications as read
+      await db
+        .prepare('UPDATE Notification SET isRead = 1 WHERE userId = ? AND isRead = 0')
+        .bind(session.id)
+        .run();
+
+      return NextResponse.json({ message: 'All notifications marked as read.' });
     }
 
-    return NextResponse.json({ success: true });
+    if (!id) {
+      return NextResponse.json({ error: 'Notification ID or markAllRead is required.' }, { status: 400 });
+    }
+
+    // Mark single notification as read
+    const notification = await db
+      .prepare('SELECT id FROM Notification WHERE id = ? AND userId = ?')
+      .bind(String(id), session.id)
+      .first();
+
+    if (!notification) {
+      return NextResponse.json({ error: 'Notification not found.' }, { status: 404 });
+    }
+
+    await db
+      .prepare('UPDATE Notification SET isRead = 1 WHERE id = ?')
+      .bind(String(id))
+      .run();
+
+    return NextResponse.json({ message: 'Notification marked as read.' });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Mark notification error:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
