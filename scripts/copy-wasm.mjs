@@ -1,14 +1,18 @@
 /**
  * copy-wasm.mjs
  *
- * Busca el archivo query_engine_bg.wasm generado por Prisma, lo copia
- * al directorio .open-next/ y TAMBIÉN reescribe las rutas absolutas
- * al WASM dentro de handler.mjs para que Wrangler pueda resolverlas.
+ * Prepara el WASM de Prisma para deploy en Cloudflare Workers.
  *
- * El problema: Next.js copia el WASM a cada ruta de API durante el build
- * y genera require() con rutas absolutas del sistema de archivos del
- * servidor de build. Wrangler no puede resolver esas rutas. Este script
- * las reemplaza por una ruta relativa "./query_engine_bg.wasm".
+ * PROBLEMA: Next.js/webpack convierte los imports ESM de WASM en
+ * require() con rutas absolutas o con hashes. Cloudflare Workers
+ * NO soporta require() — solo import (ESM).
+ *
+ * SOLUCIÓN:
+ *   1. Copiar query_engine_bg.wasm junto a handler.mjs
+ *   2. Agregar `import __queryEngineWasm from "./query_engine_bg.wasm";`
+ *      al inicio de handler.mjs
+ *   3. Reemplazar TODOS los require("...query_engine_bg.wasm...")
+ *      con la variable __queryEngineWasm
  *
  * Uso:  node scripts/copy-wasm.mjs
  * Se ejecuta automáticamente como parte de `npm run cf:build`.
@@ -43,9 +47,9 @@ const searchDirs = ["src/generated/prisma", "node_modules/.prisma/client"];
 const outDir = ".open-next";
 const handlerPath = join(outDir, "server-functions", "default", "handler.mjs");
 
-console.log("━".repeat(55));
+console.log("━".repeat(58));
 console.log("📋 copy-wasm.mjs — Preparando WASM de Prisma para deploy");
-console.log("━".repeat(55));
+console.log("━".repeat(58));
 
 // ── PASO 1: Verificar que .open-next existe ──────────────────────
 if (!existsSync(outDir)) {
@@ -68,62 +72,73 @@ for (const dir of searchDirs) {
 }
 
 if (!wasmFile) {
-  console.error("━".repeat(55));
+  console.error("━".repeat(58));
   console.error(`❌ No se encontró ${wasmName} en ningún directorio.`);
   console.error("   Ejecuta 'prisma generate' antes del build.");
   process.exit(1);
 }
 
-// ── PASO 3: Copiar WASM a .open-next/ (junto a worker.js) ───────
-const wasmDest = join(outDir, basename(wasmFile));
-cpSync(wasmFile, wasmDest);
-console.log(`📦 Copiado: ${wasmFile} → ${wasmDest}`);
-
-// ── PASO 4: Copiar WASM junto a handler.mjs ─────────────────────
+// ── PASO 3: Copiar WASM junto a handler.mjs ─────────────────────
 const handlerDir = join(outDir, "server-functions", "default");
+
+// Copiar al directorio del handler (donde se necesita el import)
 if (existsSync(handlerDir)) {
   const handlerWasmDest = join(handlerDir, basename(wasmFile));
   cpSync(wasmFile, handlerWasmDest);
   console.log(`📦 Copiado: ${wasmFile} → ${handlerWasmDest}`);
-} else {
-  console.log(`⚠️  No se encontró ${handlerDir}/ — se omite copia junto a handler`);
 }
 
-// ── PASO 5: Reescribir rutas WASM absolutas en handler.mjs ──────
-// Next.js genera require() con rutas absolutas como:
-//   require("/opt/buildhome/repo/.next/server/app/api/auth/register/query_engine_bg.wasm")
-// Eso causa ENOENT en Wrangler. Lo reemplazamos por "./query_engine_bg.wasm"
+// También copiar junto a worker.js (por si acaso)
+const rootWasmDest = join(outDir, basename(wasmFile));
+cpSync(wasmFile, rootWasmDest);
+console.log(`📦 Copiado: ${wasmFile} → ${rootWasmDest}`);
+
+// ── PASO 4: Post-procesar handler.mjs ────────────────────────────
+// Cloudflare Workers NO soporta require() — solo import (ESM).
+// Reemplazamos todos los require("...query_engine_bg.wasm...")
+// con una variable importada al inicio del archivo.
 if (existsSync(handlerPath)) {
   console.log(`\n🔧 Post-procesando ${handlerPath}...`);
   let handlerContent = readFileSync(handlerPath, "utf-8");
 
-  // Contar cuántas rutas absolutas al WASM hay
-  const absoluteWasmRegex = /require\(["'][^"']*query_engine_bg\.wasm[^"']*["']\)/g;
-  const matches = handlerContent.match(absoluteWasmRegex);
+  // Buscar TODAS las llamadas require() que referencien al WASM
+  // Esto incluye rutas absolutas, relativas, con hash, con ?module, etc.
+  const wasmRequireRegex = /require\(\s*["'][^"']*query_engine_bg\.wasm[^"']*["']\s*\)/g;
+  const matches = handlerContent.match(wasmRequireRegex);
 
   if (matches && matches.length > 0) {
-    console.log(`   🔎 Encontradas ${matches.length} rutas absolutas al WASM`);
+    console.log(`   🔎 Encontradas ${matches.length} llamadas require() al WASM`);
 
-    // Reemplazar TODAS las rutas absolutas con relativa
+    // Agregar import ESM al inicio del archivo
+    const importStatement = 'import __queryEngineWasm from "./query_engine_bg.wasm";\n';
+
+    // Reemplazar TODOS los require() con la variable importada
+    // Antes: require("/opt/buildhome/.../query_engine_bg.wasm")
+    // Antes: require("./232a8c06...-query_engine_bg.wasm")
+    // Después: __queryEngineWasm
     handlerContent = handlerContent.replace(
-      /require\(["'][^"']*query_engine_bg\.wasm(?:\?module)?["']\)/g,
-      'require("./query_engine_bg.wasm")'
+      wasmRequireRegex,
+      "__queryEngineWasm"
     );
 
+    // Agregar el import al inicio
+    handlerContent = importStatement + handlerContent;
+
     writeFileSync(handlerPath, handlerContent, "utf-8");
-    console.log(`   ✅ Reescritas ${matches.length} rutas → require("./query_engine_bg.wasm")`);
+    console.log(`   ✅ Reemplazadas ${matches.length} require() → __queryEngineWasm`);
+    console.log(`   ✅ Import ESM agregado al inicio del archivo`);
   } else {
-    console.log("   ℹ️  No se encontraron rutas absolutas al WASM (ya está correcto)");
+    console.log("   ℹ️  No se encontraron require() al WASM (ya usa import)");
   }
 } else {
   console.log(`\n⚠️  No se encontró ${handlerPath} — se omite post-procesamiento`);
 }
 
-// ── PASO 6: Verificación final ───────────────────────────────────
+// ── PASO 5: Verificación final ───────────────────────────────────
 let allGood = true;
 
-if (!existsSync(wasmDest)) {
-  console.error(`\n❌ Falta: ${wasmDest}`);
+if (!existsSync(rootWasmDest)) {
+  console.error(`\n❌ Falta: ${rootWasmDest}`);
   allGood = false;
 }
 
@@ -134,9 +149,9 @@ if (existsSync(handlerDir) && !existsSync(handlerWasmPath)) {
 }
 
 if (allGood) {
-  console.log("\n" + "━".repeat(55));
+  console.log("\n" + "━".repeat(58));
   console.log("✅ WASM listo para deploy");
-  console.log("━".repeat(55));
+  console.log("━".repeat(58));
 } else {
   console.error("\n❌ Verificación fallida — revisa los errores arriba");
   process.exit(1);
