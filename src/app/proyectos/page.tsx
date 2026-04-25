@@ -140,8 +140,8 @@ function PinkDots() {
             y: [0, -(30 + d.size * 0.2), 18 + d.size * 0.1, -(30 + d.size * 0.2)],
           }}
           transition={{
-            duration: 12 + (i * 2) % 14,
-            delay: (i * 1.5) % 7,
+            duration: 12 + (d.id * 2) % 14,
+            delay: (d.id * 1.5) % 7,
             repeat: Infinity,
             repeatType: 'reverse',
             ease: 'easeInOut',
@@ -628,7 +628,7 @@ export default function Proyectos() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-[100] overflow-y-auto"
+            className={`fixed inset-0 z-[100] overflow-y-auto ${project.lightTheme ? '' : 'bg-[#0a0a1a] text-white'}`}
           >
             {/* Choose light or dark detail */}
             {project.lightTheme ? (
