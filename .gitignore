@@ -1,37 +1,8 @@
-# dependencies
-node_modules
-.pnp
-.pnp.js
-
-# next.js
-.next/
-out/
-next-env.d.ts
-
-# OpenNext / Cloudflare
+# @opennextjs/cloudflare
+node_modules/
 .open-next/
 .wrangler/
-worker-configuration.d.ts
-cloudflare-env.d.ts
-
-# prisma
-prisma/dev.db
-prisma/dev.db-journal
-
-# Prisma generated client (regenerado por `prisma generate` durante el build)
-src/generated/
-
-# env
-.env
-.env*.local
 .dev.vars
-
-# misc
-.DS_Store
 *.log
-.replit-cache
-.cache/
-.local/
-
-# testing
-coverage/
+.env
+.env.local
