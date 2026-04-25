@@ -273,7 +273,7 @@ function MonikaProjectDetail({ project, onClose }: { project: typeof projects[nu
                 <h3 className="text-[#D14D7A] font-bold text-base mb-4 flex items-center font-m1">
                   {sectionDot} Detalles
                 </h3>
-                <ul className="space-y-3 mb-5">
+                <ul className="space-y-3">
                   {[
                     { label: isEs ? 'Tiempo de juego' : 'Play time', value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
                     { label: isEs ? 'Idioma' : 'Language', value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
@@ -286,30 +286,6 @@ function MonikaProjectDetail({ project, onClose }: { project: typeof projects[nu
                     </li>
                   ))}
                 </ul>
-
-                <div className="border-t border-[#FFCDD2] pt-4">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-[#D14D7A] mb-3 font-m1">
-                    {isEs ? 'Opciones de Descarga' : 'Download Options'}
-                  </h4>
-                  <div className="flex flex-col gap-2">
-                    {project.downloads.map((dl, i) => {
-                      const Icon = dl.icon;
-                      return (
-                        <a
-                          key={i}
-                          href={dl.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="w-full py-2.5 rounded-lg flex items-center justify-center gap-2 text-white text-sm font-bold uppercase tracking-wide shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
-                          style={{ backgroundColor: dl.color }}
-                        >
-                          <Icon className="w-4 h-4" />
-                          {isEs ? dl.label : (dl.labelEn || dl.label)}
-                        </a>
-                      );
-                    })}
-                  </div>
-                </div>
               </div>
             </div>
 
@@ -354,35 +330,46 @@ function MonikaProjectDetail({ project, onClose }: { project: typeof projects[nu
               ))}
             </div>
 
-            {/* Preview Grid */}
+            {/* Preview Carousel */}
             <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="mb-8">
               <h3 className="text-[#D14D7A] font-bold text-base flex items-center mb-4 font-m1">
                 {sectionDot} {isEs ? 'Vista Previa' : 'Preview'}
               </h3>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {project.previews.slice(0, 3).map((src, idx) => (
-                  <div key={idx} className="rounded-xl overflow-hidden relative group cursor-pointer">
+              <div className="flex gap-3 overflow-x-auto pb-3 scrollbar-hide snap-x scroll-smooth">
+                {project.previews.map((src, idx) => (
+                  <div key={idx} className="flex-none w-64 sm:w-72 rounded-xl overflow-hidden relative group cursor-pointer snap-start">
                     <img src={src} alt={`Preview ${idx + 1}`} className="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-105" />
-                    <span className="absolute bottom-2 right-2 bg-black/50 text-white/70 text-[10px] px-2 py-0.5 rounded-full font-mono">
+                    <span className="absolute bottom-2 right-2 bg-black/50 text-white/70 text-xs px-2 py-0.5 rounded-full font-mono">
                       {idx + 1}/{project.previews.length}
                     </span>
                   </div>
                 ))}
               </div>
-              {project.previews.length > 3 && (
-                <div className="mt-4 overflow-x-auto scrollbar-hide">
-                  <div className="flex gap-3 pb-2">
-                    {project.previews.slice(3).map((src, idx) => (
-                      <div key={idx} className="flex-none w-48 rounded-lg overflow-hidden relative group cursor-pointer">
-                        <img src={src} alt={`Preview ${idx + 4}`} className="w-full aspect-video object-cover transition-transform duration-300 group-hover:scale-105" />
-                        <span className="absolute bottom-1.5 right-1.5 bg-black/50 text-white/70 text-[10px] px-1.5 py-0.5 rounded-full font-mono">
-                          {idx + 4}/{project.previews.length}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            </motion.div>
+
+            {/* Downloads */}
+            <motion.div initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }} className="mb-8">
+              <h3 className="text-[#D14D7A] font-bold text-base flex items-center mb-4 font-m1">
+                {sectionDot} {isEs ? 'Opciones de Descarga' : 'Download Options'}
+              </h3>
+              <div className="flex flex-col sm:flex-row gap-3">
+                {project.downloads.map((dl, i) => {
+                  const Icon = dl.icon;
+                  return (
+                    <a
+                      key={i}
+                      href={dl.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 py-3 rounded-xl flex items-center justify-center gap-2 text-white text-sm font-bold uppercase tracking-wide shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all"
+                      style={{ backgroundColor: dl.color }}
+                    >
+                      <Icon className="w-5 h-5" />
+                      {isEs ? dl.label : (dl.labelEn || dl.label)}
+                    </a>
+                  );
+                })}
+              </div>
             </motion.div>
 
             {/* Resources */}
