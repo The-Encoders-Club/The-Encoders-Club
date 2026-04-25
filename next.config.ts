@@ -9,11 +9,16 @@ const nextConfig: NextConfig = {
     unoptimized: true,
   },
   transpilePackages: ["framer-motion", "motion-dom", "motion-utils"],
-  // CRITICAL: Mark Prisma packages as external so webpack does NOT bundle them.
-  // With queryCompiler + --no-engine there is no WASM, but the Prisma runtime
-  // still uses dynamic require() internally which breaks in the Workers ESM env.
-  // Keeping these external lets OpenNext's esbuild step handle them correctly.
-  serverExternalPackages: ["@prisma/client", ".prisma/client", "@prisma/adapter-d1"],
+  // CRITICAL: Prevent webpack from bundling Prisma packages.
+  // The standard @prisma/client uses fs/path which DON'T EXIST in Workers.
+  // Marking them external lets OpenNext's esbuild handle them properly,
+  // and @prisma/client/edge (imported in db.ts) avoids all fs calls.
+  serverExternalPackages: [
+    "@prisma/client",
+    "@prisma/client/edge",
+    ".prisma/client",
+    "@prisma/adapter-d1",
+  ],
 };
 
 if (process.env.OPENNEXT_DEV === "1") {
