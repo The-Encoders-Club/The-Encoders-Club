@@ -1,61 +1,102 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createDb } from '@/lib/db';
+import { getDB, nowISO } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
+// POST: Upload avatar to R2
 export async function POST(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) {
-      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+      return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
     }
 
     const formData = await request.formData();
-    const avatarFile = formData.get('avatar') as File;
-    
-    if (!avatarFile) {
-      return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+    const file = formData.get('avatar') as File | null;
+
+    if (!file) {
+      return NextResponse.json({ error: 'No file provided.' }, { status: 400 });
     }
 
-    // Validate file
-    if (!avatarFile.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 });
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+    if (!allowedTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Allowed: JPEG, PNG, GIF, WebP, SVG.' },
+        { status: 400 }
+      );
     }
 
-    if (avatarFile.size > 5 * 1024 * 1024) {
-      return NextResponse.json({ error: 'File must be less than 5MB' }, { status: 400 });
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File size must be less than 5MB.' }, { status: 400 });
     }
 
-    const bytes = await avatarFile.arrayBuffer();
+    const env = await (await import('@/lib/db')).getEnv();
+    const arrayBuffer = await file.arrayBuffer();
 
-    // In Cloudflare Workers, we cannot write to the filesystem.
-    // Instead, we store the avatar as a base64 data URL directly in the database.
-    // For a production app, consider using Cloudflare R2 for file storage.
-    // NOTE: We use Uint8Array + btoa() instead of Buffer to stay compatible
-    // with the Workers runtime (Buffer requires nodejs_compat and can be unreliable).
-    const allowedTypes: Record<string, string> = {
-      'image/jpeg': 'image/jpeg',
-      'image/png': 'image/png',
-      'image/webp': 'image/webp',
-      'image/gif': 'image/gif',
+    // Determine extension from file type
+    const extMap: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/gif': 'gif',
+      'image/webp': 'webp',
+      'image/svg+xml': 'svg',
     };
-    const mimeType = allowedTypes[avatarFile.type] || 'image/jpeg';
-    const uint8 = new Uint8Array(bytes);
-    let binary = '';
-    for (let i = 0; i < uint8.byteLength; i++) {
-      binary += String.fromCharCode(uint8[i]);
-    }
-    const base64 = btoa(binary);
-    const avatarUrl = `data:${mimeType};base64,${base64}`;
+    const ext = extMap[file.type] || 'webp';
 
-    const db = createDb();
-    await db.user.update({
-      where: { id: session.id },
-      data: { avatar: avatarUrl },
+    // Generate key: {userId}-{timestamp}.{ext}
+    const key = `${session.id}-${Date.now()}.${ext}`;
+
+    // Store in R2
+    await env.AVATAR_BUCKET.put(key, arrayBuffer, {
+      httpMetadata: {
+        contentType: file.type,
+      },
     });
 
-    return NextResponse.json({ success: true, avatar: avatarUrl });
+    // Delete old avatar from R2 if user had one
+    const db = await getDB();
+    const user = await db
+      .prepare('SELECT avatar FROM User WHERE id = ?')
+      .bind(session.id)
+      .first();
+
+    if (user?.avatar) {
+      const avatarStr = String(user.avatar);
+      // Extract key from old avatar URL like /api/avatars/{key}
+      const oldKey = avatarStr.replace('/api/avatars/', '');
+      if (oldKey) {
+        try {
+          await env.AVATAR_BUCKET.delete(oldKey);
+        } catch {
+          // Ignore if old avatar doesn't exist
+        }
+      }
+    }
+
+    // Update user's avatar field
+    const avatarUrl = `/api/avatars/${key}`;
+    await db
+      .prepare('UPDATE User SET avatar = ?, updatedAt = ? WHERE id = ?')
+      .bind(avatarUrl, nowISO(), session.id)
+      .run();
+
+    // Log activity
+    await db
+      .prepare('INSERT INTO ActivityLog (id, userId, action, details, ipAddress, createdAt) VALUES (?, ?, ?, ?, ?, ?)')
+      .bind(
+        `log-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        session.id,
+        'avatar_updated',
+        `Updated avatar: ${key}`,
+        request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown',
+        nowISO()
+      )
+      .run();
+
+    return NextResponse.json({ avatar: avatarUrl });
   } catch (error) {
     console.error('Avatar upload error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
