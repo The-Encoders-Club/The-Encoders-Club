@@ -5,24 +5,14 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 
 export const dynamic = "force-dynamic";
 
-/**
- * GET /api/setup?code=TU_CODIGO
- *
- * Crea el usuario admin inicial si no existe.
- * Protegido con la variable de entorno SETUP_CODE (configurala en Cloudflare).
- */
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
 
-  // En Cloudflare Workers, las env vars se leen desde el contexto del Worker,
-  // no desde process.env.  Se intenta primero getCloudflareContext y se
-  // hace fallback a process.env para compatibilidad con `next dev` local.
   let expected: string | undefined;
   try {
     const ctx = getCloudflareContext();
     expected = ctx.env.SETUP_CODE;
   } catch {
-    // No estamos dentro de un Worker (ej. next dev local)
     expected = process.env.SETUP_CODE;
   }
 
@@ -50,7 +40,6 @@ export async function GET(req: NextRequest) {
     });
   }
 
-  // hashPassword is now async (uses Web Crypto API)
   const user = await db.user.create({
     data: {
       nickname,
