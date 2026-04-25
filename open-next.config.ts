@@ -1,17 +1,12 @@
 import { defineCloudflareConfig } from "@opennextjs/cloudflare";
 
 export default defineCloudflareConfig({
-  // No special Prisma/WASM configuration needed!
+  // No custom esbuild plugins needed.
   //
-  // With the queryCompiler preview feature + --no-engine, the Prisma
-  // client no longer uses a Rust/WASM query engine. All query logic
-  // is pure TypeScript, so there's no WASM file to externalize.
+  // With queryCompiler + --no-engine, there is NO WASM query engine.
+  // With @prisma/client/edge import in db.ts, there are NO fs calls.
+  // With serverExternalPackages in next.config.ts, webpack doesn't bundle Prisma.
   //
-  // OpenNext automatically handles the Prisma client via its internal
-  // wrangler-external esbuild plugin, which marks .wasm and .bin
-  // files as external for Wrangler.
-  //
-  // The serverExternalPackages in next.config.ts ensures that
-  // @prisma/client, .prisma/client, and @prisma/adapter-d1 are
-  // not bundled by webpack, which prevents "Dynamic require" errors.
+  // OpenNext handles the rest via its internal wrangler-external plugin
+  // and automatic Prisma client patching for the workerd runtime.
 });
