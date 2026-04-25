@@ -1,7 +1,9 @@
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["queryCompiler", "driverAdapters"]
-  output          = "../src/generated/prisma"
+  // NO "output" — Prisma generates to node_modules/.prisma/client by default.
+  // This lets @prisma/client/edge resolve correctly AND allows OpenNext to
+  // auto-patch the client for the workerd runtime.
 }
 
 datasource db {
