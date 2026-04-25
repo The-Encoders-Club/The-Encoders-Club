@@ -1,78 +1,164 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createDb } from '@/lib/db';
+import { getDB, generateId, nowISO } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
+// GET: Get Discord config (admin+ only, with masked bot token)
 export async function GET() {
   try {
     const session = await getSession();
-    if (!session || !['admin', 'owner'].includes(session.role)) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
     }
 
-    const db = createDb();
-    let config = await db.discordConfig.findFirst();
+    if (session.role !== 'owner' && session.role !== 'admin') {
+      return NextResponse.json({ error: 'Insufficient permissions.' }, { status: 403 });
+    }
+
+    const db = await getDB();
+
+    const config = await db
+      .prepare('SELECT * FROM DiscordConfig LIMIT 1')
+      .first();
+
     if (!config) {
-      config = await db.discordConfig.create({ data: {} });
+      return NextResponse.json({ config: null });
     }
 
-    // Mask sensitive data
+    // Mask the bot token for security
+    const botToken = config.botToken as string | null;
+    const maskedBotToken = botToken
+      ? botToken.substring(0, 8) + '•'.repeat(Math.max(0, botToken.length - 8))
+      : null;
+
     return NextResponse.json({
       config: {
         id: config.id,
+        botToken: maskedBotToken,
+        hasBotToken: !!botToken,
         serverId: config.serverId,
         channelId: config.channelId,
-        webhookUrl: config.webhookUrl ? config.webhookUrl.substring(0, 20) + '...' : null,
+        webhookUrl: config.webhookUrl,
         modRoleId: config.modRoleId,
         adminRoleId: config.adminRoleId,
         collabRoleId: config.collabRoleId,
-        hasBotToken: !!config.botToken,
+        createdAt: config.createdAt,
+        updatedAt: config.updatedAt,
       },
     });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Get Discord config error:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
 
+// PUT: Save Discord config (admin+ only)
 export async function PUT(request: NextRequest) {
   try {
     const session = await getSession();
-    if (!session || !['admin', 'owner'].includes(session.role)) {
-      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
     }
 
-    const { botToken, serverId, channelId, webhookUrl, modRoleId, adminRoleId, collabRoleId } = await request.json();
-    
-    const db = createDb();
-    let config = await db.discordConfig.findFirst();
-    
-    if (config) {
-      await db.discordConfig.update({
-        where: { id: config.id },
-        data: {
-          ...(botToken !== undefined ? { botToken } : {}),
-          ...(serverId !== undefined ? { serverId } : {}),
-          ...(channelId !== undefined ? { channelId } : {}),
-          ...(webhookUrl !== undefined ? { webhookUrl } : {}),
-          ...(modRoleId !== undefined ? { modRoleId } : {}),
-          ...(adminRoleId !== undefined ? { adminRoleId } : {}),
-          ...(collabRoleId !== undefined ? { collabRoleId } : {}),
-        },
-      });
+    if (session.role !== 'owner' && session.role !== 'admin') {
+      return NextResponse.json({ error: 'Insufficient permissions.' }, { status: 403 });
+    }
+
+    const body = await request.json() as Record<string, unknown>;
+    const { botToken, serverId, channelId, webhookUrl, modRoleId, adminRoleId, collabRoleId } = body;
+
+    const db = await getDB();
+    const now = nowISO();
+
+    // Check if config already exists
+    const existing = await db
+      .prepare('SELECT id FROM DiscordConfig LIMIT 1')
+      .first();
+
+    if (existing) {
+      // Build dynamic update query
+      const updates: string[] = [];
+      const values: unknown[] = [];
+
+      if (botToken !== undefined) {
+        updates.push('botToken = ?');
+        values.push(botToken ? String(botToken) : null);
+      }
+      if (serverId !== undefined) {
+        updates.push('serverId = ?');
+        values.push(serverId ? String(serverId) : null);
+      }
+      if (channelId !== undefined) {
+        updates.push('channelId = ?');
+        values.push(channelId ? String(channelId) : null);
+      }
+      if (webhookUrl !== undefined) {
+        updates.push('webhookUrl = ?');
+        values.push(webhookUrl ? String(webhookUrl) : null);
+      }
+      if (modRoleId !== undefined) {
+        updates.push('modRoleId = ?');
+        values.push(modRoleId ? String(modRoleId) : null);
+      }
+      if (adminRoleId !== undefined) {
+        updates.push('adminRoleId = ?');
+        values.push(adminRoleId ? String(adminRoleId) : null);
+      }
+      if (collabRoleId !== undefined) {
+        updates.push('collabRoleId = ?');
+        values.push(collabRoleId ? String(collabRoleId) : null);
+      }
+
+      if (updates.length === 0) {
+        return NextResponse.json({ error: 'No fields to update.' }, { status: 400 });
+      }
+
+      updates.push('updatedAt = ?');
+      values.push(now);
+      values.push(existing.id as string);
+
+      await db
+        .prepare(`UPDATE DiscordConfig SET ${updates.join(', ')} WHERE id = ?`)
+        .bind(...values)
+        .run();
     } else {
-      await db.discordConfig.create({
-        data: { botToken, serverId, channelId, webhookUrl, modRoleId, adminRoleId, collabRoleId },
-      });
+      // Create new config
+      const configId = generateId();
+
+      await db
+        .prepare(
+          'INSERT INTO DiscordConfig (id, botToken, serverId, channelId, webhookUrl, modRoleId, adminRoleId, collabRoleId, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        )
+        .bind(
+          configId,
+          botToken ? String(botToken) : null,
+          serverId ? String(serverId) : null,
+          channelId ? String(channelId) : null,
+          webhookUrl ? String(webhookUrl) : null,
+          modRoleId ? String(modRoleId) : null,
+          adminRoleId ? String(adminRoleId) : null,
+          collabRoleId ? String(collabRoleId) : null,
+          now,
+          now
+        )
+        .run();
     }
 
-    await db.activityLog.create({
-      data: {
-        userId: session.id,
-        action: 'discord_config_update',
-      },
-    });
+    // Log activity
+    await db
+      .prepare('INSERT INTO ActivityLog (id, userId, action, details, ipAddress, createdAt) VALUES (?, ?, ?, ?, ?, ?)')
+      .bind(
+        `log-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        session.id,
+        'discord_config_updated',
+        'Discord configuration updated',
+        request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown',
+        now
+      )
+      .run();
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ message: 'Discord configuration saved successfully.' });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    console.error('Save Discord config error:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
