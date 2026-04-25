@@ -7,7 +7,7 @@
  * Uso:  node scripts/copy-wasm.mjs
  * Se ejecuta automáticamente como parte de `npm run cf:build`.
  */
-import { cpSync, readdirSync, statSync } from "fs";
+import { cpSync, existsSync, readdirSync } from "fs";
 import { join, basename } from "path";
 
 /**
@@ -20,8 +20,8 @@ function findFile(dir, name) {
   try {
     const entries = readdirSync(dir, { withFileTypes: true });
     for (const entry of entries) {
-      // Saltar node_modules y .git para evitar búsquedas innecesarias
-      if (entry.name === "node_modules" || entry.name === ".git") continue;
+      // Saltar .git para evitar búsquedas innecesarias
+      if (entry.name === ".git") continue;
       const fullPath = join(dir, entry.name);
       if (entry.isDirectory()) {
         const result = findFile(fullPath, name);
@@ -37,19 +37,50 @@ function findFile(dir, name) {
 }
 
 const wasmName = "query_engine_bg.wasm";
-const searchDir = "src/generated/prisma";
+const searchDirs = ["src/generated/prisma", "node_modules/.prisma/client"];
 const outDir = ".open-next";
 
-console.log(`🔍 Buscando ${wasmName} en ${searchDir}...`);
+console.log("━".repeat(50));
+console.log("📋 copy-wasm.mjs — Copiando WASM de Prisma");
+console.log("━".repeat(50));
 
-const wasmFile = findFile(searchDir, wasmName);
+// Verificar que .open-next existe (debe existir tras el build)
+if (!existsSync(outDir)) {
+  console.error(`❌ El directorio ${outDir}/ no existe.`);
+  console.error("   Ejecuta 'opennextjs-cloudflare build' antes de este script.");
+  process.exit(1);
+}
+
+// Buscar el WASM en las ubicaciones posibles
+let wasmFile = null;
+for (const dir of searchDirs) {
+  console.log(`🔍 Buscando ${wasmName} en ${dir}...`);
+  wasmFile = findFile(dir, wasmName);
+  if (wasmFile) {
+    console.log(`   ✅ Encontrado: ${wasmFile}`);
+    break;
+  } else {
+    console.log(`   ⬜ No encontrado en ${dir}`);
+  }
+}
 
 if (wasmFile) {
   const dest = join(outDir, basename(wasmFile));
   cpSync(wasmFile, dest);
-  console.log(`✅ Copiado: ${wasmFile} → ${dest}`);
+
+  // Verificar que se copió correctamente
+  if (existsSync(dest)) {
+    console.log(`📦 Copiado: ${wasmFile} → ${dest}`);
+    console.log("━".repeat(50));
+    console.log("✅ WASM listo para deploy");
+  } else {
+    console.error(`❌ Error: el archivo no se copió a ${dest}`);
+    process.exit(1);
+  }
 } else {
-  console.error(`❌ No se encontró ${wasmName} en ${searchDir}/`);
+  console.error("━".repeat(50));
+  console.error(`❌ No se encontró ${wasmName} en ningún directorio de búsqueda.`);
   console.error("   Asegúrate de haber ejecutado 'prisma generate' antes del build.");
+  console.error("   El schema usa 'runtime = \"workerd\"' que genera este archivo WASM.");
   process.exit(1);
 }
