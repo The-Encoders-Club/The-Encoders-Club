@@ -1,25 +1,29 @@
 name = "the-encoders-club"
 main = ".open-next/worker.js"
-compatibility_date = "2025-05-05"
-compatibility_flags = ["nodejs_compat", "global_fetch_strictly_public"]
+compatibility_date = "2024-12-01"
+compatibility_flags = ["nodejs_compat"]
 
 [assets]
-binding = "ASSETS"
 directory = ".open-next/assets"
+binding = "ASSETS"
 
-[observability]
-enabled = true
-
-# D1 SQLite database binding
+# ========== D1 Database ==========
 [[d1_databases]]
 binding = "DB"
-database_name = "encoders-db"
-database_id = "8b78b43b-46f1-416b-802b-0ff7d085da37"
-migrations_dir = "migrations"
+database_name = "encoders-club-db"
+database_id = "TU_DATABASE_ID_AQUI"
 
-# ── Public env vars (non-secret) ──────────────────────────────────────────────
+# ========== R2 Storage (Avatars) ==========
+[[r2_buckets]]
+binding = "AVATAR_BUCKET"
+bucket_name = "encoders-club-avatars"
+
+# ========== KV Namespace (Rate Limiting) ==========
+[[kv_namespaces]]
+binding = "RATE_LIMITER"
+id = "TU_KV_NAMESPACE_ID_AQUI"
+
+# ========== Environment Variables ==========
 [vars]
 NODE_ENV = "production"
-# SETUP_CODE se definió como secret vía `wrangler secret put SETUP_CODE`.
-# Los secrets NO se declaran en [vars] — Cloudflare los inyecta automáticamente.
-# Si necesitas cambiarlo:  wrangler secret put SETUP_CODE
+SITE_URL = "https://tu-dominio.pages.dev"
