@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const targetId = searchParams.get('targetId');
     const targetType = searchParams.get('targetType') || 'project';
-    
+
     if (!targetId) {
       return NextResponse.json({ error: 'targetId is required' }, { status: 400 });
     }
@@ -45,9 +45,11 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ comments });
   } catch (error: any) {
-    const detail = error?.message || String(error);
-    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
-    return NextResponse.json({ error: 'Internal server error', __debug: { detail, stack } }, { status: 500 });
+    console.error('Comments GET error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { content, targetId, targetType, parentId } = await request.json();
-    
+
     if (!content || !targetId) {
       return NextResponse.json({ error: 'Content and targetId are required' }, { status: 400 });
     }
@@ -103,9 +105,11 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ comment });
   } catch (error: any) {
-    const detail = error?.message || String(error);
-    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
-    return NextResponse.json({ error: 'Internal server error', __debug: { detail, stack } }, { status: 500 });
+    console.error('Comments POST error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
 
@@ -117,7 +121,7 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { commentId } = await request.json();
-    
+
     const db = createDb();
     await db.comment.update({
       where: { id: commentId },
@@ -126,8 +130,10 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    const detail = error?.message || String(error);
-    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
-    return NextResponse.json({ error: 'Internal server error', __debug: { detail, stack } }, { status: 500 });
+    console.error('Comments DELETE error:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }
