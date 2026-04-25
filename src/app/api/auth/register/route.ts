@@ -1,59 +1,36 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createDb } from '@/lib/db';
-import { hashPassword, isValidNickname, isValidPassword, checkRateLimit } from '@/lib/auth';
+import { verifyPassword, checkRateLimit } from '@/lib/auth';
 import { createSession } from '@/lib/session';
-import { getServerLocale } from '@/lib/i18n';
 
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get('x-forwarded-for') || 'unknown';
-    if (!checkRateLimit(ip, 5, 300000)) {
-      return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
+    if (!checkRateLimit(ip, 10, 300000)) {
+      return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
-    const { nickname, email, password, confirmPassword, remember, locale } = await request.json();
+    const { nickname, password, remember } = await request.json();
 
     if (!nickname || !password) {
       return NextResponse.json({ error: 'Nickname and password are required' }, { status: 400 });
     }
 
-    if (!isValidNickname(nickname)) {
-      return NextResponse.json({ error: 'Nickname must be 3-20 characters (letters, numbers, underscores)' }, { status: 400 });
-    }
-
-    if (!isValidPassword(password)) {
-      return NextResponse.json({ error: 'Password must be at least 6 characters' }, { status: 400 });
-    }
-
-    if (password !== confirmPassword) {
-      return NextResponse.json({ error: 'Passwords do not match' }, { status: 400 });
-    }
-
     const db = createDb();
+    const user = await db.user.findUnique({ where: { nickname } });
 
-    const existingUser = await db.user.findUnique({ where: { nickname } });
-    if (existingUser) {
-      return NextResponse.json({ error: 'Nickname already taken' }, { status: 409 });
+    if (!user || !(await verifyPassword(password, user.passwordHash))) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const passwordHash = await hashPassword(password);
-    const userLocale = getServerLocale(request.headers);
-
-    const user = await db.user.create({
-      data: {
-        nickname,
-        email: null,
-        passwordHash,
-        locale: locale || userLocale,
-        avatar: null,
-      },
-    });
+    if (user.isBanned) {
+      return NextResponse.json({ error: 'Account has been suspended' }, { status: 403 });
+    }
 
     await db.activityLog.create({
       data: {
         userId: user.id,
-        action: 'register',
-        details: JSON.stringify({ nickname }),
+        action: 'login',
         ipAddress: ip,
       },
     });
@@ -68,10 +45,11 @@ export async function POST(request: NextRequest) {
         role: user.role,
         avatar: user.avatar,
         isPremium: user.isPremium,
+        locale: user.locale,
       }
     });
   } catch (error: any) {
-    console.error('Register error:', error);
+    console.error('Login error:', error);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
