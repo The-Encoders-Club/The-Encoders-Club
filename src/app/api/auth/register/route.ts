@@ -7,7 +7,7 @@ import { getServerLocale } from '@/lib/i18n';
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get('x-forwarded-for') || 'unknown';
-    if (!checkRateLimit(ip, 5, 300000)) { // 5 requests per 5 minutes
+    if (!checkRateLimit(ip, 5, 300000)) {
       return NextResponse.json({ error: 'Too many requests. Please try again later.' }, { status: 429 });
     }
 
@@ -36,7 +36,6 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Nickname already taken' }, { status: 409 });
     }
 
-    // hashPassword is now async (uses Web Crypto API)
     const passwordHash = await hashPassword(password);
     const userLocale = getServerLocale(request.headers);
 
@@ -50,7 +49,6 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // Log activity
     await db.activityLog.create({
       data: {
         userId: user.id,
@@ -74,9 +72,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error: any) {
     console.error('Register error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
