@@ -192,17 +192,20 @@ export default function AdminPanel() {
     try {
       const res = await fetch('/api/admin/discord');
       if (!res.ok) return;
-      const data = await res.json() as { config: typeof discordConfig };
-      setDiscordConfig(data.config);
-      setDcForm({
-        botToken: '',
-        serverId: data.config.serverId || '',
-        channelId: data.config.channelId || '',
-        webhookUrl: data.config.webhookUrl || '',
-        modRoleId: data.config.modRoleId || '',
-        adminRoleId: data.config.adminRoleId || '',
-        collabRoleId: data.config.collabRoleId || '',
-      });
+      const data = await res.json() as { config: typeof discordConfig | null };
+      const cfg = data.config;
+      if (cfg) {
+        setDiscordConfig(cfg);
+        setDcForm({
+          botToken: '',
+          serverId: cfg.serverId || '',
+          channelId: cfg.channelId || '',
+          webhookUrl: cfg.webhookUrl || '',
+          modRoleId: cfg.modRoleId || '',
+          adminRoleId: cfg.adminRoleId || '',
+          collabRoleId: cfg.collabRoleId || '',
+        });
+      }
     } catch {
       // Silently fail
     } finally {
