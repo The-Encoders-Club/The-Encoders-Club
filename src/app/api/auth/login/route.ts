@@ -50,8 +50,10 @@ export async function POST(request: NextRequest) {
         locale: user.locale,
       } 
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Login error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    const detail = error?.message || String(error);
+    const stack = error?.stack?.split('\n').slice(0, 3).join(' | ') || '';
+    return NextResponse.json({ error: 'Internal server error', __debug: { detail, stack } }, { status: 500 });
   }
 }
