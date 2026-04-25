@@ -1,10 +1,11 @@
-// ── THE KEY FIX: Import from the EDGE entry point ──────────────────────
-// @prisma/client   → uses fs.readdir, fs.readFile, etc. → CRASHES on Workers
-// @prisma/client/edge → NO filesystem calls → works on Workers/Deno/Bun
+// ── CRITICAL: Import from @prisma/client (NOT /edge) ──────────────────
+// When using driverAdapters (PrismaD1), Prisma REQUIRES the standard
+// import. The /edge endpoint is INCOMPATIBLE with the `adapter` option.
 //
-// With queryCompiler + driverAdapters + --no-engine, Prisma generates
-// a pure TypeScript query compiler. The edge import ensures zero fs usage.
-import { PrismaClient } from "@prisma/client/edge";
+// With queryCompiler + driverAdapters + --no-engine, the generated client
+// is pure TypeScript — no WASM, no fs, no dynamic require. So the standard
+// import works perfectly on Cloudflare Workers.
+import { PrismaClient } from "@prisma/client";
 import { PrismaD1 } from "@prisma/adapter-d1";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { cache } from "react";
