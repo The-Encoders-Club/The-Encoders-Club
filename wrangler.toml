@@ -11,9 +11,6 @@ directory = ".open-next/assets"
 enabled = true
 
 # D1 SQLite database binding
-# After creating the DB with `wrangler d1 create encoders-db`,
-# Cloudflare will print the `database_id` — paste it here OR set it
-# in the Cloudflare dashboard (Workers > Settings > Bindings).
 [[d1_databases]]
 binding = "DB"
 database_name = "encoders-db"
@@ -21,8 +18,6 @@ database_id = "8b78b43b-46f1-416b-802b-0ff7d085da37"
 migrations_dir = "migrations"
 
 # ── Public env vars (non-secret) ──────────────────────────────────────────────
-# Set these in the Cloudflare dashboard (Workers > Settings > Variables)
-# so each environment has its own value, OR define them here.
 [vars]
 NODE_ENV = "production"
 # SETUP_CODE se definió como secret vía `wrangler secret put SETUP_CODE`.
