@@ -109,10 +109,10 @@ const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/g
 
 /* ─── Static pink polka dots background ─── */
 function PinkDots() {
-  const DOT = 88;
-  const GAP = 140;
+  const DOT = 72;
+  const GAP = 130;
   const cols = Math.ceil(1600 / GAP);
-  const rows = Math.ceil(3200 / GAP);
+  const rows = Math.ceil(3600 / GAP);
   const dots: { id: number; x: number; y: number }[] = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -132,8 +132,8 @@ function PinkDots() {
             height: DOT,
             left: d.x - DOT / 2,
             top: d.y - DOT / 2,
-            backgroundColor: '#F4A7BF',
-            opacity: 0.42,
+            backgroundColor: '#F9C0D0',
+            opacity: 0.38,
           }}
         />
       ))}
@@ -141,14 +141,139 @@ function PinkDots() {
   );
 }
 
-/* ─── Image carousel (dark theme) ─── */
+/* ─── Floating decoration SVGs ─── */
+function HeartSvg({ size, color }: { size: number; color: string }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
+      <path d="M12 21.593c-.425-.437-6.67-6.16-8.398-8.049C1.518 11.318 1.5 9.01 3.27 7.24c1.71-1.71 4.52-1.69 6.225.025L12 9.77l2.506-2.506C16.21 5.55 19.02 5.53 20.73 7.24c1.77 1.77 1.752 4.078-.331 6.305C18.672 15.434 12.425 21.156 12 21.593z" />
+    </svg>
+  );
+}
+
+function BookSvg({ size, color }: { size: number; color: string }) {
+  return (
+    <svg width={size} height={size * 1.2} viewBox="0 0 40 48" fill="none">
+      <rect x="4" y="2" width="32" height="44" rx="3" fill={color} opacity="0.9" />
+      <rect x="4" y="2" width="6" height="44" rx="2" fill="#6B1530" opacity="0.4" />
+      <rect x="12" y="10" width="18" height="2" rx="1" fill="white" opacity="0.6" />
+      <rect x="12" y="15" width="14" height="2" rx="1" fill="white" opacity="0.4" />
+      <rect x="12" y="20" width="16" height="2" rx="1" fill="white" opacity="0.4" />
+    </svg>
+  );
+}
+
+function BowSvg({ size, color }: { size: number; color: string }) {
+  return (
+    <svg width={size * 1.4} height={size} viewBox="0 0 56 40" fill="none">
+      <ellipse cx="14" cy="20" rx="14" ry="10" fill={color} opacity="0.85" transform="rotate(-20 14 20)" />
+      <ellipse cx="42" cy="20" rx="14" ry="10" fill={color} opacity="0.85" transform="rotate(20 42 20)" />
+      <circle cx="28" cy="20" r="5" fill="#fff" opacity="0.9" />
+      <circle cx="28" cy="20" r="3" fill={color} />
+    </svg>
+  );
+}
+
+function QuillSvg({ size, color }: { size: number; color: string }) {
+  return (
+    <svg width={size * 0.6} height={size * 1.5} viewBox="0 0 24 60" fill="none">
+      <path d="M12 2 C18 8, 22 20, 16 30 L12 58 L8 30 C2 20, 6 8, 12 2Z" fill={color} opacity="0.75" />
+      <path d="M12 2 C18 8, 22 20, 16 30 L12 40" stroke="#5C2A00" strokeWidth="0.8" fill="none" opacity="0.5" />
+      <line x1="12" y1="40" x2="12" y2="58" stroke="#5C2A00" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+const DECO_POOL = [
+  { type: 'heart', size: 28, color: '#FF6B9D' },
+  { type: 'heart', size: 20, color: '#FF2D78' },
+  { type: 'heart', size: 36, color: '#FFB6D9' },
+  { type: 'heart', size: 22, color: '#FF6B9D' },
+  { type: 'heart', size: 16, color: '#FF2D78' },
+  { type: 'book',  size: 38, color: '#C85A8A' },
+  { type: 'book',  size: 30, color: '#8B3A6B' },
+  { type: 'book',  size: 44, color: '#D4699A' },
+  { type: 'bow',   size: 32, color: '#FF2D78' },
+  { type: 'bow',   size: 24, color: '#FFB6D9' },
+  { type: 'quill', size: 36, color: '#A0522D' },
+  { type: 'quill', size: 28, color: '#8B4513' },
+] as const;
+
+type DecoItem = typeof DECO_POOL[number];
+
+function FloatingDeco({ item, x, y, delay }: { item: DecoItem; x: number; y: number; delay: number }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const t1 = setTimeout(() => setVisible(true), delay);
+    const t2 = setTimeout(() => setVisible(false), delay + 1000);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [delay]);
+
+  const icon = () => {
+    if (item.type === 'heart') return <HeartSvg size={item.size} color={item.color} />;
+    if (item.type === 'book')  return <BookSvg  size={item.size} color={item.color} />;
+    if (item.type === 'bow')   return <BowSvg   size={item.size} color={item.color} />;
+    return <QuillSvg size={item.size} color={item.color} />;
+  };
+
+  return (
+    <AnimatePresence>
+      {visible && (
+        <motion.div
+          className="pointer-events-none select-none"
+          style={{ position: 'fixed', left: x, top: y, zIndex: 6 }}
+          initial={{ opacity: 0, scale: 0.5, y: 10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.8, y: -15 }}
+          transition={{ duration: 0.35, ease: 'easeOut', exit: { duration: 0.65, ease: 'easeIn' } } as any}
+        >
+          {icon()}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function DecorationLayer() {
+  const [bursts, setBursts] = useState<{ id: number; items: { item: DecoItem; x: number; y: number; delay: number }[] }[]>([]);
+  const idRef = useRef(0);
+
+  useEffect(() => {
+    const spawn = () => {
+      const count = 4 + Math.floor(Math.random() * 4);
+      const items = Array.from({ length: count }, (_, i) => ({
+        item: DECO_POOL[Math.floor(Math.random() * DECO_POOL.length)],
+        x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth * 0.9 : 800),
+        y: Math.random() * 500 + 80,
+        delay: i * 110,
+      }));
+      const id = ++idRef.current;
+      setBursts(prev => [...prev, { id, items }]);
+      setTimeout(() => setBursts(prev => prev.filter(b => b.id !== id)), 2200);
+    };
+    spawn();
+    const iv = setInterval(spawn, 3500);
+    return () => clearInterval(iv);
+  }, []);
+
+  return (
+    <>
+      {bursts.map(burst =>
+        burst.items.map((d, i) => (
+          <FloatingDeco key={`${burst.id}-${i}`} item={d.item} x={d.x} y={d.y} delay={d.delay} />
+        ))
+      )}
+    </>
+  );
+}
+
+/* ─── Image carousel (dark theme, used by ProjectDetail) ─── */
 function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
     if (scrollRef.current) {
-      const scrollAmount = dir === 'left' ? -280 : 280;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -280 : 280, behavior: 'smooth' });
     }
   };
 
@@ -173,6 +298,51 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
       <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
         <ChevronRight size={16} />
       </button>
+    </div>
+  );
+}
+
+/* ─── Preview carousel (pink theme, used by MonikaDetail) ─── */
+function PinkPreviewCarousel({ images }: { images: string[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [current, setCurrent] = useState(0);
+  const total = images.length;
+
+  const scroll = (dir: 'left' | 'right') => {
+    const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
+    setCurrent(next);
+    if (ref.current) {
+      (ref.current.children[next] as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    }
+  };
+
+  return (
+    <div className="relative">
+      <div ref={ref} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
+        {images.map((src, idx) => (
+          <div
+            key={idx}
+            onClick={() => setCurrent(idx)}
+            className="flex-none rounded-xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative snap-start cursor-pointer hover:border-[#FF6B9D] transition-all"
+            style={{ width: 'calc(33.333% - 8px)', minWidth: 120 }}
+          >
+            <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
+            <div className="absolute bottom-1.5 right-1.5 bg-[#d87093]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">
+              {idx + 1}/{total}
+            </div>
+          </div>
+        ))}
+      </div>
+      {current > 0 && (
+        <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm">
+          <ChevronLeft size={14} />
+        </button>
+      )}
+      {current < total - 1 && (
+        <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm">
+          <ChevronRight size={14} />
+        </button>
+      )}
     </div>
   );
 }
@@ -326,12 +496,11 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
   );
 }
 
-/* ─── Light/pink theme detail view (Monika After History) ─── */
+/* ─── Light/pink theme detail view — REDESIGNED (Monika After History) ─── */
 function MonikaDetail({ project, onClose }: { project: typeof projects[number]; onClose: () => void }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
-  const previewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     return () => { if (musicRef.current) musicRef.current.src = ''; };
@@ -352,12 +521,6 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
 
-  const scrollPreview = (dir: 'left' | 'right') => {
-    if (previewRef.current) {
-      previewRef.current.scrollBy({ left: dir === 'left' ? -220 : 220, behavior: 'smooth' });
-    }
-  };
-
   return (
     <>
       <style>{`
@@ -368,273 +531,287 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           font-style: normal;
           font-display: swap;
         }
+        .monika-title {
+          color: #F092A6;
+          -webkit-text-stroke: 5px #6B1530;
+          paint-order: stroke fill;
+        }
+        .pink-stroke-lg {
+          color: #F092A6;
+          -webkit-text-stroke: 3px #6B1530;
+          paint-order: stroke fill;
+        }
+        .pink-stroke-sm {
+          color: #F092A6;
+          -webkit-text-stroke: 2px #6B1530;
+          paint-order: stroke fill;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
 
-      <div className="relative z-10 min-h-screen w-full overflow-x-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#FFE0EC' }}>
+      <div
+        className="relative z-10 min-h-screen w-full overflow-x-hidden"
+        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#FFE0EC' }}
+      >
+        {/* Pink polka dots */}
         <PinkDots />
 
-        {/* Nav */}
-        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.90)', backdropFilter: 'blur(12px)' }}>
+        {/* Floating decorations (hearts, books, bows, quills) */}
+        <DecorationLayer />
+
+        {/* ── Nav ── */}
+        <nav
+          className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between"
+          style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}
+        >
           <button onClick={onClose} className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
-            <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
-            <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
+            <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+            <span className="font-bold tracking-wider uppercase text-xs">{t('projects.backToProjects')}</span>
           </button>
           <button
             onClick={toggleMute}
             className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all"
             title={muted ? 'Unmute' : 'Mute'}
           >
-            {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
         </nav>
 
-        <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-7">
+        {/* ── Main content ── */}
+        <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-          {/* ─── Title (centered) ─── */}
-          <header className="text-center px-2">
-            <style>{`
-              .monika-title {
-                color: #F092A6;
-                -webkit-text-stroke: 5px #6B1530;
-                paint-order: stroke fill;
-              }
-            `}</style>
-            <motion.h1
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="monika-title text-5xl sm:text-7xl font-black mb-2 leading-tight"
+          {/* ── HERO: Title+Image LEFT · Details+Downloads RIGHT ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+
+            {/* Left column */}
+            <div className="space-y-4">
+              <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+                <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
+                  {project.name}
+                </h1>
+                <p className="text-gray-500 text-sm font-medium mt-1 flex items-center gap-1.5">
+                  {project.subtitle} <span>💗</span>
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.97 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.55, delay: 0.1 }}
+                className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group"
+                style={{ boxShadow: '0 8px 32px #FF6B9D30' }}
+              >
+                <img
+                  src={project.image}
+                  alt={project.name}
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+              </motion.div>
+            </div>
+
+            {/* Right column */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.55, delay: 0.15 }}
+              className="space-y-4"
             >
-              {project.name}
-            </motion.h1>
-            <p className="text-sm sm:text-base text-gray-500 font-medium flex items-center justify-center gap-2">
-              {project.subtitle}
-              <span style={{ imageRendering: 'pixelated', fontSize: '1.1em' }}>💗</span>
-            </p>
-          </header>
+              {/* Details card */}
+              <div className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm">
+                <h3 className="pink-stroke-lg text-lg font-black flex items-center gap-2 mb-4">
+                  <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  {t('projects.details')}
+                </h3>
+                <ul className="space-y-2.5">
+                  {[
+                    { icon: Clock,    label: t('projects.playTime'), value: isEs ? project.details.playTime    : (project.details.playTimeEn    || project.details.playTime)    },
+                    { icon: Flag,     label: t('projects.language'), value: isEs ? project.details.language    : (project.details.languageEn    || project.details.language)    },
+                    { icon: Settings, label: t('projects.engine'),   value: project.details.engine },
+                    { icon: Download, label: t('projects.downloads'),value: project.details.downloads },
+                  ].map(item => {
+                    const ItemIcon = item.icon;
+                    return (
+                      <li key={item.label} className="flex items-center gap-2 text-xs">
+                        <ItemIcon className="w-3.5 h-3.5 text-[#d87093] flex-shrink-0" />
+                        <span className="text-gray-500 flex-1">{item.label}</span>
+                        <span className="text-gray-800 font-bold">{item.value}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
 
-          {/* ─── Hero Image (full width) ─── */}
-          <div className="rounded-[10px] overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group">
-            <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
+              {/* Downloads */}
+              <div className="space-y-2">
+                <h4 className="pink-stroke-sm text-xs font-black uppercase tracking-widest mb-1">
+                  {isEs ? 'Opciones de Descarga' : 'Download Options'}
+                </h4>
+                {project.downloads.map((dl, i) => {
+                  const Icon = dl.icon;
+                  const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
+                  const stroke = strokeColors[i] || '#333';
+                  return (
+                    <a
+                      key={i}
+                      href={dl.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md"
+                      style={{ background: dl.color, border: `3px solid ${stroke}` }}
+                    >
+                      <Icon
+                        className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0"
+                        style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }}
+                      />
+                      <span
+                        className="font-black uppercase tracking-wide text-sm"
+                        style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
+                      >
+                        {isEs ? dl.label : (dl.labelEn || dl.label)}
+                      </span>
+                    </a>
+                  );
+                })}
+              </div>
+            </motion.div>
           </div>
 
-          {/* ─── Sobre este proyecto ─── */}
-          <div className="space-y-4">
-            <h3 className="text-xl font-bold text-[#d87093] flex items-center gap-2">
-              <FileText className="w-5 h-5" /> {isEs ? 'Sobre este proyecto' : 'About this project'}
-            </h3>
-            <p className="text-gray-700 leading-relaxed text-base">{desc}</p>
+          {/* Version badge */}
+          <div className="flex justify-end -mt-4">
+            <span className="text-[10px] text-gray-400 font-bold bg-white/60 border border-[#FFB6C1] px-2.5 py-1 rounded-full">v0.12.18</span>
+          </div>
 
-            {/* Status + Rating */}
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-3 rounded-lg bg-white border border-[#FFB6C1]">
-                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-500">{t('projects.status')}</span>
-                <span className="text-gray-700 font-medium text-sm">{status}</span>
+          {/* ── Sobre este proyecto ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
+            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+              <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {isEs ? 'Sobre este proyecto' : 'About this project'}
+            </h3>
+            <p className="text-gray-700 leading-relaxed text-sm">{desc}</p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
+                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.status')}</span>
+                <span className="text-gray-700 font-bold text-sm">{status}</span>
               </div>
-              <div className="p-3 rounded-lg bg-white border border-[#FFB6C1]">
-                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-500">{t('projects.rating')}</span>
-                <span className="text-gray-700 font-medium text-sm flex items-center gap-1">
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
+                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.rating')}</span>
+                <span className="text-gray-700 font-bold text-sm flex items-center gap-1">
                   {project.rating} <Star className="w-3.5 h-3.5 fill-current text-yellow-400" />
                 </span>
               </div>
             </div>
 
-            {/* Tags */}
             <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[11px] px-3 py-1 rounded-full bg-white/70 border border-[#FFB6C1] text-gray-700 font-medium">
+                <span key={tag} className="text-[11px] px-3 py-1 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-600 font-semibold hover:border-[#FF6B9D] transition-colors">
                   {tag}
                 </span>
               ))}
             </div>
-          </div>
+          </motion.div>
 
-          <hr className="border-[#FFB6C1]/60" />
-
-          {/* ─── Vista Previa (3 images visible, scrollable) ─── */}
-          <div className="space-y-3">
-            <h4 className="text-xl font-bold text-[#d87093] flex items-center gap-2">
-              <ImageIcon className="w-5 h-5" /> {t('projects.preview')}
+          {/* ── Vista Previa ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="space-y-3"
+          >
+            <h4 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {t('projects.preview')}
             </h4>
-            <div className="relative group/prev">
-              <div ref={previewRef} className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x scroll-smooth">
-                {project.previews.map((src, idx) => (
-                  <div key={idx} className="flex-none w-44 sm:w-52 rounded-lg overflow-hidden border border-[#FFB6C1] aspect-video group relative snap-start hover:border-[#d87093] transition-all">
-                    <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                    <div className="absolute bottom-1.5 right-1.5 bg-[#d87093]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full">
-                      {idx + 1}/{project.previews.length}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button onClick={() => scrollPreview('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-7 h-7 rounded-full bg-white/80 border border-[#FFB6C1] text-[#d87093] flex items-center justify-center opacity-0 group-hover/prev:opacity-100 transition-opacity z-10 hover:bg-white">
-                <ChevronLeft size={14} />
-              </button>
-              <button onClick={() => scrollPreview('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-7 h-7 rounded-full bg-white/80 border border-[#FFB6C1] text-[#d87093] flex items-center justify-center opacity-0 group-hover/prev:opacity-100 transition-opacity z-10 hover:bg-white">
-                <ChevronRight size={14} />
-              </button>
-            </div>
-          </div>
+            <PinkPreviewCarousel images={project.previews} />
+          </motion.div>
 
-          <hr className="border-[#FFB6C1]/60" />
-
-          {/* ─── Detalles + Descargas ─── */}
-          <div className="bg-white/80 rounded-3xl border border-[#FFB6C1] p-6 space-y-5">
-            <style>{`
-              .details-section-title {
-                color: #F092A6;
-                -webkit-text-stroke: 3px #6B1530;
-                paint-order: stroke fill;
-              }
-              .download-section-label {
-                color: #F092A6;
-                -webkit-text-stroke: 2px #6B1530;
-                paint-order: stroke fill;
-              }
-            `}</style>
-
-            <h3 className="details-section-title text-2xl font-black flex items-center gap-2">
-              <Settings className="w-6 h-6 text-[#F092A6]" />
-              {t('projects.details')}
-            </h3>
-
-            <ul className="space-y-3">
-              {[
-                { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
-                { icon: Flag,  label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
-                { icon: Settings, label: t('projects.engine'), value: project.details.engine },
-                { icon: Download, label: t('projects.downloads'), value: project.details.downloads },
-              ].map(item => {
-                const ItemIcon = item.icon;
-                return (
-                  <li key={item.label} className="flex items-center gap-2 text-sm">
-                    <ItemIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    <span className="text-gray-500 flex-1">{item.label}</span>
-                    <span className="text-gray-800 font-semibold">{item.value}</span>
-                  </li>
-                );
-              })}
-            </ul>
-
-            <div className="border-t border-gray-100 pt-5 space-y-3">
-              <h4 className="download-section-label text-sm font-black uppercase tracking-wider">
-                {isEs ? 'Opciones de Descarga' : 'Download Options'}
-              </h4>
-              {project.downloads.map((dl, i) => {
-                const Icon = dl.icon;
-                const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
-                const stroke = strokeColors[i] || '#333';
-                return (
-                  <a
-                    key={i}
-                    href={dl.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-4 rounded-2xl flex items-center justify-center gap-3 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group"
-                    style={{
-                      background: dl.color,
-                      border: `3px solid ${stroke}`,
-                    }}
-                  >
-                    <Icon className="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0"
-                      style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
-                    <span
-                      className="font-black uppercase tracking-wide text-sm"
-                      style={{
-                        color: dl.textColor || '#ffffff',
-                        WebkitTextStroke: `1.5px ${stroke}`,
-                        paintOrder: 'stroke fill',
-                      }}
-                    >
-                      {isEs ? dl.label : (dl.labelEn || dl.label)}
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* ─── Recursos y Contenido Extra ─── */}
-          <div className="space-y-4">
-            <h3
-              className="text-xl font-black flex items-center gap-2"
-              style={{ color: '#F092A6', WebkitTextStroke: '3px #6B1530', paintOrder: 'stroke fill' }}
-            >
-              <BookOpen className="w-5 h-5" style={{ color: '#C06080', WebkitTextStroke: '0px', filter: 'none' }} />
+          {/* ── Recursos y Contenido Extra ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
+            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
 
-            {/* Wiki + Spritepacks — 2 columns */}
+            {/* Wiki + Spritepacks */}
             <div className="grid grid-cols-2 gap-3">
-
-              {/* Wiki del Mod */}
-              <div className="bg-[#FFE8F0] rounded-2xl border border-[#FFB6C1] p-4 flex flex-col items-center text-center gap-3">
-                <h4
-                  className="text-base font-black flex items-center gap-1"
-                  style={{ color: '#E07090', WebkitTextStroke: '2px #6B1530', paintOrder: 'stroke fill' }}
-                >
-                  <Search className="w-4 h-4 flex-shrink-0" style={{ color: '#C06080', WebkitTextStroke: '0px' }} />
+              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
+                  <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
                 <p className="text-xs text-gray-600 leading-relaxed">
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white/80 text-xs font-semibold hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-xs font-bold hover:bg-[#C06080] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
                 </button>
               </div>
 
-              {/* Spritepacks */}
-              <div className="bg-[#FFE8F0] rounded-2xl border border-[#FFB6C1] p-4 flex flex-col items-center text-center gap-3">
-                <h4
-                  className="text-base font-black flex items-center gap-1"
-                  style={{ color: '#E07090', WebkitTextStroke: '2px #6B1530', paintOrder: 'stroke fill' }}
-                >
-                  <Shirt className="w-4 h-4 flex-shrink-0" style={{ color: '#C06080', WebkitTextStroke: '0px' }} />
+              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
+                  <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
                 <p className="text-xs text-gray-600 leading-relaxed">
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white/80 text-xs font-semibold hover:bg-[#C06080] hover:text-white transition-colors">
-                    <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-xs font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                    <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
                   </button>
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white/80 text-xs font-semibold hover:bg-[#C06080] hover:text-white transition-colors">
-                    <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-xs font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                    <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Submods — centered below */}
+            {/* Submods */}
             <div className="flex justify-center">
-              <div className="w-full max-w-xs bg-[#FFE8F0] rounded-2xl border border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3">
-                <h4
-                  className="text-lg font-black flex items-center gap-1.5"
-                  style={{ color: '#E07090', WebkitTextStroke: '2px #6B1530', paintOrder: 'stroke fill' }}
-                >
-                  <Puzzle className="w-5 h-5 flex-shrink-0" style={{ color: '#C06080', WebkitTextStroke: '0px' }} />
+              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="pink-stroke-sm text-lg font-black flex items-center gap-1.5">
+                  <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
                 <p className="text-sm text-gray-600 leading-relaxed">
                   {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
                 </p>
-                <button className="flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white/80 text-sm font-semibold hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-bold text-sm hover:bg-[#C06080] hover:text-white transition-colors">
                   {isEs ? 'Explorar Submods' : 'Explore Submods'}
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
 
-          {/* ─── Comentarios ─── */}
-          <div className="bg-white rounded-[10px] border-2 border-[#FFB6C1] p-5">
+          {/* ── Comments ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm"
+          >
             <CommentSection targetId={project.id} targetType="project" lightTheme />
-          </div>
+          </motion.div>
 
         </main>
 
-        {/* Hidden music iframe */}
+        {/* Hidden music player */}
         <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
       </div>
     </>
