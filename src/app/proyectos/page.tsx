@@ -399,7 +399,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           </div>
 
           {/* ─── Sobre este proyecto (with volume + version) ─── */}
-          <div className="bg-white rounded-[10px] border-2 border-[#e0e0e0] p-5">
+          <div className="bg-white rounded-[10px] border-2 border-[#FFB6C1] p-5">
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-base font-bold text-[#d87093] flex items-center gap-2">
                 <FileText className="w-4 h-4" /> {isEs ? 'Sobre este proyecto' : 'About this project'}
@@ -419,11 +419,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
 
             {/* Status + Rating */}
             <div className="grid grid-cols-2 gap-4 mt-4">
-              <div className="p-3 rounded-lg bg-[#FFE0EC]/60">
+              <div className="p-3 rounded-lg bg-white border border-[#FFB6C1]">
                 <span className="text-[10px] font-bold uppercase block mb-0.5 text-[#d87093]">{t('projects.status')}</span>
                 <span className="text-gray-700 font-medium text-sm">{status}</span>
               </div>
-              <div className="p-3 rounded-lg bg-[#FFE0EC]/60">
+              <div className="p-3 rounded-lg bg-white border border-[#FFB6C1]">
                 <span className="text-[10px] font-bold uppercase block mb-0.5 text-[#d87093]">{t('projects.rating')}</span>
                 <span className="text-gray-700 font-medium text-sm flex items-center gap-1">
                   {project.rating} <Star className="w-3.5 h-3.5 fill-current text-yellow-400" />
@@ -431,10 +431,10 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               </div>
             </div>
 
-            {/* Tags — pink bg, white text */}
+            {/* Tags — light pink bg, dark text */}
             <div className="flex flex-wrap gap-2 mt-4">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full bg-[#d87093] text-white font-medium">
+                <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full bg-[#FFB6C1]/60 text-gray-700 font-medium">
                   {tag}
                 </span>
               ))}
@@ -442,14 +442,14 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           </div>
 
           {/* ─── Vista Previa (3 images visible, scrollable) ─── */}
-          <div>
+          <div className="bg-white rounded-[10px] border-2 border-[#FFB6C1] p-5">
             <h4 className="text-base font-bold text-[#d87093] mb-3 flex items-center gap-2">
               <ImageIcon className="w-4 h-4" /> {t('projects.preview')}
             </h4>
             <div className="relative group/prev">
               <div ref={previewRef} className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x scroll-smooth">
                 {project.previews.map((src, idx) => (
-                  <div key={idx} className="flex-none w-44 sm:w-52 rounded-lg overflow-hidden border border-[#e0e0e0] aspect-video group relative snap-start hover:border-[#d87093] transition-all">
+                  <div key={idx} className="flex-none w-44 sm:w-52 rounded-lg overflow-hidden border border-[#FFB6C1] aspect-video group relative snap-start hover:border-[#d87093] transition-all">
                     <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     <div className="absolute bottom-1.5 right-1.5 bg-[#d87093]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full">
                       {idx + 1}/{project.previews.length}
@@ -467,7 +467,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           </div>
 
           {/* ─── Detalles + Descargas ─── */}
-          <div className="bg-white rounded-[10px] border-2 border-[#e0e0e0] p-5 space-y-4">
+          <div className="bg-white rounded-[10px] border-2 border-[#FFB6C1] p-5 space-y-4">
             <h3 className="text-base font-bold text-[#d87093] flex items-center gap-2">
               <FileText className="w-4 h-4" /> {t('projects.details')}
             </h3>
@@ -569,7 +569,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           </div>
 
           {/* ─── Comentarios ─── */}
-          <div className="bg-white rounded-[10px] border-2 border-[#e0e0e0] p-5">
+          <div className="bg-white rounded-[10px] border-2 border-[#FFB6C1] p-5">
             <CommentSection targetId={project.id} targetType="project" lightTheme />
           </div>
 
