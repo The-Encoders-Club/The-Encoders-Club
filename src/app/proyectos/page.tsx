@@ -295,6 +295,7 @@ function DecorationLayer() {
 /* ─── Image carousel (dark theme, used by ProjectDetail) ─── */
 function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   const scroll = (dir: 'left' | 'right') => {
     if (scrollRef.current) {
@@ -302,28 +303,75 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
     }
   };
 
+  const closeLightbox = () => setLightboxIdx(null);
+  const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
+  const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(images.length - 1, i + 1) : null));
+
   return (
-    <div className="relative group/carousel">
-      <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x scroll-smooth">
-        {images.map((src, idx) => (
-          <div key={idx} className="flex-none w-64 sm:w-72 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start hover:border-white/20 transition-all">
-            <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <ImageIcon className="text-white w-8 h-8" />
+    <>
+      <div className="relative group/carousel">
+        <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x scroll-smooth">
+          {images.map((src, idx) => (
+            <div key={idx} onClick={() => setLightboxIdx(idx)} className="flex-none w-64 sm:w-72 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start hover:border-white/20 transition-all cursor-zoom-in">
+              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <ImageIcon className="text-white w-8 h-8" />
+              </div>
+              <div className="absolute bottom-2 right-2 bg-black/60 text-white/60 text-xs px-2 py-1 rounded-full">
+                {idx + 1}/{images.length}
+              </div>
             </div>
-            <div className="absolute bottom-2 right-2 bg-black/60 text-white/60 text-xs px-2 py-1 rounded-full">
-              {idx + 1}/{images.length}
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
+          <ChevronLeft size={16} />
+        </button>
+        <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
+          <ChevronRight size={16} />
+        </button>
       </div>
-      <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
-        <ChevronLeft size={16} />
-      </button>
-      <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
-        <ChevronRight size={16} />
-      </button>
-    </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightboxIdx !== null && (
+          <motion.div
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeLightbox}
+          >
+            <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
+              <X size={20} />
+            </button>
+            {lightboxIdx > 0 && (
+              <button onClick={e => { e.stopPropagation(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
+                <ChevronLeft size={22} />
+              </button>
+            )}
+            {lightboxIdx < images.length - 1 && (
+              <button onClick={e => { e.stopPropagation(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
+                <ChevronRight size={22} />
+              </button>
+            )}
+            <motion.img
+              key={lightboxIdx}
+              src={images[lightboxIdx]}
+              alt={`Preview ${lightboxIdx + 1}`}
+              className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl"
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={e => e.stopPropagation()}
+            />
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white/70 text-xs px-3 py-1.5 rounded-full">
+              {lightboxIdx + 1} / {images.length}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -331,6 +379,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
 function PinkPreviewCarousel({ images }: { images: string[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const total = images.length;
 
   const scroll = (dir: 'left' | 'right') => {
@@ -341,34 +390,81 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
     }
   };
 
+  const closeLightbox = () => setLightboxIdx(null);
+  const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
+  const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(total - 1, i + 1) : null));
+
   return (
-    <div className="relative">
-      <div ref={ref} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
-        {images.map((src, idx) => (
-          <div
-            key={idx}
-            onClick={() => setCurrent(idx)}
-            className="flex-none rounded-xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative snap-start cursor-pointer hover:border-[#FF6B9D] transition-all"
-            style={{ width: 'calc(33.333% - 8px)', minWidth: 120 }}
-          >
-            <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
-            <div className="absolute bottom-1.5 right-1.5 bg-[#d87093]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">
-              {idx + 1}/{total}
+    <>
+      <div className="relative">
+        <div ref={ref} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
+          {images.map((src, idx) => (
+            <div
+              key={idx}
+              onClick={() => setLightboxIdx(idx)}
+              className="flex-none rounded-xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative snap-start cursor-zoom-in hover:border-[#FF6B9D] transition-all"
+              style={{ width: 'calc(43% - 8px)', minWidth: 140 }}
+            >
+              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
+              <div className="absolute bottom-1.5 right-1.5 bg-[#d87093]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">
+                {idx + 1}/{total}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
+        {current > 0 && (
+          <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm">
+            <ChevronLeft size={14} />
+          </button>
+        )}
+        {current < total - 1 && (
+          <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm">
+            <ChevronRight size={14} />
+          </button>
+        )}
       </div>
-      {current > 0 && (
-        <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm">
-          <ChevronLeft size={14} />
-        </button>
-      )}
-      {current < total - 1 && (
-        <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm">
-          <ChevronRight size={14} />
-        </button>
-      )}
-    </div>
+
+      {/* Lightbox */}
+      <AnimatePresence>
+        {lightboxIdx !== null && (
+          <motion.div
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeLightbox}
+          >
+            <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md">
+              <X size={20} />
+            </button>
+            {lightboxIdx > 0 && (
+              <button onClick={e => { e.stopPropagation(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md">
+                <ChevronLeft size={22} />
+              </button>
+            )}
+            {lightboxIdx < total - 1 && (
+              <button onClick={e => { e.stopPropagation(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md">
+                <ChevronRight size={22} />
+              </button>
+            )}
+            <motion.img
+              key={lightboxIdx}
+              src={images[lightboxIdx]}
+              alt={`Preview ${lightboxIdx + 1}`}
+              className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl border-2 border-[#FFB6C1]"
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={e => e.stopPropagation()}
+            />
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/80 text-[#d87093] text-xs px-3 py-1.5 rounded-full font-bold border border-[#FFB6C1]">
+              {lightboxIdx + 1} / {total}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
@@ -633,11 +729,6 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             </motion.div>
           </div>
 
-          {/* Version badge */}
-          <div className="flex justify-end -mt-4">
-            <span className="text-[10px] text-gray-400 font-bold bg-white/60 border border-[#FFB6C1] px-2.5 py-1 rounded-full">v0.12.18</span>
-          </div>
-
           {/* ── Sobre este proyecto ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -748,10 +839,6 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   </a>
                 );
               })}
-            </div>
-            {/* Version badge */}
-            <div className="flex justify-end">
-              <span className="text-[10px] text-gray-400 font-bold bg-white/60 border border-[#FFB6C1] px-2.5 py-1 rounded-full">v0.12.18</span>
             </div>
           </motion.div>
 
