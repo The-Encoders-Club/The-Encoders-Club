@@ -392,51 +392,10 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             <p className="text-sm sm:text-base text-[#d87093]/70 font-medium">{project.subtitle}</p>
           </header>
 
-          {/* ─── Hero: Image (left) + Details Panel (right) ─── */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-5">
-            {/* Cover Image — white border, rounded */}
-            <div className="lg:col-span-3 rounded-[10px] overflow-hidden border-2 border-white aspect-video relative group">
-              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
-            </div>
-
-            {/* Details + Downloads sidebar — white bg, gray border */}
-            <div className="lg:col-span-2">
-              <div className="bg-white rounded-[10px] border-2 border-[#e0e0e0] p-5 space-y-4 h-full">
-                <h3 className="text-base font-bold text-[#d87093] flex items-center gap-2">
-                  <FileText className="w-4 h-4" /> {t('projects.details')}
-                </h3>
-                <ul className="space-y-2.5">
-                  {[
-                    { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
-                    { label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
-                    { label: t('projects.engine'), value: project.details.engine },
-                    { label: t('projects.downloads'), value: project.details.downloads },
-                  ].map(item => (
-                    <li key={item.label} className="flex justify-between text-sm py-1.5 border-b border-gray-100 last:border-0">
-                      <span className="text-gray-400">{item.label}</span>
-                      <span className="text-gray-700 font-mono text-xs">{item.value}</span>
-                    </li>
-                  ))}
-                </ul>
-                <div className="border-t border-gray-100 pt-4 space-y-2.5">
-                  <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#d87093]">
-                    {isEs ? 'Opciones de Descarga' : 'Download Options'}
-                  </h4>
-                  {project.downloads.map((dl, i) => {
-                    const Icon = dl.icon;
-                    return (
-                      <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer"
-                        className="w-full py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-xs font-bold uppercase tracking-tight"
-                        style={{ background: dl.color, color: dl.textColor || '#ffffff' }}>
-                        <Icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                        {isEs ? dl.label : (dl.labelEn || dl.label)}
-                      </a>
-                    );
-                  })}
-                </div>
-              </div>
-            </div>
+          {/* ─── Hero Image (full width) ─── */}
+          <div className="rounded-[10px] overflow-hidden border-2 border-white aspect-video relative group">
+            <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
           </div>
 
           {/* ─── Sobre este proyecto (with volume + version) ─── */}
@@ -504,6 +463,42 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <button onClick={() => scrollPreview('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-7 h-7 rounded-full bg-white/80 border border-[#FFB6C1] text-[#d87093] flex items-center justify-center opacity-0 group-hover/prev:opacity-100 transition-opacity z-10 hover:bg-white">
                 <ChevronRight size={14} />
               </button>
+            </div>
+          </div>
+
+          {/* ─── Detalles + Descargas ─── */}
+          <div className="bg-white rounded-[10px] border-2 border-[#e0e0e0] p-5 space-y-4">
+            <h3 className="text-base font-bold text-[#d87093] flex items-center gap-2">
+              <FileText className="w-4 h-4" /> {t('projects.details')}
+            </h3>
+            <ul className="space-y-2.5">
+              {[
+                { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
+                { label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
+                { label: t('projects.engine'), value: project.details.engine },
+                { label: t('projects.downloads'), value: project.details.downloads },
+              ].map(item => (
+                <li key={item.label} className="flex justify-between text-sm py-1.5 border-b border-gray-100 last:border-0">
+                  <span className="text-gray-400">{item.label}</span>
+                  <span className="text-gray-700 font-mono text-xs">{item.value}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="border-t border-gray-100 pt-4 space-y-2.5">
+              <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#d87093]">
+                {isEs ? 'Opciones de Descarga' : 'Download Options'}
+              </h4>
+              {project.downloads.map((dl, i) => {
+                const Icon = dl.icon;
+                return (
+                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer"
+                    className="w-full py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-xs font-bold uppercase tracking-tight"
+                    style={{ background: dl.color, color: dl.textColor || '#ffffff' }}>
+                    <Icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                    {isEs ? dl.label : (dl.labelEn || dl.label)}
+                  </a>
+                );
+              })}
             </div>
           </div>
 
