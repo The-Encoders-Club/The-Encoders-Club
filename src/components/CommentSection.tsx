@@ -120,7 +120,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
           fontFamily: "'RifficFree', cursive",
           ...(lightTheme
             ? { WebkitTextStroke: '2px #6B1530', paintOrder: 'stroke fill', color: '#F092A6' }
-            : { fontFamily: "'Space Grotesk', sans-serif" })
+            : {})
         }}
       >
         <MessageCircle className={`w-5 h-5 ${lightTheme ? 'text-[#FF2D78]' : 'text-[#FF2D78]'}`} style={{ flexShrink: 0 }} /> Comentarios
