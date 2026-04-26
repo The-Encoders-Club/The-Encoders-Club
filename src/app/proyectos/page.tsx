@@ -393,7 +393,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           </header>
 
           {/* ─── Hero Image (full width) ─── */}
-          <div className="rounded-[10px] overflow-hidden border-2 border-white aspect-video relative group">
+          <div className="rounded-[10px] overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group">
             <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
           </div>
@@ -431,10 +431,10 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               </div>
             </div>
 
-            {/* Tags — white bg, pink text, pink border */}
+            {/* Tags — light pink bg, dark text, pink border */}
             <div className="flex flex-wrap gap-2 mt-4">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full bg-white border border-[#FFB6C1] text-[#d87093] font-medium">
+                <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full bg-[#FFC0CB] border border-[#FFB6C1] text-gray-700 font-medium">
                   {tag}
                 </span>
               ))}
