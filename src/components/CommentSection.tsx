@@ -89,7 +89,6 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
 
   const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
 
-  /* ─── Theme-aware style helpers ─── */
   const cardBg = lightTheme
     ? 'bg-[#FFE6EA]/50 border border-[#FFB6C8]/30 hover:bg-[#FFE6EA]/70'
     : 'bg-white/3 border border-white/5 hover:bg-white/5';
@@ -149,7 +148,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
           <button
             onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }}
             disabled={submitting}
-            className={`px-4 py-2.5 rounded-xl text-white text-sm font-semibold disabled:opacity-50 transition-all ${sendBtnCls}`}
+            className={`px-4 py-2.5 rounded-xl text-white text-base font-semibold disabled:opacity-50 transition-all ${sendBtnCls}`}
           >
             <Send size={16} />
           </button>
@@ -166,18 +165,18 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
             className={`p-4 rounded-xl transition-all ${cardBg}`}
           >
             <div className="flex items-start gap-3">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${lightTheme ? 'bg-[#FF2D78]' : 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]'}`}>
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 ${lightTheme ? 'bg-[#FF2D78]' : 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]'}`}>
                 {comment.author.avatar
                   ? <img src={comment.author.avatar} alt="" className="w-full h-full rounded-full object-cover" />
-                  : <User size={14} className="text-white" />}
+                  : <User size={22} className="text-white" />}
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`text-sm font-semibold ${lightTheme ? 'text-gray-800' : 'text-white'}`}>
+                  <span className={`text-lg font-semibold ${lightTheme ? 'text-gray-800' : 'text-white'}`}>
                     {comment.author.nickname}
                   </span>
                   {comment.author.role !== 'user' && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${
                       comment.author.role === 'admin'
                         ? (lightTheme ? 'bg-red-100 text-red-600' : 'bg-red-500/20 text-red-400')
                         : comment.author.role === 'moderator'
@@ -190,46 +189,46 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
                     </span>
                   )}
                   {comment.author.isPremium && <span className="text-yellow-400 text-xs">★</span>}
-                  <span className={`text-[10px] ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
+                  <span className={`text-xs ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
                     {new Date(comment.createdAt).toLocaleDateString()}
                   </span>
                 </div>
 
                 {comment.isDeleted ? (
-                  <p className={`text-sm italic mt-1 ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
+                  <p className={`text-lg italic mt-1 ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
                     Este comentario fue eliminado
                   </p>
                 ) : (
-                  <p className={`text-sm mt-1 ${lightTheme ? 'text-gray-600' : 'text-white/70'}`}>
+                  <p className={`text-lg mt-1 ${lightTheme ? 'text-gray-600' : 'text-white/70'}`}>
                     {comment.content}
                   </p>
                 )}
 
-                <div className="flex items-center gap-3 mt-2">
+                <div className="flex items-center gap-4 mt-3">
                   <button
                     onClick={() => toggleLike(comment.id)}
-                    className={`flex items-center gap-1 text-xs transition-colors ${lightTheme ? 'text-gray-400 hover:text-[#FF2D78]' : 'text-white/30 hover:text-[#FF2D78]'}`}
+                    className={`flex items-center gap-1.5 text-base transition-colors ${lightTheme ? 'text-gray-400 hover:text-[#FF2D78]' : 'text-white/30 hover:text-[#FF2D78]'}`}
                   >
-                    <Heart size={12} /> {comment.likes > 0 ? comment.likes : ''}
+                    <Heart size={17} /> {comment.likes > 0 ? comment.likes : ''}
                   </button>
                   <button
                     onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-                    className={`flex items-center gap-1 text-xs transition-colors ${lightTheme ? 'text-gray-400 hover:text-[#4D9FFF]' : 'text-white/30 hover:text-[#4D9FFF]'}`}
+                    className={`flex items-center gap-1.5 text-base transition-colors ${lightTheme ? 'text-gray-400 hover:text-[#4D9FFF]' : 'text-white/30 hover:text-[#4D9FFF]'}`}
                   >
-                    <MessageCircle size={12} /> Responder
+                    <MessageCircle size={17} /> Responder
                   </button>
                   <button
                     onClick={() => reportComment(comment.id)}
-                    className={`flex items-center gap-1 text-xs transition-colors ${lightTheme ? 'text-gray-400 hover:text-yellow-500' : 'text-white/30 hover:text-yellow-400'}`}
+                    className={`flex items-center gap-1.5 text-base transition-colors ${lightTheme ? 'text-gray-400 hover:text-yellow-500' : 'text-white/30 hover:text-yellow-400'}`}
                   >
-                    <Flag size={12} /> Reportar
+                    <Flag size={17} /> Reportar
                   </button>
                   {canModerate && !comment.isDeleted && (
                     <button
                       onClick={() => deleteComment(comment.id)}
-                      className={`flex items-center gap-1 text-xs transition-colors ${lightTheme ? 'text-gray-400 hover:text-red-500' : 'text-white/30 hover:text-red-400'}`}
+                      className={`flex items-center gap-1.5 text-base transition-colors ${lightTheme ? 'text-gray-400 hover:text-red-500' : 'text-white/30 hover:text-red-400'}`}
                     >
-                      <Trash2 size={12} />
+                      <Trash2 size={17} />
                     </button>
                   )}
                 </div>
@@ -266,28 +265,28 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
                   <div className={`mt-3 space-y-3 pl-3 ${lightTheme ? 'border-l border-[#FFB6C8]/40' : 'border-l border-white/10'}`}>
                     {comment.replies.map(reply => (
                       <div key={reply.id} className="flex items-start gap-2">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${lightTheme ? 'bg-[#FF2D78]/80' : 'bg-white/10'}`}>
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${lightTheme ? 'bg-[#FF2D78]/80' : 'bg-white/10'}`}>
                           {reply.author.avatar
                             ? <img src={reply.author.avatar} alt="" className="w-full h-full rounded-full object-cover" />
-                            : <User size={10} className="text-white" />}
+                            : <User size={16} className="text-white" />}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs font-semibold ${lightTheme ? 'text-gray-700' : 'text-white/80'}`}>
+                            <span className={`text-sm font-semibold ${lightTheme ? 'text-gray-700' : 'text-white/80'}`}>
                               {reply.author.nickname}
                             </span>
-                            <span className={`text-[10px] ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
+                            <span className={`text-xs ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
                               {new Date(reply.createdAt).toLocaleDateString()}
                             </span>
                           </div>
-                          <p className={`text-xs ${lightTheme ? 'text-gray-500' : 'text-white/60'}`}>
+                          <p className={`text-base ${lightTheme ? 'text-gray-500' : 'text-white/60'}`}>
                             {reply.content}
                           </p>
                         </div>
                       </div>
                     ))}
                     {comment.replies.length > 0 && (
-                      <p className={`text-[10px] pl-8 ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
+                      <p className={`text-sm pl-10 ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
                         {comment.replies.length} respuestas
                       </p>
                     )}
@@ -298,7 +297,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
           </motion.div>
         ))}
         {comments.length === 0 && (
-          <div className={`text-center py-8 text-sm ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
+          <div className={`text-center py-8 text-lg ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
             No hay comentarios aún. ¡Sé el primero!
           </div>
         )}
