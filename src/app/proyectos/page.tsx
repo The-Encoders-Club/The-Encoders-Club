@@ -647,6 +647,17 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
     <>
       <style>{`
         @font-face {
+          font-family: 'RifficFree';
+          src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
+          font-weight: bold;
+          font-style: normal;
+          font-display: swap;
+        }
+        .riffic {
+          font-family: 'RifficFree', cursive;
+          font-weight: bold;
+        }
+        @font-face {
           font-family: 'm1_fixed';
           src: url('/fonts/m1_fixed.ttf') format('truetype');
           font-weight: normal;
@@ -738,7 +749,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             transition={{ duration: 0.5 }}
             className="space-y-4"
           >
-            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+            <h3 className="pink-stroke-lg text-xl font-black riffic flex items-center gap-2">
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
@@ -774,7 +785,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             transition={{ duration: 0.5 }}
             className="space-y-3"
           >
-            <h4 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+            <h4 className="pink-stroke-lg text-xl font-black riffic flex items-center gap-2">
               <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.preview')}
             </h4>
@@ -789,7 +800,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             transition={{ duration: 0.5 }}
             className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5"
           >
-            <h3 className="pink-stroke-lg text-lg font-black flex items-center gap-2">
+            <h3 className="pink-stroke-lg text-lg font-black riffic flex items-center gap-2">
               <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.details')}
             </h3>
@@ -811,7 +822,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               })}
             </ul>
             <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
-              <h4 className="pink-stroke-sm text-xs font-black uppercase tracking-widest mb-2">
+              <h4 className="pink-stroke-sm text-sm font-black riffic uppercase tracking-widest mb-2">
                 {isEs ? 'Opciones de Descarga' : 'Download Options'}
               </h4>
               {project.downloads.map((dl, i) => {
@@ -851,7 +862,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             transition={{ duration: 0.5 }}
             className="space-y-4"
           >
-            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+            <h3 className="pink-stroke-lg text-xl font-black riffic flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
@@ -859,7 +870,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Wiki + Spritepacks */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm text-base font-black riffic flex items-center gap-1">
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
@@ -872,7 +883,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               </div>
 
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm text-base font-black riffic flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
@@ -893,7 +904,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Submods */}
             <div className="flex justify-center">
               <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-lg font-black flex items-center gap-1.5">
+                <h4 className="pink-stroke-sm text-lg font-black riffic flex items-center gap-1.5">
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
