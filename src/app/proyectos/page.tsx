@@ -112,8 +112,8 @@ function PinkDots() {
   const DOT = 72;
   const GAP = 130;
   // Extra columns/rows so the seamless loop has room to translate
-  const cols = Math.ceil(1800 / GAP) + 2;
-  const rows = Math.ceil(1800 / GAP) + 2;
+  const cols = Math.ceil(2200 / GAP) + 4;
+  const rows = Math.ceil(1400 / GAP) + 4;
   const dots: { id: number; x: number; y: number }[] = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -135,32 +135,37 @@ function PinkDots() {
           animation: diagonalScroll 6s linear infinite;
         }
       `}</style>
-      {/* White base */}
-      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
-      {/* Animated dots — oversized so the moving layer never shows edges */}
+      {/* Fixed white base covering full viewport */}
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff', zIndex: 0 }} />
+      {/* Fixed clip container — prevents dots from causing horizontal scroll */}
       <div
-        className="pink-dots-layer pointer-events-none"
-        style={{
-          position: 'absolute',
-          top: -shift * 2,
-          left: -shift * 2,
-          width: `calc(100% + ${shift * 4}px)`,
-          height: `calc(100% + ${shift * 4}px)`,
-        }}
+        className="pointer-events-none"
+        style={{ position: 'fixed', inset: 0, overflow: 'hidden', zIndex: 0 }}
       >
-        {dots.map(d => (
-          <div
-            key={d.id}
-            className="absolute rounded-full"
-            style={{
-              width: DOT,
-              height: DOT,
-              left: d.x - DOT / 2,
-              top: d.y - DOT / 2,
-              backgroundColor: '#ffeef8',
-            }}
-          />
-        ))}
+        <div
+          className="pink-dots-layer"
+          style={{
+            position: 'absolute',
+            top: -shift * 2,
+            left: -shift * 2,
+            width: `calc(100% + ${shift * 4}px)`,
+            height: `calc(100% + ${shift * 4}px)`,
+          }}
+        >
+          {dots.map(d => (
+            <div
+              key={d.id}
+              className="absolute rounded-full"
+              style={{
+                width: DOT,
+                height: DOT,
+                left: d.x - DOT / 2,
+                top: d.y - DOT / 2,
+                backgroundColor: '#ffeef8',
+              }}
+            />
+          ))}
+        </div>
       </div>
     </>
   );
@@ -672,8 +677,8 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
       `}</style>
 
       <div
-        className="relative z-10 min-h-screen w-full overflow-hidden"
-        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}
+        className="relative z-10 min-h-screen w-full"
+        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff', overflowX: 'clip' }}
       >
         {/* Pink polka dots — animated diagonal */}
         <PinkDots />
@@ -741,7 +746,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-700 leading-relaxed text-sm">{desc}</p>
+            <p className="text-gray-700 leading-relaxed text-base">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
@@ -858,7 +863,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Wiki + Spritepacks */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm text-lg font-black flex items-center gap-1">
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
@@ -871,7 +876,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               </div>
 
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm text-lg font-black flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
@@ -892,7 +897,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Submods */}
             <div className="flex justify-center">
               <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-lg font-black flex items-center gap-1.5">
+                <h4 className="pink-stroke-sm text-xl font-black flex items-center gap-1.5">
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
