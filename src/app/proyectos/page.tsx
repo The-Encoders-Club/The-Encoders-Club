@@ -107,12 +107,13 @@ const projects = [
 
 const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/gdw63Pfk2mCpqaap3WKi6Q/ProyectoFondo_c3356f10.jpg';
 
-/* ─── Static pink polka dots background ─── */
+/* ─── Animated diagonal pink polka dots background ─── */
 function PinkDots() {
   const DOT = 72;
   const GAP = 130;
-  const cols = Math.ceil(1600 / GAP);
-  const rows = Math.ceil(3600 / GAP);
+  // Extra columns/rows so the seamless loop has room to translate
+  const cols = Math.ceil(1800 / GAP) + 2;
+  const rows = Math.ceil(1800 / GAP) + 2;
   const dots: { id: number; x: number; y: number }[] = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
@@ -121,23 +122,47 @@ function PinkDots() {
       }
     }
   }
+  // The pattern repeats every GAP*2 diagonally, so we animate exactly that distance
+  const shift = GAP * 2;
   return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {dots.map(d => (
-        <div
-          key={d.id}
-          className="absolute rounded-full"
-          style={{
-            width: DOT,
-            height: DOT,
-            left: d.x - DOT / 2,
-            top: d.y - DOT / 2,
-            backgroundColor: '#F9C0D0',
-            opacity: 0.38,
-          }}
-        />
-      ))}
-    </div>
+    <>
+      <style>{`
+        @keyframes diagonalScroll {
+          0%   { transform: translate(0px, 0px); }
+          100% { transform: translate(${shift}px, ${shift}px); }
+        }
+        .pink-dots-layer {
+          animation: diagonalScroll 6s linear infinite;
+        }
+      `}</style>
+      {/* White base */}
+      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
+      {/* Animated dots — oversized so the moving layer never shows edges */}
+      <div
+        className="pink-dots-layer pointer-events-none"
+        style={{
+          position: 'absolute',
+          top: -shift * 2,
+          left: -shift * 2,
+          width: `calc(100% + ${shift * 4}px)`,
+          height: `calc(100% + ${shift * 4}px)`,
+        }}
+      >
+        {dots.map(d => (
+          <div
+            key={d.id}
+            className="absolute rounded-full"
+            style={{
+              width: DOT,
+              height: DOT,
+              left: d.x - DOT / 2,
+              top: d.y - DOT / 2,
+              backgroundColor: '#ffeef8',
+            }}
+          />
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -551,10 +576,10 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
       `}</style>
 
       <div
-        className="relative z-10 min-h-screen w-full overflow-x-hidden"
-        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#FFE0EC' }}
+        className="relative z-10 min-h-screen w-full overflow-hidden"
+        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}
       >
-        {/* Pink polka dots */}
+        {/* Pink polka dots — animated diagonal */}
         <PinkDots />
 
         {/* Floating decorations (hearts, books, bows, quills) */}
@@ -581,100 +606,30 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
         {/* ── Main content ── */}
         <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-          {/* ── HERO: Title+Image LEFT · Details+Downloads RIGHT ── */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* ── HERO: Title + Image (full width) ── */}
+          <div className="space-y-4">
+            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
+                {project.name}
+              </h1>
+              <p className="text-gray-500 text-sm font-medium mt-1 flex items-center gap-1.5">
+                {project.subtitle} <span>💗</span>
+              </p>
+            </motion.div>
 
-            {/* Left column */}
-            <div className="space-y-4">
-              <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-                <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
-                  {project.name}
-                </h1>
-                <p className="text-gray-500 text-sm font-medium mt-1 flex items-center gap-1.5">
-                  {project.subtitle} <span>💗</span>
-                </p>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, scale: 0.97 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.55, delay: 0.1 }}
-                className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group"
-                style={{ boxShadow: '0 8px 32px #FF6B9D30' }}
-              >
-                <img
-                  src={project.image}
-                  alt={project.name}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-              </motion.div>
-            </div>
-
-            {/* Right column */}
             <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.55, delay: 0.15 }}
-              className="space-y-4"
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.55, delay: 0.1 }}
+              className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group"
+              style={{ boxShadow: '0 8px 32px #FF6B9D30' }}
             >
-              {/* Details card */}
-              <div className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm">
-                <h3 className="pink-stroke-lg text-lg font-black flex items-center gap-2 mb-4">
-                  <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  {t('projects.details')}
-                </h3>
-                <ul className="space-y-2.5">
-                  {[
-                    { icon: Clock,    label: t('projects.playTime'), value: isEs ? project.details.playTime    : (project.details.playTimeEn    || project.details.playTime)    },
-                    { icon: Flag,     label: t('projects.language'), value: isEs ? project.details.language    : (project.details.languageEn    || project.details.language)    },
-                    { icon: Settings, label: t('projects.engine'),   value: project.details.engine },
-                    { icon: Download, label: t('projects.downloads'),value: project.details.downloads },
-                  ].map(item => {
-                    const ItemIcon = item.icon;
-                    return (
-                      <li key={item.label} className="flex items-center gap-2 text-xs">
-                        <ItemIcon className="w-3.5 h-3.5 text-[#d87093] flex-shrink-0" />
-                        <span className="text-gray-500 flex-1">{item.label}</span>
-                        <span className="text-gray-800 font-bold">{item.value}</span>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-
-              {/* Downloads */}
-              <div className="space-y-2">
-                <h4 className="pink-stroke-sm text-xs font-black uppercase tracking-widest mb-1">
-                  {isEs ? 'Opciones de Descarga' : 'Download Options'}
-                </h4>
-                {project.downloads.map((dl, i) => {
-                  const Icon = dl.icon;
-                  const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
-                  const stroke = strokeColors[i] || '#333';
-                  return (
-                    <a
-                      key={i}
-                      href={dl.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md"
-                      style={{ background: dl.color, border: `3px solid ${stroke}` }}
-                    >
-                      <Icon
-                        className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0"
-                        style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }}
-                      />
-                      <span
-                        className="font-black uppercase tracking-wide text-sm"
-                        style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
-                      >
-                        {isEs ? dl.label : (dl.labelEn || dl.label)}
-                      </span>
-                    </a>
-                  );
-                })}
-              </div>
+              <img
+                src={project.image}
+                alt={project.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             </motion.div>
           </div>
 
@@ -732,6 +687,72 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               {t('projects.preview')}
             </h4>
             <PinkPreviewCarousel images={project.previews} />
+          </motion.div>
+
+          {/* ── Detalles + Descargas (after Vista Previa) ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5"
+          >
+            <h3 className="pink-stroke-lg text-lg font-black flex items-center gap-2">
+              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {t('projects.details')}
+            </h3>
+            <ul className="space-y-2.5">
+              {[
+                { icon: Clock,    label: t('projects.playTime'), value: isEs ? project.details.playTime    : (project.details.playTimeEn    || project.details.playTime)    },
+                { icon: Flag,     label: t('projects.language'), value: isEs ? project.details.language    : (project.details.languageEn    || project.details.language)    },
+                { icon: Settings, label: t('projects.engine'),   value: project.details.engine },
+                { icon: Download, label: t('projects.downloads'),value: project.details.downloads },
+              ].map(item => {
+                const ItemIcon = item.icon;
+                return (
+                  <li key={item.label} className="flex items-center gap-2 text-xs">
+                    <ItemIcon className="w-3.5 h-3.5 text-[#d87093] flex-shrink-0" />
+                    <span className="text-gray-500 flex-1">{item.label}</span>
+                    <span className="text-gray-800 font-bold">{item.value}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
+              <h4 className="pink-stroke-sm text-xs font-black uppercase tracking-widest mb-2">
+                {isEs ? 'Opciones de Descarga' : 'Download Options'}
+              </h4>
+              {project.downloads.map((dl, i) => {
+                const Icon = dl.icon;
+                const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
+                const stroke = strokeColors[i] || '#333';
+                return (
+                  <a
+                    key={i}
+                    href={dl.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md"
+                    style={{ background: dl.color, border: `3px solid ${stroke}` }}
+                  >
+                    <Icon
+                      className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0"
+                      style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }}
+                    />
+                    <span
+                      className="font-black uppercase tracking-wide text-sm"
+                      style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
+                    >
+                      {isEs ? dl.label : (dl.labelEn || dl.label)}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+            {/* Version badge */}
+            <div className="flex justify-end">
+              <span className="text-[10px] text-gray-400 font-bold bg-white/60 border border-[#FFB6C1] px-2.5 py-1 rounded-full">v0.12.18</span>
+            </div>
           </motion.div>
 
           {/* ── Recursos y Contenido Extra ── */}
