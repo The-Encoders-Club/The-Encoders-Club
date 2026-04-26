@@ -370,11 +370,18 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
       <div className="relative z-10 min-h-screen w-full overflow-x-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#FFE0EC' }}>
         <PinkDots />
 
-        {/* Nav - no border, no share, just back button */}
-        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center" style={{ backgroundColor: 'rgba(255,224,236,0.90)', backdropFilter: 'blur(12px)' }}>
+        {/* Nav */}
+        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.90)', backdropFilter: 'blur(12px)' }}>
           <button onClick={onClose} className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
             <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
+          </button>
+          <button
+            onClick={toggleMute}
+            className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all"
+            title={muted ? 'Unmute' : 'Mute'}
+          >
+            {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
         </nav>
 
@@ -398,27 +405,15 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent" />
           </div>
 
-          {/* ─── Sobre este proyecto (with volume + version) ─── */}
-          <div className="bg-white rounded-[10px] border-2 border-[#FFB6C1] p-5">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-base font-bold text-[#d87093] flex items-center gap-2">
-                <FileText className="w-4 h-4" /> {isEs ? 'Sobre este proyecto' : 'About this project'}
-              </h3>
-              <div className="flex items-center gap-2">
-                <span className="text-[11px] text-gray-400">v0.12.18</span>
-                <button
-                  onClick={toggleMute}
-                  className="p-1.5 rounded-full bg-[#FFE0EC] border border-[#FFB6C1] text-[#d87093] hover:bg-[#FFB6C1]/40 transition-all"
-                  title={muted ? 'Unmute' : 'Mute'}
-                >
-                  {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-                </button>
-              </div>
-            </div>
-            <p className="text-gray-600 leading-relaxed text-sm">{desc}</p>
+          {/* ─── Sobre este proyecto ─── */}
+          <div className="space-y-4">
+            <h3 className="text-xl font-bold text-[#d87093] flex items-center gap-2">
+              <FileText className="w-5 h-5" /> {isEs ? 'Sobre este proyecto' : 'About this project'}
+            </h3>
+            <p className="text-gray-700 leading-relaxed text-base">{desc}</p>
 
             {/* Status + Rating */}
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-2 gap-4">
               <div className="p-3 rounded-lg bg-white border border-[#FFB6C1]">
                 <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-500">{t('projects.status')}</span>
                 <span className="text-gray-700 font-medium text-sm">{status}</span>
@@ -431,20 +426,22 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               </div>
             </div>
 
-            {/* Tags — light pink bg, dark text, pink border */}
-            <div className="flex flex-wrap gap-2 mt-4">
+            {/* Tags */}
+            <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full bg-[#FFC0CB] border border-[#FFB6C1] text-gray-700 font-medium">
+                <span key={tag} className="text-[11px] px-3 py-1 rounded-full bg-white/70 border border-[#FFB6C1] text-gray-700 font-medium">
                   {tag}
                 </span>
               ))}
             </div>
           </div>
 
+          <hr className="border-[#FFB6C1]/60" />
+
           {/* ─── Vista Previa (3 images visible, scrollable) ─── */}
-          <div className="bg-white rounded-[10px] border-2 border-[#FFB6C1] p-5">
-            <h4 className="text-base font-bold text-[#d87093] mb-3 flex items-center gap-2">
-              <ImageIcon className="w-4 h-4" /> {t('projects.preview')}
+          <div className="space-y-3">
+            <h4 className="text-xl font-bold text-[#d87093] flex items-center gap-2">
+              <ImageIcon className="w-5 h-5" /> {t('projects.preview')}
             </h4>
             <div className="relative group/prev">
               <div ref={previewRef} className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide snap-x scroll-smooth">
@@ -465,6 +462,8 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               </button>
             </div>
           </div>
+
+          <hr className="border-[#FFB6C1]/60" />
 
           {/* ─── Detalles + Descargas ─── */}
           <div className="bg-white rounded-[10px] border-2 border-[#FFB6C1] p-5 space-y-4">
