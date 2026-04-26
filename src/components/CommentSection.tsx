@@ -105,8 +105,25 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
 
   return (
     <div className="mt-4 space-y-4" style={lightTheme ? { fontFamily: "'m1_fixed', monospace" } : undefined}>
-      <h3 className={`text-lg font-bold flex items-center gap-2 ${lightTheme ? 'text-[#FF2D78]' : 'text-white'}`} style={lightTheme ? undefined : { fontFamily: "'Space Grotesk', sans-serif" }}>
-        <MessageCircle className={`w-5 h-5 ${lightTheme ? 'text-[#FF2D78]' : 'text-[#FF2D78]'}`} /> Comentarios
+      <style>{`
+        @font-face {
+          font-family: 'RifficFree';
+          src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
+          font-weight: bold;
+          font-style: normal;
+          font-display: swap;
+        }
+      `}</style>
+      <h3
+        className={`text-xl font-bold flex items-center gap-2 ${lightTheme ? '' : 'text-white'}`}
+        style={{
+          fontFamily: "'RifficFree', cursive",
+          ...(lightTheme
+            ? { WebkitTextStroke: '2px #6B1530', paintOrder: 'stroke fill', color: '#F092A6' }
+            : { fontFamily: "'Space Grotesk', sans-serif" })
+        }}
+      >
+        <MessageCircle className={`w-5 h-5 ${lightTheme ? 'text-[#FF2D78]' : 'text-[#FF2D78]'}`} style={{ flexShrink: 0 }} /> Comentarios
       </h3>
 
       {/* New comment input */}
