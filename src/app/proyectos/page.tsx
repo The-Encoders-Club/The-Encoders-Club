@@ -420,21 +420,21 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Status + Rating */}
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="p-3 rounded-lg bg-white border border-[#FFB6C1]">
-                <span className="text-[10px] font-bold uppercase block mb-0.5 text-[#d87093]">{t('projects.status')}</span>
+                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-500">{t('projects.status')}</span>
                 <span className="text-gray-700 font-medium text-sm">{status}</span>
               </div>
               <div className="p-3 rounded-lg bg-white border border-[#FFB6C1]">
-                <span className="text-[10px] font-bold uppercase block mb-0.5 text-[#d87093]">{t('projects.rating')}</span>
+                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-500">{t('projects.rating')}</span>
                 <span className="text-gray-700 font-medium text-sm flex items-center gap-1">
                   {project.rating} <Star className="w-3.5 h-3.5 fill-current text-yellow-400" />
                 </span>
               </div>
             </div>
 
-            {/* Tags — light pink bg, dark text */}
+            {/* Tags — white bg, pink text, pink border */}
             <div className="flex flex-wrap gap-2 mt-4">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full bg-[#FFB6C1]/60 text-gray-700 font-medium">
+                <span key={tag} className="text-[11px] px-2.5 py-1 rounded-full bg-white border border-[#FFB6C1] text-[#d87093] font-medium">
                   {tag}
                 </span>
               ))}
