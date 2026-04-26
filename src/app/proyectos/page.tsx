@@ -5,7 +5,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor, Download,
   Share2, X, Sparkles, ArrowRight, Gamepad2, Volume2, VolumeX,
-  ChevronLeft, ChevronRight, Search, Shirt, Puzzle, FileText
+  ChevronLeft, ChevronRight, Search, Shirt, Puzzle, FileText,
+  Clock, Flag, Settings
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -108,13 +109,15 @@ const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/g
 
 /* ─── Static pink polka dots background ─── */
 function PinkDots() {
-  const cols = Math.ceil(1400 / 60);
-  const rows = Math.ceil(3000 / 60);
+  const DOT = 88;
+  const GAP = 140;
+  const cols = Math.ceil(1600 / GAP);
+  const rows = Math.ceil(3200 / GAP);
   const dots: { id: number; x: number; y: number }[] = [];
   for (let r = 0; r < rows; r++) {
     for (let c = 0; c < cols; c++) {
       if ((r + c) % 2 === 0) {
-        dots.push({ id: r * cols + c, x: c * 60 + 30, y: r * 60 + 30 });
+        dots.push({ id: r * cols + c, x: c * GAP, y: r * GAP });
       }
     }
   }
@@ -125,12 +128,12 @@ function PinkDots() {
           key={d.id}
           className="absolute rounded-full"
           style={{
-            width: 16,
-            height: 16,
-            left: d.x,
-            top: d.y,
-            backgroundColor: '#FFC0D9',
-            opacity: 0.5,
+            width: DOT,
+            height: DOT,
+            left: d.x - DOT / 2,
+            top: d.y - DOT / 2,
+            backgroundColor: '#F4A7BF',
+            opacity: 0.42,
           }}
         />
       ))}
@@ -388,15 +391,25 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
         <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-7">
 
           {/* ─── Title (centered) ─── */}
-          <header className="text-center">
+          <header className="text-center px-2">
+            <style>{`
+              .monika-title {
+                color: #F092A6;
+                -webkit-text-stroke: 5px #6B1530;
+                paint-order: stroke fill;
+              }
+            `}</style>
             <motion.h1
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-3xl sm:text-5xl font-black text-[#d87093] mb-1"
+              className="monika-title text-5xl sm:text-7xl font-black mb-2 leading-tight"
             >
               {project.name}
             </motion.h1>
-            <p className="text-sm sm:text-base text-[#d87093]/70 font-medium">{project.subtitle}</p>
+            <p className="text-sm sm:text-base text-gray-500 font-medium flex items-center justify-center gap-2">
+              {project.subtitle}
+              <span style={{ imageRendering: 'pixelated', fontSize: '1.1em' }}>💗</span>
+            </p>
           </header>
 
           {/* ─── Hero Image (full width) ─── */}
@@ -466,103 +479,150 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           <hr className="border-[#FFB6C1]/60" />
 
           {/* ─── Detalles + Descargas ─── */}
-          <div className="bg-white rounded-[10px] border-2 border-[#FFB6C1] p-5 space-y-4">
-            <h3 className="text-base font-bold text-[#d87093] flex items-center gap-2">
-              <FileText className="w-4 h-4" /> {t('projects.details')}
+          <div className="bg-white/80 rounded-3xl border border-[#FFB6C1] p-6 space-y-5">
+            <style>{`
+              .details-section-title {
+                color: #F092A6;
+                -webkit-text-stroke: 3px #6B1530;
+                paint-order: stroke fill;
+              }
+              .download-section-label {
+                color: #F092A6;
+                -webkit-text-stroke: 2px #6B1530;
+                paint-order: stroke fill;
+              }
+            `}</style>
+
+            <h3 className="details-section-title text-2xl font-black flex items-center gap-2">
+              <Settings className="w-6 h-6 text-[#F092A6]" />
+              {t('projects.details')}
             </h3>
-            <ul className="space-y-2.5">
+
+            <ul className="space-y-3">
               {[
-                { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
-                { label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
-                { label: t('projects.engine'), value: project.details.engine },
-                { label: t('projects.downloads'), value: project.details.downloads },
-              ].map(item => (
-                <li key={item.label} className="flex justify-between text-sm py-1.5 border-b border-gray-100 last:border-0">
-                  <span className="text-gray-400">{item.label}</span>
-                  <span className="text-gray-700 font-mono text-xs">{item.value}</span>
-                </li>
-              ))}
+                { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
+                { icon: Flag,  label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
+                { icon: Settings, label: t('projects.engine'), value: project.details.engine },
+                { icon: Download, label: t('projects.downloads'), value: project.details.downloads },
+              ].map(item => {
+                const ItemIcon = item.icon;
+                return (
+                  <li key={item.label} className="flex items-center gap-2 text-sm">
+                    <ItemIcon className="w-4 h-4 text-gray-400 flex-shrink-0" />
+                    <span className="text-gray-500 flex-1">{item.label}</span>
+                    <span className="text-gray-800 font-semibold">{item.value}</span>
+                  </li>
+                );
+              })}
             </ul>
-            <div className="border-t border-gray-100 pt-4 space-y-2.5">
-              <h4 className="text-[11px] font-bold uppercase tracking-wider text-[#d87093]">
+
+            <div className="border-t border-gray-100 pt-5 space-y-3">
+              <h4 className="download-section-label text-sm font-black uppercase tracking-wider">
                 {isEs ? 'Opciones de Descarga' : 'Download Options'}
               </h4>
               {project.downloads.map((dl, i) => {
                 const Icon = dl.icon;
+                const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
+                const stroke = strokeColors[i] || '#333';
                 return (
-                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer"
-                    className="w-full py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-xs font-bold uppercase tracking-tight"
-                    style={{ background: dl.color, color: dl.textColor || '#ffffff' }}>
-                    <Icon className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                    {isEs ? dl.label : (dl.labelEn || dl.label)}
+                  <a
+                    key={i}
+                    href={dl.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-4 rounded-2xl flex items-center justify-center gap-3 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group"
+                    style={{
+                      background: dl.color,
+                      border: `3px solid ${stroke}`,
+                    }}
+                  >
+                    <Icon className="w-5 h-5 group-hover:scale-110 transition-transform flex-shrink-0"
+                      style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
+                    <span
+                      className="font-black uppercase tracking-wide text-sm"
+                      style={{
+                        color: dl.textColor || '#ffffff',
+                        WebkitTextStroke: `1.5px ${stroke}`,
+                        paintOrder: 'stroke fill',
+                      }}
+                    >
+                      {isEs ? dl.label : (dl.labelEn || dl.label)}
+                    </span>
                   </a>
                 );
               })}
             </div>
           </div>
 
-          {/* ─── Recursos y Contenido Extra (pink cards) ─── */}
-          <div className="space-y-3">
-            <h3 className="text-base font-bold text-[#d87093] flex items-center gap-2">
-              <Sparkles className="w-4 h-4" /> {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
+          {/* ─── Recursos y Contenido Extra ─── */}
+          <div className="space-y-4">
+            <h3
+              className="text-xl font-black flex items-center gap-2"
+              style={{ color: '#F092A6', WebkitTextStroke: '3px #6B1530', paintOrder: 'stroke fill' }}
+            >
+              <BookOpen className="w-5 h-5" style={{ color: '#C06080', WebkitTextStroke: '0px', filter: 'none' }} />
+              {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
 
-            {/* Wiki del Mod */}
-            <div className="bg-[#FFE0EC] rounded-[10px] border border-[#FFB6C1] p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center flex-shrink-0">
-                  <Search className="w-4 h-4 text-[#d87093]" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-[#d87093] text-sm mb-1">Wiki del Mod</h4>
-                  <p className="text-xs text-[#d87093]/70 mb-2.5">
-                    {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
-                  </p>
-                  <button className="px-4 py-1.5 rounded-md bg-[#d87093] text-white text-[11px] font-semibold hover:bg-[#c06080] transition-colors">
-                    {isEs ? 'Ver Wiki' : 'View Wiki'}
+            {/* Wiki + Spritepacks — 2 columns */}
+            <div className="grid grid-cols-2 gap-3">
+
+              {/* Wiki del Mod */}
+              <div className="bg-[#FFE8F0] rounded-2xl border border-[#FFB6C1] p-4 flex flex-col items-center text-center gap-3">
+                <h4
+                  className="text-base font-black flex items-center gap-1"
+                  style={{ color: '#E07090', WebkitTextStroke: '2px #6B1530', paintOrder: 'stroke fill' }}
+                >
+                  <Search className="w-4 h-4 flex-shrink-0" style={{ color: '#C06080', WebkitTextStroke: '0px' }} />
+                  Wiki del Mod
+                </h4>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
+                </p>
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white/80 text-xs font-semibold hover:bg-[#C06080] hover:text-white transition-colors">
+                  <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
+                </button>
+              </div>
+
+              {/* Spritepacks */}
+              <div className="bg-[#FFE8F0] rounded-2xl border border-[#FFB6C1] p-4 flex flex-col items-center text-center gap-3">
+                <h4
+                  className="text-base font-black flex items-center gap-1"
+                  style={{ color: '#E07090', WebkitTextStroke: '2px #6B1530', paintOrder: 'stroke fill' }}
+                >
+                  <Shirt className="w-4 h-4 flex-shrink-0" style={{ color: '#C06080', WebkitTextStroke: '0px' }} />
+                  Spritepacks
+                </h4>
+                <p className="text-xs text-gray-600 leading-relaxed">
+                  {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
+                </p>
+                <div className="flex flex-col gap-2 w-full">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white/80 text-xs font-semibold hover:bg-[#C06080] hover:text-white transition-colors">
+                    <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
+                  </button>
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white/80 text-xs font-semibold hover:bg-[#C06080] hover:text-white transition-colors">
+                    <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Spritepacks */}
-            <div className="bg-[#FFE0EC] rounded-[10px] border border-[#FFB6C1] p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center flex-shrink-0">
-                  <Shirt className="w-4 h-4 text-[#d87093]" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-[#d87093] text-sm mb-1">Spritepacks</h4>
-                  <p className="text-xs text-[#d87093]/70 mb-2.5">
-                    {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
-                  </p>
-                  <div className="flex gap-2">
-                    <button className="px-4 py-1.5 rounded-md bg-[#d87093] text-white text-[11px] font-semibold hover:bg-[#c06080] transition-colors">
-                      {isEs ? 'Ver Ropa' : 'View Clothes'}
-                    </button>
-                    <button className="px-4 py-1.5 rounded-md bg-[#d87093] text-white text-[11px] font-semibold hover:bg-[#c06080] transition-colors">
-                      {isEs ? 'Ver Accesorios' : 'View Accessories'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Submods */}
-            <div className="bg-[#FFE0EC] rounded-[10px] border border-[#FFB6C1] p-4">
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-lg bg-white flex items-center justify-center flex-shrink-0">
-                  <Puzzle className="w-4 h-4 text-[#d87093]" />
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-bold text-[#d87093] text-sm mb-1">Submods</h4>
-                  <p className="text-xs text-[#d87093]/70 mb-2.5">
-                    {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
-                  </p>
-                  <button className="px-4 py-1.5 rounded-md bg-[#d87093] text-white text-[11px] font-semibold hover:bg-[#c06080] transition-colors">
-                    {isEs ? 'Explorar Submods' : 'Explore Submods'}
-                  </button>
-                </div>
+            {/* Submods — centered below */}
+            <div className="flex justify-center">
+              <div className="w-full max-w-xs bg-[#FFE8F0] rounded-2xl border border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3">
+                <h4
+                  className="text-lg font-black flex items-center gap-1.5"
+                  style={{ color: '#E07090', WebkitTextStroke: '2px #6B1530', paintOrder: 'stroke fill' }}
+                >
+                  <Puzzle className="w-5 h-5 flex-shrink-0" style={{ color: '#C06080', WebkitTextStroke: '0px' }} />
+                  Submods
+                </h4>
+                <p className="text-sm text-gray-600 leading-relaxed">
+                  {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
+                </p>
+                <button className="flex items-center gap-1.5 px-5 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white/80 text-sm font-semibold hover:bg-[#C06080] hover:text-white transition-colors">
+                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
+                </button>
               </div>
             </div>
           </div>
