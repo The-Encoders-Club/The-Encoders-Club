@@ -129,7 +129,7 @@ function PinkDots() {
       <style>{`
         @keyframes diagonalScroll {
           0%   { transform: translate(0px, 0px); }
-          100% { transform: translate(-${shift}px, -${shift}px); }
+          100% { transform: translate(${shift}px, -${shift}px); }
         }
         .pink-dots-layer {
           animation: diagonalScroll 6s linear infinite;
@@ -652,27 +652,17 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           font-style: normal;
           font-display: swap;
         }
-        @font-face {
-          font-family: 'RifficFree';
-          src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
-          font-weight: bold;
-          font-style: normal;
-          font-display: swap;
-        }
         .monika-title {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
           color: #fefefe;
           -webkit-text-stroke: 5px #ba609e;
           paint-order: stroke fill;
         }
         .pink-stroke-lg {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
           color: #fefefe;
           -webkit-text-stroke: 3px #ba609e;
           paint-order: stroke fill;
         }
         .pink-stroke-sm {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
           color: #fefefe;
           -webkit-text-stroke: 2px #ba609e;
           paint-order: stroke fill;
@@ -687,6 +677,9 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
       >
         {/* Pink polka dots — animated diagonal */}
         <PinkDots />
+
+        {/* Floating decorations (hearts, books, bows, quills) */}
+        <DecorationLayer />
 
         {/* ── Nav ── */}
         <nav
