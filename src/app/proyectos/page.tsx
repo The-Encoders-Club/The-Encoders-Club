@@ -19,8 +19,8 @@ const projects = [
     id: 'monika',
     name: 'Monika After History',
     subtitle: 'Novela Visual Fan-Made',
-    description: 'Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia.',
-    descriptionEn: 'An alternative story exploring what would have happened after the events of Doki Doki Literature Club. Monika, aware of her reality, decides to write her own story.',
+    description: 'Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club.\nMonika, consciente de su realidad, decide escribir su propia historia.',
+    descriptionEn: 'An alternative story exploring what would have happened after the events of Doki Doki Literature Club.\nMonika, aware of her reality, decides to write her own story.',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png',
     tags: ['Fan-Made', 'Drama', 'Romance'],
     status: 'En desarrollo',
@@ -52,8 +52,8 @@ const projects = [
     id: 'natsuki',
     name: 'Just Natsuki',
     subtitle: 'Novela Visual Fan-Made',
-    description: 'Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad.',
-    descriptionEn: 'Immerse yourself in Natsuki\'s story, exploring her world beyond the literature club. An intimate narrative that deepens her personality.',
+    description: 'Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura.\nUna narrativa íntima que profundiza en su personalidad.',
+    descriptionEn: 'Immerse yourself in Natsuki\'s story, exploring her world beyond the literature club.\nAn intimate narrative that deepens her personality.',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png',
     tags: ['Fan-Made', 'Slice of Life'],
     status: 'Disponible',
@@ -78,8 +78,8 @@ const projects = [
     id: 'yuri',
     name: 'Just Yuri',
     subtitle: 'Novela Visual Fan-Made',
-    description: 'Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural.',
-    descriptionEn: 'A literary adventure with Yuri as the protagonist. Discover her love for books, the mysteries that surround her, and a story that mixes the everyday with the supernatural.',
+    description: 'Una aventura literaria con Yuri como protagonista.\nDescubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural.',
+    descriptionEn: 'A literary adventure with Yuri as the protagonist.\nDiscover her love for books, the mysteries that surround her, and a story that mixes the everyday with the supernatural.',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663522621232/wWSuFRWkAQVXHGQp.png',
     tags: ['Fan-Made', 'Misterio', 'Literatura'],
     status: 'Disponible',
@@ -111,7 +111,6 @@ const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/g
 function PinkDots() {
   const DOT = 72;
   const GAP = 130;
-  // Extra columns/rows so the seamless loop has room to translate
   const cols = Math.ceil(1800 / GAP) + 2;
   const rows = Math.ceil(1800 / GAP) + 2;
   const dots: { id: number; x: number; y: number }[] = [];
@@ -122,22 +121,19 @@ function PinkDots() {
       }
     }
   }
-  // The pattern repeats every GAP*2 diagonally, so we animate exactly that distance
   const shift = GAP * 2;
   return (
     <>
       <style>{`
         @keyframes diagonalScroll {
           0%   { transform: translate(0px, 0px); }
-          100% { transform: translate(${shift}px, -${shift}px); }
+          100% { transform: translate(-${shift}px, -${shift}px); }
         }
         .pink-dots-layer {
           animation: diagonalScroll 6s linear infinite;
         }
       `}</style>
-      {/* White base */}
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
-      {/* Animated dots — oversized so the moving layer never shows edges */}
       <div
         className="pink-dots-layer pointer-events-none"
         style={{
@@ -222,25 +218,21 @@ const DECO_POOL = [
   { type: 'quill', size: 36, color: '#A0522D' },
   { type: 'quill', size: 28, color: '#8B4513' },
 ] as const;
-
 type DecoItem = typeof DECO_POOL[number];
 
 function FloatingDeco({ item, x, y, delay }: { item: DecoItem; x: number; y: number; delay: number }) {
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), delay);
     const t2 = setTimeout(() => setVisible(false), delay + 1000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [delay]);
-
   const icon = () => {
     if (item.type === 'heart') return <HeartSvg size={item.size} color={item.color} />;
     if (item.type === 'book')  return <BookSvg  size={item.size} color={item.color} />;
     if (item.type === 'bow')   return <BowSvg   size={item.size} color={item.color} />;
     return <QuillSvg size={item.size} color={item.color} />;
   };
-
   return (
     <AnimatePresence>
       {visible && (
@@ -280,7 +272,6 @@ function DecorationLayer() {
     const iv = setInterval(spawn, 3500);
     return () => clearInterval(iv);
   }, []);
-
   return (
     <>
       {bursts.map(burst =>
@@ -306,7 +297,6 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
   const closeLightbox = () => setLightboxIdx(null);
   const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
   const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(images.length - 1, i + 1) : null));
-
   return (
     <>
       <div className="relative group/carousel">
@@ -381,7 +371,6 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   const [current, setCurrent] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const total = images.length;
-
   const scroll = (dir: 'left' | 'right') => {
     const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
     setCurrent(next);
@@ -393,7 +382,6 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   const closeLightbox = () => setLightboxIdx(null);
   const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
   const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(total - 1, i + 1) : null));
-
   return (
     <>
       <div className="relative">
@@ -479,7 +467,6 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
       if (musicRef.current) musicRef.current.src = '';
     };
   }, []);
-
   const toggleMute = () => {
     if (musicRef.current) {
       try {
@@ -491,11 +478,9 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
     }
     setMuted(!muted);
   };
-
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
-
   return (
     <div className="relative z-10 min-h-screen w-full overflow-x-hidden">
       <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-white/20 px-4 sm:px-6 py-4 flex justify-between items-center">
@@ -626,7 +611,6 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
   useEffect(() => {
     return () => { if (musicRef.current) musicRef.current.src = ''; };
   }, []);
-
   const toggleMute = () => {
     if (musicRef.current) {
       try {
@@ -637,11 +621,9 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
     }
     setMuted(!muted);
   };
-
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
-
   return (
     <>
       <style>{`
@@ -652,17 +634,27 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           font-style: normal;
           font-display: swap;
         }
+        @font-face {
+          font-family: 'RifficFree';
+          src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
+          font-weight: bold;
+          font-style: normal;
+          font-display: swap;
+        }
         .monika-title {
+          font-family: 'RifficFree', 'm1_fixed', monospace;
           color: #fefefe;
           -webkit-text-stroke: 5px #ba609e;
           paint-order: stroke fill;
         }
         .pink-stroke-lg {
+          font-family: 'RifficFree', 'm1_fixed', monospace;
           color: #fefefe;
           -webkit-text-stroke: 3px #ba609e;
           paint-order: stroke fill;
         }
         .pink-stroke-sm {
+          font-family: 'RifficFree', 'm1_fixed', monospace;
           color: #fefefe;
           -webkit-text-stroke: 2px #ba609e;
           paint-order: stroke fill;
@@ -677,9 +669,6 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
       >
         {/* Pink polka dots — animated diagonal */}
         <PinkDots />
-
-        {/* Floating decorations (hearts, books, bows, quills) */}
-        <DecorationLayer />
 
         {/* ── Nav ── */}
         <nav
@@ -780,7 +769,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             <PinkPreviewCarousel images={project.previews} />
           </motion.div>
 
-          {/* ── Detalles + Descargas (after Vista Previa) ── */}
+          {/* ── Detalles + Descargas ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -941,7 +930,6 @@ export default function Proyectos() {
     }
     return () => { document.body.style.overflow = ''; };
   }, [activeProject]);
-
   return (
     <div
       className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]"
@@ -1040,7 +1028,7 @@ export default function Proyectos() {
                   </div>
                   <div className="p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
                     <div className="flex items-center gap-3 mb-2">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
                         {isEs ? project.status : (project.statusEn || project.status)}
                       </span>
                       <div className="flex items-center gap-1 text-yellow-400 text-xs">
@@ -1051,13 +1039,13 @@ export default function Proyectos() {
                     <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                       {project.name}
                     </h2>
-                    <p className="text-[#FF2D78] text-sm font-medium mb-4">{project.subtitle}</p>
-                    <p className="text-white/60 text-base leading-relaxed mb-6">
+                    <p className="text-[#FF2D78] text-sm font-bold mb-4">{project.subtitle}</p>
+                    <p className="text-white/80 text-lg leading-relaxed mb-6" style={{ fontFamily: "'m1_fixed', sans-serif" }}>
                       {isEs ? project.description : (project.descriptionEn || project.description)}
                     </p>
                     <div className="flex flex-wrap gap-2 mb-6">
                       {project.tags.map(tag => (
-                        <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">{tag}</span>
+                        <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60 font-bold">{tag}</span>
                       ))}
                     </div>
                     <div className="flex items-center gap-2 text-[#FF2D78] font-bold text-sm group-hover:translate-x-2 transition-transform">
@@ -1085,7 +1073,7 @@ export default function Proyectos() {
                     <img src={project.image} alt="" className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110" />
                     <img src={project.image} alt={project.name} className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4" />
                     <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                      <span className="text-xs font-bold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
                         {isEs ? project.status : (project.statusEn || project.status)}
                       </span>
                       <div className="flex items-center gap-1 text-yellow-400 text-xs">
@@ -1098,8 +1086,8 @@ export default function Proyectos() {
                     <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                       {project.name}
                     </h3>
-                    <p className="text-[#00F3FF] text-xs font-medium mb-3">{project.subtitle}</p>
-                    <p className="text-white/55 text-sm leading-relaxed mb-4 line-clamp-3">
+                    <p className="text-[#00F3FF] text-xs font-bold mb-3">{project.subtitle}</p>
+                    <p className="text-white/70 text-base leading-relaxed mb-4 line-clamp-3" style={{ fontFamily: "'m1_fixed', sans-serif" }}>
                       {isEs ? project.description : (project.descriptionEn || project.description)}
                     </p>
                     <div className="flex items-center gap-2 text-[#00F3FF] font-bold text-xs group-hover:translate-x-2 transition-transform">
