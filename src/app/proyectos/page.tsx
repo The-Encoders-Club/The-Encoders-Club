@@ -667,15 +667,29 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
         }
         .pink-stroke-lg {
           font-family: 'RifficFree', 'm1_fixed', monospace;
+          font-size: 1.4rem;
+          font-weight: 900;
           color: #fefefe;
-          -webkit-text-stroke: 3px #ba609e;
+          -webkit-text-stroke: 3.5px #ba609e;
           paint-order: stroke fill;
         }
         .pink-stroke-sm {
           font-family: 'RifficFree', 'm1_fixed', monospace;
+          font-size: 1.1rem;
+          font-weight: 900;
           color: #fefefe;
-          -webkit-text-stroke: 3px #ba609e;
+          -webkit-text-stroke: 3.5px #ba609e;
           paint-order: stroke fill;
+        }
+        .m1-body {
+          font-family: 'm1_fixed', monospace;
+          font-size: 1rem;
+          line-height: 1.75;
+        }
+        .m1-body-sm {
+          font-family: 'm1_fixed', monospace;
+          font-size: 0.9rem;
+          line-height: 1.65;
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -715,7 +729,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              <p className="text-gray-500 text-base font-medium mt-1 flex items-center gap-1.5" style={{ fontFamily: "'m1_fixed', monospace", fontSize: '1.05rem' }}>
+              <p className="m1-body text-gray-500 font-medium mt-1 flex items-center gap-1.5" style={{ fontSize: '1.1rem' }}>
                 {project.subtitle} <span>💗</span>
               </p>
             </motion.div>
@@ -744,11 +758,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             transition={{ duration: 0.5 }}
             className="space-y-4"
           >
-            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+            <h3 className="pink-stroke-lg flex items-center gap-2">
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-700 leading-relaxed" style={{ fontSize: '0.95rem', lineHeight: '1.7' }}>{desc}</p>
+            <p className="m1-body text-gray-700">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
@@ -780,7 +794,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             transition={{ duration: 0.5 }}
             className="space-y-3"
           >
-            <h4 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+            <h4 className="pink-stroke-lg flex items-center gap-2">
               <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.preview')}
             </h4>
@@ -795,7 +809,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             transition={{ duration: 0.5 }}
             className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5"
           >
-            <h3 className="pink-stroke-lg text-lg font-black flex items-center gap-2">
+            <h3 className="pink-stroke-lg flex items-center gap-2">
               <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.details')}
             </h3>
@@ -817,7 +831,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               })}
             </ul>
             <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
-              <h4 className="pink-stroke-sm text-xs font-black uppercase tracking-widest mb-2">
+              <h4 className="pink-stroke-sm mb-2" style={{ fontSize: '0.85rem', letterSpacing: '0.08em' }}>
                 {isEs ? 'Opciones de Descarga' : 'Download Options'}
               </h4>
               {project.downloads.map((dl, i) => {
@@ -857,7 +871,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             transition={{ duration: 0.5 }}
             className="space-y-4"
           >
-            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+            <h3 className="pink-stroke-lg flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
@@ -865,11 +879,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Wiki + Spritepacks */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm flex items-center gap-1">
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                <p className="text-gray-600 leading-relaxed" style={{ fontSize: '0.8rem' }}>
+                <p className="m1-body-sm text-gray-600">
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
                 <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-xs font-bold hover:bg-[#C06080] hover:text-white transition-colors">
@@ -878,11 +892,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               </div>
 
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
-                <p className="text-gray-600 leading-relaxed" style={{ fontSize: '0.8rem' }}>
+                <p className="m1-body-sm text-gray-600">
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
@@ -899,11 +913,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Submods */}
             <div className="flex justify-center">
               <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-lg font-black flex items-center gap-1.5">
+                <h4 className="pink-stroke-sm flex items-center gap-1.5">
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
-                <p className="text-gray-600 leading-relaxed" style={{ fontSize: '0.875rem' }}>
+                <p className="m1-body-sm text-gray-600">
                   {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
                 </p>
                 <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-bold text-sm hover:bg-[#C06080] hover:text-white transition-colors">
