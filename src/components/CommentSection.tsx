@@ -164,7 +164,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
       {/* ── Input nuevo comentario ── */}
       <div className="flex items-center gap-2">
         {/* Avatar */}
-        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
+        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden self-center ${
           user
             ? lightTheme ? 'bg-[#FF2D78]' : 'bg-gradient-to-r from-[#FF2D78] to-[#a855f7]'
             : lightTheme ? 'bg-[#FFB6C8]/50' : 'bg-white/10'
@@ -214,7 +214,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
           >
             <div className="flex items-start gap-3">
               {/* Avatar comentario */}
-              <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
+              <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden self-start ${
                 lightTheme ? 'bg-[#FF2D78]' : 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]'
               }`}>
                 {comment.author.avatar
@@ -250,7 +250,10 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
                     <span className="text-yellow-400 text-xs leading-none">★</span>
                   )}
 
-                  <span className={`text-[11px] leading-none ${lightTheme ? 'text-gray-400' : 'text-white/30'}`}>
+                  <span
+                    className={`text-[11px] leading-none ${lightTheme ? 'text-gray-400' : 'text-white/30'}`}
+                    style={{ fontFamily: "'Aller', sans-serif" }}
+                  >
                     {new Date(comment.createdAt).toLocaleDateString()}
                   </span>
                 </div>
