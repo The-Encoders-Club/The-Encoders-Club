@@ -136,16 +136,16 @@ function PinkDots() {
         }
       `}</style>
       {/* White base */}
-      <div className="absolute inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
       {/* Animated dots — oversized so the moving layer never shows edges */}
       <div
         className="pink-dots-layer pointer-events-none"
         style={{
-          position: 'absolute',
+          position: 'fixed',
           top: -shift * 2,
           left: -shift * 2,
-          width: `calc(100% + ${shift * 4}px)`,
-          height: `calc(100% + ${shift * 4}px)`,
+          width: `calc(100vw + ${shift * 4}px)`,
+          height: `calc(100vh + ${shift * 4}px)`,
         }}
       >
         {dots.map(d => (
