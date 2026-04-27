@@ -89,6 +89,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
 
   const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
 
+  /* ─── Theme-aware style helpers ─── */
   const cardBg = lightTheme
     ? 'bg-[#FFE6EA]/50 border border-[#FFB6C8]/30 hover:bg-[#FFE6EA]/70'
     : 'bg-white/3 border border-white/5 hover:bg-white/5';
@@ -165,7 +166,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
             className={`p-4 rounded-xl transition-all ${cardBg}`}
           >
             <div className="flex items-start gap-3">
-              <div className={`w-14 h-14 rounded-full flex items-center justify-center flex-shrink-0 ${lightTheme ? 'bg-[#FF2D78]' : 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]'}`}>
+              <div className={`w-13 h-13 rounded-full flex items-center justify-center flex-shrink-0 ${lightTheme ? 'bg-[#FF2D78]' : 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]'}`}>
                 {comment.author.avatar
                   ? <img src={comment.author.avatar} alt="" className="w-full h-full rounded-full object-cover" />
                   : <User size={22} className="text-white" />}
