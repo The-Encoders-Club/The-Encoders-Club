@@ -674,7 +674,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
         .pink-stroke-sm {
           font-family: 'RifficFree', 'm1_fixed', monospace;
           color: #fefefe;
-          -webkit-text-stroke: 2px #ba609e;
+          -webkit-text-stroke: 3px #ba609e;
           paint-order: stroke fill;
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
@@ -715,7 +715,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              <p className="text-gray-500 text-sm font-medium mt-1 flex items-center gap-1.5">
+              <p className="text-gray-500 text-base font-medium mt-1 flex items-center gap-1.5" style={{ fontFamily: "'m1_fixed', monospace", fontSize: '1.05rem' }}>
                 {project.subtitle} <span>💗</span>
               </p>
             </motion.div>
@@ -748,15 +748,15 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-700 leading-relaxed text-sm">{desc}</p>
+            <p className="text-gray-700 leading-relaxed" style={{ fontSize: '0.95rem', lineHeight: '1.7' }}>{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.status')}</span>
+                <span className="text-[11px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.status')}</span>
                 <span className="text-gray-700 font-bold text-sm">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.rating')}</span>
+                <span className="text-[11px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.rating')}</span>
                 <span className="text-gray-700 font-bold text-sm flex items-center gap-1">
                   {project.rating} <Star className="w-3.5 h-3.5 fill-current text-yellow-400" />
                 </span>
@@ -869,7 +869,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                <p className="text-xs text-gray-600 leading-relaxed">
+                <p className="text-gray-600 leading-relaxed" style={{ fontSize: '0.8rem' }}>
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
                 <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-xs font-bold hover:bg-[#C06080] hover:text-white transition-colors">
@@ -882,7 +882,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
-                <p className="text-xs text-gray-600 leading-relaxed">
+                <p className="text-gray-600 leading-relaxed" style={{ fontSize: '0.8rem' }}>
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
@@ -903,7 +903,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-gray-600 leading-relaxed" style={{ fontSize: '0.875rem' }}>
                   {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
                 </p>
                 <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-bold text-sm hover:bg-[#C06080] hover:text-white transition-colors">
