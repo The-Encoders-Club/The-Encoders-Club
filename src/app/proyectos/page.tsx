@@ -129,7 +129,7 @@ function PinkDots() {
       <style>{`
         @keyframes diagonalScroll {
           0%   { transform: translate(0px, 0px); }
-          100% { transform: translate(${shift}px, ${shift}px); }
+          100% { transform: translate(${shift}px, -${shift}px); }
         }
         .pink-dots-layer {
           animation: diagonalScroll 6s linear infinite;
@@ -653,18 +653,18 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           font-display: swap;
         }
         .monika-title {
-          color: #F092A6;
-          -webkit-text-stroke: 5px #6B1530;
+          color: #fefefe;
+          -webkit-text-stroke: 5px #ba609e;
           paint-order: stroke fill;
         }
         .pink-stroke-lg {
-          color: #F092A6;
-          -webkit-text-stroke: 3px #6B1530;
+          color: #fefefe;
+          -webkit-text-stroke: 3px #ba609e;
           paint-order: stroke fill;
         }
         .pink-stroke-sm {
-          color: #F092A6;
-          -webkit-text-stroke: 2px #6B1530;
+          color: #fefefe;
+          -webkit-text-stroke: 2px #ba609e;
           paint-order: stroke fill;
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
