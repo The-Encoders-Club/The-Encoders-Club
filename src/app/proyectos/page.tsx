@@ -683,7 +683,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
 
       <div
         className="relative z-10 min-h-screen w-full overflow-hidden"
-        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}
+        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff', fontSize: '16px' }}
       >
         {/* Pink polka dots — animated diagonal */}
         <PinkDots />
@@ -715,7 +715,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              <p className="text-gray-500 text-base font-medium mt-1 flex items-center gap-1.5">
+              <p className="text-gray-500 text-lg font-medium mt-1 flex items-center gap-1.5">
                 {project.subtitle} <span>💗</span>
               </p>
             </motion.div>
@@ -748,7 +748,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-700 leading-relaxed text-base">{desc}</p>
+            <p className="text-gray-700 leading-relaxed text-lg">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
@@ -808,7 +808,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               ].map(item => {
                 const ItemIcon = item.icon;
                 return (
-                  <li key={item.label} className="flex items-center gap-2 text-sm">
+                  <li key={item.label} className="flex items-center gap-2 text-base">
                     <ItemIcon className="w-4 h-4 text-[#d87093] flex-shrink-0" />
                     <span className="text-gray-500 flex-1">{item.label}</span>
                     <span className="text-gray-800 font-bold">{item.value}</span>
@@ -817,7 +817,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               })}
             </ul>
             <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
-              <h4 className="pink-stroke-sm text-sm font-black uppercase tracking-widest mb-2">
+              <h4 className="pink-stroke-sm text-base font-black uppercase tracking-widest mb-2">
                 {isEs ? 'Opciones de Descarga' : 'Download Options'}
               </h4>
               {project.downloads.map((dl, i) => {
@@ -838,7 +838,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                       style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }}
                     />
                     <span
-                      className="font-black uppercase tracking-wide text-base"
+                      className="font-black uppercase tracking-wide text-lg"
                       style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
                     >
                       {isEs ? dl.label : (dl.labelEn || dl.label)}
@@ -869,10 +869,10 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-base text-gray-600 leading-relaxed">
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-sm font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-base font-bold hover:bg-[#C06080] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
                 </button>
               </div>
@@ -882,14 +882,14 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
-                <p className="text-sm text-gray-600 leading-relaxed">
+                <p className="text-base text-gray-600 leading-relaxed">
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-sm font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-base font-bold hover:bg-[#C06080] hover:text-white transition-colors">
                     <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
                   </button>
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-sm font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-base font-bold hover:bg-[#C06080] hover:text-white transition-colors">
                     <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
                 </div>
