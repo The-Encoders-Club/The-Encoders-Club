@@ -660,36 +660,36 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           font-display: swap;
         }
         .monika-title {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
-          color: #fefefe;
-          -webkit-text-stroke: 5px #ba609e;
-          paint-order: stroke fill;
+          font-family: 'RifficFree', 'm1_fixed', monospace !important;
+          color: #fefefe !important;
+          -webkit-text-stroke: 5px #ba609e !important;
+          paint-order: stroke fill !important;
         }
         .pink-stroke-lg {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
-          font-size: 1.4rem;
-          font-weight: 900;
-          color: #fefefe;
-          -webkit-text-stroke: 3.5px #ba609e;
-          paint-order: stroke fill;
+          font-family: 'RifficFree', 'm1_fixed', monospace !important;
+          font-size: 1.4rem !important;
+          font-weight: 900 !important;
+          color: #fefefe !important;
+          -webkit-text-stroke: 3.5px #ba609e !important;
+          paint-order: stroke fill !important;
         }
         .pink-stroke-sm {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
-          font-size: 1.1rem;
-          font-weight: 900;
-          color: #fefefe;
-          -webkit-text-stroke: 3.5px #ba609e;
-          paint-order: stroke fill;
+          font-family: 'RifficFree', 'm1_fixed', monospace !important;
+          font-size: 1.1rem !important;
+          font-weight: 900 !important;
+          color: #fefefe !important;
+          -webkit-text-stroke: 3.5px #ba609e !important;
+          paint-order: stroke fill !important;
         }
         .m1-body {
-          font-family: 'm1_fixed', monospace;
-          font-size: 1rem;
-          line-height: 1.75;
+          font-family: 'm1_fixed', monospace !important;
+          font-size: 1rem !important;
+          line-height: 1.75 !important;
         }
         .m1-body-sm {
-          font-family: 'm1_fixed', monospace;
-          font-size: 0.9rem;
-          line-height: 1.65;
+          font-family: 'm1_fixed', monospace !important;
+          font-size: 0.9rem !important;
+          line-height: 1.65 !important;
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
