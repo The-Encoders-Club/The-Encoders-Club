@@ -113,6 +113,13 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
           font-style: normal;
           font-display: swap;
         }
+        @font-face {
+          font-family: 'Aller';
+          src: url('/fonts/Aller_Rg.ttf') format('truetype');
+          font-weight: normal;
+          font-style: normal;
+          font-display: swap;
+        }
       `}</style>
       <h3
         className={`text-xl font-bold flex items-center gap-2 ${lightTheme ? '' : 'text-white'}`}
@@ -145,6 +152,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
             onChange={e => setNewComment(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
             className={`flex-1 px-4 py-2.5 rounded-xl text-sm focus:outline-none transition-all ${inputCls}`}
+            style={{ fontFamily: "'Aller', sans-serif" }}
           />
           <button
             onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }}
@@ -173,7 +181,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className={`text-lg font-semibold ${lightTheme ? 'text-gray-800' : 'text-white'}`}>
+                  <span className={`text-lg font-semibold ${lightTheme ? 'text-gray-800' : 'text-white'}`} style={{ fontFamily: "'Aller', sans-serif" }}>
                     {comment.author.nickname}
                   </span>
                   {comment.author.role !== 'user' && (
@@ -200,12 +208,12 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
                     Este comentario fue eliminado
                   </p>
                 ) : (
-                  <p className={`text-lg mt-1 ${lightTheme ? 'text-gray-600' : 'text-white/70'}`}>
+                  <p className={`text-lg mt-1 ${lightTheme ? 'text-gray-600' : 'text-white/70'}`} style={{ fontFamily: "'Aller', sans-serif" }}>
                     {comment.content}
                   </p>
                 )}
 
-                <div className="flex items-center gap-4 mt-3">
+                <div className="flex items-center gap-4 mt-3" style={{ fontFamily: "'Aller', sans-serif" }}>
                   <button
                     onClick={() => toggleLike(comment.id)}
                     className={`flex items-center gap-1.5 text-base transition-colors ${lightTheme ? 'text-gray-400 hover:text-[#FF2D78]' : 'text-white/30 hover:text-[#FF2D78]'}`}
