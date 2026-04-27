@@ -123,22 +123,32 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
           font-display: swap;
         }
 
-        /* ── Título con stroke igual al resto del sitio ── */
+        /* ── Título con stroke igual al resto del sitio (pink-stroke-sm de page.tsx) ── */
         .comment-section-title {
-          font-family: 'RifficFree', cursive;
-          font-size: 1.5rem;        /* text-2xl */
+          font-family: 'RifficFree', 'm1_fixed', monospace;
+          font-size: 1.5rem;
           line-height: 1.2;
+          font-weight: 900;
           display: flex;
           align-items: center;
           gap: 0.5rem;
         }
         .comment-section-title.light {
-          color: #F47FA4;           /* rosa relleno */
-          -webkit-text-stroke: 2px #6B1530; /* stroke vino, igual al resto */
+          color: #fefefe;
+          -webkit-text-stroke: 2px #ba609e;
           paint-order: stroke fill;
         }
         .comment-section-title.dark {
           color: #fff;
+        }
+        /* ── Badges de rol con Aller ── */
+        .role-badge {
+          font-family: 'Aller', sans-serif;
+          font-size: 10px;
+          padding: 2px 7px;
+          border-radius: 9999px;
+          line-height: 1.4;
+          font-weight: normal;
         }
       `}</style>
 
@@ -223,14 +233,14 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
                   </span>
 
                   {comment.author.role !== 'user' && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full leading-none ${
+                    <span className={`role-badge ${
                       comment.author.role === 'admin'
-                        ? lightTheme ? 'bg-red-100 text-red-600'    : 'bg-red-500/20 text-red-400'
+                        ? lightTheme ? 'bg-red-100 text-red-600'         : 'bg-red-500/20 text-red-400'
                         : comment.author.role === 'moderator'
-                          ? lightTheme ? 'bg-blue-100 text-blue-600'  : 'bg-blue-500/20 text-blue-400'
+                          ? lightTheme ? 'bg-blue-100 text-blue-600'     : 'bg-blue-500/20 text-blue-400'
                           : comment.author.role === 'owner'
                             ? lightTheme ? 'bg-yellow-100 text-yellow-700' : 'bg-yellow-500/20 text-yellow-400'
-                            : lightTheme ? 'bg-green-100 text-green-600'  : 'bg-green-500/20 text-green-400'
+                            : lightTheme ? 'bg-green-100 text-green-600' : 'bg-green-500/20 text-green-400'
                     }`}>
                       {comment.author.role}
                     </span>
