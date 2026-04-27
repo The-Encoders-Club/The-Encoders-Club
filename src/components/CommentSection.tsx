@@ -162,38 +162,45 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
       </h3>
 
       {/* ── Input nuevo comentario ── */}
-      <div className="flex items-center gap-2">
-        {/* Avatar */}
-        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden self-center ${
+      <div className={`flex items-center gap-3 px-3 py-2 rounded-2xl border transition-all ${
+        lightTheme
+          ? 'bg-white border-[#FFB6C8]/40 focus-within:border-[#FF2D78]/40 shadow-sm'
+          : 'bg-white/5 border-white/10 focus-within:border-[#FF2D78]/40'
+      }`}>
+        {/* Avatar — dentro del mismo contenedor, tamaño controlado */}
+        <div className={`w-8 h-8 rounded-full flex-shrink-0 overflow-hidden flex items-center justify-center ${
           user
             ? lightTheme ? 'bg-[#FF2D78]' : 'bg-gradient-to-r from-[#FF2D78] to-[#a855f7]'
             : lightTheme ? 'bg-[#FFB6C8]/50' : 'bg-white/10'
         }`}>
           {user?.avatar
             ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-            : <User size={16} className={user ? 'text-white' : lightTheme ? 'text-[#FF2D78]/50' : 'text-white/30'} />
+            : <User size={14} className={user ? 'text-white' : lightTheme ? 'text-[#FF2D78]/50' : 'text-white/30'} />
           }
         </div>
 
-        {/* Campo + botón enviar */}
-        <div className="flex flex-1 gap-2">
-          <input
-            type="text"
-            placeholder="Escribe un comentario..."
-            value={newComment}
-            onChange={e => setNewComment(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm focus:outline-none transition-all ${inputCls}`}
-            style={{ fontFamily: "'Aller', sans-serif" }}
-          />
-          <button
-            onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }}
-            disabled={submitting || !newComment.trim()}
-            className={`w-10 h-10 flex items-center justify-center rounded-xl text-white flex-shrink-0 disabled:opacity-40 transition-all ${sendBtnCls}`}
-          >
-            <Send size={15} />
-          </button>
-        </div>
+        {/* Input sin bordes propios */}
+        <input
+          type="text"
+          placeholder="Escribe un comentario..."
+          value={newComment}
+          onChange={e => setNewComment(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
+          className="flex-1 text-sm bg-transparent focus:outline-none min-w-0"
+          style={{
+            fontFamily: "'Aller', sans-serif",
+            color: lightTheme ? '#374151' : '#fff',
+          }}
+        />
+
+        {/* Botón send — mismo nivel, sin sobresalir */}
+        <button
+          onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }}
+          disabled={submitting || !newComment.trim()}
+          className={`w-8 h-8 flex items-center justify-center rounded-xl text-white flex-shrink-0 disabled:opacity-30 transition-all ${sendBtnCls}`}
+        >
+          <Send size={13} />
+        </button>
       </div>
 
       {/* ── Lista de comentarios ── */}
