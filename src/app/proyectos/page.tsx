@@ -882,7 +882,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
-                <p className="text-[21px] text-gray-600 leading-relaxed font-medium">
+                <p className="text-[21px] text-gray-800 leading-relaxed font-medium">
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
@@ -903,7 +903,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
-                <p className="text-[22px] text-gray-600 leading-relaxed font-medium">
+                <p className="text-[22px] text-gray-800 leading-relaxed font-medium">
                   {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
                 </p>
                 <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-bold text-[16px] hover:bg-[#C06080] hover:text-white transition-colors">
