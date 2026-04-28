@@ -721,7 +721,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              <p className="text-gray-800 text-[23px] font-bold mt-1 flex items-center gap-1.5">
+              <p className="text-gray-800 text-[24px] font-semibold mt-1 flex items-center gap-1.5">
                 {project.subtitle} <span>💗</span>
               </p>
             </motion.div>
@@ -754,7 +754,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-800 leading-relaxed text-[22px] font-bold">{desc}</p>
+            <p className="text-gray-800 leading-relaxed text-[23px] font-semibold">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
@@ -816,8 +816,8 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                 return (
                   <li key={item.label} className="flex items-center gap-2 text-[21px]">
                     <ItemIcon className="w-5 h-5 text-[#d87093] flex-shrink-0" />
-                    <span className="text-gray-800 flex-1 font-bold">{item.label}</span>
-                    <span className="text-gray-800 font-bold">{item.value}</span>
+                    <span className="text-gray-800 flex-1 font-semibold">{item.label}</span>
+                    <span className="text-gray-800 font-semibold">{item.value}</span>
                   </li>
                 );
               })}
@@ -871,11 +871,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Wiki + Spritepacks */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-xs text-[24px] font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                <p className="text-[21px] text-gray-800 leading-relaxed font-bold">
+                <p className="text-[24px] text-gray-800 leading-relaxed font-semibold">
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
                 <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
@@ -884,11 +884,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               </div>
 
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-xs text-[24px] font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
-                <p className="text-[21px] text-gray-800 leading-relaxed font-bold">
+                <p className="text-[24px] text-gray-800 leading-relaxed font-semibold">
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
@@ -905,11 +905,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Submods */}
             <div className="flex justify-center">
               <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-xs text-[28px] font-black flex items-center gap-1.5">
+                <h4 className="pink-stroke-sm text-[22px] font-black flex items-center gap-1.5">
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
-                <p className="text-[22px] text-gray-800 leading-relaxed font-bold">
+                <p className="text-[25px] text-gray-800 leading-relaxed font-semibold">
                   {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
                 </p>
                 <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[17px] hover:bg-[#C06080] hover:text-white transition-colors">
