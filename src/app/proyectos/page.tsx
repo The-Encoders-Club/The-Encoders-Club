@@ -223,20 +223,17 @@ type DecoItem = typeof DECO_POOL[number];
 
 function FloatingDeco({ item, x, y, delay }: { item: DecoItem; x: number; y: number; delay: number }) {
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), delay);
     const t2 = setTimeout(() => setVisible(false), delay + 1000);
     return () => { clearTimeout(t1); clearTimeout(t2); };
   }, [delay]);
-
   const icon = () => {
     if (item.type === 'heart') return <HeartSvg size={item.size} color={item.color} />;
     if (item.type === 'book')  return <BookSvg  size={item.size} color={item.color} />;
     if (item.type === 'bow')   return <BowSvg   size={item.size} color={item.color} />;
     return <QuillSvg size={item.size} color={item.color} />;
   };
-
   return (
     <AnimatePresence>
       {visible && (
@@ -276,7 +273,6 @@ function DecorationLayer() {
     const iv = setInterval(spawn, 3500);
     return () => clearInterval(iv);
   }, []);
-
   return (
     <>
       {bursts.map(burst =>
@@ -288,7 +284,7 @@ function DecorationLayer() {
   );
 }
 
-/* ─── Image carousel (dark theme, used by ProjectDetail) ─── */
+/* ─── Image carousel (dark theme) ─── */
 function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
@@ -302,7 +298,6 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
   const closeLightbox = () => setLightboxIdx(null);
   const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
   const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(images.length - 1, i + 1) : null));
-
   return (
     <>
       <div className="relative group/carousel">
@@ -371,13 +366,12 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
   );
 }
 
-/* ─── Preview carousel (pink theme, used by MonikaDetail) ─── */
+/* ─── Preview carousel (pink theme) ─── */
 function PinkPreviewCarousel({ images }: { images: string[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const total = images.length;
-
   const scroll = (dir: 'left' | 'right') => {
     const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
     setCurrent(next);
@@ -389,7 +383,6 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   const closeLightbox = () => setLightboxIdx(null);
   const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
   const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(total - 1, i + 1) : null));
-
   return (
     <>
       <div className="relative">
@@ -464,7 +457,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   );
 }
 
-/* ─── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ─── */
+/* ─── Dark theme detail view ─── */
 function ProjectDetail({ project, onClose }: { project: typeof projects[number]; onClose: () => void }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
@@ -487,11 +480,9 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
     }
     setMuted(!muted);
   };
-
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
-
   return (
     <div className="relative z-10 min-h-screen w-full overflow-x-hidden">
       <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-white/20 px-4 sm:px-6 py-4 flex justify-between items-center">
@@ -521,7 +512,7 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
               >
                 {project.name}
               </motion.h1>
-              <p className="text-xl text-gray-300 font-medium italic">{project.subtitle}</p>
+              <p className="text-xl text-gray-300 font-bold italic">{project.subtitle}</p>
             </header>
 
             <div className="rounded-2xl overflow-hidden border aspect-video relative group" style={{ borderColor: `${project.themeColor}80` }}>
@@ -534,35 +525,32 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
               <h3 className="text-2xl font-bold text-white flex items-center gap-2">
                 <BookOpen className="w-6 h-6" style={{ color: project.themeColor }} /> {isEs ? 'Sobre este proyecto' : 'About this project'}
               </h3>
-              <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>
+              <p className="text-gray-300 leading-relaxed text-xl font-medium">{desc}</p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
                   <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.status')}</span>
-                  <span className="text-white font-medium">{status}</span>
+                  <span className="text-white font-bold">{status}</span>
                 </div>
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
                   <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.rating')}</span>
-                  <span className="text-white font-medium flex items-center gap-1">
+                  <span className="text-white font-bold flex items-center gap-1">
                     {project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" />
                   </span>
                 </div>
               </div>
-
               <div className="flex flex-wrap gap-2 pt-2">
                 {project.tags.map(tag => (
-                  <span key={tag} className="text-xs px-3 py-1.5 rounded-full border text-white/70 hover:text-white hover:bg-white/5 transition-all" style={{ borderColor: `${project.themeColor}40`, background: `${project.themeColor}10` }}>
+                  <span key={tag} className="text-xs px-3 py-1.5 rounded-full border text-white/70 hover:text-white hover:bg-white/5 transition-all font-bold" style={{ borderColor: `${project.themeColor}40`, background: `${project.themeColor}10` }}>
                     {tag}
                   </span>
                 ))}
               </div>
-
               <div className="pt-8 border-t border-white/10">
                 <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <ImageIcon className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.preview')}
                 </h4>
                 <ImageCarousel images={project.previews} themeColor={project.themeColor} />
               </div>
-
               <div className="pt-8 border-t border-white/10">
                 <CommentSection targetId={project.id} targetType="project" />
               </div>
@@ -582,8 +570,8 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
                   { label: t('projects.downloads'), value: project.details.downloads },
                 ].map(item => (
                   <li key={item.label} className="flex justify-between text-sm">
-                    <span className="text-gray-400">{item.label}</span>
-                    <span className="text-white font-mono">{item.value}</span>
+                    <span className="text-gray-400 font-bold">{item.label}</span>
+                    <span className="text-white font-mono font-bold">{item.value}</span>
                   </li>
                 ))}
               </ul>
@@ -594,9 +582,7 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
                 {project.downloads.map((dl, i) => {
                   const Icon = dl.icon;
                   return (
-                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer"
-                      className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight"
-                      style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
+                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
                       <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
                       {isEs ? dl.label : (dl.labelEn || dl.label)}
                     </a>
@@ -607,517 +593,296 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
           </div>
         </div>
       </main>
-
       <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
     </div>
   );
 }
 
-/* ─── Light/pink theme detail view — REDESIGNED (Monika After History) ─── */
+/* ─── Light theme detail view (Monika After History) ─── */
 function MonikaDetail({ project, onClose }: { project: typeof projects[number]; onClose: () => void }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {
-    return () => { if (musicRef.current) musicRef.current.src = ''; };
+    return () => {
+      if (musicRef.current) musicRef.current.src = '';
+    };
   }, []);
 
   const toggleMute = () => {
     if (musicRef.current) {
       try {
         musicRef.current.contentWindow?.postMessage(
-          muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'
+          muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}',
+          '*'
         );
       } catch (e) { /* cross-origin */ }
     }
     setMuted(!muted);
   };
-
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
-
   return (
-    <>
-      <style>{`
-        @font-face {
-          font-family: 'm1_fixed';
-          src: url('/fonts/m1_fixed.ttf') format('truetype');
-          font-weight: normal;
-          font-style: normal;
-          font-display: swap;
-        }
-        @font-face {
-          font-family: 'RifficFree';
-          src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
-          font-weight: bold;
-          font-style: normal;
-          font-display: swap;
-        }
-        .monika-title {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
-          color: #fefefe;
-          -webkit-text-stroke: 5px #ba609e;
-          paint-order: stroke fill;
-        }
-        .pink-stroke-lg {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
-          color: #fefefe;
-          -webkit-text-stroke: 3px #ba609e;
-          paint-order: stroke fill;
-        }
-        .pink-stroke-sm {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
-          color: #fefefe;
-          -webkit-text-stroke: 2px #ba609e;
-          paint-order: stroke fill;
-        }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
+    <div className="relative min-h-screen bg-transparent overflow-x-hidden flex flex-col items-center">
+      <PinkDots />
+      <DecorationLayer />
 
-      <div
-        className="relative z-10 min-h-screen w-full overflow-hidden"
-        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}
-      >
-        {/* Pink polka dots — animated diagonal */}
-        <PinkDots />
-
-        {/* ── Nav ── */}
-        <nav
-          className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between"
-          style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}
-        >
-          <button onClick={onClose} className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
-            <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-            <span className="font-bold tracking-wider uppercase text-xs">{t('projects.backToProjects')}</span>
+      <nav className="sticky top-0 w-full z-50 bg-white/70 backdrop-blur-md border-b border-[#FFB6C1] px-4 py-3 flex justify-between items-center shadow-sm">
+        <button onClick={onClose} className="flex items-center gap-2 text-[#d87093] hover:text-[#FF2D78] transition-colors group">
+          <ChevronLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
+          <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
+        </button>
+        <div className="flex items-center gap-3">
+          <button onClick={toggleMute} className="p-2 rounded-full bg-pink-50 border border-[#FFB6C1] text-[#d87093] hover:bg-pink-100 transition-all shadow-sm">
+            {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
-          <button
-            onClick={toggleMute}
-            className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all"
-            title={muted ? 'Unmute' : 'Mute'}
-          >
-            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          <button className="p-2 rounded-full bg-pink-50 border border-[#FFB6C1] text-[#d87093] hover:bg-pink-100 transition-all shadow-sm">
+            <Share2 className="w-5 h-5" />
           </button>
-        </nav>
+        </div>
+      </nav>
 
-        {/* ── Main content ── */}
-        <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
-          {/* ── HERO: Title + Image (full width) ── */}
-          <div className="space-y-4">
-            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
+      <main className="relative z-10 w-full max-w-5xl px-4 sm:px-6 py-10 flex-grow">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+          <div className="md:col-span-7 space-y-6">
+            <div className="space-y-2">
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="inline-block px-3 py-1 bg-pink-100 text-[#d87093] rounded-full text-xs font-bold uppercase tracking-widest border border-[#FFB6C1]">
+                {status}
+              </motion.div>
+              <motion.h1 initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} className="text-4xl sm:text-6xl font-black text-[#6B1530] tracking-tight leading-none drop-shadow-sm">
                 {project.name}
-              </h1>
-              {/* 🔹 Subtítulo: text-lg + font-extrabold (antes text-base font-bold) */}
-              <p className="text-gray-500 text-lg font-extrabold mt-1 flex items-center gap-1.5">
-                {project.subtitle} <span>💗</span>
-              </p>
+              </motion.h1>
+              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl text-[#d87093] font-bold italic">
+                {project.subtitle}
+              </motion.p>
+            </div>
+
+            <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="rounded-3xl overflow-hidden border-4 border-white shadow-2xl aspect-video relative group">
+              <img src={project.image} alt={project.name} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-gradient-to-t from-pink-200/40 to-transparent" />
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.55, delay: 0.1 }}
-              className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group"
-              style={{ boxShadow: '0 8px 32px #FF6B9D30' }}
-            >
-              <img
-                src={project.image}
-                alt={project.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-            </motion.div>
+            <div className="space-y-4">
+              <h3 className="text-2xl font-black text-[#6B1530] flex items-center gap-2">
+                <HeartSvg size={24} color="#FF2D78" /> {isEs ? 'Historia' : 'Story'}
+              </h3>
+              <p className="text-[#8B3A6B] leading-relaxed text-xl font-medium">{desc}</p>
+            </div>
+
+            <div className="pt-6 border-t border-[#FFB6C1]/40">
+              <h4 className="text-xl font-black text-[#6B1530] mb-4 flex items-center gap-2">
+                <ImageIcon size={20} className="text-[#FF2D78]" /> {t('projects.preview')}
+              </h4>
+              <PinkPreviewCarousel images={project.previews} />
+            </div>
+            
+            <div className="pt-8">
+               <CommentSection targetId={project.id} targetType="project" lightTheme={true} />
+            </div>
           </div>
 
-          {/* ── Sobre este proyecto ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="space-y-4"
-          >
-            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
-              <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {isEs ? 'Sobre este proyecto' : 'About this project'}
-            </h3>
-            {/* 🔹 Descripción: text-lg + font-extrabold (antes text-base font-bold) */}
-            <p className="text-gray-700 leading-relaxed text-lg font-extrabold">{desc}</p>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                {/* 🔹 Etiqueta ESTADO: text-sm + font-extrabold (antes text-xs font-bold) */}
-                <span className="text-sm font-extrabold uppercase block mb-0.5 text-gray-400">{t('projects.status')}</span>
-                <span className="text-gray-700 font-extrabold text-base">{status}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-sm font-extrabold uppercase block mb-0.5 text-gray-400">{t('projects.rating')}</span>
-                <span className="text-gray-700 font-extrabold text-base flex items-center gap-1">
-                  {project.rating} <Star className="w-3.5 h-3.5 fill-current text-yellow-400" />
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-wrap gap-2">
-              {project.tags.map(tag => (
-                // 🔹 Tags: text-base + font-extrabold (antes text-sm font-bold)
-                <span key={tag} className="text-base px-3 py-1 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-600 font-extrabold hover:border-[#FF6B9D] transition-colors">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* ── Vista Previa ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="space-y-3"
-          >
-            <h4 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
-              <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {t('projects.preview')}
-            </h4>
-            <PinkPreviewCarousel images={project.previews} />
-          </motion.div>
-
-          {/* ── Detalles + Descargas ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5"
-          >
-            <h3 className="pink-stroke-lg text-lg font-black flex items-center gap-2">
-              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {t('projects.details')}
-            </h3>
-            <ul className="space-y-2.5">
-              {[
-                { icon: Clock,    label: t('projects.playTime'), value: isEs ? project.details.playTime    : (project.details.playTimeEn    || project.details.playTime)    },
-                { icon: Flag,     label: t('projects.language'), value: isEs ? project.details.language    : (project.details.languageEn    || project.details.language)    },
-                { icon: Settings, label: t('projects.engine'),   value: project.details.engine },
-                { icon: Download, label: t('projects.downloads'),value: project.details.downloads },
-              ].map(item => {
-                const ItemIcon = item.icon;
-                return (
-                  <li key={item.label} className="flex items-center gap-2">
-                    <ItemIcon className="w-4 h-4 text-[#d87093] flex-shrink-0" />
-                    {/* 🔹 Etiquetas de detalles: text-base + font-extrabold (antes text-sm font-bold) */}
-                    <span className="text-base font-extrabold text-gray-600 flex-1">{item.label}</span>
-                    <span className="text-gray-800 font-extrabold text-base">{item.value}</span>
-                  </li>
-                );
-              })}
-            </ul>
-            <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
-              <h4 className="pink-stroke-sm text-sm font-black uppercase tracking-widest mb-2">
-                {isEs ? 'Opciones de Descarga' : 'Download Options'}
-              </h4>
-              {project.downloads.map((dl, i) => {
-                const Icon = dl.icon;
-                const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
-                const stroke = strokeColors[i] || '#333';
-                return (
-                  <a
-                    key={i}
-                    href={dl.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md"
-                    style={{ background: dl.color, border: `3px solid ${stroke}` }}
-                  >
-                    <Icon
-                      className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0"
-                      style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }}
-                    />
-                    <span
-                      className="font-black uppercase tracking-wide text-sm"
-                      style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
-                    >
-                      {isEs ? dl.label : (dl.labelEn || dl.label)}
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          {/* ── Recursos y Contenido Extra ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="space-y-4"
-          >
-            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
-            </h3>
-
-            {/* Wiki + Spritepacks */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
-                  <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  Wiki del Mod
-                </h4>
-                {/* 🔹 Texto descriptivo: text-base + font-extrabold (antes text-sm font-bold) */}
-                <p className="text-base font-extrabold text-gray-600 leading-relaxed">
-                  {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
-                </p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-base font-extrabold hover:bg-[#C06080] hover:text-white transition-colors">
-                  <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
-                </button>
-              </div>
-
-              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-base font-black flex items-center gap-1">
-                  <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  Spritepacks
-                </h4>
-                <p className="text-base font-extrabold text-gray-600 leading-relaxed">
-                  {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
-                </p>
-                <div className="flex flex-col gap-2 w-full">
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-base font-extrabold hover:bg-[#C06080] hover:text-white transition-colors">
-                    <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
-                  </button>
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-base font-extrabold hover:bg-[#C06080] hover:text-white transition-colors">
-                    <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
-                  </button>
+          <div className="md:col-span-5 space-y-6">
+            <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white/80 backdrop-blur-xl rounded-[2.5rem] border-4 border-white shadow-xl p-8 sticky top-24 space-y-6">
+              <div className="flex items-center justify-between">
+                <h3 className="text-2xl font-black text-[#6B1530] tracking-tight">{t('projects.details')}</h3>
+                <div className="flex items-center gap-1.5 bg-pink-50 px-3 py-1 rounded-full border border-pink-100">
+                  <Star className="w-4 h-4 fill-[#FF2D78] text-[#FF2D78]" />
+                  <span className="font-black text-[#FF2D78]">{project.rating}</span>
                 </div>
               </div>
-            </div>
 
-            {/* Submods */}
-            <div className="flex justify-center">
-              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-lg font-black flex items-center gap-1.5">
-                  <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  Submods
-                </h4>
-                <p className="text-base font-extrabold text-gray-600 leading-relaxed">
-                  {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
-                </p>
-                {/* 🔹 Botón: text-lg + font-extrabold (antes text-base font-bold) */}
-                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-extrabold text-lg hover:bg-[#C06080] hover:text-white transition-colors">
-                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
-                </button>
+              <div className="space-y-4">
+                {[
+                  { label: t('projects.playTime'), value: isEs ? project.details.playTime : project.details.playTimeEn, icon: Clock },
+                  { label: t('projects.language'), value: isEs ? project.details.language : project.details.languageEn, icon: Flag },
+                  { label: t('projects.engine'), value: project.details.engine, icon: Settings },
+                  { label: t('projects.downloads'), value: project.details.downloads, icon: Download },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-2xl bg-pink-50/50 border border-pink-100 hover:bg-pink-50 transition-colors">
+                    <div className="flex items-center gap-2.5">
+                      <item.icon size={16} className="text-[#d87093]" />
+                      <span className="text-xs font-black uppercase text-[#8B3A6B] tracking-wider">{item.label}</span>
+                    </div>
+                    <span className="text-sm font-black text-[#6B1530]">{item.value}</span>
+                  </div>
+                ))}
               </div>
-            </div>
-          </motion.div>
 
-          {/* ── Comments ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm"
-          >
-            <CommentSection targetId={project.id} targetType="project" lightTheme />
-          </motion.div>
+              <div className="pt-4 space-y-3">
+                {project.downloads.map((dl, i) => {
+                  const Icon = dl.icon;
+                  return (
+                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="group w-full py-4 rounded-2xl flex items-center justify-center gap-3 transition-all hover:scale-[1.02] active:scale-95 text-sm font-black uppercase tracking-widest shadow-md hover:shadow-lg" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff' }}>
+                      <Icon className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                      {isEs ? dl.label : dl.labelEn}
+                    </a>
+                  );
+                })}
+              </div>
 
-        </main>
-
-        {/* Hidden music player */}
-        <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
-      </div>
-    </>
+              <div className="flex flex-wrap gap-2 pt-2 justify-center">
+                {project.tags.map(tag => (
+                  <span key={tag} className="text-[10px] px-3 py-1 rounded-full bg-pink-100 text-[#d87093] font-black uppercase tracking-tighter border border-pink-200">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </main>
+      <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
+    </div>
   );
 }
 
-/* ─── Main page ─── */
-export default function Proyectos() {
+export default function ProjectsPage() {
   const { t, locale } = useI18n();
-  const [activeProject, setActiveProject] = useState<string | null>(null);
-  const project = projects.find(p => p.id === activeProject);
-  const isEs = locale === 'es';
+  const [selectedProject, setSelectedProject] = useState<typeof projects[number] | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTag, setActiveTag] = useState('All');
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    if (activeProject) {
+    setMounted(true);
+    if (selectedProject) {
       document.body.style.overflow = 'hidden';
     } else {
-      document.body.style.overflow = '';
+      document.body.style.overflow = 'unset';
     }
-    return () => { document.body.style.overflow = ''; };
-  }, [activeProject]);
+    return () => { document.body.style.overflow = 'unset'; };
+  }, [selectedProject]);
+
+  if (!mounted) return null;
+
+  const isEs = locale === 'es';
+  const allTags = ['All', ...Array.from(new Set(projects.flatMap((p) => p.tags)))];
+  
+  const filteredProjects = projects.filter((p) => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        (isEs ? p.description.toLowerCase() : p.descriptionEn.toLowerCase()).includes(searchQuery.toLowerCase());
+    const matchesTag = activeTag === 'All' || p.tags.includes(activeTag);
+    return matchesSearch && matchesTag;
+  });
+
+  if (selectedProject) {
+    return (
+      <div className="min-h-screen bg-[#0a0a1a]">
+        {selectedProject.id === 'monika' ? (
+          <MonikaDetail project={selectedProject} onClose={() => setSelectedProject(null)} />
+        ) : (
+          <ProjectDetail project={selectedProject} onClose={() => setSelectedProject(null)} />
+        )}
+        <Footer />
+      </div>
+    );
+  }
 
   return (
-    <div
-      className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]"
-      style={{
-        backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
-      }}
-    >
-      <BackgroundParticles />
+    <div className="min-h-screen bg-[#0a0a1a] selection:bg-[#00F3FF]/30 selection:text-white">
       <Navbar />
+      <BackgroundParticles />
+      
+      <main className="relative pt-32 pb-20 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-16">
+            <div className="max-w-2xl">
+              <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center gap-2 text-[#00F3FF] font-bold text-sm uppercase tracking-widest mb-4">
+                <Sparkles size={16} />
+                {t('projects.label')}
+              </motion.div>
+              <motion.h1 initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-5xl sm:text-7xl font-black text-white italic tracking-tighter leading-none mb-6">
+                {t('projects.title')}
+              </motion.h1>
+              <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-white/60 text-xl leading-relaxed">
+                {t('projects.description')}
+              </motion.p>
+            </div>
 
-      {/* PROJECT DETAIL VIEW */}
-      <AnimatePresence>
-        {project && (
-          <motion.div
-            key={project.id}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className={`fixed inset-0 z-[100] overflow-y-auto ${
-              project.lightTheme ? 'bg-[#FFE0EC]' : 'bg-[#0a0a1a] text-white'
-            }`}
-          >
-            {!project.lightTheme && (
-              <div
-                className="fixed inset-0 z-0 opacity-100 pointer-events-none"
-                style={{
-                  backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, ${project.themeColor}26 50%, rgba(10, 10, 26, 0.95) 100%)`,
-                }}
-              />
-            )}
-            {project.lightTheme ? (
-              <MonikaDetail project={project} onClose={() => setActiveProject(null)} />
-            ) : (
-              <ProjectDetail project={project} onClose={() => setActiveProject(null)} />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="flex flex-col gap-4">
+              <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-white/30 group-focus-within:text-[#00F3FF] transition-colors" size={20} />
+                <input
+                  type="text"
+                  placeholder={t('projects.search')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white placeholder:text-white/20 focus:outline-none focus:border-[#00F3FF]/50 focus:bg-white/10 transition-all w-full md:w-80"
+                />
+              </div>
+            </div>
+          </div>
 
-      {/* PAGE HEADER */}
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-16 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="text-[#FF2D78] text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3 block">
-              {isEs ? 'Nuestras creaciones' : 'Our creations'}
-            </span>
-            <h1
-              className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              {t('projects.title')}{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]">
-                {t('projects.title').includes('Destacados') ? '' : ''}
-              </span>
-            </h1>
-            <p className="text-white/60 text-base sm:text-lg max-w-2xl">
-              {isEs
-                ? 'Novelas visuales creadas con pasión por nuestra comunidad usando el motor Ren\'Py.'
-                : 'Visual novels created with passion by our community using the Ren\'Py engine.'}
-            </p>
-          </motion.div>
-        </div>
-      </section>
+          {/* Tags */}
+          <div className="flex flex-wrap gap-3 mb-12">
+            {allTags.map((tag) => (
+              <button
+                key={tag}
+                onClick={() => setActiveTag(tag)}
+                className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all border ${
+                  activeTag === tag
+                    ? 'bg-[#00F3FF] border-[#00F3FF] text-[#0a0a1a]'
+                    : 'bg-white/5 border-white/10 text-white/60 hover:border-white/30 hover:text-white'
+                }`}
+              >
+                {tag}
+              </button>
+            ))}
+          </div>
 
-      {/* PROJECTS */}
-      <section className="pb-24 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {projects
-            .filter(p => p.featured)
-            .map(project => (
+          {/* Projects Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {filteredProjects.map((project, idx) => (
               <motion.div
                 key={project.id}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7 }}
-                onClick={() => setActiveProject(project.id)}
-                className="relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 cursor-pointer group hover:border-[#FF2D78]/40 transition-all duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+                onClick={() => setSelectedProject(project)}
+                className="group relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden hover:border-[#00F3FF]/50 transition-all duration-500 cursor-pointer"
               >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
-                <div className="grid lg:grid-cols-2 gap-0">
-                  <div className="relative h-48 sm:h-64 lg:h-auto min-h-[200px] bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5">
-                    <img src={project.image} alt="" className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110" />
-                    <img src={project.image} alt={project.name} className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-2" />
-                    <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
-                      {t('projects.featured')}
+                <div className="relative aspect-video overflow-hidden">
+                  <img src={project.image} alt={project.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a] via-transparent to-transparent opacity-60" />
+                  <div className="absolute top-4 left-4">
+                    <span 
+                      className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+                      style={{ backgroundColor: `${project.statusColor}20`, color: project.statusColor, border: `1px solid ${project.statusColor}40` }}
+                    >
+                      {isEs ? project.status : project.statusEn}
                     </span>
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                      <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold backdrop-blur-sm">
-                        <Sparkles size={16} className="text-[#FF2D78]" />{t('projects.explore')}
-                      </div>
+                  </div>
+                </div>
+
+                <div className="p-6">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h3 className="text-2xl font-bold text-white group-hover:text-[#00F3FF] transition-colors">
+                        {project.name}
+                      </h3>
+                      <p className="text-[#00F3FF] text-sm font-bold">
+                        {project.subtitle}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-1 bg-white/5 px-2 py-1 rounded-lg border border-white/10">
+                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                      <span className="text-white text-xs font-bold">{project.rating}</span>
                     </div>
                   </div>
-                  <div className="p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
-                    <div className="flex items-center gap-3 mb-2">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                        {isEs ? project.status : (project.statusEn || project.status)}
-                      </span>
-                      <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                        <Star size={12} fill="currentColor" />
-                        <span>{project.rating}</span>
-                      </div>
-                    </div>
-                    <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                      {project.name}
-                    </h2>
-                    <p className="text-[#FF2D78] text-sm font-medium mb-4">{project.subtitle}</p>
-                    <p className="text-white/60 text-base leading-relaxed mb-6">
-                      {isEs ? project.description : (project.descriptionEn || project.description)}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-6">
-                      {project.tags.map(tag => (
-                        <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">{tag}</span>
-                      ))}
-                    </div>
-                    <div className="flex items-center gap-2 text-[#FF2D78] font-bold text-sm group-hover:translate-x-2 transition-transform">
-                      {t('common.viewMore')} <ArrowRight size={16} />
-                    </div>
+
+                  <p className="text-white/70 text-base leading-relaxed mb-6 line-clamp-3 font-medium">
+                    {isEs ? project.description : (project.descriptionEn || project.description)}
+                  </p>
+                  <div className="flex items-center gap-2 text-[#00F3FF] font-bold text-sm group-hover:translate-x-2 transition-transform">
+                    {t('common.viewMore')} <ArrowRight size={16} />
                   </div>
                 </div>
               </motion.div>
             ))}
-
-          <div className="grid sm:grid-cols-2 gap-6">
-            {projects
-              .filter(p => !p.featured)
-              .map((project, i) => (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: i * 0.1 }}
-                  onClick={() => setActiveProject(project.id)}
-                  className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
-                >
-                  <div className="relative h-48 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5">
-                    <img src={project.image} alt="" className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110" />
-                    <img src={project.image} alt={project.name} className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4" />
-                    <div className="absolute bottom-3 left-4 flex items-center gap-2">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                        {isEs ? project.status : (project.statusEn || project.status)}
-                      </span>
-                      <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                        <Star size={11} fill="currentColor" />
-                        <span>{project.rating}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                      {project.name}
-                    </h3>
-                    <p className="text-[#00F3FF] text-xs font-medium mb-3">{project.subtitle}</p>
-                    <p className="text-white/55 text-sm leading-relaxed mb-4 line-clamp-3">
-                      {isEs ? project.description : (project.descriptionEn || project.description)}
-                    </p>
-                    <div className="flex items-center gap-2 text-[#00F3FF] font-bold text-xs group-hover:translate-x-2 transition-transform">
-                      {t('common.viewMore')} <ArrowRight size={14} />
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
           </div>
 
           <motion.div
@@ -1131,15 +896,17 @@ export default function Proyectos() {
             <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
               {isEs ? 'Más proyectos en camino' : 'More projects coming'}
             </h3>
-            <p className="text-white/50 text-sm max-w-md mx-auto">
+            <p className="text-white/50 text-base font-medium max-w-md mx-auto">
               {isEs
                 ? 'Estamos trabajando en nuevas novelas visuales. Únete a nuestro Discord para ser el primero en enterarte.'
                 : 'We are working on new visual novels. Join our Discord to be the first to know.'}
             </p>
           </motion.div>
         </div>
-      </section>
+      </main>
+
       <Footer />
     </div>
   );
 }
+
