@@ -748,24 +748,24 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-700 leading-relaxed text-base">{desc}</p>
+            <p className="text-gray-700 leading-relaxed text-lg">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.status')}</span>
-                <span className="text-gray-700 font-bold text-sm">{status}</span>
+                <span className="text-xs font-bold uppercase block mb-0.5 text-gray-400">{t('projects.status')}</span>
+                <span className="text-gray-700 font-bold text-base">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[10px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.rating')}</span>
-                <span className="text-gray-700 font-bold text-sm flex items-center gap-1">
-                  {project.rating} <Star className="w-3.5 h-3.5 fill-current text-yellow-400" />
+                <span className="text-xs font-bold uppercase block mb-0.5 text-gray-400">{t('projects.rating')}</span>
+                <span className="text-gray-700 font-bold text-base flex items-center gap-1">
+                  {project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" />
                 </span>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[11px] px-3 py-1 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-600 font-semibold hover:border-[#FF6B9D] transition-colors">
+                <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-600 font-semibold hover:border-[#FF6B9D] transition-colors">
                   {tag}
                 </span>
               ))}
@@ -808,8 +808,8 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               ].map(item => {
                 const ItemIcon = item.icon;
                 return (
-                  <li key={item.label} className="flex items-center gap-2 text-sm">
-                    <ItemIcon className="w-3.5 h-3.5 text-[#d87093] flex-shrink-0" />
+                  <li key={item.label} className="flex items-center gap-2 text-base">
+                    <ItemIcon className="w-4 h-4 text-[#d87093] flex-shrink-0" />
                     <span className="text-gray-500 flex-1">{item.label}</span>
                     <span className="text-gray-800 font-bold">{item.value}</span>
                   </li>
