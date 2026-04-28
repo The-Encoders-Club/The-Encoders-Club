@@ -715,7 +715,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              <p className="text-gray-800 text-[23px] font-medium mt-1 flex items-center gap-1.5">
+              <p className="text-gray-800 text-[23px] font-bold mt-1 flex items-center gap-1.5">
                 {project.subtitle} <span>💗</span>
               </p>
             </motion.div>
@@ -748,7 +748,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-800 leading-relaxed text-[22px] font-semibold">{desc}</p>
+            <p className="text-gray-800 leading-relaxed text-[22px] font-bold">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
