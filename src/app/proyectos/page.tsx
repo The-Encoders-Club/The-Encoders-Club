@@ -865,20 +865,20 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Wiki + Spritepacks */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
+                <h4 className="pink-stroke-lg text-[18px] font-black flex items-center gap-1">
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
                 <p className="text-[21px] text-gray-800 leading-relaxed font-bold">
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[15px] font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
                 </button>
               </div>
 
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
+                <h4 className="pink-stroke-lg text-[18px] font-black flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
@@ -886,10 +886,10 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[15px] font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                     <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
                   </button>
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[15px] font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                     <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
                 </div>
@@ -899,14 +899,14 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
             {/* Submods */}
             <div className="flex justify-center">
               <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-[22px] font-black flex items-center gap-1.5">
+                <h4 className="pink-stroke-lg text-[22px] font-black flex items-center gap-1.5">
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
                 <p className="text-[22px] text-gray-800 leading-relaxed font-bold">
                   {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
                 </p>
-                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-bold text-[16px] hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[17px] hover:bg-[#C06080] hover:text-white transition-colors">
                   {isEs ? 'Explorar Submods' : 'Explore Submods'}
                 </button>
               </div>
