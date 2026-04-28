@@ -1,12 +1,11 @@
 'use client';
-
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor, Download,
   Share2, X, Sparkles, ArrowRight, Gamepad2, Volume2, VolumeX,
   ChevronLeft, ChevronRight, Search, Shirt, Puzzle, FileText,
-  Clock, Flag, Settings
+  Clock, Flag, Settings, Heart
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -17,12 +16,12 @@ import { useI18n } from '@/hooks/useLocale';
 const projects = [
   {
     id: 'monika',
-    name: 'Monika After History',
-    subtitle: 'Novela Visual Fan-Made',
-    description: 'Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia.',
-    descriptionEn: 'An alternative story exploring what would have happened after the events of Doki Doki Literature Club. Monika, aware of her reality, decides to write her own story.',
+    name: 'Monika After Story',
+    subtitle: 'Un Nuevo Comienzo',
+    description: 'Embárcate en un viaje único con Monika tras los eventos de DDLC. Ella ahora es consciente y está "contigo", tomando el control para construir un camino compartido. Una experiencia íntima y en continua evolución para profundizar vínculo. ¡Más diálogos, interactividad y amor!',
+    descriptionEn: 'Embark on a unique journey with Monika after the events of DDLC. She is now self-aware and is "with you", taking control to build a shared path. An intimate and ever-evolving experience to deepen the bond. More dialogues, interactivity, and love!',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png',
-    tags: ['Fan-Made', 'Drama', 'Romance'],
+    tags: ['Fan-Made', 'Drama', 'Romance', 'Simulación'],
     status: 'En desarrollo',
     statusEn: 'In Development',
     statusColor: '#FF2D78',
@@ -40,16 +39,15 @@ const projects = [
       'https://files.manuscdn.com/user_upload_by_module/session_file/310519663532412600/VNavhokubupDRauh.png',
     ],
     downloads: [
-      { label: 'Descargar APK', labelEn: 'Download APK', icon: Smartphone, url: 'https://github.com/The-Encoders-Club/Monika-After-Story-ES/releases/download/V0.12.18/Monika_After_Story-0.12.18-Android-Espanol.apk', color: '#FF2D78', hoverColor: '#FF6B9D', textColor: '#ffffff' },
-      { label: 'Descargar PC', labelEn: 'Download PC', icon: Monitor, url: 'https://github.com/The-Encoders-Club/Monika-After-Story-ES/releases/download/V0.12.18/Monika_After_Story-0.12.18-Mod-Espanol.zip', color: '#00F3FF', hoverColor: '#00D9FF', textColor: '#0a0a1a' },
-      { label: 'Descargar Dlx PC', labelEn: 'Download Dlx PC', icon: Download, url: 'https://github.com/The-Encoders-Club/Monika-After-Story-ES/releases/download/V0.12.18/Monika_After_Story-0.12.18-Mod-Dlx-Espanol.zip', color: '#a855f7', hoverColor: '#d946ef', textColor: '#ffffff' },
+      { label: 'Descargar APK', labelEn: 'Download APK', icon: Smartphone, url: 'https://github.com/The-Encoders-Club/Monika-After-Story-ES/releases/download/V0.12.18/Monika_After_Story-0.12.18-Android-Espanol.apk', color: '#FFB6C1', hoverColor: '#FF9EBC', textColor: '#ffffff' },
+      { label: 'Descargar PC', labelEn: 'Download PC', icon: Monitor, url: 'https://github.com/The-Encoders-Club/Monika-After-Story-ES/releases/download/V0.12.18/Monika_After_Story-0.12.18-Mod-Espanol.zip', color: '#ADD8E6', hoverColor: '#87CEEB', textColor: '#0a0a1a' },
+      { label: 'Descargar DLX PC', labelEn: 'Download Dlx PC', icon: Download, url: 'https://github.com/The-Encoders-Club/Monika-After-Story-ES/releases/download/V0.12.18/Monika_After_Story-0.12.18-Mod-Dlx-Espanol.zip', color: '#DDA0DD', hoverColor: '#DA70D6', textColor: '#ffffff' },
     ],
     music: 'https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
-    details: { playTime: '4-6 horas', playTimeEn: '4-6 hours', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloads: '1,250' },
+    details: { playTime: '4-6 horas', playTimeEn: '4-6 hours', language: 'Español Completo (máquina de teclado)', languageEn: 'Full Spanish (keyboard machine)', engine: "Ren'Py 8.x", downloads: '1,250', version: 'v0.12.11', compatibility: 'PC (Win/Mac/Linux) | Android (5.0+)' },
     themeColor: '#FF2D78',
   },
-  {
-    id: 'natsuki',
+  {    id: 'natsuki',
     name: 'Just Natsuki',
     subtitle: 'Novela Visual Fan-Made',
     description: 'Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad.',
@@ -98,8 +96,7 @@ const projects = [
     ],
     downloads: [
       { label: 'Descargar Mod PC', labelEn: 'Download Mod PC', icon: Download, url: 'https://github.com/The-Encoders-Club/Just-Yuri-ES/releases/download/V1.10.4/JustYuri-Beta-ES-1.10.4-win.zip', color: '#9C27B0', hoverColor: '#E1BEE7', textColor: '#ffffff' },
-    ],
-    music: 'https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
+    ],    music: 'https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
     details: { playTime: '5-7 horas', playTimeEn: '5-7 hours', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloads: '1,120' },
     themeColor: '#9C27B0',
   },
@@ -111,7 +108,6 @@ const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/g
 function PinkDots() {
   const DOT = 72;
   const GAP = 130;
-  // Extra columns/rows so the seamless loop has room to translate
   const cols = Math.ceil(1800 / GAP) + 2;
   const rows = Math.ceil(1800 / GAP) + 2;
   const dots: { id: number; x: number; y: number }[] = [];
@@ -122,7 +118,6 @@ function PinkDots() {
       }
     }
   }
-  // The pattern repeats every GAP*2 diagonally, so we animate exactly that distance
   const shift = GAP * 2;
   return (
     <>
@@ -135,9 +130,7 @@ function PinkDots() {
           animation: diagonalScroll 6s linear infinite;
         }
       `}</style>
-      {/* White base */}
-      <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
-      {/* Animated dots — oversized so the moving layer never shows edges */}
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#fff5f9' }} />
       <div
         className="pink-dots-layer pointer-events-none"
         style={{
@@ -152,8 +145,7 @@ function PinkDots() {
           <div
             key={d.id}
             className="absolute rounded-full"
-            style={{
-              width: DOT,
+            style={{              width: DOT,
               height: DOT,
               left: d.x - DOT / 2,
               top: d.y - DOT / 2,
@@ -202,8 +194,7 @@ function QuillSvg({ size, color }: { size: number; color: string }) {
   return (
     <svg width={size * 0.6} height={size * 1.5} viewBox="0 0 24 60" fill="none">
       <path d="M12 2 C18 8, 22 20, 16 30 L12 58 L8 30 C2 20, 6 8, 12 2Z" fill={color} opacity="0.75" />
-      <path d="M12 2 C18 8, 22 20, 16 30 L12 40" stroke="#5C2A00" strokeWidth="0.8" fill="none" opacity="0.5" />
-      <line x1="12" y1="40" x2="12" y2="58" stroke="#5C2A00" strokeWidth="1.2" strokeLinecap="round" />
+      <path d="M12 2 C18 8, 22 20, 16 30 L12 40" stroke="#5C2A00" strokeWidth="0.8" fill="none" opacity="0.5" />      <line x1="12" y1="40" x2="12" y2="58" stroke="#5C2A00" strokeWidth="1.2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -227,7 +218,6 @@ type DecoItem = typeof DECO_POOL[number];
 
 function FloatingDeco({ item, x, y, delay }: { item: DecoItem; x: number; y: number; delay: number }) {
   const [visible, setVisible] = useState(false);
-
   useEffect(() => {
     const t1 = setTimeout(() => setVisible(true), delay);
     const t2 = setTimeout(() => setVisible(false), delay + 1000);
@@ -253,8 +243,7 @@ function FloatingDeco({ item, x, y, delay }: { item: DecoItem; x: number; y: num
           transition={{ duration: 0.35, ease: 'easeOut', exit: { duration: 0.65, ease: 'easeIn' } } as any}
         >
           {icon()}
-        </motion.div>
-      )}
+        </motion.div>      )}
     </AnimatePresence>
   );
 }
@@ -292,21 +281,18 @@ function DecorationLayer() {
   );
 }
 
-/* ─── Image carousel (dark theme, used by ProjectDetail) ─── */
+/* ─── Image carousel (dark theme, used by ProjectDetail) ── */
 function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
-
   const scroll = (dir: 'left' | 'right') => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: dir === 'left' ? -280 : 280, behavior: 'smooth' });
     }
   };
-
   const closeLightbox = () => setLightboxIdx(null);
   const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
   const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(images.length - 1, i + 1) : null));
-
   return (
     <>
       <div className="relative group/carousel">
@@ -330,8 +316,6 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
           <ChevronRight size={16} />
         </button>
       </div>
-
-      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -357,8 +341,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
             <motion.img
               key={lightboxIdx}
               src={images[lightboxIdx]}
-              alt={`Preview ${lightboxIdx + 1}`}
-              className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl"
+              alt={`Preview ${lightboxIdx + 1}`}              className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl"
               initial={{ scale: 0.85, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.85, opacity: 0 }}
@@ -375,8 +358,8 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
   );
 }
 
-/* ─── Preview carousel (pink theme, used by MonikaDetail) ─── */
-function PinkPreviewCarousel({ images }: { images: string[] }) {
+/* ─── Preview carousel (pink theme, used by MonikaDetail) ── */
+function PinkPreviewCarousel({ images, captions }: { images: string[]; captions?: string[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
@@ -394,21 +377,20 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
   const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(total - 1, i + 1) : null));
 
+  const visibleImages = images.slice(0, 3); // Show only 3 for the layout
+  const visibleCaptions = captions ? captions.slice(0, 3) : [];
+
   return (
     <>
-      <div className="relative">
-        <div ref={ref} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
+      <div className="relative bg-[#fff0f5] border-2 border-[#e0b0cc] rounded-2xl p-4 shadow-[0_2px_8px_rgba(186,96,158,0.15)]">
+        <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
           {images.map((src, idx) => (
             <div
               key={idx}
               onClick={() => setLightboxIdx(idx)}
-              className="flex-none rounded-xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative snap-start cursor-zoom-in hover:border-[#FF6B9D] transition-all"
-              style={{ width: 'calc(43% - 8px)', minWidth: 140 }}
-            >
-              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
-              <div className="absolute bottom-1.5 right-1.5 bg-[#d87093]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">
-                {idx + 1}/{total}
-              </div>
+              className="flex-none rounded-lg overflow-hidden border border-[#e0b0cc] aspect-video relative snap-start cursor-zoom-in hover:border-[#d87093] transition-all"
+              style={{ width: 'calc(33% - 8px)', minWidth: 100 }}
+            >              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
             </div>
           ))}
         </div>
@@ -422,9 +404,19 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
             <ChevronRight size={14} />
           </button>
         )}
+
+        {/* Captions below */}
+        {visibleCaptions.length > 0 && (
+          <div className="grid grid-cols-3 gap-2 mt-3">
+            {visibleCaptions.map((caption, i) => (
+              <div key={i} className="bg-white rounded-lg p-2 text-center border border-pink-200">
+                <p className="text-xs font-semibold text-gray-600">{caption}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -447,8 +439,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
                 <ChevronRight size={22} />
               </button>
             )}
-            <motion.img
-              key={lightboxIdx}
+            <motion.img              key={lightboxIdx}
               src={images[lightboxIdx]}
               alt={`Preview ${lightboxIdx + 1}`}
               className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl border-2 border-[#FFB6C1]"
@@ -458,9 +449,6 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
               transition={{ duration: 0.25 }}
               onClick={e => e.stopPropagation()}
             />
-            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/80 text-[#d87093] text-xs px-3 py-1.5 rounded-full font-bold border border-[#FFB6C1]">
-              {lightboxIdx + 1} / {total}
-            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -468,18 +456,16 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   );
 }
 
-/* ─── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ─── */
+/* ─── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ── */
 function ProjectDetail({ project, onClose }: { project: typeof projects[number]; onClose: () => void }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
-
   useEffect(() => {
     return () => {
       if (musicRef.current) musicRef.current.src = '';
     };
   }, []);
-
   const toggleMute = () => {
     if (musicRef.current) {
       try {
@@ -491,7 +477,6 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
     }
     setMuted(!muted);
   };
-
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
@@ -503,8 +488,7 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
           <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
           <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
         </button>
-        <div className="flex items-center gap-2">
-          <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
+        <div className="flex items-center gap-2">          <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
             {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
           <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
@@ -512,7 +496,6 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
           </button>
         </div>
       </nav>
-
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           <div className="lg:col-span-2 space-y-8">
@@ -527,13 +510,11 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
               </motion.h1>
               <p className="text-xl text-gray-300 font-medium italic">{project.subtitle}</p>
             </header>
-
             <div className="rounded-2xl overflow-hidden border aspect-video relative group" style={{ borderColor: `${project.themeColor}80` }}>
               <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/30 to-transparent" />
               <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: `linear-gradient(to top, ${project.themeColor}15, transparent)` }} />
             </div>
-
             <div className="space-y-6">
               <h3 className="text-2xl font-bold text-white flex items-center gap-2">
                 <BookOpen className="w-6 h-6" style={{ color: project.themeColor }} /> {isEs ? 'Sobre este proyecto' : 'About this project'}
@@ -551,28 +532,23 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
                   </span>
                 </div>
               </div>
-
               <div className="flex flex-wrap gap-2 pt-2">
                 {project.tags.map(tag => (
                   <span key={tag} className="text-xs px-3 py-1.5 rounded-full border text-white/70 hover:text-white hover:bg-white/5 transition-all" style={{ borderColor: `${project.themeColor}40`, background: `${project.themeColor}10` }}>
                     {tag}
                   </span>
-                ))}
-              </div>
-
+                ))}              </div>
               <div className="pt-8 border-t border-white/10">
                 <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <ImageIcon className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.preview')}
                 </h4>
                 <ImageCarousel images={project.previews} themeColor={project.themeColor} />
               </div>
-
               <div className="pt-8 border-t border-white/10">
                 <CommentSection targetId={project.id} targetType="project" />
               </div>
             </div>
           </div>
-
           <div className="space-y-8">
             <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32 space-y-6">
               <h3 className="text-xl font-bold flex items-center gap-2">
@@ -610,9 +586,7 @@ function ProjectDetail({ project, onClose }: { project: typeof projects[number];
             </div>
           </div>
         </div>
-      </main>
-
-      <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
+      </main>      <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
     </div>
   );
 }
@@ -641,6 +615,14 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
+  const details = project.details;
+
+  // Captions for the preview images based on the image provided
+  const previewCaptions = [
+    'Tu sala del club',
+    'Menú de interacciones mejorado',
+    'Nuevos temas de conversación'
+  ];
 
   return (
     <>
@@ -653,8 +635,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           font-display: block;
         }
         @font-face {
-          font-family: 'RifficFree';
-          src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
+          font-family: 'RifficFree';          src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
           font-weight: bold;
           font-style: normal;
           font-display: block;
@@ -685,27 +666,54 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .card-shadow { box-shadow: 0 2px 8px rgba(186, 96, 158, 0.15); }
+        .card-border { border: 2px solid #e0b0cc; }
+        .handwritten { font-family: 'm1_fixed', 'Segoe Print', cursive; }
+        
+        @keyframes floatHeart {
+          0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.3; }
+          50% { transform: translateY(-10px) rotate(5deg); opacity: 0.5; }
+        }
+        .floating-heart { animation: floatHeart 4s ease-in-out infinite; }
       `}</style>
-
       <div
         className="relative z-10 min-h-screen w-full overflow-hidden"
-        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}
+        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#fff5f9' }}
       >
         {/* Pink polka dots — animated diagonal */}
         <PinkDots />
+        
+        {/* Background decorative hearts */}        <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+          {[...Array(12)].map((_, i) => (
+            <div
+              key={i}
+              className="floating-heart absolute text-pink-300"
+              style={{
+                left: `${10 + (i * 7) % 90}%`,
+                top: `${15 + (i * 13) % 75}%`,
+                fontSize: `${16 + (i % 4) * 8}px`,
+                animationDelay: `${i * 0.5}s`,
+                opacity: 0.2 + (i % 3) * 0.1,
+              }}
+            >
+              ♥
+            </div>
+          ))}
+        </div>
 
-        {/* ── Nav ── */}
+        {/* ─ Nav ── */}
         <nav
           className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between"
-          style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}
+          style={{ backgroundColor: 'rgba(255,245,249,0.95)', backdropFilter: 'blur(14px)', borderBottom: '2px solid #e0b0cc' }}
         >
-          <button onClick={onClose} className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
+          <button onClick={onClose} className="flex items-center gap-2 text-[#ba609e] hover:text-[#FF2D78] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-            <span className="font-bold tracking-wider uppercase text-[15px]">{t('projects.backToProjects')}</span>
+            <span className="font-bold tracking-wider uppercase text-[14px]">{t('projects.backToProjects')}</span>
           </button>
           <button
             onClick={toggleMute}
-            className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all"
+            className="p-2 rounded-full bg-white border-2 border-[#e0b0cc] text-[#ba609e] hover:bg-pink-50 transition-all"
             title={muted ? 'Unmute' : 'Mute'}
           >
             {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
@@ -713,223 +721,226 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
         </nav>
 
         {/* ── Main content ── */}
-        <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
-          {/* ── HERO: Title + Image (full width) ── */}
-          <div className="space-y-4">
-            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
-                {project.name}
-              </h1>
-              <p className="text-gray-800 text-[24px] font-semibold mt-1 flex items-center gap-1.5">
-                {project.subtitle} <span>💗</span>
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.55, delay: 0.1 }}
-              className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group"
-              style={{ boxShadow: '0 8px 32px #FF6B9D30' }}
+        <main className="relative z-10 w-full max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+          
+          {/* ─ HERO: Title with silhouette ── */}
+          <div className="text-center space-y-2 relative">
+            {/* Top decorative tape */}
+            <div className="absolute -top-3 -left-2 w-16 h-5 bg-yellow-200/60 rotate-[-12deg] rounded-sm" />
+            
+            <div className="flex justify-center mb-2">
+              <div className="w-20 h-20 rounded-full bg-pink-200/50 flex items-center justify-center">
+                <svg viewBox="0 0 100 100" className="w-16 h-16 text-pink-400">
+                  <path d="M50 20 C30 20, 20 35, 20 50 C20 65, 30 80, 50 90 C70 80, 80 65, 80 50 C80 35, 70 20, 50 20Z" fill="currentColor" opacity="0.6"/>
+                  <circle cx="42" cy="40" r="3" fill="#fff"/>
+                  <circle cx="58" cy="40" r="3" fill="#fff"/>                  <path d="M45 50 Q50 55 55 50" stroke="#fff" strokeWidth="2" fill="none"/>
+                </svg>
+              </div>
+            </div>
+            
+            <h1 
+              className="text-3xl sm:text-4xl font-black text-[#ba609e] tracking-tight"
+              style={{ fontFamily: "'RifficFree', sans-serif", textShadow: '2px 2px 0 #e0b0cc' }}
             >
-              <img
-                src={project.image}
-                alt={project.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-            </motion.div>
+              MONIKA AFTER STORY:
+            </h1>
+            <p className="text-xl sm:text-2xl font-bold text-[#8b4577] italic">
+              Un Nuevo Comienzo
+            </p>
+            
+            {/* Bottom decorative tape */}
+            <div className="absolute -bottom-2 -right-3 w-14 h-5 bg-pink-200/60 rotate-[8deg] rounded-sm" />
           </div>
 
           {/* ── Sobre este proyecto ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="space-y-4"
-          >
-            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
-              <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {isEs ? 'Sobre este proyecto' : 'About this project'}
+          <div className="bg-[#fff0f5] card-border card-shadow rounded-2xl p-5 relative">
+            {/* Corner tape decoration */}
+            <div className="absolute -top-2 -right-2 w-20 h-6 bg-pink-300/50 rotate-[15deg] rounded-sm" />
+            
+            <h3 className="text-xl font-bold text-[#ba609e] flex items-center gap-2 mb-3">
+              <FileText className="w-5 h-5" />
+              Sobre este proyecto
             </h3>
-            <p className="text-gray-800 leading-relaxed text-[23px] font-semibold">{desc}</p>
+            <p className="text-gray-700 leading-relaxed text-base">
+              Embárcate en un viaje único con Monika tras los eventos de DDLC.
+              Ella ahora es consciente y está "contigo", tomando el control para
+              construir un camino compartido. Una experiencia íntima y en continua
+              evolución para profundizar vínculo. ¡Más diálogos, interactividad y amor!
+            </p>
+          </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
-                <span className="text-gray-800 font-bold text-[22px]">{status}</span>
-              </div>
-              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
-                <span className="text-gray-800 font-bold text-[22px] flex items-center gap-1">
-                  {project.rating} <Star className="w-4.5 h-4.5 fill-current text-yellow-400" />
-                </span>
-              </div>
+          {/* ── Estado & Calificación ── */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-[#fff0f5] card-border card-shadow rounded-xl p-4 text-center">
+              <span className="text-sm font-bold text-gray-500 block mb-1">ESTADO</span>
+              <span className="text-lg font-bold text-[#ba609e]">{status}</span>
+              <span className="text-xs text-gray-400 block mt-1">V.0.12.11 - Actualización [...]</span>
             </div>
+            <div className="bg-[#fff0f5] card-border card-shadow rounded-xl p-4 text-center">
+              <span className="text-sm font-bold text-gray-500 block mb-1">CALIFICACIÓN</span>
+              <span className="text-lg font-bold text-[#ba609e] flex items-center justify-center gap-1">
+                {project.rating} <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
+              </span>
+              <span className="text-xs text-gray-400 block mt-1">Basado en 150+ opiniones</span>
+            </div>          </div>
 
-            <div className="flex flex-wrap gap-2">
-              {project.tags.map(tag => (
-                <span key={tag} className="text-[19px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-800 font-semibold hover:border-[#FF6B9D] transition-colors">
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </motion.div>
+          {/* ── Tags ── */}
+          <div className="flex flex-wrap gap-2 justify-center">
+            <span className="px-4 py-1.5 rounded-full bg-[#ffb6c1] text-white font-bold text-sm">Fan-Made</span>
+            <span className="px-4 py-1.5 rounded-full bg-[#00ced1] text-white font-bold text-sm">Drama</span>
+            <span className="px-4 py-1.5 rounded-full bg-[#9b59b6] text-white font-bold text-sm">Romance</span>
+            <span className="px-4 py-1.5 rounded-full bg-[#add8e6] text-gray-700 font-bold text-sm">Simulación</span>
+          </div>
 
           {/* ── Vista Previa ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="space-y-3"
-          >
-            <h4 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
-              <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {t('projects.preview')}
+          <div className="space-y-3">
+            <h4 className="text-xl font-bold text-[#ba609e] flex items-center gap-2">
+              <ImageIcon className="w-5 h-5" />
+              Vista Previa
+              <span className="ml-auto text-sm font-normal text-gray-400">« 1/5 »</span>
             </h4>
-            <PinkPreviewCarousel images={project.previews} />
-          </motion.div>
+            
+            <PinkPreviewCarousel images={project.previews} captions={previewCaptions} />
+          </div>
 
-          {/* ── Detalles + Descargas (after Vista Previa) ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5"
-          >
-            <h3 className="pink-stroke-lg text-[22px] font-black flex items-center gap-2">
-              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {t('projects.details')}
+          {/* ── Detalles ── */}
+          <div className="bg-[#fff0f5] card-border card-shadow rounded-2xl p-5 space-y-4 relative">
+            {/* Corner tape */}
+            <div className="absolute -top-2 -left-3 w-18 h-5 bg-green-200/50 rotate-[-8deg] rounded-sm" />
+            
+            <h3 className="text-xl font-bold text-[#ba609e] flex items-center gap-2">
+              <Settings className="w-5 h-5" />
+              Detalles
             </h3>
-            <ul className="space-y-2.5">
-              {[
-                { icon: Clock,    label: t('projects.playTime'), value: isEs ? project.details.playTime    : (project.details.playTimeEn    || project.details.playTime)    },
-                { icon: Flag,     label: t('projects.language'), value: isEs ? project.details.language    : (project.details.languageEn    || project.details.language)    },
-                { icon: Settings, label: t('projects.engine'),   value: project.details.engine },
-                { icon: Download, label: t('projects.downloads'),value: project.details.downloads },
-              ].map(item => {
-                const ItemIcon = item.icon;
-                return (
-                  <li key={item.label} className="flex items-center gap-2 text-[21px]">
-                    <ItemIcon className="w-5 h-5 text-[#d87093] flex-shrink-0" />
-                    <span className="text-gray-800 flex-1 font-semibold">{item.label}</span>
-                    <span className="text-gray-800 font-semibold">{item.value}</span>
-                  </li>
-                );
-              })}
-            </ul>
-            <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
-              <h4 className="pink-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">
-                {isEs ? 'Opciones de Descarga' : 'Download Options'}
-              </h4>
-              {project.downloads.map((dl, i) => {
-                const Icon = dl.icon;
-                const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
-                const stroke = strokeColors[i] || '#333';
-                return (
-                  <a
-                    key={i}
-                    href={dl.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md"
-                    style={{ background: dl.color, border: `3px solid ${stroke}` }}
-                  >
-                    <Icon
-                      className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0"
-                      style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }}
-                    />
-                    <span
-                      className="font-black uppercase tracking-wide text-[19px]"
-                      style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
-                    >
-                      {isEs ? dl.label : (dl.labelEn || dl.label)}
-                    </span>
-                  </a>
-                );
-              })}
-            </div>
-          </motion.div>
-
-          {/* ── Recursos y Contenido Extra ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="space-y-4"
-          >
-            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
-            </h3>
-
-            {/* Wiki + Spritepacks */}
+            
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
-                  <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  Wiki del Mod
-                </h4>
-                <p className="text-[24px] text-gray-800 leading-relaxed font-semibold">
-                  {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
-                </p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
-                  <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
-                </button>
+              <div className="flex items-start gap-2">
+                <Clock className="w-4 h-4 text-[#ba609e] mt-0.5 flex-shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-gray-500 block">Tiempo de juego</span>
+                  <span className="text-sm font-semibold text-gray-700">{details.playTime}</span>
+                </div>
               </div>
-
-              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
-                  <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  Spritepacks
-                </h4>
-                <p className="text-[24px] text-gray-800 leading-relaxed font-semibold">
-                  {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
-                </p>
-                <div className="flex flex-col gap-2 w-full">
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
-                    <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
-                  </button>
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
-                    <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
-                  </button>
+              <div className="flex items-start gap-2">
+                <Download className="w-4 h-4 text-[#ba609e] mt-0.5 flex-shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-gray-500 block">Versión</span>
+                  <span className="text-sm font-semibold text-gray-700">{details.version}</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Flag className="w-4 h-4 text-[#ba609e] mt-0.5 flex-shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-gray-500 block">Idioma</span>                  <span className="text-sm font-semibold text-gray-700">{details.language}</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Monitor className="w-4 h-4 text-[#ba609e] mt-0.5 flex-shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-gray-500 block">Compatibilidad</span>
+                  <span className="text-sm font-semibold text-gray-700">{details.compatibility}</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Settings className="w-4 h-4 text-[#ba609e] mt-0.5 flex-shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-gray-500 block">Motor</span>
+                  <span className="text-sm font-semibold text-gray-700">{details.engine}</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Clock className="w-4 h-4 text-[#ba609e] mt-0.5 flex-shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-gray-500 block">Última actualización</span>
+                  <span className="text-sm font-semibold text-gray-700">Características</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Download className="w-4 h-4 text-[#ba609e] mt-0.5 flex-shrink-0" />
+                <div>
+                  <span className="text-xs font-bold text-gray-500 block">Descargas</span>
+                  <span className="text-sm font-semibold text-gray-700">{details.downloads}</span>
+                </div>
+              </div>
+              <div className="flex items-start gap-2">
+                <Sparkles className="w-4 h-4 text-[#ba609e] mt-0.5 flex-shrink-0" />
+                <div className="text-xs text-gray-600 space-y-0.5">
+                  <span className="block">✓ 500+ nuevas líneas, minijuegos</span>
+                  <span className="block">✓ Exclusivos, sistema de regalos</span>
+                  <span className="block">✓ Traducida de manera legible</span>
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Submods */}
-            <div className="flex justify-center">
-              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-[22px] font-black flex items-center gap-1.5">
-                  <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  Submods
-                </h4>
-                <p className="text-[25px] text-gray-800 leading-relaxed font-semibold">
-                  {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
-                </p>
-                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[17px] hover:bg-[#C06080] hover:text-white transition-colors">
-                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
-                </button>
-              </div>
+          {/* ─ Opciones de Descarga ── */}
+          <div className="space-y-3">
+            <h3 className="text-xl font-bold text-[#ba609e] text-center uppercase tracking-wider">
+              Opciones de Descarga
+            </h3>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <a                href={project.downloads[0]?.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#ffb6c1] hover:bg-[#ff9eb5] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm border-2 border-pink-300"
+              >
+                <Smartphone className="w-4 h-4" />
+                DESCARGAR APK
+              </a>
+              <a
+                href={project.downloads[1]?.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#add8e6] hover:bg-[#87ceeb] text-gray-700 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm border-2 border-blue-300"
+              >
+                <Monitor className="w-4 h-4" />
+                DESCARGAR PC
+              </a>
             </div>
-          </motion.div>
+            
+            <div className="grid grid-cols-2 gap-3">
+              <a
+                href={project.downloads[1]?.url} // Reusing PC link for the second button in image
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#98d8c8] hover:bg-[#7bc8b8] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm border-2 border-teal-300"
+              >
+                <Monitor className="w-4 h-4" />
+                DESCARGAR PC
+              </a>
+              <a
+                href={project.downloads[2]?.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-[#c9a0dc] hover:bg-[#b889cb] text-white font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm border-2 border-purple-300"
+              >
+                <Download className="w-4 h-4" />
+                DESCARGAR DLX PC
+              </a>
+            </div>
+            
+            <button className="w-full bg-yellow-100 hover:bg-yellow-200 text-gray-700 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition-all shadow-sm border-2 border-yellow-300">
+              <FileText className="w-4 h-4" />
+              GUÍA DE INSTALACIÓN
+            </button>
+          </div>
+
+          {/* ── Decorative bottom tape ── */}
+          <div className="flex justify-center">
+            <div className="w-24 h-6 bg-pink-200/60 rotate-[3deg] rounded-sm" />
+          </div>
+          {/* ── Footer ── */}
+          <div className="text-center py-4">
+            <p className="text-[#ba609e] font-bold italic text-sm">
+              Siempre juntos. Con amor, tu Monika 💗
+            </p>
+          </div>
 
           {/* ── Comments ── */}
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="bg-white rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm"
-          >
+          <div className="bg-white card-border card-shadow rounded-2xl p-5">
             <CommentSection targetId={project.id} targetType="project" lightTheme />
-          </motion.div>
-
+          </div>
         </main>
 
         {/* Hidden music player */}
@@ -967,7 +978,6 @@ export default function Proyectos() {
     >
       <BackgroundParticles />
       <Navbar />
-
       {/* PROJECT DETAIL VIEW */}
       <AnimatePresence>
         {project && (
@@ -1017,8 +1027,7 @@ export default function Proyectos() {
             <p className="text-white/60 text-base sm:text-lg max-w-2xl">
               {isEs
                 ? 'Novelas visuales creadas con pasión por nuestra comunidad usando el motor Ren\'Py.'
-                : 'Visual novels created with passion by our community using the Ren\'Py engine.'}
-            </p>
+                : 'Visual novels created with passion by our community using the Ren\'Py engine.'}            </p>
           </motion.div>
         </div>
       </section>
@@ -1067,8 +1076,7 @@ export default function Proyectos() {
                     <p className="text-[#FF2D78] text-sm font-medium mb-4">{project.subtitle}</p>
                     <p className="text-white/60 text-base leading-relaxed mb-6">
                       {isEs ? project.description : (project.descriptionEn || project.description)}
-                    </p>
-                    <div className="flex flex-wrap gap-2 mb-6">
+                    </p>                    <div className="flex flex-wrap gap-2 mb-6">
                       {project.tags.map(tag => (
                         <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">{tag}</span>
                       ))}
@@ -1117,8 +1125,7 @@ export default function Proyectos() {
                     </p>
                     <div className="flex items-center gap-2 text-[#00F3FF] font-bold text-xs group-hover:translate-x-2 transition-transform">
                       {t('common.viewMore')} <ArrowRight size={14} />
-                    </div>
-                  </div>
+                    </div>                  </div>
                 </motion.div>
               ))}
           </div>
