@@ -715,7 +715,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              <p className="text-gray-500 text-[23px] font-medium mt-1 flex items-center gap-1.5">
+              <p className="text-gray-600 text-[23px] font-medium mt-1 flex items-center gap-1.5">
                 {project.subtitle} <span>💗</span>
               </p>
             </motion.div>
@@ -748,16 +748,16 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-700 leading-relaxed text-[22px] font-semibold">{desc}</p>
+            <p className="text-gray-600 leading-relaxed text-[22px] font-semibold">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.status')}</span>
-                <span className="text-gray-700 font-bold text-[22px]">{status}</span>
+                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-600">{t('projects.status')}</span>
+                <span className="text-gray-800 font-bold text-[22px]">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-400">{t('projects.rating')}</span>
-                <span className="text-gray-700 font-bold text-[22px] flex items-center gap-1">
+                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-600">{t('projects.rating')}</span>
+                <span className="text-gray-800 font-bold text-[22px] flex items-center gap-1">
                   {project.rating} <Star className="w-4.5 h-4.5 fill-current text-yellow-400" />
                 </span>
               </div>
@@ -810,7 +810,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                 return (
                   <li key={item.label} className="flex items-center gap-2 text-[21px]">
                     <ItemIcon className="w-5 h-5 text-[#d87093] flex-shrink-0" />
-                    <span className="text-gray-500 flex-1">{item.label}</span>
+                    <span className="text-gray-600 flex-1">{item.label}</span>
                     <span className="text-gray-800 font-bold">{item.value}</span>
                   </li>
                 );
