@@ -650,14 +650,14 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
           src: url('/fonts/m1_fixed.ttf') format('truetype');
           font-weight: normal;
           font-style: normal;
-          font-display: swap;
+          font-display: block;
         }
         @font-face {
           font-family: 'RifficFree';
           src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
           font-weight: bold;
           font-style: normal;
-          font-display: swap;
+          font-display: block;
         }
         .monika-title {
           font-family: 'RifficFree', 'm1_fixed', monospace;
