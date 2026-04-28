@@ -711,8 +711,8 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              {/* 🔹 Subtítulo: base + bold (antes text-sm font-medium) */}
-              <p className="text-gray-500 text-base font-bold mt-1 flex items-center gap-1.5">
+              {/* 🔹 Subtítulo: text-lg + font-extrabold (antes text-base font-bold) */}
+              <p className="text-gray-500 text-lg font-extrabold mt-1 flex items-center gap-1.5">
                 {project.subtitle} <span>💗</span>
               </p>
             </motion.div>
@@ -745,18 +745,18 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            {/* 🔹 Descripción: base + bold (antes text-sm sin bold) */}
-            <p className="text-gray-700 leading-relaxed text-base font-bold">{desc}</p>
+            {/* 🔹 Descripción: text-lg + font-extrabold (antes text-base font-bold) */}
+            <p className="text-gray-700 leading-relaxed text-lg font-extrabold">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                {/* 🔹 Etiqueta ESTADO: text-xs (0.75rem) + bold */}
-                <span className="text-xs font-bold uppercase block mb-0.5 text-gray-400">{t('projects.status')}</span>
-                <span className="text-gray-700 font-bold text-sm">{status}</span>
+                {/* 🔹 Etiqueta ESTADO: text-sm + font-extrabold (antes text-xs font-bold) */}
+                <span className="text-sm font-extrabold uppercase block mb-0.5 text-gray-400">{t('projects.status')}</span>
+                <span className="text-gray-700 font-extrabold text-base">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-xs font-bold uppercase block mb-0.5 text-gray-400">{t('projects.rating')}</span>
-                <span className="text-gray-700 font-bold text-sm flex items-center gap-1">
+                <span className="text-sm font-extrabold uppercase block mb-0.5 text-gray-400">{t('projects.rating')}</span>
+                <span className="text-gray-700 font-extrabold text-base flex items-center gap-1">
                   {project.rating} <Star className="w-3.5 h-3.5 fill-current text-yellow-400" />
                 </span>
               </div>
@@ -764,8 +764,8 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
 
             <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
-                // 🔹 Tags: text-sm + bold (antes text-[11px] font-semibold)
-                <span key={tag} className="text-sm px-3 py-1 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-600 font-bold hover:border-[#FF6B9D] transition-colors">
+                // 🔹 Tags: text-base + font-extrabold (antes text-sm font-bold)
+                <span key={tag} className="text-base px-3 py-1 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-600 font-extrabold hover:border-[#FF6B9D] transition-colors">
                   {tag}
                 </span>
               ))}
@@ -808,17 +808,17 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               ].map(item => {
                 const ItemIcon = item.icon;
                 return (
-                  <li key={item.label} className="flex items-center gap-2 text-xs">
-                    <ItemIcon className="w-3.5 h-3.5 text-[#d87093] flex-shrink-0" />
-                    {/* 🔹 Etiquetas de detalles: text-sm + bold + color oscuro (antes text-gray-500 sin size) */}
-                    <span className="text-sm font-bold text-gray-600 flex-1">{item.label}</span>
-                    <span className="text-gray-800 font-bold text-sm">{item.value}</span>
+                  <li key={item.label} className="flex items-center gap-2">
+                    <ItemIcon className="w-4 h-4 text-[#d87093] flex-shrink-0" />
+                    {/* 🔹 Etiquetas de detalles: text-base + font-extrabold (antes text-sm font-bold) */}
+                    <span className="text-base font-extrabold text-gray-600 flex-1">{item.label}</span>
+                    <span className="text-gray-800 font-extrabold text-base">{item.value}</span>
                   </li>
                 );
               })}
             </ul>
             <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
-              <h4 className="pink-stroke-sm text-xs font-black uppercase tracking-widest mb-2">
+              <h4 className="pink-stroke-sm text-sm font-black uppercase tracking-widest mb-2">
                 {isEs ? 'Opciones de Descarga' : 'Download Options'}
               </h4>
               {project.downloads.map((dl, i) => {
@@ -870,11 +870,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                {/* 🔹 Texto descriptivo: text-sm + bold (antes text-xs sin bold) */}
-                <p className="text-sm font-bold text-gray-600 leading-relaxed">
+                {/* 🔹 Texto descriptivo: text-base + font-extrabold (antes text-sm font-bold) */}
+                <p className="text-base font-extrabold text-gray-600 leading-relaxed">
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-sm font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-base font-extrabold hover:bg-[#C06080] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
                 </button>
               </div>
@@ -884,14 +884,14 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
-                <p className="text-sm font-bold text-gray-600 leading-relaxed">
+                <p className="text-base font-extrabold text-gray-600 leading-relaxed">
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-sm font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-base font-extrabold hover:bg-[#C06080] hover:text-white transition-colors">
                     <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
                   </button>
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-sm font-bold hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-base font-extrabold hover:bg-[#C06080] hover:text-white transition-colors">
                     <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
                 </div>
@@ -905,11 +905,11 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
-                <p className="text-sm font-bold text-gray-600 leading-relaxed">
+                <p className="text-base font-extrabold text-gray-600 leading-relaxed">
                   {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
                 </p>
-                {/* 🔹 Botón: text-base (antes text-sm) */}
-                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-bold text-base hover:bg-[#C06080] hover:text-white transition-colors">
+                {/* 🔹 Botón: text-lg + font-extrabold (antes text-base font-bold) */}
+                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-extrabold text-lg hover:bg-[#C06080] hover:text-white transition-colors">
                   {isEs ? 'Explorar Submods' : 'Explore Submods'}
                 </button>
               </div>
