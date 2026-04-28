@@ -715,7 +715,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              <p className="text-gray-600 text-[23px] font-medium mt-1 flex items-center gap-1.5">
+              <p className="text-gray-800 text-[23px] font-medium mt-1 flex items-center gap-1.5">
                 {project.subtitle} <span>💗</span>
               </p>
             </motion.div>
@@ -748,15 +748,15 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-600 leading-relaxed text-[22px] font-semibold">{desc}</p>
+            <p className="text-gray-800 leading-relaxed text-[22px] font-semibold">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-600">{t('projects.status')}</span>
+                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
                 <span className="text-gray-800 font-bold text-[22px]">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-600">{t('projects.rating')}</span>
+                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
                 <span className="text-gray-800 font-bold text-[22px] flex items-center gap-1">
                   {project.rating} <Star className="w-4.5 h-4.5 fill-current text-yellow-400" />
                 </span>
@@ -765,7 +765,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
 
             <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[19px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-600 font-semibold hover:border-[#FF6B9D] transition-colors">
+                <span key={tag} className="text-[19px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-800 font-semibold hover:border-[#FF6B9D] transition-colors">
                   {tag}
                 </span>
               ))}
@@ -810,7 +810,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                 return (
                   <li key={item.label} className="flex items-center gap-2 text-[21px]">
                     <ItemIcon className="w-5 h-5 text-[#d87093] flex-shrink-0" />
-                    <span className="text-gray-600 flex-1">{item.label}</span>
+                    <span className="text-gray-800 flex-1">{item.label}</span>
                     <span className="text-gray-800 font-bold">{item.value}</span>
                   </li>
                 );
@@ -869,7 +869,7 @@ function MonikaDetail({ project, onClose }: { project: typeof projects[number]; 
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                <p className="text-[21px] text-gray-600 leading-relaxed font-medium">
+                <p className="text-[21px] text-gray-800 leading-relaxed font-medium">
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
                 <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[15px] font-bold hover:bg-[#C06080] hover:text-white transition-colors">
