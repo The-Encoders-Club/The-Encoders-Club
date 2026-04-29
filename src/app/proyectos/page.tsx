@@ -71,17 +71,14 @@ export default function Proyectos() {
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
                   <div className="grid lg:grid-cols-2 gap-0">
-                    {/* COVER IMAGE - FIXED: gradient bg + object-cover instead of blur + object-contain */}
+                    {/* COVER IMAGE - object-contain with white bg so full image shows */}
                     <div
-                      className="relative h-64 sm:h-80 lg:h-[420px] overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5"
-                      style={{
-                        background: `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
-                      }}
+                      className="relative h-64 sm:h-80 lg:h-[420px] overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5 bg-white"
                     >
                       <img
                         src={project.image}
                         alt={project.name}
-                        className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                        className="absolute inset-0 w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700"
                       />
                       {/* Subtle gradient overlay at bottom for better blending */}
                       <div
@@ -145,17 +142,14 @@ export default function Proyectos() {
                     transition={{ duration: 0.6, delay: i * 0.1 }}
                     className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                   >
-                    {/* COVER IMAGE - FIXED: gradient bg + object-cover */}
+                    {/* COVER IMAGE - object-contain with white bg so full image shows */}
                     <div
-                      className="relative h-56 overflow-hidden border-b border-white/5"
-                      style={{
-                        background: `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
-                      }}
+                      className="relative h-56 overflow-hidden border-b border-white/5 bg-white"
                     >
                       <img
                         src={project.image}
                         alt={project.name}
-                        className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                        className="absolute inset-0 w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700"
                       />
                       {/* Subtle gradient overlay */}
                       <div
