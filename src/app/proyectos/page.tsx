@@ -138,33 +138,51 @@ export default function Proyectos() {
                   >
                     {/* COVER IMAGE */}
                     <div className="relative border-b border-white/5">
-                      <div
-                        className="relative overflow-hidden"
-                        style={{
-                          height: '220px',
-                          background: project.id === 'just-yuri' ? '#ffffff' : 'transparent'
-                        }}
-                      >
-                        <img
-                          src={project.image}
-                          alt={project.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                        />
-                        {/* Bottom fade for badges */}
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
-                        />
-                        <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                            {isEs ? project.status : (project.statusEn || project.status)}
-                          </span>
-                          <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                            <Star size={11} fill="currentColor" />
-                            <span>{project.rating}</span>
+                      {project.id === 'just-yuri' ? (
+                        /* Yuri: mismo contenedor forzado al tamaño de Natsuki */
+                        <div className="relative overflow-hidden" style={{ aspectRatio: '16/9', background: '#ffffff' }}>
+                          <img
+                            src={project.image}
+                            alt={project.name}
+                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                          />
+                          <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
+                          />
+                          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                              {isEs ? project.status : (project.statusEn || project.status)}
+                            </span>
+                            <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                              <Star size={11} fill="currentColor" />
+                              <span>{project.rating}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        /* Natsuki y demás: sin tocar, imagen define su tamaño */
+                        <div className="relative">
+                          <img
+                            src={project.image}
+                            alt={project.name}
+                            className="w-full block group-hover:scale-105 transition-transform duration-700"
+                          />
+                          <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
+                          />
+                          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                              {isEs ? project.status : (project.statusEn || project.status)}
+                            </span>
+                            <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                              <Star size={11} fill="currentColor" />
+                              <span>{project.rating}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="p-6">
                       <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
