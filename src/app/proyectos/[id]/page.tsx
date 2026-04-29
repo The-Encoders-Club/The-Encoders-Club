@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { CommentSection } from '@/components/CommentSection';
 import { useI18n } from '@/hooks/useLocale';
-import { projects, getIcon } from '@/data/projects';
+import { projects, getIcon } from '../../data/projects';
 
 /* ─── Animated diagonal pink polka dots background ─── */
 function PinkDots() {
