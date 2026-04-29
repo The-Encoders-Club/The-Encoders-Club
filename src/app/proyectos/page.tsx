@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -43,10 +42,7 @@ export default function Proyectos() {
               className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4"
               style={{ fontFamily: "'Space Grotesk', sans-serif" }}
             >
-              {t('projects.title')}{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]">
-                {t('projects.title').includes('Destacados') ? '' : ''}
-              </span>
+              {t('projects.title')}
             </h1>
             <p className="text-white/60 text-base sm:text-lg max-w-2xl">
               {isEs
@@ -75,13 +71,29 @@ export default function Proyectos() {
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
                   <div className="grid lg:grid-cols-2 gap-0">
-                    <div className="relative h-48 sm:h-64 lg:h-auto min-h-[200px] bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5">
-                      <img src={project.image} alt="" className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110" />
-                      <img src={project.image} alt={project.name} className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-2" />
-                      <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white">
+                    {/* COVER IMAGE - FIXED: gradient bg + object-cover instead of blur + object-contain */}
+                    <div
+                      className="relative h-64 sm:h-80 lg:h-[420px] overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5"
+                      style={{
+                        background: `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
+                      }}
+                    >
+                      <img
+                        src={project.image}
+                        alt={project.name}
+                        className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                      />
+                      {/* Subtle gradient overlay at bottom for better blending */}
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          background: `linear-gradient(to top, #0d0d24 0%, transparent 40%), linear-gradient(to bottom, ${project.themeColor}08 0%, transparent 30%)`,
+                        }}
+                      />
+                      <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white z-10">
                         {t('projects.featured')}
                       </span>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
+                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 z-10">
                         <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold backdrop-blur-sm">
                           <Sparkles size={16} className="text-[#FF2D78]" />{t('projects.explore')}
                         </div>
@@ -133,10 +145,26 @@ export default function Proyectos() {
                     transition={{ duration: 0.6, delay: i * 0.1 }}
                     className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                   >
-                    <div className="relative h-48 bg-[#0d0d24] flex items-center justify-center overflow-hidden border-b border-white/5">
-                      <img src={project.image} alt="" className="absolute inset-0 w-full h-full object-cover blur-md opacity-40 scale-110" />
-                      <img src={project.image} alt={project.name} className="relative z-10 w-full h-full object-contain opacity-100 group-hover:scale-105 transition-transform duration-700 p-4" />
-                      <div className="absolute bottom-3 left-4 flex items-center gap-2">
+                    {/* COVER IMAGE - FIXED: gradient bg + object-cover */}
+                    <div
+                      className="relative h-56 overflow-hidden border-b border-white/5"
+                      style={{
+                        background: `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
+                      }}
+                    >
+                      <img
+                        src={project.image}
+                        alt={project.name}
+                        className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
+                      />
+                      {/* Subtle gradient overlay */}
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          background: 'linear-gradient(to top, #0d0d24 0%, transparent 50%)',
+                        }}
+                      />
+                      <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
                         <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
                           {isEs ? project.status : (project.statusEn || project.status)}
                         </span>
