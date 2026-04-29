@@ -139,13 +139,12 @@ export default function Proyectos() {
                     {/* COVER IMAGE */}
                     <div className="relative border-b border-white/5">
                       {project.id === 'just-yuri' ? (
-                        /* Yuri: imagen más ancha, rellena huecos con fondo blanco */
-                        <div className="relative overflow-hidden" style={{ background: '#ffffff' }}>
+                        /* Yuri: igual que Natsuki, fondo blanco rellena huecos laterales */
+                        <div className="relative" style={{ background: '#ffffff' }}>
                           <img
                             src={project.image}
                             alt={project.name}
                             className="w-full block group-hover:scale-105 transition-transform duration-700"
-                            style={{ objectFit: 'contain' }}
                           />
                           {/* Bottom fade for badges */}
                           <div
