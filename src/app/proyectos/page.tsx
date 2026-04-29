@@ -10,7 +10,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackgroundParticles from '@/components/BackgroundParticles';
 import { useI18n } from '@/hooks/useLocale';
-import { projects } from '../data/projects';
+import { projects } from '@/data/projects';
 
 const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/gdw63Pfk2mCpqaap3WKi6Q/ProyectoFondo_c3356f10.jpg';
 
