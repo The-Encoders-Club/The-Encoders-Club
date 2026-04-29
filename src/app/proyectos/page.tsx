@@ -136,38 +136,56 @@ export default function Proyectos() {
                     transition={{ duration: 0.6, delay: i * 0.1 }}
                     className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                   >
-                    {/* COVER IMAGE - imagen completa visible, huecos rellenos con fondo difuminado */}
+                    {/* COVER IMAGE */}
                     <div className="relative border-b border-white/5">
-                      <div className="relative h-64 overflow-hidden">
-                        {/* Fondo: misma imagen difuminada para rellenar huecos */}
-                        <img
-                          src={project.image}
-                          alt=""
-                          aria-hidden="true"
-                          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
-                        />
-                        <div className="absolute inset-0 bg-black/20" />
-                        {/* Imagen principal: completa, sin recortes */}
-                        <img
-                          src={project.image}
-                          alt={project.name}
-                          className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
-                        />
-                        {/* Bottom fade for badges */}
-                        <div
-                          className="absolute inset-0 pointer-events-none"
-                          style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
-                        />
-                        <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                            {isEs ? project.status : (project.statusEn || project.status)}
-                          </span>
-                          <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                            <Star size={11} fill="currentColor" />
-                            <span>{project.rating}</span>
+                      {project.id === 'just-yuri' ? (
+                        /* Yuri: imagen más ancha, rellena huecos con fondo blanco */
+                        <div className="relative overflow-hidden" style={{ background: '#ffffff' }}>
+                          <img
+                            src={project.image}
+                            alt={project.name}
+                            className="w-full block group-hover:scale-105 transition-transform duration-700"
+                            style={{ objectFit: 'contain' }}
+                          />
+                          {/* Bottom fade for badges */}
+                          <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
+                          />
+                          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                              {isEs ? project.status : (project.statusEn || project.status)}
+                            </span>
+                            <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                              <Star size={11} fill="currentColor" />
+                              <span>{project.rating}</span>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      ) : (
+                        /* Natsuki y demás: imagen define su tamaño, sin modificar */
+                        <div className="relative">
+                          <img
+                            src={project.image}
+                            alt={project.name}
+                            className="w-full block group-hover:scale-105 transition-transform duration-700"
+                          />
+                          {/* Bottom fade for badges */}
+                          <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
+                          />
+                          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                              {isEs ? project.status : (project.statusEn || project.status)}
+                            </span>
+                            <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                              <Star size={11} fill="currentColor" />
+                              <span>{project.rating}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="p-6">
                       <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
