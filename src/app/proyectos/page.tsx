@@ -70,30 +70,23 @@ export default function Proyectos() {
                   className="relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 cursor-pointer group hover:border-[#FF2D78]/40 transition-all duration-300"
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
-                  <div className="grid lg:grid-cols-2 gap-0">
-                    {/* COVER IMAGE - blurred bg fill + sharp contain foreground */}
-                    <div className="relative h-64 sm:h-80 lg:h-[420px] overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5">
-                      {/* Background: same image blurred/scaled to fill gaps */}
-                      <img
-                        src={project.image}
-                        alt=""
-                        aria-hidden="true"
-                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-40"
-                      />
-                      {/* Dark overlay so bg doesn't compete */}
-                      <div className="absolute inset-0 bg-black/30" />
-                      {/* Foreground: full cover, centered, no crop */}
-                      <img
-                        src={project.image}
-                        alt={project.name}
-                        className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white z-10">
-                        {t('projects.featured')}
-                      </span>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 z-10">
-                        <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold backdrop-blur-sm">
-                          <Sparkles size={16} className="text-[#FF2D78]" />{t('projects.explore')}
+                  <div className="grid lg:grid-cols-[auto_1fr] gap-0">
+                    {/* COVER IMAGE - portrait aspect ratio, auto width so image fits perfectly */}
+                    <div className="relative border-b lg:border-b-0 lg:border-r border-white/5 flex items-center justify-center bg-black/20">
+                      <div className="relative w-full lg:w-auto" style={{ aspectRatio: '2/3', maxHeight: '480px' }}>
+                        <img
+                          src={project.image}
+                          alt={project.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          style={{ display: 'block' }}
+                        />
+                        <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white z-10">
+                          {t('projects.featured')}
+                        </span>
+                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 z-10">
+                          <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold backdrop-blur-sm">
+                            <Sparkles size={16} className="text-[#FF2D78]" />{t('projects.explore')}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -143,36 +136,27 @@ export default function Proyectos() {
                     transition={{ duration: 0.6, delay: i * 0.1 }}
                     className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                   >
-                    {/* COVER IMAGE - object-contain so full cover is visible */}
-                    <div
-                      className="relative h-56 overflow-hidden border-b border-white/5"
-                    >
-                      {/* Background: blurred fill so no empty bars */}
-                      <img
-                        src={project.image}
-                        alt=""
-                        aria-hidden="true"
-                        className="absolute inset-0 w-full h-full object-cover scale-110 blur-xl opacity-40"
-                      />
-                      <div className="absolute inset-0 bg-black/30" />
-                      {/* Foreground: full cover visible, no crop */}
-                      <img
-                        src={project.image}
-                        alt={project.name}
-                        className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
-                      />
-                      {/* Bottom fade so badges read clearly */}
-                      <div
-                        className="absolute inset-0 pointer-events-none z-20"
-                        style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.7) 0%, transparent 45%)' }}
-                      />
-                      <div className="absolute bottom-3 left-4 flex items-center gap-2 z-30">
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                          {isEs ? project.status : (project.statusEn || project.status)}
-                        </span>
-                        <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                          <Star size={11} fill="currentColor" />
-                          <span>{project.rating}</span>
+                    {/* COVER IMAGE - portrait aspect ratio so cover shows completely */}
+                    <div className="relative border-b border-white/5 bg-black/20 flex justify-center">
+                      <div className="relative w-full" style={{ aspectRatio: '2/3' }}>
+                        <img
+                          src={project.image}
+                          alt={project.name}
+                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        {/* Bottom fade for badges */}
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
+                        />
+                        <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                            {isEs ? project.status : (project.statusEn || project.status)}
+                          </span>
+                          <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                            <Star size={11} fill="currentColor" />
+                            <span>{project.rating}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
