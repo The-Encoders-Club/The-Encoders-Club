@@ -136,13 +136,22 @@ export default function Proyectos() {
                     transition={{ duration: 0.6, delay: i * 0.1 }}
                     className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                   >
-                    {/* COVER IMAGE - image defines height, zero cropping */}
-                    <div className="relative border-b border-white/5 bg-black/20">
-                      <div className="relative">
+                    {/* COVER IMAGE - imagen completa visible, huecos rellenos con fondo difuminado */}
+                    <div className="relative border-b border-white/5">
+                      <div className="relative h-64 overflow-hidden">
+                        {/* Fondo: misma imagen difuminada para rellenar huecos */}
+                        <img
+                          src={project.image}
+                          alt=""
+                          aria-hidden="true"
+                          className="absolute inset-0 w-full h-full object-cover scale-110 blur-2xl opacity-60"
+                        />
+                        <div className="absolute inset-0 bg-black/20" />
+                        {/* Imagen principal: completa, sin recortes */}
                         <img
                           src={project.image}
                           alt={project.name}
-                          className="w-full block group-hover:scale-105 transition-transform duration-700"
+                          className="relative z-10 w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
                         />
                         {/* Bottom fade for badges */}
                         <div
