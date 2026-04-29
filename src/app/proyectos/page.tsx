@@ -70,15 +70,15 @@ export default function Proyectos() {
                   className="relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 cursor-pointer group hover:border-[#FF2D78]/40 transition-all duration-300"
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
-                  <div className="grid lg:grid-cols-[auto_1fr] gap-0">
-                    {/* COVER IMAGE - portrait aspect ratio, auto width so image fits perfectly */}
-                    <div className="relative border-b lg:border-b-0 lg:border-r border-white/5 flex items-center justify-center bg-black/20">
-                      <div className="relative w-full lg:w-auto" style={{ aspectRatio: '2/3', maxHeight: '480px' }}>
+                  <div className="flex flex-col lg:flex-row gap-0">
+                    {/* COVER IMAGE - image sets its own size, zero cropping */}
+                    <div className="relative border-b lg:border-b-0 lg:border-r border-white/5 bg-black/20 lg:flex-shrink-0">
+                      <div className="relative">
                         <img
                           src={project.image}
                           alt={project.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                          style={{ display: 'block' }}
+                          className="w-full lg:w-auto lg:max-h-[520px] block group-hover:scale-105 transition-transform duration-700"
+                          style={{ objectFit: 'contain' }}
                         />
                         <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white z-10">
                           {t('projects.featured')}
@@ -136,13 +136,13 @@ export default function Proyectos() {
                     transition={{ duration: 0.6, delay: i * 0.1 }}
                     className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                   >
-                    {/* COVER IMAGE - portrait aspect ratio so cover shows completely */}
-                    <div className="relative border-b border-white/5 bg-black/20 flex justify-center">
-                      <div className="relative w-full" style={{ aspectRatio: '2/3' }}>
+                    {/* COVER IMAGE - image defines height, zero cropping */}
+                    <div className="relative border-b border-white/5 bg-black/20">
+                      <div className="relative">
                         <img
                           src={project.image}
                           alt={project.name}
-                          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                          className="w-full block group-hover:scale-105 transition-transform duration-700"
                         />
                         {/* Bottom fade for badges */}
                         <div
