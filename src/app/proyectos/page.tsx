@@ -13,7 +13,6 @@ import { projects } from '@/data/projects';
 
 const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/gdw63Pfk2mCpqaap3WKi6Q/ProyectoFondo_c3356f10.jpg';
 
-/* ─── Main page ─── */
 export default function Proyectos() {
   const { t, locale } = useI18n();
   const isEs = locale === 'es';
@@ -46,8 +45,8 @@ export default function Proyectos() {
             </h1>
             <p className="text-white/60 text-base sm:text-lg max-w-2xl">
               {isEs
-                ? 'Novelas visuales creadas con pasión por nuestra comunidad usando el motor Ren\'Py.'
-                : 'Visual novels created with passion by our community using the Ren\'Py engine.'}
+                ? "Novelas visuales creadas con pasión por nuestra comunidad usando el motor Ren'Py."
+                : "Visual novels created with passion by our community using the Ren'Py engine."}
             </p>
           </motion.div>
         </div>
@@ -56,13 +55,12 @@ export default function Proyectos() {
       {/* PROJECTS */}
       <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* FEATURED */}
           {projects
             .filter(p => p.featured)
             .map(project => (
-              <Link
-                key={project.id}
-                href={`/proyectos/${project.id}`}
-              >
+              <Link key={project.id} href={`/proyectos/${project.id}`}>
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -71,7 +69,6 @@ export default function Proyectos() {
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
                   <div className="flex flex-col lg:flex-row gap-0">
-                    {/* COVER IMAGE - image sets its own size, zero cropping */}
                     <div className="relative border-b lg:border-b-0 lg:border-r border-white/5 bg-black/20 lg:flex-shrink-0">
                       <div className="relative">
                         <img
@@ -121,14 +118,12 @@ export default function Proyectos() {
               </Link>
             ))}
 
+          {/* GRID — Natsuki y Yuri con exactamente el mismo contenedor */}
           <div className="grid sm:grid-cols-2 gap-6">
             {projects
               .filter(p => !p.featured)
               .map((project, i) => (
-                <Link
-                  key={project.id}
-                  href={`/proyectos/${project.id}`}
-                >
+                <Link key={project.id} href={`/proyectos/${project.id}`}>
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -136,56 +131,46 @@ export default function Proyectos() {
                     transition={{ duration: 0.6, delay: i * 0.1 }}
                     className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                   >
-                    {/* COVER IMAGE */}
+                    {/* IMAGEN — contenedor con altura fija igual para todos */}
                     <div className="relative border-b border-white/5">
-                      {project.id === 'just-yuri' ? (
-                        /* Yuri: mismo contenedor forzado al tamaño de Natsuki */
-                        <div className="relative overflow-hidden" style={{ aspectRatio: '16/9', background: '#ffffff' }}>
-                          <img
-                            src={project.image}
-                            alt={project.name}
-                            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
-                          />
-                          <div
-                            className="absolute inset-0 pointer-events-none"
-                            style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
-                          />
-                          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                              {isEs ? project.status : (project.statusEn || project.status)}
-                            </span>
-                            <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                              <Star size={11} fill="currentColor" />
-                              <span>{project.rating}</span>
-                            </div>
+                      <div
+                        className="relative overflow-hidden"
+                        style={{ height: '260px' }}
+                      >
+                        <img
+                          src={project.image}
+                          alt={project.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                        />
+                        <div
+                          className="absolute inset-0 pointer-events-none"
+                          style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
+                        />
+                        <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
+                          <span
+                            className="text-xs font-semibold px-2.5 py-1 rounded-full"
+                            style={{
+                              background: `${project.statusColor}20`,
+                              border: `1px solid ${project.statusColor}40`,
+                              color: project.statusColor,
+                            }}
+                          >
+                            {isEs ? project.status : (project.statusEn || project.status)}
+                          </span>
+                          <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                            <Star size={11} fill="currentColor" />
+                            <span>{project.rating}</span>
                           </div>
                         </div>
-                      ) : (
-                        /* Natsuki y demás: sin tocar, imagen define su tamaño */
-                        <div className="relative">
-                          <img
-                            src={project.image}
-                            alt={project.name}
-                            className="w-full block group-hover:scale-105 transition-transform duration-700"
-                          />
-                          <div
-                            className="absolute inset-0 pointer-events-none"
-                            style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
-                          />
-                          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                              {isEs ? project.status : (project.statusEn || project.status)}
-                            </span>
-                            <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                              <Star size={11} fill="currentColor" />
-                              <span>{project.rating}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                      </div>
                     </div>
+
+                    {/* TEXTO */}
                     <div className="p-6">
-                      <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                      <h3
+                        className="text-lg font-bold text-white mb-1"
+                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                      >
                         {project.name}
                       </h3>
                       <p className="text-[#00F3FF] text-xs font-medium mb-3">{project.subtitle}</p>
@@ -201,6 +186,7 @@ export default function Proyectos() {
               ))}
           </div>
 
+          {/* COMING SOON */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -209,7 +195,10 @@ export default function Proyectos() {
           >
             <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-[#a855f7]/5 to-[#00F3FF]/5 pointer-events-none" />
             <Gamepad2 size={32} className="text-[#FF2D78] mx-auto mb-3" />
-            <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h3
+              className="text-xl font-bold text-white mb-2"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
               {isEs ? 'Más proyectos en camino' : 'More projects coming'}
             </h3>
             <p className="text-white/50 text-sm max-w-md mx-auto">
@@ -220,6 +209,7 @@ export default function Proyectos() {
           </motion.div>
         </div>
       </section>
+
       <Footer />
     </div>
   );
