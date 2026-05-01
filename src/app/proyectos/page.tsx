@@ -71,9 +71,9 @@ export default function Proyectos() {
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
                   <div className="grid lg:grid-cols-2 gap-0">
-                    {/* COVER IMAGE - FIXED: gradient bg + object-cover instead of blur + object-contain */}
+                    {/* COVER IMAGE - object-contain to show full image */}
                     <div
-                      className="relative h-64 sm:h-80 lg:h-[420px] overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5"
+                      className="relative h-64 sm:h-80 lg:h-[420px] flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5"
                       style={{
                         background: `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
                       }}
@@ -81,14 +81,7 @@ export default function Proyectos() {
                       <img
                         src={project.image}
                         alt={project.name}
-                        className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                      />
-                      {/* Subtle gradient overlay at bottom for better blending */}
-                      <div
-                        className="absolute inset-0 pointer-events-none"
-                        style={{
-                          background: `linear-gradient(to top, #0d0d24 0%, transparent 40%), linear-gradient(to bottom, ${project.themeColor}08 0%, transparent 30%)`,
-                        }}
+                        className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700"
                       />
                       <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white z-10">
                         {t('projects.featured')}
@@ -145,9 +138,9 @@ export default function Proyectos() {
                     transition={{ duration: 0.6, delay: i * 0.1 }}
                     className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                   >
-                    {/* COVER IMAGE - FIXED: gradient bg + object-cover */}
+                    {/* COVER IMAGE - object-contain to show full image */}
                     <div
-                      className="relative h-56 overflow-hidden border-b border-white/5"
+                      className="relative h-56 flex items-center justify-center overflow-hidden border-b border-white/5"
                       style={{
                         background: `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
                       }}
@@ -155,14 +148,7 @@ export default function Proyectos() {
                       <img
                         src={project.image}
                         alt={project.name}
-                        className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700"
-                      />
-                      {/* Subtle gradient overlay */}
-                      <div
-                        className="absolute inset-0 pointer-events-none"
-                        style={{
-                          background: 'linear-gradient(to top, #0d0d24 0%, transparent 50%)',
-                        }}
+                        className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-700"
                       />
                       <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
                         <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
