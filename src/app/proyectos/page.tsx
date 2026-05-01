@@ -2,7 +2,6 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { useRef, useEffect, useState } from 'react';
 import {
   Star, Sparkles, ArrowRight, Gamepad2
 } from 'lucide-react';
@@ -17,23 +16,6 @@ const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/g
 export default function Proyectos() {
   const { t, locale } = useI18n();
   const isEs = locale === 'es';
-
-  // Ref para medir el contenedor de imagen de Natsuki
-  const natsukiImgRef = useRef<HTMLDivElement>(null);
-  const [yuriImgHeight, setYuriImgHeight] = useState<number | null>(null);
-
-  useEffect(() => {
-    const measure = () => {
-      if (natsukiImgRef.current) {
-        setYuriImgHeight(natsukiImgRef.current.offsetHeight);
-      }
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, []);
-
-  const nonFeatured = projects.filter(p => !p.featured);
 
   return (
     <div
@@ -138,11 +120,9 @@ export default function Proyectos() {
 
           {/* GRID */}
           <div className="grid sm:grid-cols-2 gap-6">
-            {nonFeatured.map((project, i) => {
-              const isNatsuki = project.id === 'just-natsuki';
-              const isYuri    = project.id === 'just-yuri';
-
-              return (
+            {projects
+              .filter(p => !p.featured)
+              .map((project, i) => (
                 <Link key={project.id} href={`/proyectos/${project.id}`}>
                   <motion.div
                     initial={{ opacity: 0, y: 30 }}
@@ -151,69 +131,43 @@ export default function Proyectos() {
                     transition={{ duration: 0.6, delay: i * 0.1 }}
                     className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                   >
-                    {/* IMAGEN */}
                     <div className="relative border-b border-white/5">
 
-                      {/* ── NATSUKI: sin tocar, igual que siempre ── */}
-                      {isNatsuki && (
-                        <div ref={natsukiImgRef} className="relative">
-                          <img
-                            src={project.image}
-                            alt={project.name}
-                            className="w-full block group-hover:scale-105 transition-transform duration-700"
-                          />
-                          <div
-                            className="absolute inset-0 pointer-events-none"
-                            style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
-                          />
-                          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                              {isEs ? project.status : (project.statusEn || project.status)}
-                            </span>
-                            <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                              <Star size={11} fill="currentColor" />
-                              <span>{project.rating}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* ── YURI: forzado al mismo alto que Natsuki ── */}
-                      {isYuri && (
-                        <div
-                          className="relative overflow-hidden"
-                          style={{
-                            height: yuriImgHeight ? `${yuriImgHeight}px` : 'auto',
-                          }}
-                        >
-                          <img
-                            src={project.image}
-                            alt={project.name}
-                            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-700"
-                          />
-                          <div
-                            className="absolute inset-0 pointer-events-none"
-                            style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
-                          />
-                          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                              {isEs ? project.status : (project.statusEn || project.status)}
-                            </span>
-                            <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                              <Star size={11} fill="currentColor" />
-                              <span>{project.rating}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* ── Resto de proyectos: sin cambios ── */}
-                      {!isNatsuki && !isYuri && (
+                      {/* ── NATSUKI y todos los demás: sin tocar ── */}
+                      {project.id !== 'just-yuri' && (
                         <div className="relative">
                           <img
                             src={project.image}
                             alt={project.name}
                             className="w-full block group-hover:scale-105 transition-transform duration-700"
+                          />
+                          <div
+                            className="absolute inset-0 pointer-events-none"
+                            style={{ background: 'linear-gradient(to top, rgba(13,13,36,0.75) 0%, transparent 40%)' }}
+                          />
+                          <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
+                            <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                              {isEs ? project.status : (project.statusEn || project.status)}
+                            </span>
+                            <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                              <Star size={11} fill="currentColor" />
+                              <span>{project.rating}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* ── SOLO YURI: mismo contenedor pero con aspect-ratio forzado igual al de Natsuki ── */}
+                      {project.id === 'just-yuri' && (
+                        <div
+                          className="relative overflow-hidden"
+                          style={{ aspectRatio: '4 / 3' }} // 👈 ajusta este valor al aspect-ratio real de la imagen de Natsuki
+                        >
+                          <img
+                            src={project.image}
+                            alt={project.name}
+                            className="w-full h-full group-hover:scale-105 transition-transform duration-700"
+                            style={{ objectFit: 'cover', objectPosition: 'center top' }}
                           />
                           <div
                             className="absolute inset-0 pointer-events-none"
@@ -250,8 +204,7 @@ export default function Proyectos() {
                     </div>
                   </motion.div>
                 </Link>
-              );
-            })}
+              ))}
           </div>
 
           {/* COMING SOON */}
