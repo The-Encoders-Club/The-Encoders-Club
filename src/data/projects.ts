@@ -18,6 +18,7 @@ export const projects = [
     description: 'Una historia alternativa que explora qué habría pasado después de los eventos de Doki Doki Literature Club. Monika, consciente de su realidad, decide escribir su propia historia.',
     descriptionEn: 'An alternative story exploring what would have happened after the events of Doki Doki Literature Club. Monika, aware of her reality, decides to write her own story.',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/QNUnZaUiQJdXtlLQ.png',
+    coverBg: null, // usa el gradiente oscuro por defecto
     tags: ['Fan-Made', 'Drama', 'Romance'],
     status: 'En desarrollo',
     statusEn: 'In Development',
@@ -51,6 +52,7 @@ export const projects = [
     description: 'Sumérgete en la historia de Natsuki, explorando su mundo más allá del club de literatura. Una narrativa íntima que profundiza en su personalidad.',
     descriptionEn: 'Immerse yourself in Natsuki\'s story, exploring her world beyond the literature club. An intimate narrative that deepens her personality.',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663520694523/ImCZGjlQqWHkygmQ.png',
+    coverBg: null, // usa el gradiente oscuro por defecto
     tags: ['Fan-Made', 'Slice of Life'],
     status: 'Disponible',
     statusEn: 'Available',
@@ -77,6 +79,7 @@ export const projects = [
     description: 'Una aventura literaria con Yuri como protagonista. Descubre su amor por los libros, los misterios que la rodean y una historia que mezcla lo cotidiano con lo sobrenatural.',
     descriptionEn: 'A literary adventure with Yuri as the protagonist. Discover her love for books, the mysteries that surround her, and a story that mixes the everyday with the supernatural.',
     image: 'https://files.manuscdn.com/user_upload_by_module/session_file/310519663522621232/wWSuFRWkAQVXHGQp.png',
+    coverBg: '#ffffff', // fondo blanco para rellenar espacios laterales
     tags: ['Fan-Made', 'Misterio', 'Literatura'],
     status: 'Disponible',
     statusEn: 'Available',
