@@ -25,7 +25,7 @@ export default function Proyectos() {
         backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        backgroundAttachment: 'fixed',
+        // backgroundAttachment: 'fixed' eliminado — causa temblor en móviles
       }}
     >
       <BackgroundParticles />
@@ -139,8 +139,6 @@ export default function Proyectos() {
                       <div
                         className="relative flex items-center justify-center overflow-hidden border-b border-white/5"
                         style={{
-                          // Yuri: aspect-ratio fijo + fondo blanco para rellenar espacios
-                          // Natsuki: sin aspect-ratio, se adapta a la imagen
                           aspectRatio: isCover ? '16/9' : undefined,
                           background: project.coverBg ?? `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
                         }}
@@ -150,7 +148,6 @@ export default function Proyectos() {
                           alt={project.name}
                           className={`group-hover:scale-105 transition-transform duration-700 ${
                             isCover
-                              // object-contain para ver la imagen completa, el fondo blanco cubre los lados
                               ? 'w-full h-full object-contain'
                               : 'w-full h-auto object-contain'
                           }`}
