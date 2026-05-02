@@ -56,13 +56,12 @@ export default function Proyectos() {
       {/* PROJECTS */}
       <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+          {/* ── FEATURED (Monika) — no tocar ── */}
           {projects
             .filter(p => p.featured)
             .map(project => (
-              <Link
-                key={project.id}
-                href={`/proyectos/${project.id}`}
-              >
+              <Link key={project.id} href={`/proyectos/${project.id}`}>
                 <motion.div
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -71,7 +70,6 @@ export default function Proyectos() {
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
                   <div className="grid lg:grid-cols-2 gap-0">
-                    {/* COVER IMAGE — sin altura fija, el contenedor se adapta a la imagen */}
                     <div
                       className="relative flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5"
                       style={{
@@ -123,58 +121,64 @@ export default function Proyectos() {
               </Link>
             ))}
 
+          {/* ── GRID (Natsuki / Yuri) ── */}
           <div className="grid sm:grid-cols-2 gap-6">
             {projects
               .filter(p => !p.featured)
-              .map((project, i) => (
-                <Link
-                  key={project.id}
-                  href={`/proyectos/${project.id}`}
-                >
-                  <motion.div
-                    initial={{ opacity: 0, y: 30 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.6, delay: i * 0.1 }}
-                    className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
-                  >
-                    {/* COVER IMAGE — sin altura fija, el contenedor se adapta a la imagen */}
-                    <div
-                      className="relative flex items-center justify-center overflow-hidden border-b border-white/5"
-                      style={{
-                        background: project.coverBg ?? `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
-                      }}
+              .map((project, i) => {
+                const isCover = project.coverFit === 'cover';
+                return (
+                  <Link key={project.id} href={`/proyectos/${project.id}`}>
+                    <motion.div
+                      initial={{ opacity: 0, y: 30 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.6, delay: i * 0.1 }}
+                      className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                     >
-                      <img
-                        src={project.image}
-                        alt={project.name}
-                        className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                          {isEs ? project.status : (project.statusEn || project.status)}
-                        </span>
-                        <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                          <Star size={11} fill="currentColor" />
-                          <span>{project.rating}</span>
+                      {/* coverFit:'cover' → altura fija + object-cover (Yuri) */}
+                      {/* coverFit:'contain' → h-auto + object-contain (Natsuki) */}
+                      <div
+                        className={`relative flex items-center justify-center overflow-hidden border-b border-white/5 ${isCover ? 'h-56' : ''}`}
+                        style={{
+                          background: project.coverBg ?? `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
+                        }}
+                      >
+                        <img
+                          src={project.image}
+                          alt={project.name}
+                          className={`group-hover:scale-105 transition-transform duration-700 ${
+                            isCover
+                              ? 'w-full h-full object-cover object-center'
+                              : 'w-full h-auto object-contain'
+                          }`}
+                        />
+                        <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
+                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                            {isEs ? project.status : (project.statusEn || project.status)}
+                          </span>
+                          <div className="flex items-center gap-1 text-yellow-400 text-xs">
+                            <Star size={11} fill="currentColor" />
+                            <span>{project.rating}</span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                    <div className="p-6">
-                      <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                        {project.name}
-                      </h3>
-                      <p className="text-[#00F3FF] text-xs font-medium mb-3">{project.subtitle}</p>
-                      <p className="text-white/55 text-sm leading-relaxed mb-4 line-clamp-3">
-                        {isEs ? project.description : (project.descriptionEn || project.description)}
-                      </p>
-                      <div className="flex items-center gap-2 text-[#00F3FF] font-bold text-xs group-hover:translate-x-2 transition-transform">
-                        {t('common.viewMore')} <ArrowRight size={14} />
+                      <div className="p-6">
+                        <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                          {project.name}
+                        </h3>
+                        <p className="text-[#00F3FF] text-xs font-medium mb-3">{project.subtitle}</p>
+                        <p className="text-white/55 text-sm leading-relaxed mb-4 line-clamp-3">
+                          {isEs ? project.description : (project.descriptionEn || project.description)}
+                        </p>
+                        <div className="flex items-center gap-2 text-[#00F3FF] font-bold text-xs group-hover:translate-x-2 transition-transform">
+                          {t('common.viewMore')} <ArrowRight size={14} />
+                        </div>
                       </div>
-                    </div>
-                  </motion.div>
-                </Link>
-              ))}
+                    </motion.div>
+                  </Link>
+                );
+              })}
           </div>
 
           <motion.div
