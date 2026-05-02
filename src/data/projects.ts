@@ -42,10 +42,9 @@ export const projects = [
       { label: 'Descargar PC', labelEn: 'Download PC', icon: 'Monitor', url: 'https://github.com/The-Encoders-Club/Monika-After-Story-ES/releases/download/V0.12.18/Monika_After_Story-0.12.18-Mod-Espanol.zip', color: '#00F3FF', hoverColor: '#00D9FF', textColor: '#0a0a1a' },
       { label: 'Descargar Dlx PC', labelEn: 'Download Dlx PC', icon: 'Download', url: 'https://github.com/The-Encoders-Club/Monika-After-Story-ES/releases/download/V0.12.18/Monika_After_Story-0.12.18-Mod-Dlx-Espanol.zip', color: '#a855f7', hoverColor: '#d946ef', textColor: '#ffffff' },
     ],
-    // URL sin autoplay=1 — el componente lo dispara manualmente cuando el player está listo
-    // musicStart: segundo exacto donde debe comenzar el audio (0 = desde el inicio)
-    music: 'https://www.youtube.com/embed/QIHUK68L9qQ?loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
-    musicStart: 0,
+    // mute=1 permite autoplay en móvil sin traba. Se desmutea automáticamente al cargar.
+    // Cambia el número en &start=0 al segundo exacto donde quieres que empiece.
+    music: 'https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&mute=1&start=0&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
     details: { playTime: '4-6 horas', playTimeEn: '4-6 hours', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloads: '1,250' },
     themeColor: '#FF2D78',
   },
@@ -73,8 +72,7 @@ export const projects = [
     downloads: [
       { label: 'Descargar Mod PC', labelEn: 'Download Mod PC', icon: 'Download', url: 'https://github.com/The-Encoders-Club/Just-Natsuki-ES/releases/download/Actualizaci%C3%B3n/Jn-ES-1.3.5.zip', color: '#FF2D78', hoverColor: '#FF9EBC', textColor: '#ffffff' },
     ],
-    music: 'https://www.youtube.com/embed/BDsCNVj72ig?loop=1&playlist=BDsCNVj72ig&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
-    musicStart: 0,
+    music: 'https://www.youtube.com/embed/BDsCNVj72ig?autoplay=1&mute=1&start=0&loop=1&playlist=BDsCNVj72ig&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
     details: { playTime: '3-5 horas', playTimeEn: '3-5 hours', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloads: '980' },
     themeColor: '#FF6B9D',
   },
@@ -105,8 +103,7 @@ export const projects = [
     downloads: [
       { label: 'Descargar Mod PC', labelEn: 'Download Mod PC', icon: 'Download', url: 'https://github.com/The-Encoders-Club/Just-Yuri-ES/releases/download/V1.10.4/JustYuri-Beta-ES-1.10.4-win.zip', color: '#9C27B0', hoverColor: '#E1BEE7', textColor: '#ffffff' },
     ],
-    music: 'https://www.youtube.com/embed/VGwfIloNM8w?loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
-    musicStart: 0,
+    music: 'https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&mute=1&start=0&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
     details: { playTime: '5-7 horas', playTimeEn: '5-7 hours', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloads: '1,120' },
     themeColor: '#9C27B0',
   },
