@@ -1,205 +1,795 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { useState, useEffect, useRef, useCallback } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Star, Sparkles, ArrowRight, Gamepad2
+  Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor, Download,
+  Share2, X, Sparkles, Volume2, VolumeX,
+  ChevronLeft, ChevronRight, Search, Shirt, Puzzle, FileText,
+  Clock, Flag, Settings
 } from 'lucide-react';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import BackgroundParticles from '@/components/BackgroundParticles';
+import { CommentSection } from '@/components/CommentSection';
 import { useI18n } from '@/hooks/useLocale';
-import { projects } from '@/data/projects';
+import { projects, getIcon } from '@/data/projects';
 
-const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/gdw63Pfk2mCpqaap3WKi6Q/ProyectoFondo_c3356f10.jpg';
+/* ─── Helper: construye la URL del iframe con start time ─── */
+function buildMusicSrc(baseUrl: string, startSeconds: number): string {
+  const url = new URL(baseUrl);
+  if (startSeconds > 0) url.searchParams.set('start', String(startSeconds));
+  return url.toString();
+}
 
-/* ─── Main page ─── */
-export default function Proyectos() {
-  const { t, locale } = useI18n();
-  const isEs = locale === 'es';
+/* ─── Helper: dispara playVideo via postMessage cuando el player está listo ─── */
+function triggerPlay(iframe: HTMLIFrameElement | null) {
+  if (!iframe) return;
+  try {
+    iframe.contentWindow?.postMessage(
+      '{"event":"command","func":"playVideo","args":""}', '*'
+    );
+  } catch (e) { /* cross-origin — ignorar */ }
+}
+
+/* ─── Animated diagonal pink polka dots background ─── */
+function PinkDots() {
+  const DOT = 72;
+  const GAP = 130;
+  const cols = Math.ceil(1800 / GAP) + 2;
+  const rows = Math.ceil(1800 / GAP) + 2;
+  const dots: { id: number; x: number; y: number }[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if ((r + c) % 2 === 0) {
+        dots.push({ id: r * cols + c, x: c * GAP, y: r * GAP });
+      }
+    }
+  }
+  const shift = GAP * 2;
+  return (
+    <>
+      <style>{`
+        @keyframes diagonalScroll {
+          0%   { transform: translate(0px, 0px); }
+          100% { transform: translate(-${shift}px, -${shift}px); }
+        }
+        .pink-dots-layer {
+          animation: diagonalScroll 6s linear infinite;
+        }
+      `}</style>
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
+      <div
+        className="pink-dots-layer pointer-events-none"
+        style={{
+          position: 'fixed',
+          top: -shift * 2,
+          left: -shift * 2,
+          width: `calc(100vw + ${shift * 4}px)`,
+          height: `calc(100vh + ${shift * 4}px)`,
+        }}
+      >
+        {dots.map(d => (
+          <div
+            key={d.id}
+            className="absolute rounded-full"
+            style={{
+              width: DOT,
+              height: DOT,
+              left: d.x - DOT / 2,
+              top: d.y - DOT / 2,
+              backgroundColor: '#ffeef8',
+            }}
+          />
+        ))}
+      </div>
+    </>
+  );
+}
+
+/* ─── Image carousel (dark theme, used by ProjectDetail) ─── */
+function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: string }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+
+  const scroll = (dir: 'left' | 'right') => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -280 : 280, behavior: 'smooth' });
+    }
+  };
+
+  const closeLightbox = () => setLightboxIdx(null);
+  const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
+  const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(images.length - 1, i + 1) : null));
 
   return (
-    <div
-      className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]"
-      style={{
-        backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        // backgroundAttachment: 'fixed' eliminado — causa temblor en móviles
-      }}
-    >
-      <BackgroundParticles />
-      <Navbar />
-
-      {/* PAGE HEADER */}
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-16 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="text-[#FF2D78] text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3 block">
-              {isEs ? 'Nuestras creaciones' : 'Our creations'}
-            </span>
-            <h1
-              className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              {t('projects.title')}
-            </h1>
-            <p className="text-white/60 text-base sm:text-lg max-w-2xl">
-              {isEs
-                ? 'Novelas visuales creadas con pasión por nuestra comunidad usando el motor Ren\'Py.'
-                : 'Visual novels created with passion by our community using the Ren\'Py engine.'}
-            </p>
-          </motion.div>
+    <>
+      <div className="relative group/carousel">
+        <div ref={scrollRef} className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x scroll-smooth">
+          {images.map((src, idx) => (
+            <div key={idx} onClick={() => setLightboxIdx(idx)} className="flex-none w-64 sm:w-72 rounded-xl overflow-hidden border border-white/10 aspect-video group relative snap-start hover:border-white/20 transition-all cursor-zoom-in">
+              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <ImageIcon className="text-white w-8 h-8" />
+              </div>
+              <div className="absolute bottom-2 right-2 bg-black/60 text-white/60 text-xs px-2 py-1 rounded-full">
+                {idx + 1}/{images.length}
+              </div>
+            </div>
+          ))}
         </div>
-      </section>
+        <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
+          <ChevronLeft size={16} />
+        </button>
+        <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
+          <ChevronRight size={16} />
+        </button>
+      </div>
 
-      {/* PROJECTS */}
-      <section className="pb-24 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatePresence>
+        {lightboxIdx !== null && (
+          <motion.div
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeLightbox}
+          >
+            <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
+              <X size={20} />
+            </button>
+            {lightboxIdx > 0 && (
+              <button onClick={e => { e.stopPropagation(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
+                <ChevronLeft size={22} />
+              </button>
+            )}
+            {lightboxIdx < images.length - 1 && (
+              <button onClick={e => { e.stopPropagation(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10">
+                <ChevronRight size={22} />
+              </button>
+            )}
+            <motion.img
+              key={lightboxIdx}
+              src={images[lightboxIdx]}
+              alt={`Preview ${lightboxIdx + 1}`}
+              className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl"
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={e => e.stopPropagation()}
+            />
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white/70 text-xs px-3 py-1.5 rounded-full">
+              {lightboxIdx + 1} / {images.length}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
 
-          {/* ── FEATURED (Monika) — no tocar ── */}
-          {projects
-            .filter(p => p.featured)
-            .map(project => (
-              <Link key={project.id} href={`/proyectos/${project.id}`}>
-                <motion.div
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.7 }}
-                  className="relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 cursor-pointer group hover:border-[#FF2D78]/40 transition-all duration-300"
-                >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
-                  <div className="grid lg:grid-cols-2 gap-0">
-                    <div
-                      className="relative flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5"
-                      style={{
-                        background: project.coverBg ?? `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
-                      }}
-                    >
-                      <img
-                        src={project.image}
-                        alt={project.name}
-                        className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700"
-                      />
-                      <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white z-10">
-                        {t('projects.featured')}
-                      </span>
-                      <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 z-10">
-                        <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold backdrop-blur-sm">
-                          <Sparkles size={16} className="text-[#FF2D78]" />{t('projects.explore')}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
-                      <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                          {isEs ? project.status : (project.statusEn || project.status)}
-                        </span>
-                        <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                          <Star size={12} fill="currentColor" />
-                          <span>{project.rating}</span>
-                        </div>
-                      </div>
-                      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                        {project.name}
-                      </h2>
-                      <p className="text-[#FF2D78] text-sm font-medium mb-4">{project.subtitle}</p>
-                      <p className="text-white/60 text-base leading-relaxed mb-6">
-                        {isEs ? project.description : (project.descriptionEn || project.description)}
-                      </p>
-                      <div className="flex flex-wrap gap-2 mb-6">
-                        {project.tags.map(tag => (
-                          <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">{tag}</span>
-                        ))}
-                      </div>
-                      <div className="flex items-center gap-2 text-[#FF2D78] font-bold text-sm group-hover:translate-x-2 transition-transform">
-                        {t('common.viewMore')} <ArrowRight size={16} />
-                      </div>
-                    </div>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
+/* ─── Preview carousel (pink theme, used by MonikaDetail) ─── */
+function PinkPreviewCarousel({ images }: { images: string[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [current, setCurrent] = useState(0);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const total = images.length;
 
-          {/* ── GRID (Natsuki / Yuri) ── */}
-          <div className="grid sm:grid-cols-2 gap-6">
-            {projects
-              .filter(p => !p.featured)
-              .map((project, i) => {
-                const isCover = project.coverFit === 'cover';
-                return (
-                  <Link key={project.id} href={`/proyectos/${project.id}`}>
-                    <motion.div
-                      initial={{ opacity: 0, y: 30 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      viewport={{ once: true }}
-                      transition={{ duration: 0.6, delay: i * 0.1 }}
-                      className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
-                    >
-                      <div
-                        className="relative flex items-center justify-center overflow-hidden border-b border-white/5"
-                        style={{
-                          aspectRatio: isCover ? '16/9' : undefined,
-                          background: project.coverBg ?? `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
-                        }}
-                      >
-                        <img
-                          src={project.image}
-                          alt={project.name}
-                          className={`group-hover:scale-105 transition-transform duration-700 ${
-                            isCover
-                              ? 'w-full h-full object-contain'
-                              : 'w-full h-auto object-contain'
-                          }`}
-                        />
-                        <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
-                            {isEs ? project.status : (project.statusEn || project.status)}
-                          </span>
-                          <div className="flex items-center gap-1 text-yellow-400 text-xs">
-                            <Star size={11} fill="currentColor" />
-                            <span>{project.rating}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="p-6">
-                        <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                          {project.name}
-                        </h3>
-                        <p className="text-[#00F3FF] text-xs font-medium mb-3">{project.subtitle}</p>
-                        <p className="text-white/55 text-sm leading-relaxed mb-4 line-clamp-3">
-                          {isEs ? project.description : (project.descriptionEn || project.description)}
-                        </p>
-                        <div className="flex items-center gap-2 text-[#00F3FF] font-bold text-xs group-hover:translate-x-2 transition-transform">
-                          {t('common.viewMore')} <ArrowRight size={14} />
-                        </div>
-                      </div>
-                    </motion.div>
-                  </Link>
-                );
-              })}
+  const scroll = (dir: 'left' | 'right') => {
+    const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
+    setCurrent(next);
+    if (ref.current) {
+      (ref.current.children[next] as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    }
+  };
+
+  const closeLightbox = () => setLightboxIdx(null);
+  const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
+  const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(total - 1, i + 1) : null));
+
+  return (
+    <>
+      <div className="relative">
+        <div ref={ref} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
+          {images.map((src, idx) => (
+            <div
+              key={idx}
+              onClick={() => setLightboxIdx(idx)}
+              className="flex-none rounded-xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative snap-start cursor-zoom-in hover:border-[#FF6B9D] transition-all"
+              style={{ width: 'calc(43% - 8px)', minWidth: 140 }}
+            >
+              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
+              <div className="absolute bottom-1.5 right-1.5 bg-[#d87093]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">
+                {idx + 1}/{total}
+              </div>
+            </div>
+          ))}
+        </div>
+        {current > 0 && (
+          <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm">
+            <ChevronLeft size={14} />
+          </button>
+        )}
+        {current < total - 1 && (
+          <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm">
+            <ChevronRight size={14} />
+          </button>
+        )}
+      </div>
+
+      <AnimatePresence>
+        {lightboxIdx !== null && (
+          <motion.div
+            className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeLightbox}
+          >
+            <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md">
+              <X size={20} />
+            </button>
+            {lightboxIdx > 0 && (
+              <button onClick={e => { e.stopPropagation(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md">
+                <ChevronLeft size={22} />
+              </button>
+            )}
+            {lightboxIdx < total - 1 && (
+              <button onClick={e => { e.stopPropagation(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md">
+                <ChevronRight size={22} />
+              </button>
+            )}
+            <motion.img
+              key={lightboxIdx}
+              src={images[lightboxIdx]}
+              alt={`Preview ${lightboxIdx + 1}`}
+              className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl border-2 border-[#FFB6C1]"
+              initial={{ scale: 0.85, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.85, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={e => e.stopPropagation()}
+            />
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/80 text-[#d87093] text-xs px-3 py-1.5 rounded-full font-bold border border-[#FFB6C1]">
+              {lightboxIdx + 1} / {total}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
+/* ─── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ─── */
+function ProjectDetail({ project }: { project: typeof projects[number] }) {
+  const { t, locale } = useI18n();
+  const musicRef = useRef<HTMLIFrameElement>(null);
+  const [muted, setMuted] = useState(false);
+
+  // Construye la URL con el segundo de inicio configurado en projects.ts
+  const musicSrc = buildMusicSrc(project.music, project.musicStart ?? 0);
+
+  // Cuando el iframe carga, espera 1.2s a que el player de YT esté listo y luego dispara play
+  const handleMusicLoad = useCallback(() => {
+    setTimeout(() => triggerPlay(musicRef.current), 1200);
+  }, []);
+
+  // Limpia el iframe al salir para detener el audio
+  useEffect(() => {
+    return () => { if (musicRef.current) musicRef.current.src = ''; };
+  }, []);
+
+  const toggleMute = () => {
+    if (musicRef.current) {
+      try {
+        musicRef.current.contentWindow?.postMessage(
+          muted
+            ? '{"event":"command","func":"unMute","args":""}'
+            : '{"event":"command","func":"mute","args":""}',
+          '*'
+        );
+      } catch (e) { /* cross-origin */ }
+    }
+    setMuted(!muted);
+  };
+
+  const isEs = locale === 'es';
+  const desc = isEs ? project.description : (project.descriptionEn || project.description);
+  const status = isEs ? project.status : (project.statusEn || project.status);
+
+  return (
+    <div className="relative z-10 min-h-screen w-full overflow-x-hidden">
+      <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-white/20 px-4 sm:px-6 py-4 flex justify-between items-center">
+        <Link href="/proyectos" className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group">
+          <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
+          <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
+            {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          </button>
+          <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
+            <Share2 className="w-5 h-5" />
+          </button>
+        </div>
+      </nav>
+
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          <div className="lg:col-span-2 space-y-8">
+            <header>
+              <motion.h1
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="text-5xl sm:text-6xl font-black italic tracking-tighter text-transparent bg-clip-text mb-4"
+                style={{ backgroundImage: `linear-gradient(to right, ${project.themeColor}, ${project.themeColor}99)` }}
+              >
+                {project.name}
+              </motion.h1>
+              <p className="text-xl text-gray-300 font-medium italic">{project.subtitle}</p>
+            </header>
+
+            <div className="rounded-2xl overflow-hidden border aspect-video relative group" style={{ borderColor: `${project.themeColor}80` }}>
+              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/30 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: `linear-gradient(to top, ${project.themeColor}15, transparent)` }} />
+            </div>
+
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+                <BookOpen className="w-6 h-6" style={{ color: project.themeColor }} /> {isEs ? 'Sobre este proyecto' : 'About this project'}
+              </h3>
+              <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.status')}</span>
+                  <span className="text-white font-medium">{status}</span>
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.rating')}</span>
+                  <span className="text-white font-medium flex items-center gap-1">
+                    {project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" />
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap gap-2 pt-2">
+                {project.tags.map(tag => (
+                  <span key={tag} className="text-xs px-3 py-1.5 rounded-full border text-white/70 hover:text-white hover:bg-white/5 transition-all" style={{ borderColor: `${project.themeColor}40`, background: `${project.themeColor}10` }}>
+                    {tag}
+                  </span>
+                ))}
+              </div>
+
+              <div className="pt-8 border-t border-white/10">
+                <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                  <ImageIcon className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.preview')}
+                </h4>
+                <ImageCarousel images={project.previews} themeColor={project.themeColor} />
+              </div>
+
+              <div className="pt-8 border-t border-white/10">
+                <CommentSection targetId={project.id} targetType="project" />
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-8">
+            <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32 space-y-6">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Cpu className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.details')}
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
+                  { label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
+                  { label: t('projects.engine'), value: project.details.engine },
+                  { label: t('projects.downloads'), value: project.details.downloads },
+                ].map(item => (
+                  <li key={item.label} className="flex justify-between text-sm">
+                    <span className="text-gray-400">{item.label}</span>
+                    <span className="text-white font-mono">{item.value}</span>
+                  </li>
+                ))}
+              </ul>
+              <div className="border-t border-white/10 pt-6 space-y-3">
+                <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: project.themeColor }}>
+                  {isEs ? 'Opciones de Descarga' : 'Download Options'}
+                </h4>
+                {project.downloads.map((dl, i) => {
+                  const Icon = getIcon(dl.icon);
+                  return (
+                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer"
+                      className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight"
+                      style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
+                      <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                      {isEs ? dl.label : (dl.labelEn || dl.label)}
+                    </a>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* iframe sin autoplay en URL — play se dispara en onLoad con delay */}
+      <iframe
+        ref={musicRef}
+        className="hidden"
+        width="0"
+        height="0"
+        src={musicSrc}
+        allow="autoplay"
+        title={`${project.name} Music`}
+        onLoad={handleMusicLoad}
+      />
+    </div>
+  );
+}
+
+/* ─── Light/pink theme detail view — REDESIGNED (Monika After History) ─── */
+function MonikaDetail({ project }: { project: typeof projects[number] }) {
+  const { t, locale } = useI18n();
+  const musicRef = useRef<HTMLIFrameElement>(null);
+  const [muted, setMuted] = useState(false);
+
+  // Construye la URL con el segundo de inicio configurado en projects.ts
+  const musicSrc = buildMusicSrc(project.music, project.musicStart ?? 0);
+
+  // Cuando el iframe carga, espera 1.2s a que el player de YT esté listo y luego dispara play
+  const handleMusicLoad = useCallback(() => {
+    setTimeout(() => triggerPlay(musicRef.current), 1200);
+  }, []);
+
+  // Limpia el iframe al salir para detener el audio
+  useEffect(() => {
+    return () => { if (musicRef.current) musicRef.current.src = ''; };
+  }, []);
+
+  const toggleMute = () => {
+    if (musicRef.current) {
+      try {
+        musicRef.current.contentWindow?.postMessage(
+          muted
+            ? '{"event":"command","func":"unMute","args":""}'
+            : '{"event":"command","func":"mute","args":""}',
+          '*'
+        );
+      } catch (e) { /* cross-origin */ }
+    }
+    setMuted(!muted);
+  };
+
+  const isEs = locale === 'es';
+  const desc = isEs ? project.description : (project.descriptionEn || project.description);
+  const status = isEs ? project.status : (project.statusEn || project.status);
+
+  return (
+    <>
+      <style>{`
+        @font-face {
+          font-family: 'm1_fixed';
+          src: url('/fonts/m1_fixed.ttf') format('truetype');
+          font-weight: normal;
+          font-style: normal;
+          font-display: block;
+        }
+        @font-face {
+          font-family: 'RifficFree';
+          src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
+          font-weight: bold;
+          font-style: normal;
+          font-display: block;
+        }
+        .monika-title {
+          font-family: 'RifficFree', 'm1_fixed', monospace;
+          color: #fefefe;
+          -webkit-text-stroke: 6px #ba609e;
+          paint-order: stroke fill;
+        }
+        .pink-stroke-lg {
+          font-family: 'RifficFree', 'm1_fixed', monospace;
+          color: #fefefe;
+          -webkit-text-stroke: 4px #ba609e;
+          paint-order: stroke fill;
+        }
+        .pink-stroke-sm {
+          font-family: 'RifficFree', 'm1_fixed', monospace;
+          color: #fefefe;
+          -webkit-text-stroke: 3px #ba609e;
+          paint-order: stroke fill;
+        }
+        .pink-stroke-xs {
+          font-family: 'RifficFree', 'm1_fixed', monospace;
+          color: #fefefe;
+          -webkit-text-stroke: 2px #ba609e;
+          paint-order: stroke fill;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+
+      <div
+        className="relative z-10 min-h-screen w-full overflow-hidden"
+        style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}
+      >
+        <PinkDots />
+
+        <nav
+          className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between"
+          style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}
+        >
+          <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
+            <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+            <span className="font-bold tracking-wider uppercase text-[15px]">{t('projects.backToProjects')}</span>
+          </Link>
+          <button
+            onClick={toggleMute}
+            className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all"
+            title={muted ? 'Unmute' : 'Mute'}
+          >
+            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          </button>
+        </nav>
+
+        <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+          <div className="space-y-4">
+            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
+                {project.name}
+              </h1>
+              <p className="text-gray-800 text-[24px] font-semibold mt-1 flex items-center gap-1.5">
+                {project.subtitle} <span>💗</span>
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.55, delay: 0.1 }}
+              className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group"
+              style={{ boxShadow: '0 8px 32px #FF6B9D30' }}
+            >
+              <img
+                src={project.image}
+                alt={project.name}
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+            </motion.div>
           </div>
 
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mt-10 bg-white/5 border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden"
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-[#a855f7]/5 to-[#00F3FF]/5 pointer-events-none" />
-            <Gamepad2 size={32} className="text-[#FF2D78] mx-auto mb-3" />
-            <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              {isEs ? 'Más proyectos en camino' : 'More projects coming'}
+            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+              <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-white/50 text-sm max-w-md mx-auto">
-              {isEs
-                ? 'Estamos trabajando en nuevas novelas visuales. Únete a nuestro Discord para ser el primero en enterarte.'
-                : 'We are working on new visual novels. Join our Discord to be the first to know.'}
-            </p>
+            <p className="text-gray-800 leading-relaxed text-[23px] font-semibold">{desc}</p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
+                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
+                <span className="text-gray-800 font-bold text-[22px]">{status}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
+                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
+                <span className="text-gray-800 font-bold text-[22px] flex items-center gap-1">
+                  {project.rating} <Star className="w-4.5 h-4.5 fill-current text-yellow-400" />
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              {project.tags.map(tag => (
+                <span key={tag} className="text-[19px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-800 font-semibold hover:border-[#FF6B9D] transition-colors">
+                  {tag}
+                </span>
+              ))}
+            </div>
           </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="space-y-3"
+          >
+            <h4 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {t('projects.preview')}
+            </h4>
+            <PinkPreviewCarousel images={project.previews} />
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5"
+          >
+            <h3 className="pink-stroke-lg text-[22px] font-black flex items-center gap-2">
+              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {t('projects.details')}
+            </h3>
+            <ul className="space-y-2.5">
+              {[
+                { icon: Clock,    label: t('projects.playTime'), value: isEs ? project.details.playTime    : (project.details.playTimeEn    || project.details.playTime)    },
+                { icon: Flag,     label: t('projects.language'), value: isEs ? project.details.language    : (project.details.languageEn    || project.details.language)    },
+                { icon: Settings, label: t('projects.engine'),   value: project.details.engine },
+                { icon: Download, label: t('projects.downloads'),value: project.details.downloads },
+              ].map(item => {
+                const ItemIcon = item.icon;
+                return (
+                  <li key={item.label} className="flex items-center gap-2 text-[21px]">
+                    <ItemIcon className="w-5 h-5 text-[#d87093] flex-shrink-0" />
+                    <span className="text-gray-800 flex-1 font-semibold">{item.label}</span>
+                    <span className="text-gray-800 font-semibold">{item.value}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
+              <h4 className="pink-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">
+                {isEs ? 'Opciones de Descarga' : 'Download Options'}
+              </h4>
+              {project.downloads.map((dl, i) => {
+                const Icon = getIcon(dl.icon);
+                const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
+                const stroke = strokeColors[i] || '#333';
+                return (
+                  <a
+                    key={i}
+                    href={dl.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md"
+                    style={{ background: dl.color, border: `3px solid ${stroke}` }}
+                  >
+                    <Icon
+                      className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0"
+                      style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }}
+                    />
+                    <span
+                      className="font-black uppercase tracking-wide text-[19px]"
+                      style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
+                    >
+                      {isEs ? dl.label : (dl.labelEn || dl.label)}
+                    </span>
+                  </a>
+                );
+              })}
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="space-y-4"
+          >
+            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
+            </h3>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
+                  <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  Wiki del Mod
+                </h4>
+                <p className="text-[24px] text-gray-800 leading-relaxed font-semibold">
+                  {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
+                </p>
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                  <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
+                </button>
+              </div>
+
+              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
+                  <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  Spritepacks
+                </h4>
+                <p className="text-[24px] text-gray-800 leading-relaxed font-semibold">
+                  {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
+                </p>
+                <div className="flex flex-col gap-2 w-full">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                    <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
+                  </button>
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                    <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-center">
+              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="pink-stroke-sm text-[22px] font-black flex items-center gap-1.5">
+                  <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  Submods
+                </h4>
+                <p className="text-[25px] text-gray-800 leading-relaxed font-semibold">
+                  {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
+                </p>
+                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[17px] hover:bg-[#C06080] hover:text-white transition-colors">
+                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="bg-white rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm"
+          >
+            <CommentSection targetId={project.id} targetType="project" lightTheme />
+          </motion.div>
+
+        </main>
+
+        {/* iframe sin autoplay en URL — play se dispara en onLoad con delay */}
+        <iframe
+          ref={musicRef}
+          className="hidden"
+          width="0"
+          height="0"
+          src={musicSrc}
+          allow="autoplay"
+          title={`${project.name} Music`}
+          onLoad={handleMusicLoad}
+        />
+      </div>
+    </>
+  );
+}
+
+/* ─── Page component ─── */
+export default function ProjectDetailPage() {
+  const params = useParams();
+  const id = params.id as string;
+  const project = projects.find(p => p.id === id);
+
+  if (!project) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] text-white">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold">404</h1>
+          <p className="text-gray-400">Project not found</p>
+          <a href="/proyectos" className="text-[#FF2D78] hover:underline">Back to projects</a>
         </div>
-      </section>
-      <Footer />
+      </div>
+    );
+  }
+
+  if (project.lightTheme) {
+    return <MonikaDetail project={project} />;
+  }
+
+  return (
+    <div
+      className="min-h-screen text-white"
+      style={{
+        backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, ${project.themeColor}26 50%, rgba(10, 10, 26, 0.95) 100%)`,
+      }}
+    >
+      <ProjectDetail project={project} />
     </div>
   );
 }
