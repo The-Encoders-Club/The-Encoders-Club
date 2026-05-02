@@ -137,10 +137,10 @@ export default function Proyectos() {
                       className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                     >
                       <div
-                        className="relative overflow-hidden border-b border-white/5"
+                        className="relative flex items-center justify-center overflow-hidden border-b border-white/5"
                         style={{
-                          // Yuri: aspect-ratio 16/9 para igualar altura con Natsuki
-                          // Natsuki: sin altura fija, h-auto
+                          // Yuri: aspect-ratio fijo + fondo blanco para rellenar espacios
+                          // Natsuki: sin aspect-ratio, se adapta a la imagen
                           aspectRatio: isCover ? '16/9' : undefined,
                           background: project.coverBg ?? `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
                         }}
@@ -150,7 +150,8 @@ export default function Proyectos() {
                           alt={project.name}
                           className={`group-hover:scale-105 transition-transform duration-700 ${
                             isCover
-                              ? 'absolute inset-0 w-full h-full object-cover object-center'
+                              // object-contain para ver la imagen completa, el fondo blanco cubre los lados
+                              ? 'w-full h-full object-contain'
                               : 'w-full h-auto object-contain'
                           }`}
                         />
