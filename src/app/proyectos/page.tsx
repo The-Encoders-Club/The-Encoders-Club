@@ -136,11 +136,12 @@ export default function Proyectos() {
                       transition={{ duration: 0.6, delay: i * 0.1 }}
                       className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
                     >
-                      {/* coverFit:'cover' → altura fija + object-cover (Yuri) */}
-                      {/* coverFit:'contain' → h-auto + object-contain (Natsuki) */}
                       <div
-                        className={`relative flex items-center justify-center overflow-hidden border-b border-white/5 ${isCover ? 'h-56' : ''}`}
+                        className="relative overflow-hidden border-b border-white/5"
                         style={{
+                          // Yuri: aspect-ratio 16/9 para igualar altura con Natsuki
+                          // Natsuki: sin altura fija, h-auto
+                          aspectRatio: isCover ? '16/9' : undefined,
                           background: project.coverBg ?? `linear-gradient(145deg, ${project.themeColor}18 0%, #0d0d24 40%, ${project.themeColor}10 100%)`,
                         }}
                       >
@@ -149,7 +150,7 @@ export default function Proyectos() {
                           alt={project.name}
                           className={`group-hover:scale-105 transition-transform duration-700 ${
                             isCover
-                              ? 'w-full h-full object-cover object-center'
+                              ? 'absolute inset-0 w-full h-full object-cover object-center'
                               : 'w-full h-auto object-contain'
                           }`}
                         />
