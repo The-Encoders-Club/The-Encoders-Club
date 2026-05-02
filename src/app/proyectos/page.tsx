@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,23 +13,6 @@ import {
 import { CommentSection } from '@/components/CommentSection';
 import { useI18n } from '@/hooks/useLocale';
 import { projects, getIcon } from '@/data/projects';
-
-/* ─── Helper: construye la URL del iframe con start time ─── */
-function buildMusicSrc(baseUrl: string, startSeconds: number): string {
-  const url = new URL(baseUrl);
-  if (startSeconds > 0) url.searchParams.set('start', String(startSeconds));
-  return url.toString();
-}
-
-/* ─── Helper: dispara playVideo via postMessage cuando el player está listo ─── */
-function triggerPlay(iframe: HTMLIFrameElement | null) {
-  if (!iframe) return;
-  try {
-    iframe.contentWindow?.postMessage(
-      '{"event":"command","func":"playVideo","args":""}', '*'
-    );
-  } catch (e) { /* cross-origin — ignorar */ }
-}
 
 /* ─── Animated diagonal pink polka dots background ─── */
 function PinkDots() {
@@ -125,6 +108,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
         </button>
       </div>
 
+      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -217,6 +201,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
         )}
       </div>
 
+      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -266,17 +251,21 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
-  // Construye la URL con el segundo de inicio configurado en projects.ts
-  const musicSrc = buildMusicSrc(project.music, project.musicStart ?? 0);
-
-  // Cuando el iframe carga, espera 1.2s a que el player de YT esté listo y luego dispara play
-  const handleMusicLoad = useCallback(() => {
-    setTimeout(() => triggerPlay(musicRef.current), 1200);
-  }, []);
-
-  // Limpia el iframe al salir para detener el audio
   useEffect(() => {
-    return () => { if (musicRef.current) musicRef.current.src = ''; };
+    // El iframe carga con mute=1 para permitir autoplay sin traba en móvil.
+    // Luego de 1.5s desmutea automáticamente para que el audio empiece limpio.
+    const timer = setTimeout(() => {
+      try {
+        musicRef.current?.contentWindow?.postMessage(
+          '{"event":"command","func":"unMute","args":""}', '*'
+        );
+      } catch (e) { /* cross-origin */ }
+    }, 1500);
+
+    return () => {
+      clearTimeout(timer);
+      if (musicRef.current) musicRef.current.src = '';
+    };
   }, []);
 
   const toggleMute = () => {
@@ -413,17 +402,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
         </div>
       </main>
 
-      {/* iframe sin autoplay en URL — play se dispara en onLoad con delay */}
-      <iframe
-        ref={musicRef}
-        className="hidden"
-        width="0"
-        height="0"
-        src={musicSrc}
-        allow="autoplay"
-        title={`${project.name} Music`}
-        onLoad={handleMusicLoad}
-      />
+      <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
     </div>
   );
 }
@@ -434,17 +413,21 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
-  // Construye la URL con el segundo de inicio configurado en projects.ts
-  const musicSrc = buildMusicSrc(project.music, project.musicStart ?? 0);
-
-  // Cuando el iframe carga, espera 1.2s a que el player de YT esté listo y luego dispara play
-  const handleMusicLoad = useCallback(() => {
-    setTimeout(() => triggerPlay(musicRef.current), 1200);
-  }, []);
-
-  // Limpia el iframe al salir para detener el audio
   useEffect(() => {
-    return () => { if (musicRef.current) musicRef.current.src = ''; };
+    // El iframe carga con mute=1 para permitir autoplay sin traba en móvil.
+    // Luego de 1.5s desmutea automáticamente para que el audio empiece limpio.
+    const timer = setTimeout(() => {
+      try {
+        musicRef.current?.contentWindow?.postMessage(
+          '{"event":"command","func":"unMute","args":""}', '*'
+        );
+      } catch (e) { /* cross-origin */ }
+    }, 1500);
+
+    return () => {
+      clearTimeout(timer);
+      if (musicRef.current) musicRef.current.src = '';
+    };
   }, []);
 
   const toggleMute = () => {
@@ -744,17 +727,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
 
         </main>
 
-        {/* iframe sin autoplay en URL — play se dispara en onLoad con delay */}
-        <iframe
-          ref={musicRef}
-          className="hidden"
-          width="0"
-          height="0"
-          src={musicSrc}
-          allow="autoplay"
-          title={`${project.name} Music`}
-          onLoad={handleMusicLoad}
-        />
+        <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
       </div>
     </>
   );
