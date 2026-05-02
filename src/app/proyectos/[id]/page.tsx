@@ -248,12 +248,22 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
 /* ─── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ─── */
 function ProjectDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
-  const router = useRouter();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {
+    // El iframe carga con mute=1 para permitir autoplay sin traba en móvil.
+    // Luego de 1.5s desmutea automáticamente para que el audio empiece limpio.
+    const timer = setTimeout(() => {
+      try {
+        musicRef.current?.contentWindow?.postMessage(
+          '{"event":"command","func":"unMute","args":""}', '*'
+        );
+      } catch (e) { /* cross-origin */ }
+    }, 1500);
+
     return () => {
+      clearTimeout(timer);
       if (musicRef.current) musicRef.current.src = '';
     };
   }, []);
@@ -262,7 +272,9 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
     if (musicRef.current) {
       try {
         musicRef.current.contentWindow?.postMessage(
-          muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}',
+          muted
+            ? '{"event":"command","func":"unMute","args":""}'
+            : '{"event":"command","func":"mute","args":""}',
           '*'
         );
       } catch (e) { /* cross-origin */ }
@@ -398,19 +410,34 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
 /* ─── Light/pink theme detail view — REDESIGNED (Monika After History) ─── */
 function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
-  const router = useRouter();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {
-    return () => { if (musicRef.current) musicRef.current.src = ''; };
+    // El iframe carga con mute=1 para permitir autoplay sin traba en móvil.
+    // Luego de 1.5s desmutea automáticamente para que el audio empiece limpio.
+    const timer = setTimeout(() => {
+      try {
+        musicRef.current?.contentWindow?.postMessage(
+          '{"event":"command","func":"unMute","args":""}', '*'
+        );
+      } catch (e) { /* cross-origin */ }
+    }, 1500);
+
+    return () => {
+      clearTimeout(timer);
+      if (musicRef.current) musicRef.current.src = '';
+    };
   }, []);
 
   const toggleMute = () => {
     if (musicRef.current) {
       try {
         musicRef.current.contentWindow?.postMessage(
-          muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'
+          muted
+            ? '{"event":"command","func":"unMute","args":""}'
+            : '{"event":"command","func":"mute","args":""}',
+          '*'
         );
       } catch (e) { /* cross-origin */ }
     }
@@ -470,10 +497,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
         className="relative z-10 min-h-screen w-full overflow-hidden"
         style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}
       >
-        {/* Pink polka dots — animated diagonal */}
         <PinkDots />
 
-        {/* ── Nav ── */}
         <nav
           className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between"
           style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}
@@ -491,10 +516,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
           </button>
         </nav>
 
-        {/* ── Main content ── */}
         <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-          {/* ── HERO: Title + Image (full width) ── */}
           <div className="space-y-4">
             <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
@@ -521,7 +544,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             </motion.div>
           </div>
 
-          {/* ── Sobre este proyecto ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -557,7 +579,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             </div>
           </motion.div>
 
-          {/* ── Vista Previa ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -572,7 +593,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             <PinkPreviewCarousel images={project.previews} />
           </motion.div>
 
-          {/* ── Detalles + Descargas (after Vista Previa) ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -634,7 +654,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             </div>
           </motion.div>
 
-          {/* ── Recursos y Contenido Extra ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -647,7 +666,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
 
-            {/* Wiki + Spritepacks */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
@@ -681,7 +699,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               </div>
             </div>
 
-            {/* Submods */}
             <div className="flex justify-center">
               <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="pink-stroke-sm text-[22px] font-black flex items-center gap-1.5">
@@ -698,7 +715,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             </div>
           </motion.div>
 
-          {/* ── Comments ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -711,7 +727,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
 
         </main>
 
-        {/* Hidden music player */}
         <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
       </div>
     </>
