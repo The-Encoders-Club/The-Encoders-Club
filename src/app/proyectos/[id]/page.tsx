@@ -11,7 +11,6 @@ import {
   Clock, Flag, Settings
 } from 'lucide-react';
 import { CommentSection } from '@/components/CommentSection';
-import MonikaChibi from '@/components/MonikaChibi';
 import { useI18n } from '@/hooks/useLocale';
 import { projects, getIcon } from '@/data/projects';
 
@@ -19,7 +18,6 @@ import { projects, getIcon } from '@/data/projects';
 function PinkDots() {
   const DOT = 72;
   const GAP = 130;
-  // Extra columns/rows so the seamless loop has room to translate
   const cols = Math.ceil(1800 / GAP) + 2;
   const rows = Math.ceil(1800 / GAP) + 2;
   const dots: { id: number; x: number; y: number }[] = [];
@@ -30,7 +28,6 @@ function PinkDots() {
       }
     }
   }
-  // The pattern repeats every GAP*2 diagonally, so we animate exactly that distance
   const shift = GAP * 2;
   return (
     <>
@@ -43,9 +40,7 @@ function PinkDots() {
           animation: diagonalScroll 6s linear infinite;
         }
       `}</style>
-      {/* White base */}
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
-      {/* Animated dots — oversized so the moving layer never shows edges */}
       <div
         className="pink-dots-layer pointer-events-none"
         style={{
@@ -70,132 +65,6 @@ function PinkDots() {
           />
         ))}
       </div>
-    </>
-  );
-}
-
-/* ─── Floating decoration SVGs ─── */
-function HeartSvg({ size, color }: { size: number; color: string }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill={color}>
-      <path d="M12 21.593c-.425-.437-6.67-6.16-8.398-8.049C1.518 11.318 1.5 9.01 3.27 7.24c1.71-1.71 4.52-1.69 6.225.025L12 9.77l2.506-2.506C16.21 5.55 19.02 5.53 20.73 7.24c1.77 1.77 1.752 4.078-.331 6.305C18.672 15.434 12.425 21.156 12 21.593z" />
-    </svg>
-  );
-}
-
-function BookSvg({ size, color }: { size: number; color: string }) {
-  return (
-    <svg width={size} height={size * 1.2} viewBox="0 0 40 48" fill="none">
-      <rect x="4" y="2" width="32" height="44" rx="3" fill={color} opacity="0.9" />
-      <rect x="4" y="2" width="6" height="44" rx="2" fill="#6B1530" opacity="0.4" />
-      <rect x="12" y="10" width="18" height="2" rx="1" fill="white" opacity="0.6" />
-      <rect x="12" y="15" width="14" height="2" rx="1" fill="white" opacity="0.4" />
-      <rect x="12" y="20" width="16" height="2" rx="1" fill="white" opacity="0.4" />
-    </svg>
-  );
-}
-
-function BowSvg({ size, color }: { size: number; color: string }) {
-  return (
-    <svg width={size * 1.4} height={size} viewBox="0 0 56 40" fill="none">
-      <ellipse cx="14" cy="20" rx="14" ry="10" fill={color} opacity="0.85" transform="rotate(-20 14 20)" />
-      <ellipse cx="42" cy="20" rx="14" ry="10" fill={color} opacity="0.85" transform="rotate(20 42 20)" />
-      <circle cx="28" cy="20" r="5" fill="#fff" opacity="0.9" />
-      <circle cx="28" cy="20" r="3" fill={color} />
-    </svg>
-  );
-}
-
-function QuillSvg({ size, color }: { size: number; color: string }) {
-  return (
-    <svg width={size * 0.6} height={size * 1.5} viewBox="0 0 24 60" fill="none">
-      <path d="M12 2 C18 8, 22 20, 16 30 L12 58 L8 30 C2 20, 6 8, 12 2Z" fill={color} opacity="0.75" />
-      <path d="M12 2 C18 8, 22 20, 16 30 L12 40" stroke="#5C2A00" strokeWidth="0.8" fill="none" opacity="0.5" />
-      <line x1="12" y1="40" x2="12" y2="58" stroke="#5C2A00" strokeWidth="1.2" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-const DECO_POOL = [
-  { type: 'heart', size: 28, color: '#FF6B9D' },
-  { type: 'heart', size: 20, color: '#FF2D78' },
-  { type: 'heart', size: 36, color: '#FFB6D9' },
-  { type: 'heart', size: 22, color: '#FF6B9D' },
-  { type: 'heart', size: 16, color: '#FF2D78' },
-  { type: 'book',  size: 38, color: '#C85A8A' },
-  { type: 'book',  size: 30, color: '#8B3A6B' },
-  { type: 'book',  size: 44, color: '#D4699A' },
-  { type: 'bow',   size: 32, color: '#FF2D78' },
-  { type: 'bow',   size: 24, color: '#FFB6D9' },
-  { type: 'quill', size: 36, color: '#A0522D' },
-  { type: 'quill', size: 28, color: '#8B4513' },
-] as const;
-
-type DecoItem = typeof DECO_POOL[number];
-
-function FloatingDeco({ item, x, y, delay }: { item: DecoItem; x: number; y: number; delay: number }) {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const t1 = setTimeout(() => setVisible(true), delay);
-    const t2 = setTimeout(() => setVisible(false), delay + 1000);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
-  }, [delay]);
-
-  const icon = () => {
-    if (item.type === 'heart') return <HeartSvg size={item.size} color={item.color} />;
-    if (item.type === 'book')  return <BookSvg  size={item.size} color={item.color} />;
-    if (item.type === 'bow')   return <BowSvg   size={item.size} color={item.color} />;
-    return <QuillSvg size={item.size} color={item.color} />;
-  };
-
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          className="pointer-events-none select-none"
-          style={{ position: 'fixed', left: x, top: y, zIndex: 6 }}
-          initial={{ opacity: 0, scale: 0.5, y: 10 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.8, y: -15 }}
-          transition={{ duration: 0.35, ease: 'easeOut', exit: { duration: 0.65, ease: 'easeIn' } } as any}
-        >
-          {icon()}
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
-function DecorationLayer() {
-  const [bursts, setBursts] = useState<{ id: number; items: { item: DecoItem; x: number; y: number; delay: number }[] }[]>([]);
-  const idRef = useRef(0);
-
-  useEffect(() => {
-    const spawn = () => {
-      const count = 4 + Math.floor(Math.random() * 4);
-      const items = Array.from({ length: count }, (_, i) => ({
-        item: DECO_POOL[Math.floor(Math.random() * DECO_POOL.length)],
-        x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth * 0.9 : 800),
-        y: Math.random() * 500 + 80,
-        delay: i * 110,
-      }));
-      const id = ++idRef.current;
-      setBursts(prev => [...prev, { id, items }]);
-      setTimeout(() => setBursts(prev => prev.filter(b => b.id !== id)), 2200);
-    };
-    spawn();
-    const iv = setInterval(spawn, 3500);
-    return () => clearInterval(iv);
-  }, []);
-
-  return (
-    <>
-      {bursts.map(burst =>
-        burst.items.map((d, i) => (
-          <FloatingDeco key={`${burst.id}-${i}`} item={d.item} x={d.x} y={d.y} delay={d.delay} />
-        ))
-      )}
     </>
   );
 }
@@ -379,12 +248,22 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
 /* ─── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ─── */
 function ProjectDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
-  const router = useRouter();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {
+    // El iframe carga con mute=1 para permitir autoplay sin traba en móvil.
+    // Luego de 1.5s desmutea automáticamente para que el audio empiece limpio.
+    const timer = setTimeout(() => {
+      try {
+        musicRef.current?.contentWindow?.postMessage(
+          '{"event":"command","func":"unMute","args":""}', '*'
+        );
+      } catch (e) { /* cross-origin */ }
+    }, 1500);
+
     return () => {
+      clearTimeout(timer);
       if (musicRef.current) musicRef.current.src = '';
     };
   }, []);
@@ -393,7 +272,9 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
     if (musicRef.current) {
       try {
         musicRef.current.contentWindow?.postMessage(
-          muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}',
+          muted
+            ? '{"event":"command","func":"unMute","args":""}'
+            : '{"event":"command","func":"mute","args":""}',
           '*'
         );
       } catch (e) { /* cross-origin */ }
@@ -529,19 +410,34 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
 /* ─── Light/pink theme detail view — REDESIGNED (Monika After History) ─── */
 function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
-  const router = useRouter();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {
-    return () => { if (musicRef.current) musicRef.current.src = ''; };
+    // El iframe carga con mute=1 para permitir autoplay sin traba en móvil.
+    // Luego de 1.5s desmutea automáticamente para que el audio empiece limpio.
+    const timer = setTimeout(() => {
+      try {
+        musicRef.current?.contentWindow?.postMessage(
+          '{"event":"command","func":"unMute","args":""}', '*'
+        );
+      } catch (e) { /* cross-origin */ }
+    }, 1500);
+
+    return () => {
+      clearTimeout(timer);
+      if (musicRef.current) musicRef.current.src = '';
+    };
   }, []);
 
   const toggleMute = () => {
     if (musicRef.current) {
       try {
         musicRef.current.contentWindow?.postMessage(
-          muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'
+          muted
+            ? '{"event":"command","func":"unMute","args":""}'
+            : '{"event":"command","func":"mute","args":""}',
+          '*'
         );
       } catch (e) { /* cross-origin */ }
     }
@@ -601,16 +497,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
         className="relative z-10 min-h-screen w-full overflow-hidden"
         style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}
       >
-        {/* Pink polka dots — animated diagonal */}
         <PinkDots />
 
-        {/* Chibi Monika desktop pet */}
-        <MonikaChibi />
-
-        {/* Floating decorations */}
-        <DecorationLayer />
-
-        {/* ── Nav ── */}
         <nav
           className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between"
           style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}
@@ -628,10 +516,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
           </button>
         </nav>
 
-        {/* ── Main content ── */}
         <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-          {/* ── HERO: Title + Image (full width) ── */}
           <div className="space-y-4">
             <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
@@ -658,7 +544,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             </motion.div>
           </div>
 
-          {/* ── Sobre este proyecto ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -694,7 +579,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             </div>
           </motion.div>
 
-          {/* ── Vista Previa ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -709,7 +593,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             <PinkPreviewCarousel images={project.previews} />
           </motion.div>
 
-          {/* ── Detalles + Descargas (after Vista Previa) ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -771,7 +654,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             </div>
           </motion.div>
 
-          {/* ── Recursos y Contenido Extra ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -784,7 +666,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
 
-            {/* Wiki + Spritepacks */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
@@ -818,7 +699,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               </div>
             </div>
 
-            {/* Submods */}
             <div className="flex justify-center">
               <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="pink-stroke-sm text-[22px] font-black flex items-center gap-1.5">
@@ -835,7 +715,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             </div>
           </motion.div>
 
-          {/* ── Comments ── */}
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -848,7 +727,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
 
         </main>
 
-        {/* Hidden music player */}
         <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
       </div>
     </>
