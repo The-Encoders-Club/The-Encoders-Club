@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';  // ← añadir useEffect
+import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -11,20 +11,93 @@ import Footer from '@/components/Footer';
 import BackgroundParticles from '@/components/BackgroundParticles';
 import { useI18n } from '@/hooks/useLocale';
 import { projects } from '@/data/projects';
-import { audioManager } from '@/lib/audioManager'; // ← ajusta la ruta según donde pongas el archivo
 
 const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/gdw63Pfk2mCpqaap3WKi6Q/ProyectoFondo_c3356f10.jpg';
+
+/* ─── Pre-carga la API de YouTube y bufferiza el audio de cada proyecto ─── */
+function MusicPreloader() {
+  const preloaded = useRef(false);
+
+  useEffect(() => {
+    if (preloaded.current) return;
+    preloaded.current = true;
+
+    const w = window as any;
+
+    // 1) Cargar la API de YouTube IFrame (solo una vez)
+    const loadAPI = (): Promise<void> =>
+      new Promise((resolve) => {
+        if (w.YT?.Player) { resolve(); return; }
+        if (w.__ytLoading) { w.__ytCallbacks.push(resolve); return; }
+        w.__ytLoading = true;
+        w.__ytCallbacks = [resolve];
+        const s = document.createElement('script');
+        s.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(s);
+        w.onYouTubeIframeAPIReady = () => {
+          w.__ytLoading = false;
+          w.__ytCallbacks.forEach((cb: () => void) => cb());
+          w.__ytCallbacks = [];
+        };
+      });
+
+    // 2) Crear players invisibles para bufferizar el audio de cada proyecto
+    const init = async () => {
+      await loadAPI();
+      if (!w.YT?.Player) return;
+
+      // Almacen global para compartir con la página de detalle
+      w.__ytPreloaded = w.__ytPreloaded || {};
+
+      projects.forEach((p) => {
+        const match = p.music.match(/embed\/([a-zA-Z0-9_-]+)/);
+        const startMatch = p.music.match(/start=(\d+)/);
+        if (!match) return;
+        const videoId = match[1];
+        const startSec = startMatch ? parseInt(startMatch[1]) : 0;
+
+        // Skip si ya existe
+        if (w.__ytPreloaded[videoId]) return;
+
+        const container = document.createElement('div');
+        container.id = `yt-pre-${videoId}`;
+        container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;';
+        document.body.appendChild(container);
+
+        const player = new w.YT.Player(container.id, {
+          width: '1',
+          height: '1',
+          videoId,
+          playerVars: {
+            autoplay: 0,  // No reproducir aquí, solo bufferizar
+            mute: 1,      // Silenciado — el navegador permite buffer sin restricciones
+            loop: 1,
+            playlist: videoId,
+            controls: 0,
+            start: startSec,
+          },
+          events: {
+            onReady: (e: any) => {
+              // Cargar video en buffer sin reproducir
+              e.target.cueVideoAt(startSec, videoId);
+              // Guardar referencia global para que la página de detalle la reuse
+              w.__ytPreloaded[videoId] = e.target;
+            },
+          },
+        });
+      });
+    };
+
+    init();
+  }, []);
+
+  return null;
+}
 
 /* ─── Main page ─── */
 export default function Proyectos() {
   const { t, locale } = useI18n();
   const isEs = locale === 'es';
-
-  // ── Precarga el script de YouTube mientras el usuario ve la lista ──────────
-  // Cuando entre a un proyecto, la API ya estará lista → audio instantáneo
-  useEffect(() => {
-    audioManager.preloadAPI();
-  }, []);
 
   return (
     <div
@@ -33,9 +106,11 @@ export default function Proyectos() {
         backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
+        // backgroundAttachment: 'fixed' eliminado — causa temblor en móviles
       }}
     >
       <BackgroundParticles />
+      <MusicPreloader />
       <Navbar />
 
       {/* PAGE HEADER */}
@@ -64,7 +139,7 @@ export default function Proyectos() {
       <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* ── FEATURED (Monika) ── */}
+          {/* ── FEATURED (Monika) — no tocar ── */}
           {projects
             .filter(p => p.featured)
             .map(project => (
