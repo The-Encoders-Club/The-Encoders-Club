@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,6 +13,135 @@ import {
 import { CommentSection } from '@/components/CommentSection';
 import { useI18n } from '@/hooks/useLocale';
 import { projects, getIcon } from '@/data/projects';
+
+/* ─── YouTube IFrame Player API Hook ─── */
+function useYouTubeMusic(musicUrl: string) {
+  const playerRef = useRef<any>(null);
+  const mutedRef = useRef(true);
+  const [isMuted, setIsMuted] = useState(true);
+
+  useEffect(() => {
+    const match = musicUrl.match(/embed\/([a-zA-Z0-9_-]+)/);
+    if (!match) return;
+    const videoId = match[1];
+    const startMatch = musicUrl.match(/start=(\d+)/);
+    const startSec = startMatch ? parseInt(startMatch[1]) : 0;
+
+    mutedRef.current = true;
+    setIsMuted(true);
+
+    const w = window as any;
+
+    const loadAPI = (): Promise<void> =>
+      new Promise((resolve) => {
+        if (w.YT?.Player) { resolve(); return; }
+        if (w.__ytLoading) { w.__ytCallbacks.push(resolve); return; }
+        w.__ytLoading = true;
+        w.__ytCallbacks = [resolve];
+        const s = document.createElement('script');
+        s.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(s);
+        w.onYouTubeIframeAPIReady = () => {
+          w.__ytLoading = false;
+          w.__ytCallbacks.forEach((cb: () => void) => cb());
+          w.__ytCallbacks = [];
+        };
+      });
+
+    const container = document.createElement('div');
+    container.id = `yt-music-${videoId}`;
+    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;';
+    document.body.appendChild(container);
+
+    const init = async () => {
+      await loadAPI();
+      if (!w.YT?.Player || !document.body.contains(container)) return;
+
+      playerRef.current = new w.YT.Player(container.id, {
+        width: '1',
+        height: '1',
+        videoId,
+        playerVars: {
+          autoplay: 1,
+          mute: 1,
+          loop: 1,
+          playlist: videoId,
+          controls: 0,
+          modestbranding: 1,
+          showinfo: 0,
+          rel: 0,
+          iv_load_policy: 3,
+          start: startSec,
+        },
+        events: {
+          onReady: (e: any) => {
+            e.target.playVideo();
+            setTimeout(() => {
+              try {
+                e.target.unMute();
+                mutedRef.current = false;
+                setIsMuted(false);
+              } catch { /* browser blocked, will unmute on first interaction */ }
+            }, 400);
+          },
+          onStateChange: (e: any) => {
+            if (e.data === w.YT.PlayerState.ENDED) {
+              e.target.seekTo(startSec, true);
+              e.target.playVideo();
+            }
+          },
+        },
+      });
+    };
+
+    init();
+
+    const tryUnmute = () => {
+      if (playerRef.current && mutedRef.current) {
+        try {
+          playerRef.current.unMute();
+          mutedRef.current = false;
+          setIsMuted(false);
+        } catch { /* ignore */ }
+      }
+    };
+    const onClick = () => tryUnmute();
+    const onTouch = () => tryUnmute();
+    const onKey = () => tryUnmute();
+
+    document.addEventListener('click', onClick, { once: true, passive: true });
+    document.addEventListener('touchstart', onTouch, { once: true, passive: true });
+    document.addEventListener('keydown', onKey, { once: true, passive: true });
+
+    return () => {
+      document.removeEventListener('click', onClick);
+      document.removeEventListener('touchstart', onTouch);
+      document.removeEventListener('keydown', onKey);
+      if (playerRef.current) {
+        try { playerRef.current.destroy(); } catch { /* ignore */ }
+        playerRef.current = null;
+      }
+      container.remove();
+    };
+  }, [musicUrl]);
+
+  const toggleMute = useCallback(() => {
+    if (playerRef.current) {
+      try {
+        if (mutedRef.current) {
+          playerRef.current.unMute();
+          mutedRef.current = false;
+        } else {
+          playerRef.current.mute();
+          mutedRef.current = true;
+        }
+        setIsMuted(prev => !prev);
+      } catch { /* ignore */ }
+    }
+  }, []);
+
+  return { isMuted, toggleMute };
+}
 
 /* ─── Animated diagonal pink polka dots background ─── */
 function PinkDots() {
@@ -108,7 +237,6 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
         </button>
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -201,7 +329,6 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
         )}
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -248,39 +375,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
 /* ─── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ─── */
 function ProjectDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
-  const musicRef = useRef<HTMLIFrameElement>(null);
-  const [muted, setMuted] = useState(false);
-
-  useEffect(() => {
-    // El iframe carga con mute=1 para permitir autoplay sin traba en móvil.
-    // Luego de 1.5s desmutea automáticamente para que el audio empiece limpio.
-    const timer = setTimeout(() => {
-      try {
-        musicRef.current?.contentWindow?.postMessage(
-          '{"event":"command","func":"unMute","args":""}', '*'
-        );
-      } catch (e) { /* cross-origin */ }
-    }, 1500);
-
-    return () => {
-      clearTimeout(timer);
-      if (musicRef.current) musicRef.current.src = '';
-    };
-  }, []);
-
-  const toggleMute = () => {
-    if (musicRef.current) {
-      try {
-        musicRef.current.contentWindow?.postMessage(
-          muted
-            ? '{"event":"command","func":"unMute","args":""}'
-            : '{"event":"command","func":"mute","args":""}',
-          '*'
-        );
-      } catch (e) { /* cross-origin */ }
-    }
-    setMuted(!muted);
-  };
+  const { isMuted, toggleMute } = useYouTubeMusic(project.music);
 
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
@@ -294,8 +389,8 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
           <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
         </Link>
         <div className="flex items-center gap-2">
-          <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
-            {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+          <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={isMuted ? 'Unmute' : 'Mute'}>
+            {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
           <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
             <Share2 className="w-5 h-5" />
@@ -402,7 +497,6 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
         </div>
       </main>
 
-      <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
     </div>
   );
 }
@@ -410,39 +504,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
 /* ─── Light/pink theme detail view — REDESIGNED (Monika After History) ─── */
 function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
-  const musicRef = useRef<HTMLIFrameElement>(null);
-  const [muted, setMuted] = useState(false);
-
-  useEffect(() => {
-    // El iframe carga con mute=1 para permitir autoplay sin traba en móvil.
-    // Luego de 1.5s desmutea automáticamente para que el audio empiece limpio.
-    const timer = setTimeout(() => {
-      try {
-        musicRef.current?.contentWindow?.postMessage(
-          '{"event":"command","func":"unMute","args":""}', '*'
-        );
-      } catch (e) { /* cross-origin */ }
-    }, 1500);
-
-    return () => {
-      clearTimeout(timer);
-      if (musicRef.current) musicRef.current.src = '';
-    };
-  }, []);
-
-  const toggleMute = () => {
-    if (musicRef.current) {
-      try {
-        musicRef.current.contentWindow?.postMessage(
-          muted
-            ? '{"event":"command","func":"unMute","args":""}'
-            : '{"event":"command","func":"mute","args":""}',
-          '*'
-        );
-      } catch (e) { /* cross-origin */ }
-    }
-    setMuted(!muted);
-  };
+  const { isMuted, toggleMute } = useYouTubeMusic(project.music);
 
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
@@ -510,9 +572,9 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
           <button
             onClick={toggleMute}
             className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all"
-            title={muted ? 'Unmute' : 'Mute'}
+            title={isMuted ? 'Unmute' : 'Mute'}
           >
-            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            {isMuted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
         </nav>
 
@@ -727,7 +789,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
 
         </main>
 
-        <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
       </div>
     </>
   );
