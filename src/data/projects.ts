@@ -44,7 +44,7 @@ export const projects = [
     ],
     // mute=1 permite autoplay en móvil sin traba. Se desmutea automáticamente al cargar.
     // Cambia el número en &start=0 al segundo exacto donde quieres que empiece.
-    music: 'https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&mute=0&start=1&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
+    music: 'https://www.youtube.com/embed/QIHUK68L9qQ?autoplay=1&mute=0&start=0&loop=1&playlist=QIHUK68L9qQ&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
     details: { playTime: '4-6 horas', playTimeEn: '4-6 hours', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloads: '1,250' },
     themeColor: '#FF2D78',
   },
@@ -103,7 +103,7 @@ export const projects = [
     downloads: [
       { label: 'Descargar Mod PC', labelEn: 'Download Mod PC', icon: 'Download', url: 'https://github.com/The-Encoders-Club/Just-Yuri-ES/releases/download/V1.10.4/JustYuri-Beta-ES-1.10.4-win.zip', color: '#9C27B0', hoverColor: '#E1BEE7', textColor: '#ffffff' },
     ],
-    music: 'https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&mute=0&start=2&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
+    music: 'https://www.youtube.com/embed/VGwfIloNM8w?autoplay=1&mute=0&start=1&loop=1&playlist=VGwfIloNM8w&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3',
     details: { playTime: '5-7 horas', playTimeEn: '5-7 hours', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloads: '1,120' },
     themeColor: '#9C27B0',
   },
