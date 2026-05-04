@@ -17,21 +17,20 @@ import { projects, getIcon } from '@/data/projects';
 /* ─── YouTube IFrame Player API Hook ─── */
 function useYouTubeMusic(musicUrl: string) {
   const playerRef = useRef<any>(null);
-  const mutedRef = useRef(true);
-  const [isMuted, setIsMuted] = useState(true);
+  const mutedRef = useRef(false);
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
+    // Extract video ID and start time from the embed URL
     const match = musicUrl.match(/embed\/([a-zA-Z0-9_-]+)/);
     if (!match) return;
     const videoId = match[1];
     const startMatch = musicUrl.match(/start=(\d+)/);
     const startSec = startMatch ? parseInt(startMatch[1]) : 0;
 
-    mutedRef.current = true;
-    setIsMuted(true);
-
     const w = window as any;
 
+    // Load YouTube IFrame API (only once globally)
     const loadAPI = (): Promise<void> =>
       new Promise((resolve) => {
         if (w.YT?.Player) { resolve(); return; }
@@ -48,6 +47,7 @@ function useYouTubeMusic(musicUrl: string) {
         };
       });
 
+    // Create hidden container for the player
     const container = document.createElement('div');
     container.id = `yt-music-${videoId}`;
     container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;';
@@ -57,13 +57,16 @@ function useYouTubeMusic(musicUrl: string) {
       await loadAPI();
       if (!w.YT?.Player || !document.body.contains(container)) return;
 
+      // Start unmuted: autoplay con sonido directo.
+      // El usuario siempre llega via click desde /proyectos, por lo que el
+      // navegador permite autoplay con sonido sin restricciones.
       playerRef.current = new w.YT.Player(container.id, {
         width: '1',
         height: '1',
         videoId,
         playerVars: {
           autoplay: 1,
-          mute: 1,
+          mute: 0,
           loop: 1,
           playlist: videoId,
           controls: 0,
@@ -76,15 +79,16 @@ function useYouTubeMusic(musicUrl: string) {
         events: {
           onReady: (e: any) => {
             e.target.playVideo();
-            setTimeout(() => {
-              try {
-                e.target.unMute();
-                mutedRef.current = false;
-                setIsMuted(false);
-              } catch { /* browser blocked, will unmute on first interaction */ }
-            }, 400);
+            // Si el navegador bloqueó el sonido, se desmutea al primer toque
+            try {
+              if (e.target.isMuted()) {
+                mutedRef.current = true;
+                setIsMuted(true);
+              }
+            } catch { /* ignore */ }
           },
           onStateChange: (e: any) => {
+            // Si el video terminó, reiniciar desde el segundo configurado
             if (e.data === w.YT.PlayerState.ENDED) {
               e.target.seekTo(startSec, true);
               e.target.playVideo();
@@ -96,27 +100,7 @@ function useYouTubeMusic(musicUrl: string) {
 
     init();
 
-    const tryUnmute = () => {
-      if (playerRef.current && mutedRef.current) {
-        try {
-          playerRef.current.unMute();
-          mutedRef.current = false;
-          setIsMuted(false);
-        } catch { /* ignore */ }
-      }
-    };
-    const onClick = () => tryUnmute();
-    const onTouch = () => tryUnmute();
-    const onKey = () => tryUnmute();
-
-    document.addEventListener('click', onClick, { once: true, passive: true });
-    document.addEventListener('touchstart', onTouch, { once: true, passive: true });
-    document.addEventListener('keydown', onKey, { once: true, passive: true });
-
     return () => {
-      document.removeEventListener('click', onClick);
-      document.removeEventListener('touchstart', onTouch);
-      document.removeEventListener('keydown', onKey);
       if (playerRef.current) {
         try { playerRef.current.destroy(); } catch { /* ignore */ }
         playerRef.current = null;
@@ -237,6 +221,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
         </button>
       </div>
 
+      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -329,6 +314,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
         )}
       </div>
 
+      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
