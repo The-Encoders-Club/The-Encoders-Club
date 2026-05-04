@@ -1,24 +1,5 @@
 'use client';
 
-// ── Precarga inmediata del API de YouTube (SSR-safe) ─────────────────────────
-// Se ejecuta en cuanto Next.js importa el módulo, ANTES de que React monte
-// cualquier componente — gana ~500-800 ms sobre esperar al efecto del hook.
-if (typeof window !== 'undefined') {
-  const _w = window as any;
-  if (!_w.YT?.Player && !_w.__ytLoading) {
-    _w.__ytLoading = true;
-    _w.__ytCallbacks = _w.__ytCallbacks ?? [];
-    const _s = document.createElement('script');
-    _s.src = 'https://www.youtube.com/iframe_api';
-    document.head.appendChild(_s);
-    _w.onYouTubeIframeAPIReady = () => {
-      _w.__ytLoading = false;
-      (_w.__ytCallbacks as Array<() => void>).forEach(cb => cb());
-      _w.__ytCallbacks = [];
-    };
-  }
-}
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -38,6 +19,7 @@ function useYouTubeMusic(musicUrl: string) {
   const playerRef = useRef<any>(null);
   const mutedRef = useRef(false);
   const [isMuted, setIsMuted] = useState(false);
+  const ownContainer = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const match = musicUrl.match(/embed\/([a-zA-Z0-9_-]+)/);
@@ -48,33 +30,58 @@ function useYouTubeMusic(musicUrl: string) {
 
     const w = window as any;
 
-    // Si el API ya está cargada (gracias al preload de módulo), resuelve
-    // sincrónicamente sin crear una Promise ni esperar ningún callback.
+    // ── RUTA RÁPIDA: reusar player pre-cargado desde /proyectos ──
+    const preloaded = w.__ytPreloaded?.[videoId];
+    if (preloaded && typeof preloaded.playVideo === 'function') {
+      playerRef.current = preloaded;
+      // Limpiar del cache para que no se reuse si se navega a otro y vuelve
+      delete w.__ytPreloaded[videoId];
+      // Desmutear y reproducir inmediatamente — el video ya está en buffer
+      try {
+        preloaded.unMute();
+        preloaded.seekTo(startSec, true);
+        preloaded.playVideo();
+        mutedRef.current = false;
+        setIsMuted(false);
+      } catch { /* ignore */ }
+      // Listener para loop
+      const onEnd = () => {
+        try {
+          preloaded.seekTo(startSec, true);
+          preloaded.playVideo();
+        } catch { /* ignore */ }
+      };
+      preloaded.addEventListener?.('onStateChange', (e: any) => {
+        if (e.data === w.YT?.PlayerState?.ENDED) onEnd();
+      });
+      return () => {
+        try { preloaded.stopVideo(); } catch { /* ignore */ }
+        // No destruimos el player — lo recreará el preloader si se vuelve a /proyectos
+      };
+    }
+
+    // ── RUTA LENTA: crear player desde cero (direct URL, sin preloader) ──
     const loadAPI = (): Promise<void> =>
       new Promise((resolve) => {
         if (w.YT?.Player) { resolve(); return; }
-        // Todavía cargando → encolar
-        w.__ytCallbacks = w.__ytCallbacks ?? [];
-        w.__ytCallbacks.push(resolve);
-        // Guardia para edge-cases donde el bloque de módulo no ejecutó
-        if (!w.__ytLoading) {
-          w.__ytLoading = true;
-          const s = document.createElement('script');
-          s.src = 'https://www.youtube.com/iframe_api';
-          document.head.appendChild(s);
-          w.onYouTubeIframeAPIReady = () => {
-            w.__ytLoading = false;
-            (w.__ytCallbacks as Array<() => void>).forEach((cb: () => void) => cb());
-            w.__ytCallbacks = [];
-          };
-        }
+        if (w.__ytLoading) { w.__ytCallbacks.push(resolve); return; }
+        w.__ytLoading = true;
+        w.__ytCallbacks = [resolve];
+        const s = document.createElement('script');
+        s.src = 'https://www.youtube.com/iframe_api';
+        document.head.appendChild(s);
+        w.onYouTubeIframeAPIReady = () => {
+          w.__ytLoading = false;
+          w.__ytCallbacks.forEach((cb: () => void) => cb());
+          w.__ytCallbacks = [];
+        };
       });
 
     const container = document.createElement('div');
     container.id = `yt-music-${videoId}`;
-    container.style.cssText =
-      'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;';
+    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;';
     document.body.appendChild(container);
+    ownContainer.current = container;
 
     const init = async () => {
       await loadAPI();
@@ -239,6 +246,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
         </button>
       </div>
 
+      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -331,6 +339,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
         )}
       </div>
 
+      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -498,6 +507,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
           </div>
         </div>
       </main>
+
     </div>
   );
 }
@@ -789,6 +799,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
           </motion.div>
 
         </main>
+
       </div>
     </>
   );
