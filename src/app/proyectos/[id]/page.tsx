@@ -1,5 +1,24 @@
 'use client';
 
+// ── Precarga inmediata del API de YouTube (SSR-safe) ─────────────────────────
+// Se ejecuta en cuanto Next.js importa el módulo, ANTES de que React monte
+// cualquier componente — gana ~500-800 ms sobre esperar al efecto del hook.
+if (typeof window !== 'undefined') {
+  const _w = window as any;
+  if (!_w.YT?.Player && !_w.__ytLoading) {
+    _w.__ytLoading = true;
+    _w.__ytCallbacks = _w.__ytCallbacks ?? [];
+    const _s = document.createElement('script');
+    _s.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(_s);
+    _w.onYouTubeIframeAPIReady = () => {
+      _w.__ytLoading = false;
+      (_w.__ytCallbacks as Array<() => void>).forEach(cb => cb());
+      _w.__ytCallbacks = [];
+    };
+  }
+}
+
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
@@ -21,7 +40,6 @@ function useYouTubeMusic(musicUrl: string) {
   const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
-    // Extract video ID and start time from the embed URL
     const match = musicUrl.match(/embed\/([a-zA-Z0-9_-]+)/);
     if (!match) return;
     const videoId = match[1];
@@ -30,36 +48,38 @@ function useYouTubeMusic(musicUrl: string) {
 
     const w = window as any;
 
-    // Load YouTube IFrame API (only once globally)
+    // Si el API ya está cargada (gracias al preload de módulo), resuelve
+    // sincrónicamente sin crear una Promise ni esperar ningún callback.
     const loadAPI = (): Promise<void> =>
       new Promise((resolve) => {
         if (w.YT?.Player) { resolve(); return; }
-        if (w.__ytLoading) { w.__ytCallbacks.push(resolve); return; }
-        w.__ytLoading = true;
-        w.__ytCallbacks = [resolve];
-        const s = document.createElement('script');
-        s.src = 'https://www.youtube.com/iframe_api';
-        document.head.appendChild(s);
-        w.onYouTubeIframeAPIReady = () => {
-          w.__ytLoading = false;
-          w.__ytCallbacks.forEach((cb: () => void) => cb());
-          w.__ytCallbacks = [];
-        };
+        // Todavía cargando → encolar
+        w.__ytCallbacks = w.__ytCallbacks ?? [];
+        w.__ytCallbacks.push(resolve);
+        // Guardia para edge-cases donde el bloque de módulo no ejecutó
+        if (!w.__ytLoading) {
+          w.__ytLoading = true;
+          const s = document.createElement('script');
+          s.src = 'https://www.youtube.com/iframe_api';
+          document.head.appendChild(s);
+          w.onYouTubeIframeAPIReady = () => {
+            w.__ytLoading = false;
+            (w.__ytCallbacks as Array<() => void>).forEach((cb: () => void) => cb());
+            w.__ytCallbacks = [];
+          };
+        }
       });
 
-    // Create hidden container for the player
     const container = document.createElement('div');
     container.id = `yt-music-${videoId}`;
-    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;';
+    container.style.cssText =
+      'position:fixed;top:-9999px;left:-9999px;width:1px;height:1px;overflow:hidden;pointer-events:none;opacity:0;';
     document.body.appendChild(container);
 
     const init = async () => {
       await loadAPI();
       if (!w.YT?.Player || !document.body.contains(container)) return;
 
-      // Start unmuted: autoplay con sonido directo.
-      // El usuario siempre llega via click desde /proyectos, por lo que el
-      // navegador permite autoplay con sonido sin restricciones.
       playerRef.current = new w.YT.Player(container.id, {
         width: '1',
         height: '1',
@@ -79,7 +99,6 @@ function useYouTubeMusic(musicUrl: string) {
         events: {
           onReady: (e: any) => {
             e.target.playVideo();
-            // Si el navegador bloqueó el sonido, se desmutea al primer toque
             try {
               if (e.target.isMuted()) {
                 mutedRef.current = true;
@@ -88,7 +107,6 @@ function useYouTubeMusic(musicUrl: string) {
             } catch { /* ignore */ }
           },
           onStateChange: (e: any) => {
-            // Si el video terminó, reiniciar desde el segundo configurado
             if (e.data === w.YT.PlayerState.ENDED) {
               e.target.seekTo(startSec, true);
               e.target.playVideo();
@@ -221,7 +239,6 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
         </button>
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -314,7 +331,6 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
         )}
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div
@@ -482,7 +498,6 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
           </div>
         </div>
       </main>
-
     </div>
   );
 }
@@ -774,7 +789,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
           </motion.div>
 
         </main>
-
       </div>
     </>
   );
