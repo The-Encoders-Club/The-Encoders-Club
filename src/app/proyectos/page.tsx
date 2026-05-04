@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect } from 'react';  // ← añadir useEffect
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
@@ -10,6 +11,7 @@ import Footer from '@/components/Footer';
 import BackgroundParticles from '@/components/BackgroundParticles';
 import { useI18n } from '@/hooks/useLocale';
 import { projects } from '@/data/projects';
+import { audioManager } from '@/lib/audioManager'; // ← ajusta la ruta según donde pongas el archivo
 
 const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/gdw63Pfk2mCpqaap3WKi6Q/ProyectoFondo_c3356f10.jpg';
 
@@ -18,6 +20,12 @@ export default function Proyectos() {
   const { t, locale } = useI18n();
   const isEs = locale === 'es';
 
+  // ── Precarga el script de YouTube mientras el usuario ve la lista ──────────
+  // Cuando entre a un proyecto, la API ya estará lista → audio instantáneo
+  useEffect(() => {
+    audioManager.preloadAPI();
+  }, []);
+
   return (
     <div
       className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]"
@@ -25,7 +33,6 @@ export default function Proyectos() {
         backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        // backgroundAttachment: 'fixed' eliminado — causa temblor en móviles
       }}
     >
       <BackgroundParticles />
@@ -57,7 +64,7 @@ export default function Proyectos() {
       <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* ── FEATURED (Monika) — no tocar ── */}
+          {/* ── FEATURED (Monika) ── */}
           {projects
             .filter(p => p.featured)
             .map(project => (
