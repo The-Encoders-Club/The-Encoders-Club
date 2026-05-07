@@ -135,7 +135,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
         }
         .comment-section-title.light {
           color: #fefefe;
-          -webkit-text-stroke: 2px #ba609e;
+          -webkit-text-stroke: 5px #ba609e;
           paint-order: stroke fill;
         }
         .comment-section-title.dark {
