@@ -519,7 +519,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              <p className="text-gray-800 text-[24px] font-semibold mt-1 flex items-center gap-1.5">
+              {/* SUBTÍTULO */}
+              <p className="text-gray-800 text-[24px] font-extrabold mt-1 flex items-center gap-1.5">
                 {project.subtitle} <span>💗</span>
               </p>
             </motion.div>
@@ -551,24 +552,30 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-800 leading-relaxed text-[23px] font-semibold">{desc}</p>
+            {/* DESCRIPCIÓN */}
+            <p className="text-gray-800 leading-relaxed text-[23px] font-extrabold">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
-                <span className="text-gray-800 font-bold text-[22px]">{status}</span>
+                {/* LABEL ESTADO */}
+                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
+                {/* VALOR ESTADO */}
+                <span className="text-gray-800 font-extrabold text-[22px]">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-bold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
-                <span className="text-gray-800 font-bold text-[22px] flex items-center gap-1">
+                {/* LABEL CALIFICACIÓN */}
+                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
+                {/* VALOR CALIFICACIÓN */}
+                <span className="text-gray-800 font-extrabold text-[22px] flex items-center gap-1">
                   {project.rating} <Star className="w-4.5 h-4.5 fill-current text-yellow-400" />
                 </span>
               </div>
             </div>
 
+            {/* TAGS */}
             <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[19px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-800 font-semibold hover:border-[#FF6B9D] transition-colors">
+                <span key={tag} className="text-[19px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-800 font-extrabold hover:border-[#FF6B9D] transition-colors">
                   {tag}
                 </span>
               ))}
@@ -600,6 +607,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.details')}
             </h3>
+            {/* DETALLES — labels y valores */}
             <ul className="space-y-2.5">
               {[
                 { icon: Clock,    label: t('projects.playTime'), value: isEs ? project.details.playTime    : (project.details.playTimeEn    || project.details.playTime)    },
@@ -611,8 +619,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                 return (
                   <li key={item.label} className="flex items-center gap-2 text-[21px]">
                     <ItemIcon className="w-5 h-5 text-[#d87093] flex-shrink-0" />
-                    <span className="text-gray-800 flex-1 font-semibold">{item.label}</span>
-                    <span className="text-gray-800 font-semibold">{item.value}</span>
+                    <span className="text-gray-800 flex-1 font-extrabold">{item.label}</span>
+                    <span className="text-gray-800 font-extrabold">{item.value}</span>
                   </li>
                 );
               })}
@@ -668,7 +676,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                <p className="text-[24px] text-gray-800 leading-relaxed font-semibold">
+                {/* TEXTO WIKI */}
+                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
                 <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
@@ -681,7 +690,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
-                <p className="text-[24px] text-gray-800 leading-relaxed font-semibold">
+                {/* TEXTO SPRITEPACKS */}
+                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
@@ -701,7 +711,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
-                <p className="text-[25px] text-gray-800 leading-relaxed font-semibold">
+                {/* TEXTO SUBMODS */}
+                <p className="text-[25px] text-gray-800 leading-relaxed font-extrabold">
                   {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
                 </p>
                 <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[17px] hover:bg-[#C06080] hover:text-white transition-colors">
