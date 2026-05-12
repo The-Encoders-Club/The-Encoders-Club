@@ -47,8 +47,7 @@ function PinkDots() {
           position: 'fixed',
           top: -shift * 2,
           left: -shift * 2,
-          width: `calc(100vw + ${shift * 4}px)`,
-          height: `calc(100vh + ${shift * 4}px)`,
+          width: `calc(100vw + ${shift * 4}px)`,          height: `calc(100vh + ${shift * 4}px)`,
         }}
       >
         {dots.map(d => (
@@ -97,8 +96,7 @@ function CharacterDots({ dotColor = '#ffeef8' }) {
       `}</style>
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
       <div
-        className="character-dots-layer pointer-events-none"
-        style={{
+        className="character-dots-layer pointer-events-none"        style={{
           position: 'fixed',
           top: -shift * 2,
           left: -shift * 2,
@@ -114,7 +112,7 @@ function CharacterDots({ dotColor = '#ffeef8' }) {
               width: DOT,
               height: DOT,
               left: d.x - DOT / 2,
-              top: d.y - DOD / 2,
+              top: d.y - DOT / 2,
               backgroundColor: dotColor,
             }}
           />
@@ -124,9 +122,9 @@ function CharacterDots({ dotColor = '#ffeef8' }) {
   );
 }
 
-/* ─── Cherry Blossom Flower Background (NATSUKI) ─── */
+/* ─── Cherry Blossom Flower Background (NATSUKI - EXACT REPLICA) ─── */
 function NatsukiFlowerBg() {
-  const GAP = 140;
+  const GAP = 160;
   const cols = Math.ceil(1800 / GAP) + 2;
   const rows = Math.ceil(1800 / GAP) + 2;
   const items: { id: number; x: number; y: number }[] = [];
@@ -138,19 +136,6 @@ function NatsukiFlowerBg() {
     }
   }
   const shift = GAP * 2;
-
-  /*
-   * Pétalo de sakura realista:
-   * Forma de óvalo con hendidura en la punta exterior,
-   * igual que los pétalos de las flores del fondo del juego.
-   * El path dibuja UN pétalo apuntando hacia arriba (cy negativo),
-   * luego se rota en 5 pasos de 72° alrededor del centro.
-   */
-  const petalPath =
-    'M0,0 C-6,0 -10,-7 -9,-14 C-8,-20 -3,-24 0,-26 C3,-24 8,-20 9,-14 C10,-7 6,0 0,0 Z';
-
-  const petalAngles = [0, 72, 144, 216, 288];
-
   return (
     <>
       <style>{`
@@ -160,15 +145,8 @@ function NatsukiFlowerBg() {
         }
         .flower-layer {
           animation: diagonalScrollFlowers 8s linear infinite;
-        }
-      `}</style>
-
-      {/* Fondo morado-magenta exacto de la imagen */}
-      <div
-        className="fixed inset-0 pointer-events-none"
-        style={{ backgroundColor: '#8B3575' }}
-      />
-
+        }      `}</style>
+      <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#A36291' }} />
       <div
         className="flower-layer pointer-events-none"
         style={{
@@ -182,40 +160,23 @@ function NatsukiFlowerBg() {
         {items.map(d => (
           <svg
             key={d.id}
-            viewBox="-35 -35 70 70"
-            width="72"
-            height="72"
+            viewBox="0 0 50 50"
+            width="90"
+            height="90"
             className="absolute"
-            style={{ left: d.x - 36, top: d.y - 36 }}
+            style={{
+              left: d.x - 45,
+              top: d.y - 45,
+              fill: 'rgba(255, 255, 255, 0.55)',
+            }}
           >
-            <g>
-              {petalAngles.map(angle => (
-                <path
-                  key={angle}
-                  d={petalPath}
-                  transform={`rotate(${angle})`}
-                  fill="rgba(210, 160, 200, 0.38)"
-                  stroke="rgba(230, 180, 215, 0.18)"
-                  strokeWidth="0.5"
-                />
-              ))}
-              {/* Centro pequeño de la flor */}
-              <circle
-                cx="0"
-                cy="0"
-                r="3.5"
-                fill="rgba(240, 190, 220, 0.5)"
-              />
-              {/* Estambres: 5 puntos diminutos */}
-              {petalAngles.map(angle => (
-                <circle
-                  key={`st-${angle}`}
-                  cx={Math.sin((angle * Math.PI) / 180) * 6}
-                  cy={-Math.cos((angle * Math.PI) / 180) * 6}
-                  r="1"
-                  fill="rgba(255, 210, 230, 0.6)"
-                />
-              ))}
+            {/* 5-petal flower shape exactly like reference */}
+            <g transform="translate(25, 25)">
+              <ellipse cx="0" cy="-14" rx="7" ry="14" />
+              <ellipse cx="13.3" cy="-4.3" rx="7" ry="14" transform="rotate(72)" />
+              <ellipse cx="8.2" cy="11.3" rx="7" ry="14" transform="rotate(144)" />
+              <ellipse cx="-8.2" cy="11.3" rx="7" ry="14" transform="rotate(216)" />
+              <ellipse cx="-13.3" cy="-4.3" rx="7" ry="14" transform="rotate(288)" />
             </g>
           </svg>
         ))}
@@ -234,7 +195,6 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
       scrollRef.current.scrollBy({ left: dir === 'left' ? -280 : 280, behavior: 'smooth' });
     }
   };
-
   const closeLightbox = () => setLightboxIdx(null);
   const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
   const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(images.length - 1, i + 1) : null));
@@ -283,7 +243,6 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   const [current, setCurrent] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const total = images.length;
-
   const scroll = (dir: 'left' | 'right') => {
     const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
     setCurrent(next);
@@ -333,8 +292,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch (e) { /* cross-origin */ }
-    }, 1500);
+      try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch (e) { /* cross-origin */ }    }, 1500);
     return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
   }, []);
 
@@ -383,8 +341,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
               <h3 className="text-2xl font-bold text-white flex items-center gap-2">
                 <BookOpen className="w-6 h-6" style={{ color: project.themeColor }} /> {isEs ? 'Sobre este proyecto' : 'About this project'}
               </h3>
-              <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>
-              <div className="grid grid-cols-2 gap-4">
+              <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>              <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
                   <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.status')}</span>
                   <span className="text-white font-medium">{status}</span>
@@ -433,8 +390,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
                 {project.downloads.map((dl, i) => {
                   const Icon = getIcon(dl.icon);
                   return (
-                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
-                      <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>                      <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
                       {isEs ? dl.label : (dl.labelEn || dl.label)}
                     </a>
                   );
@@ -449,7 +405,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ─── Light/pink theme detail view — MONIKA (ORIGINAL INTACTO) ─── */
+/* ─── Light/pink theme detail view — MONIKA (ORIGINAL INTACTO) ── */
 function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
@@ -483,8 +439,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
         .pink-stroke-sm { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 5px #ba609e; paint-order: stroke fill; }
         .pink-stroke-xs { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 3px #ba609e; paint-order: stroke fill; }
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}>
+      `}</style>      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}>
         <PinkDots />
         <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}>
           <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
@@ -533,8 +488,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.preview')}
             </h4>
-            <PinkPreviewCarousel images={project.previews} />
-          </motion.div>
+            <PinkPreviewCarousel images={project.previews} />          </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5">
             <h3 className="pink-stroke-lg text-[22px] font-black flex items-center gap-2">
               <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
@@ -583,8 +537,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
                 </button>
               </div>
@@ -627,14 +580,13 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ─── Light/pink theme detail view — NATSUKI (FLOWER BG) ─── */
+/* ─── Light/pink theme detail view — NATSUKI (FLOWER BG - EXACT) ─── */
 function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
+  useEffect(() => {    const timer = setTimeout(() => {
       try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch (e) { /* cross-origin */ }
     }, 1500);
     return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
@@ -666,7 +618,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
         .natsuki-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px #ba609e; paint-order: stroke fill; }
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily }}>
+      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: '#A36291' }}>
         <NatsukiFlowerBg />
         <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}>
           <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
@@ -683,8 +635,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
               <h1 className="natsuki-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
               <p className="text-gray-800 text-[16px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg">💗</span></p>
             </motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group" style={{ boxShadow: '0 8px 32px #FF6B9D30' }}>
-              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group" style={{ boxShadow: '0 8px 32px #FF6B9D30' }}>              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             </motion.div>
           </div>
@@ -733,8 +684,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                 return (
                   <li key={item.label} className="flex items-center gap-2 text-[14px]">
                     <ItemIcon className="w-4 h-4 text-[#d87093] flex-shrink-0" />
-                    <span className="text-gray-800 flex-1 font-extrabold">{item.label}</span>
-                    <span className="text-gray-800 font-extrabold">{item.value}</span>
+                    <span className="text-gray-800 flex-1 font-extrabold">{item.label}</span>                    <span className="text-gray-800 font-extrabold">{item.value}</span>
                   </li>
                 );
               })}
@@ -783,8 +733,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                   <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[13px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                     <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
-                </div>
-              </div>
+                </div>              </div>
             </div>
             <div className="flex justify-center">
               <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
@@ -809,7 +758,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ── Light/purple theme detail view — YURI (LARGE TEXT) ─── */
+/* ─── Light/purple theme detail view — YURI (LARGE TEXT) ─── */
 function YuriDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
@@ -833,12 +782,13 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
 
-  const dotColor = '#e8d5f5';
-  const titleFontFamily = "'RifficFree', 'm1_fixed', monospace";
+  const dotColor = '#e8d5f5';  const titleFontFamily = "'RifficFree', 'm1_fixed', monospace";
   const bodyFontFamily = "'m1_fixed', monospace";
 
   const borderColor = '#9B59B6';
+  const hoverBorderColor = '#8E44AD';
   const accentColor = '#8A2BE2';
+  const lightBg = '#F3E5F5';
   const navBg = 'rgba(232, 213, 245, 0.92)';
   const shadowColor = '#8E44AD30';
   const strokeColor = '#8A2BE2';
@@ -869,7 +819,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
           <div className="space-y-4">
             <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <h1 className="yuri-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
-              <p className="text-gray-800 text-[24px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg">💜</span></p>
+              <p className="text-gray-800 text-[24px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg"></span></p>
             </motion.div>
             <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#9B59B6] aspect-video relative group" style={{ boxShadow: `0 8px 32px ${shadowColor}` }}>
               <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -881,8 +831,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               <FileText className="w-5 h-5 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-800 leading-relaxed text-[23px] font-extrabold">{desc}</p>
-            <div className="grid grid-cols-2 gap-3">
+            <p className="text-gray-800 leading-relaxed text-[23px] font-extrabold">{desc}</p>            <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#9B59B6] shadow-sm">
                 <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
                 <span className="text-gray-800 font-extrabold text-[22px]">{status}</span>
@@ -931,8 +880,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               <h4 className="yuri-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
               {project.downloads.map((dl, i) => {
                 const Icon = getIcon(dl.icon);
-                const strokeColors = ['#6A1B9A', '#006B6B', '#5B1890'];
-                const stroke = strokeColors[i] || '#333';
+                const strokeColors = ['#6A1B9A', '#006B6B', '#5B1890'];                const stroke = strokeColors[i] || '#333';
                 return (
                   <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
                     <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
@@ -981,8 +929,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
                   Submods
                 </h4>
                 <p className="text-[25px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}</p>
-                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#8A2BE2] text-[#8A2BE2] bg-white font-black text-[17px] hover:bg-[#8A2BE2] hover:text-white transition-colors">
-                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
+                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#8A2BE2] text-[#8A2BE2] bg-white font-black text-[17px] hover:bg-[#8A2BE2] hover:text-white transition-colors">                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
                 </button>
               </div>
             </div>
