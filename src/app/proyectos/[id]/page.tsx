@@ -47,8 +47,7 @@ function PinkDots() {
           position: 'fixed',
           top: -shift * 2,
           left: -shift * 2,
-          width: `calc(100vw + ${shift * 4}px)`,
-          height: `calc(100vh + ${shift * 4}px)`,
+          width: `calc(100vw + ${shift * 4}px)`,          height: `calc(100vh + ${shift * 4}px)`,
         }}
       >
         {dots.map(d => (
@@ -97,8 +96,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
               <div className="absolute bottom-2 right-2 bg-black/60 text-white/60 text-xs px-2 py-1 rounded-full">
                 {idx + 1}/{images.length}
               </div>
-            </div>
-          ))}
+            </div>          ))}
         </div>
         <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
           <ChevronLeft size={16} />
@@ -147,8 +145,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
-    </>
+      </AnimatePresence>    </>
   );
 }
 
@@ -197,8 +194,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
         {current < total - 1 && (
           <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm">
             <ChevronRight size={14} />
-          </button>
-        )}
+          </button>        )}
       </div>
 
       {/* Lightbox */}
@@ -247,8 +243,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
 
 /* ─── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ─── */
 function ProjectDetail({ project }: { project: typeof projects[number] }) {
-  const { t, locale } = useI18n();
-  const musicRef = useRef<HTMLIFrameElement>(null);
+  const { t, locale } = useI18n();  const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {
@@ -297,8 +292,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
           </button>
           <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
             <Share2 className="w-5 h-5" />
-          </button>
-        </div>
+          </button>        </div>
       </nav>
 
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
@@ -347,7 +341,6 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
                   </span>
                 ))}
               </div>
-
               <div className="pt-8 border-t border-white/10">
                 <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
                   <ImageIcon className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.preview')}
@@ -397,8 +390,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
               </div>
             </div>
           </div>
-        </div>
-      </main>
+        </div>      </main>
 
       <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
     </div>
@@ -447,8 +439,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   return (
     <>
       <style>{`
-        @font-face {
-          font-family: 'm1_fixed';
+        @font-face {          font-family: 'm1_fixed';
           src: url('/fonts/m1_fixed.ttf') format('truetype');
           font-weight: normal;
           font-style: normal;
@@ -497,8 +488,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
 
         <nav
           className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between"
-          style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}
-        >
+          style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}        >
           <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-[15px]">{t('projects.backToProjects')}</span>
@@ -547,8 +537,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
             className="space-y-4"
-          >
-            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+          >            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
@@ -597,8 +586,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
           </motion.div>
 
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 16 }}            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
             className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5"
@@ -647,8 +635,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                       style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }}
                     />
                     <span
-                      className="font-black uppercase tracking-wide text-[19px]"
-                      style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
+                      className="font-black uppercase tracking-wide text-[19px]"                      style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
                     >
                       {isEs ? dl.label : (dl.labelEn || dl.label)}
                     </span>
@@ -697,8 +684,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                 <div className="flex flex-col gap-2 w-full">
                   <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                     <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
-                  </button>
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                  </button>                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                     <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
                 </div>
@@ -747,8 +733,7 @@ export default function ProjectDetailPage() {
   const project = projects.find(p => p.id === id);
 
   if (!project) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] text-white">
+    return (      <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] text-white">
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold">404</h1>
           <p className="text-gray-400">Project not found</p>
@@ -758,7 +743,13 @@ export default function ProjectDetailPage() {
     );
   }
 
-  if (project.lightTheme) {
+  // ✅ MODIFICACIÓN: Aplicar estructura y diseño rosa/claro de Monika a Yuri y Natsuki
+  // Ajusta los IDs/nombres según cómo estén definidos en tu archivo `@/data/projects`
+  const useMonikaLayout = project.lightTheme || 
+    project.id?.includes('yuri') || 
+    project.id?.includes('natsuki');
+
+  if (useMonikaLayout) {
     return <MonikaDetail project={project} />;
   }
 
