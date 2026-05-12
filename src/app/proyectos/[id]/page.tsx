@@ -241,7 +241,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   );
 }
 
-/* ─── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ─── */
+/* ── Dark theme detail view (Just Natsuki, Just Yuri, etc.) ─── */
 function ProjectDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();  const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
@@ -508,7 +508,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
         >
           <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-            <span className="font-bold tracking-wider uppercase text-[15px]">{t('projects.backToProjects')}</span>
+            <span className="font-bold tracking-wider uppercase text-[13px]">{t('projects.backToProjects')}</span>
           </Link>
           <button
             onClick={toggleMute}
@@ -526,8 +526,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">
                 {project.name}
               </h1>
-              <p className="text-gray-800 text-[24px] font-extrabold mt-1 flex items-center gap-1.5">
-                {project.subtitle} <span>💗</span>
+              <p className="text-gray-800 text-[16px] font-extrabold mt-1 flex items-center gap-1.5">
+                {project.subtitle} <span className="text-lg">💗</span>
               </p>
             </motion.div>
 
@@ -557,24 +557,24 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-800 leading-relaxed text-[23px] font-extrabold">{desc}</p>
+            <p className="text-gray-800 leading-relaxed text-[16px] font-extrabold">{desc}</p>
 
             <div className="grid grid-cols-2 gap-3">
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
-                <span className="text-gray-800 font-extrabold text-[22px]">{status}</span>
+                <span className="text-[14px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
+                <span className="text-gray-800 font-extrabold text-[16px]">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
-                <span className="text-gray-800 font-extrabold text-[22px] flex items-center gap-1">
-                  {project.rating} <Star className="w-4.5 h-4.5 fill-current text-yellow-400" />
+                <span className="text-[14px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
+                <span className="text-gray-800 font-extrabold text-[16px] flex items-center gap-1">
+                  {project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" />
                 </span>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[19px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-800 font-extrabold hover:border-[#FF6B9D] transition-colors">
+                <span key={tag} className="text-[13px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-800 font-extrabold hover:border-[#FF6B9D] transition-colors">
                   {tag}
                 </span>
               ))}
@@ -601,7 +601,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             transition={{ duration: 0.5 }}
             className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5"
           >
-            <h3 className="pink-stroke-lg text-[22px] font-black flex items-center gap-2">
+            <h3 className="pink-stroke-lg text-[18px] font-black flex items-center gap-2">
               <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.details')}
             </h3>
@@ -614,8 +614,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               ].map(item => {
                 const ItemIcon = item.icon;
                 return (
-                  <li key={item.label} className="flex items-center gap-2 text-[21px]">
-                    <ItemIcon className="w-5 h-5 text-[#d87093] flex-shrink-0" />
+                  <li key={item.label} className="flex items-center gap-2 text-[14px]">
+                    <ItemIcon className="w-4 h-4 text-[#d87093] flex-shrink-0" />
                     <span className="text-gray-800 flex-1 font-extrabold">{item.label}</span>
                     <span className="text-gray-800 font-extrabold">{item.value}</span>
                   </li>
@@ -623,7 +623,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               })}
             </ul>
             <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
-              <h4 className="pink-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">
+              <h4 className="pink-stroke-sm text-[15px] font-black uppercase tracking-widest mb-2">
                 {isEs ? 'Opciones de Descarga' : 'Download Options'}
               </h4>
               {project.downloads.map((dl, i) => {
@@ -635,7 +635,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                     key={i}
                     href={dl.url}
                     target="_blank"
-                    rel="noopener noreferrer"                    className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md"
+                    rel="noopener noreferrer"                    className="w-full py-3 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md"
                     style={{ background: dl.color, border: `3px solid ${stroke}` }}
                   >
                     <Icon
@@ -643,7 +643,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                       style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }}
                     />
                     <span
-                      className="font-black uppercase tracking-wide text-[19px]"
+                      className="font-black uppercase tracking-wide text-[14px]"
                       style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}
                     >
                       {isEs ? dl.label : (dl.labelEn || dl.label)}
@@ -668,30 +668,30 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
 
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm text-[16px] font-black flex items-center gap-1">
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">
+                <p className="text-[16px] text-gray-800 leading-relaxed font-extrabold">
                   {isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}
                 </p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[13px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
                 </button>
               </div>
 
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
+                <h4 className="pink-stroke-sm text-[16px] font-black flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
-                </h4>                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">
+                </h4>                <p className="text-[16px] text-gray-800 leading-relaxed font-extrabold">
                   {isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}
                 </p>
                 <div className="flex flex-col gap-2 w-full">
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[13px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                     <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
                   </button>
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[13px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                     <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
                 </div>
@@ -700,14 +700,14 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
 
             <div className="flex justify-center">
               <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="pink-stroke-sm text-[22px] font-black flex items-center gap-1.5">
+                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1.5">
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
-                <p className="text-[25px] text-gray-800 leading-relaxed font-extrabold">
+                <p className="text-[16px] text-gray-800 leading-relaxed font-extrabold">
                   {isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}
                 </p>
-                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[17px] hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[14px] hover:bg-[#C06080] hover:text-white transition-colors">
                   {isEs ? 'Explorar Submods' : 'Explore Submods'}
                 </button>
               </div>
