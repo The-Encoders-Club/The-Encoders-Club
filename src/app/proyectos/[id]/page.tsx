@@ -170,7 +170,6 @@ function NatsukiFlowerBg() {
               fill: 'rgba(255, 255, 255, 0.55)',
             }}
           >
-            {/* 5-petal flower shape exactly like reference */}
             <g transform="translate(25, 25)">
               <ellipse cx="0" cy="-14" rx="7" ry="14" />
               <ellipse cx="13.3" cy="-4.3" rx="7" ry="14" transform="rotate(72)" />
@@ -237,14 +236,14 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
   );
 }
 
-/* ─── Preview carousel (pink theme) ─── */
+/* ─── Preview carousel (pink theme - MONIKA/NATSUKI) ─── */
 function PinkPreviewCarousel({ images }: { images: string[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const total = images.length;
-  const scroll = (dir: 'left' | 'right') => {
-    const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
+
+  const scroll = (dir: 'left' | 'right') => {    const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
     setCurrent(next);
     if (ref.current) {
       (ref.current.children[next] as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
@@ -284,6 +283,53 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   );
 }
 
+/* ─── Preview carousel (purple theme - YURI ONLY) ─── */
+function PurplePreviewCarousel({ images }: { images: string[] }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [current, setCurrent] = useState(0);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
+  const total = images.length;
+
+  const scroll = (dir: 'left' | 'right') => {
+    const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
+    setCurrent(next);    if (ref.current) {
+      (ref.current.children[next] as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
+    }
+  };
+
+  const closeLightbox = () => setLightboxIdx(null);
+  const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
+  const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(total - 1, i + 1) : null));
+
+  return (
+    <>
+      <div className="relative">
+        <div ref={ref} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
+          {images.map((src, idx) => (
+            <div key={idx} onClick={() => setLightboxIdx(idx)} className="flex-none rounded-xl overflow-hidden border-2 border-[#9B59B6] aspect-video relative snap-start cursor-zoom-in hover:border-[#8E44AD] transition-all" style={{ width: 'calc(43% - 8px)', minWidth: 140 }}>
+              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
+              <div className="absolute bottom-1.5 right-1.5 bg-[#8A2BE2]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">{idx + 1}/{total}</div>
+            </div>
+          ))}
+        </div>
+        {current > 0 && <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-purple-50 z-10 shadow-sm"><ChevronLeft size={14} /></button>}
+        {current < total - 1 && <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-purple-50 z-10 shadow-sm"><ChevronRight size={14} /></button>}
+      </div>
+      <AnimatePresence>
+        {lightboxIdx !== null && (
+          <motion.div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeLightbox}>
+            <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><X size={20} /></button>
+            {lightboxIdx > 0 && <button onClick={e => { e.stopPropagation(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><ChevronLeft size={22} /></button>}
+            {lightboxIdx < total - 1 && <button onClick={e => { e.stopPropagation(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><ChevronRight size={22} /></button>}
+            <motion.img key={lightboxIdx} src={images[lightboxIdx]} alt={`Preview ${lightboxIdx + 1}`} className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl border-2 border-[#9B59B6]" initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.85, opacity: 0 }} transition={{ duration: 0.25 }} onClick={e => e.stopPropagation()} />
+            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/80 text-[#8A2BE2] text-xs px-3 py-1.5 rounded-full font-bold border border-[#9B59B6]">{lightboxIdx + 1} / {total}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
+  );
+}
+
 /* ─── Dark theme detail view ─── */
 function ProjectDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
@@ -292,10 +338,10 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch (e) { /* cross-origin */ }    }, 1500);
+      try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch (e) { /* cross-origin */ }
+    }, 1500);
     return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
   }, []);
-
   const toggleMute = () => {
     if (musicRef.current) {
       try { musicRef.current.contentWindow?.postMessage(muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'); } catch (e) { /* cross-origin */ }
@@ -341,10 +387,10 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
               <h3 className="text-2xl font-bold text-white flex items-center gap-2">
                 <BookOpen className="w-6 h-6" style={{ color: project.themeColor }} /> {isEs ? 'Sobre este proyecto' : 'About this project'}
               </h3>
-              <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>              <div className="grid grid-cols-2 gap-4">
+              <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>
+              <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.status')}</span>
-                  <span className="text-white font-medium">{status}</span>
+                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.status')}</span>                  <span className="text-white font-medium">{status}</span>
                 </div>
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
                   <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.rating')}</span>
@@ -390,10 +436,10 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
                 {project.downloads.map((dl, i) => {
                   const Icon = getIcon(dl.icon);
                   return (
-                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>                      <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
+                      <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
                       {isEs ? dl.label : (dl.labelEn || dl.label)}
-                    </a>
-                  );
+                    </a>                  );
                 })}
               </div>
             </div>
@@ -405,7 +451,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ─── Light/pink theme detail view — MONIKA (ORIGINAL INTACTO) ── */
+/* ─── Light/pink theme detail view — MONIKA (ORIGINAL INTACTO) ─── */
 function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
@@ -439,10 +485,10 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
         .pink-stroke-sm { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 5px #ba609e; paint-order: stroke fill; }
         .pink-stroke-xs { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 3px #ba609e; paint-order: stroke fill; }
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}>
+      `}</style>
+      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}>
         <PinkDots />
-        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}>
-          <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
+        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}>          <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-[15px]">{t('projects.backToProjects')}</span>
           </Link>
@@ -488,10 +534,10 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
               <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.preview')}
             </h4>
-            <PinkPreviewCarousel images={project.previews} />          </motion.div>
+            <PinkPreviewCarousel images={project.previews} />
+          </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5">
-            <h3 className="pink-stroke-lg text-[22px] font-black flex items-center gap-2">
-              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+            <h3 className="pink-stroke-lg text-[22px] font-black flex items-center gap-2">              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.details')}
             </h3>
             <ul className="space-y-2.5">
@@ -537,10 +583,10 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
-                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
-                </button>
-              </div>
+                </button>              </div>
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
@@ -580,16 +626,16 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ─── Light/pink theme detail view — NATSUKI (FLOWER BG - EXACT) ─── */
+/* ── Light/pink theme detail view — NATSUKI (FLOWER BG - EXACT) ── */
 function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
-  useEffect(() => {    const timer = setTimeout(() => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
       try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch (e) { /* cross-origin */ }
-    }, 1500);
-    return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
+    }, 1500);    return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
   }, []);
 
   const toggleMute = () => {
@@ -633,12 +679,12 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
           <div className="space-y-4">
             <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <h1 className="natsuki-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
-              <p className="text-gray-800 text-[16px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg">💗</span></p>
+              <p className="text-gray-800 text-[16px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg"></span></p>
             </motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group" style={{ boxShadow: '0 8px 32px #FF6B9D30' }}>              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group" style={{ boxShadow: '0 8px 32px #FF6B9D30' }}>
+              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-            </motion.div>
-          </div>
+            </motion.div>          </div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
             <h3 className="natsuki-stroke-lg text-xl font-black flex items-center gap-2">
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
@@ -684,10 +730,10 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                 return (
                   <li key={item.label} className="flex items-center gap-2 text-[14px]">
                     <ItemIcon className="w-4 h-4 text-[#d87093] flex-shrink-0" />
-                    <span className="text-gray-800 flex-1 font-extrabold">{item.label}</span>                    <span className="text-gray-800 font-extrabold">{item.value}</span>
+                    <span className="text-gray-800 flex-1 font-extrabold">{item.label}</span>
+                    <span className="text-gray-800 font-extrabold">{item.value}</span>
                   </li>
-                );
-              })}
+                );              })}
             </ul>
             <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
               <h4 className="natsuki-stroke-sm text-[15px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
@@ -733,10 +779,10 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                   <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[13px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                     <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
-                </div>              </div>
+                </div>
+              </div>
             </div>
-            <div className="flex justify-center">
-              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex justify-center">              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="natsuki-stroke-sm text-[18px] font-black flex items-center gap-1.5">
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
@@ -758,7 +804,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ─── Light/purple theme detail view — YURI (LARGE TEXT) ─── */
+/* ─── Light/purple theme detail view — YURI (PURPLE BORDERS & GALLERY) ─── */
 function YuriDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
@@ -782,9 +828,9 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
 
-  const dotColor = '#e8d5f5';  const titleFontFamily = "'RifficFree', 'm1_fixed', monospace";
+  const dotColor = '#e8d5f5';
+  const titleFontFamily = "'RifficFree', 'm1_fixed', monospace";
   const bodyFontFamily = "'m1_fixed', monospace";
-
   const borderColor = '#9B59B6';
   const hoverBorderColor = '#8E44AD';
   const accentColor = '#8A2BE2';
@@ -821,6 +867,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               <h1 className="yuri-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
               <p className="text-gray-800 text-[24px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg"></span></p>
             </motion.div>
+            {/* Imagen principal con bordes morados consistentes */}
             <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#9B59B6] aspect-video relative group" style={{ boxShadow: `0 8px 32px ${shadowColor}` }}>
               <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
@@ -831,9 +878,9 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               <FileText className="w-5 h-5 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
-            <p className="text-gray-800 leading-relaxed text-[23px] font-extrabold">{desc}</p>            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-white border-2 border-[#9B59B6] shadow-sm">
-                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
+            <p className="text-gray-800 leading-relaxed text-[23px] font-extrabold">{desc}</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-white border-2 border-[#9B59B6] shadow-sm">                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
                 <span className="text-gray-800 font-extrabold text-[22px]">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#9B59B6] shadow-sm">
@@ -852,7 +899,8 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               <ImageIcon className="w-5 h-5 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.preview')}
             </h4>
-            <PinkPreviewCarousel images={project.previews} />
+            {/* Galería con bordes morados (PurplePreviewCarousel) */}
+            <PurplePreviewCarousel images={project.previews} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#9B59B6] p-5 shadow-sm space-y-5">
             <h3 className="yuri-stroke-lg text-[22px] font-black flex items-center gap-2">
@@ -880,8 +928,8 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               <h4 className="yuri-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
               {project.downloads.map((dl, i) => {
                 const Icon = getIcon(dl.icon);
-                const strokeColors = ['#6A1B9A', '#006B6B', '#5B1890'];                const stroke = strokeColors[i] || '#333';
-                return (
+                const strokeColors = ['#6A1B9A', '#006B6B', '#5B1890'];
+                const stroke = strokeColors[i] || '#333';                return (
                   <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
                     <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
                     <span className="font-black uppercase tracking-wide text-[19px]" style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
@@ -929,8 +977,8 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
                   Submods
                 </h4>
                 <p className="text-[25px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}</p>
-                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#8A2BE2] text-[#8A2BE2] bg-white font-black text-[17px] hover:bg-[#8A2BE2] hover:text-white transition-colors">                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
-                </button>
+                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#8A2BE2] text-[#8A2BE2] bg-white font-black text-[17px] hover:bg-[#8A2BE2] hover:text-white transition-colors">
+                  {isEs ? 'Explorar Submods' : 'Explore Submods'}                </button>
               </div>
             </div>
           </motion.div>
