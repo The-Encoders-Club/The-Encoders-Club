@@ -24,9 +24,10 @@ interface CommentSectionProps {
   targetId: string;
   targetType: 'project' | 'news';
   lightTheme?: boolean;
+  theme?: 'monika' | 'natsuki' | 'yuri';
 }
 
-export function CommentSection({ targetId, targetType, lightTheme }: CommentSectionProps) {
+export function CommentSection({ targetId, targetType, lightTheme, theme }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [replyTo, setReplyTo] = useState<string | null>(null);
@@ -46,8 +47,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
   };
 
   const submitComment = async (content: string, parentId?: string) => {
-    if (!user) { toast.error('Inicia sesión para comentar'); return; }
-    setSubmitting(true);
+    if (!user) { toast.error('Inicia sesión para comentar'); return; }    setSubmitting(true);
     try {
       const res = await fetch('/api/comments', {
         method: 'POST',
@@ -88,24 +88,49 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
 
   const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
 
-  /* ─── Theme-aware style helpers ─── */
-  const cardBg = lightTheme
-    ? 'bg-[#FFE6EA]/50 border border-[#FFB6C8]/30 hover:bg-[#FFE6EA]/70'
-    : 'bg-white/3 border border-white/5 hover:bg-white/5';
-  const inputCls = lightTheme
-    ? 'bg-white border border-[#FFB6C8]/40 text-gray-700 placeholder-gray-400 focus:border-[#FF2D78]/50'
-    : 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-[#FF2D78]/50';
-  const sendBtnCls = lightTheme
-    ? 'bg-[#FF2D78] hover:bg-[#d6336c]'
-    : 'bg-gradient-to-r from-[#FF2D78] to-[#a855f7]';
-  const replyInputCls = lightTheme
-    ? 'bg-white border border-[#FFB6C8]/40 text-gray-700 placeholder-gray-400 focus:border-[#FF2D78]/50'
-    : 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-[#FF2D78]/50';
+  /* ─── Theme Configuration ─── */
+  const isDark = !lightTheme;
+  const activeTheme = lightTheme ? (theme || 'monika') : 'dark';
+
+  const c = {
+    cardBg: isDark
+      ? 'bg-white/3 border border-white/5 hover:bg-white/5'
+      : activeTheme === 'natsuki' ? 'bg-[#FFE6EE]/60 border border-[#FF7EB3]/40 hover:bg-[#FFE6EE]/80'
+      : activeTheme === 'yuri' ? 'bg-[#F3E5F5]/60 border border-[#9B59B6]/40 hover:bg-[#F3E5F5]/80'      : 'bg-[#FFE6EA]/50 border border-[#FFB6C8]/30 hover:bg-[#FFE6EA]/70',
+    
+    inputCls: isDark
+      ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-[#FF2D78]/50'
+      : activeTheme === 'natsuki' ? 'bg-white border border-[#FF7EB3]/50 text-gray-700 placeholder-gray-400 focus:border-[#E84393]/60'
+      : activeTheme === 'yuri' ? 'bg-white border border-[#9B59B6]/50 text-gray-700 placeholder-gray-400 focus:border-[#8A2BE2]/60'
+      : 'bg-white border border-[#FFB6C8]/40 text-gray-700 placeholder-gray-400 focus:border-[#FF2D78]/50',
+    
+    sendBtnCls: isDark
+      ? 'bg-gradient-to-r from-[#FF2D78] to-[#a855f7]'
+      : activeTheme === 'natsuki' ? 'bg-[#E84393] hover:bg-[#D63384]'
+      : activeTheme === 'yuri' ? 'bg-[#8A2BE2] hover:bg-[#6A1B9A]'
+      : 'bg-[#FF2D78] hover:bg-[#d6336c]',
+    
+    cancelBtnCls: isDark
+      ? 'bg-white/5 text-white/40'
+      : activeTheme === 'natsuki' ? 'bg-[#FFE6EE] text-gray-500'
+      : activeTheme === 'yuri' ? 'bg-[#F3E5F5] text-gray-500'
+      : 'bg-[#FFE6EA] text-gray-500',
+    
+    textBody: isDark ? 'text-white/70' : 'text-gray-700',
+    textMuted: isDark ? 'text-white/30' : 'text-gray-400',
+    textMutedLight: isDark ? 'text-white/20' : 'text-gray-400',
+    replyBorder: isDark ? 'border-white/10' : activeTheme === 'natsuki' ? 'border-[#FF7EB3]/40' : activeTheme === 'yuri' ? 'border-[#9B59B6]/40' : 'border-[#FFB6C8]/40',
+    avatarBg: isDark ? 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]' : activeTheme === 'natsuki' ? 'bg-[#E84393]' : activeTheme === 'yuri' ? 'bg-[#8A2BE2]' : 'bg-[#FF2D78]',
+    avatarBgReply: isDark ? 'bg-white/10' : activeTheme === 'natsuki' ? 'bg-[#E84393]/80' : activeTheme === 'yuri' ? 'bg-[#8A2BE2]/80' : 'bg-[#FF2D78]/80',
+    avatarPlaceholder: isDark ? 'text-white/30' : activeTheme === 'natsuki' ? 'text-[#E84393]/50' : activeTheme === 'yuri' ? 'text-[#8A2BE2]/50' : 'text-[#FF2D78]/50',
+    strokeColor: isDark ? '#ffffff' : activeTheme === 'natsuki' ? '#FF3D7F' : activeTheme === 'yuri' ? '#8A2BE2' : '#ba609e',
+    titleColor: isDark ? '#ffffff' : '#fefefe',
+  };
 
   return (
     <div
       className="mt-4 space-y-4"
-      style={{ fontFamily: lightTheme ? "'m1_fixed', monospace" : undefined }}
+      style={{ fontFamily: lightTheme ? "'m1_fixed', monospace" : undefined, '--stroke-color': c.strokeColor } as React.CSSProperties}
     >
       <style>{`
         @font-face {
@@ -120,10 +145,8 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
           src: url('/fonts/Aller_Rg.ttf') format('truetype');
           font-weight: normal;
           font-style: normal;
-          font-display: swap;
-        }
+          font-display: swap;        }
 
-        /* ── Título con stroke igual al resto del sitio (pink-stroke-sm de page.tsx) ── */
         .comment-section-title {
           font-family: 'RifficFree', 'm1_fixed', monospace;
           font-size: 1.5rem;
@@ -133,15 +156,14 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
           align-items: center;
           gap: 0.5rem;
         }
-        .comment-section-title.light {
-          color: #fefefe;
-          -webkit-text-stroke: 5px #ba609e;
+        .comment-section-title.stroked {
+          color: var(--stroke-color);
+          -webkit-text-stroke: 5px var(--stroke-color);
           paint-order: stroke fill;
         }
         .comment-section-title.dark {
           color: #fff;
         }
-        /* ── Badges de rol con Aller ── */
         .role-badge {
           font-family: 'Aller', sans-serif;
           font-size: 10px;
@@ -152,11 +174,11 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
         }
       `}</style>
 
-      {/* ── Título ── */}
-      <h3 className={`comment-section-title ${lightTheme ? 'light' : 'dark'}`}>
+      {/* ── Título ─ */}
+      <h3 className={`comment-section-title ${lightTheme ? 'stroked' : 'dark'}`}>
         <MessageCircle
-          className="text-[#FF2D78] flex-shrink-0"
-          style={{ width: '1.25rem', height: '1.25rem', strokeWidth: 2.2 }}
+          className="flex-shrink-0"
+          style={{ width: '1.25rem', height: '1.25rem', strokeWidth: 2.2, color: activeTheme === 'yuri' ? '#8A2BE2' : activeTheme === 'natsuki' ? '#E84393' : '#FF2D78' }}
         />
         Comentarios
       </h3>
@@ -165,16 +187,13 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
       <div className="flex items-center gap-2">
         {/* Avatar */}
         <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
-          user
-            ? lightTheme ? 'bg-[#FF2D78]' : 'bg-gradient-to-r from-[#FF2D78] to-[#a855f7]'
-            : lightTheme ? 'bg-[#FFB6C8]/50' : 'bg-white/10'
+          user ? c.avatarBg : lightTheme ? c.avatarBg.replace('bg-[#', 'bg-[#FF').replace(']', '/50') : 'bg-white/10'
         }`}>
           {user?.avatar
             ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-            : <User size={16} className={user ? 'text-white' : lightTheme ? 'text-[#FF2D78]/50' : 'text-white/30'} />
+            : <User size={16} className={user ? 'text-white' : c.avatarPlaceholder} />
           }
         </div>
-
         {/* Campo + botón enviar */}
         <div className="flex flex-1 gap-2">
           <input
@@ -183,13 +202,13 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
             value={newComment}
             onChange={e => setNewComment(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm focus:outline-none transition-all ${inputCls}`}
+            className={`flex-1 px-4 py-2 rounded-xl text-sm focus:outline-none transition-all ${c.inputCls}`}
             style={{ fontFamily: "'Aller', sans-serif" }}
           />
           <button
             onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }}
             disabled={submitting || !newComment.trim()}
-            className={`w-10 h-10 flex items-center justify-center rounded-xl text-white flex-shrink-0 disabled:opacity-40 transition-all ${sendBtnCls}`}
+            className={`w-10 h-10 flex items-center justify-center rounded-xl text-white flex-shrink-0 disabled:opacity-40 transition-all ${c.sendBtnCls}`}
           >
             <Send size={15} />
           </button>
@@ -199,7 +218,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
       {/* ── Lista de comentarios ── */}
       <div className="space-y-3 max-h-[32rem] overflow-y-auto pr-1">
         {comments.length === 0 && (
-          <div className={`text-center py-8 text-sm ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}
+          <div className={`text-center py-8 text-sm ${c.textMutedLight}`}
             style={{ fontFamily: "'Aller', sans-serif" }}>
             No hay comentarios aún. ¡Sé el primero!
           </div>
@@ -210,12 +229,12 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
             key={comment.id}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`p-3 rounded-xl transition-all ${cardBg}`}
+            className={`p-3 rounded-xl transition-all ${c.cardBg}`}
           >
             <div className="flex items-start gap-3">
               {/* Avatar comentario */}
               <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
-                lightTheme ? 'bg-[#FF2D78]' : 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]'
+                lightTheme ? c.avatarBg : 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]'
               }`}>
                 {comment.author.avatar
                   ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" />
@@ -224,8 +243,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
 
               <div className="flex-1 min-w-0">
                 {/* Cabecera: nombre + rol + fecha */}
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <span
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">                  <span
                     className={`text-sm font-semibold leading-none ${lightTheme ? 'text-gray-800' : 'text-white'}`}
                     style={{ fontFamily: "'Aller', sans-serif" }}
                   >
@@ -257,12 +275,12 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
 
                 {/* Contenido */}
                 {comment.isDeleted ? (
-                  <p className={`text-sm italic mt-1 ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
+                  <p className={`text-sm italic mt-1 ${c.textMutedLight}`}>
                     Este comentario fue eliminado
                   </p>
                 ) : (
                   <p
-                    className={`text-sm mt-1 break-words ${lightTheme ? 'text-gray-700' : 'text-white/70'}`}
+                    className={`text-sm mt-1 break-words ${c.textBody}`}
                     style={{ fontFamily: "'Aller', sans-serif" }}
                   >
                     {comment.content}
@@ -274,8 +292,7 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
                   className="flex items-center gap-3 mt-2"
                   style={{ fontFamily: "'Aller', sans-serif" }}
                 >
-                  <button
-                    onClick={() => toggleLike(comment.id)}
+                  <button                    onClick={() => toggleLike(comment.id)}
                     className={`flex items-center gap-1 text-xs transition-colors ${lightTheme ? 'text-gray-400 hover:text-[#FF2D78]' : 'text-white/30 hover:text-[#FF2D78]'}`}
                   >
                     <Heart size={14} />
@@ -312,19 +329,19 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
                       value={replyText}
                       onChange={e => setReplyText(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && replyText.trim()) submitComment(replyText.trim(), comment.id); }}
-                      className={`flex-1 px-3 py-1.5 rounded-lg text-xs focus:outline-none transition-all ${replyInputCls}`}
+                      className={`flex-1 px-3 py-1.5 rounded-lg text-xs focus:outline-none transition-all ${c.inputCls}`}
                       style={{ fontFamily: "'Aller', sans-serif" }}
                     />
                     <button
                       onClick={() => { if (replyText.trim()) submitComment(replyText.trim(), comment.id); }}
                       disabled={submitting}
-                      className="px-2.5 py-1.5 rounded-lg bg-[#FF2D78] text-white disabled:opacity-50 flex items-center"
+                      className="px-2.5 py-1.5 rounded-lg text-white disabled:opacity-50 flex items-center"
+                      style={{ backgroundColor: activeTheme === 'yuri' ? '#8A2BE2' : activeTheme === 'natsuki' ? '#E84393' : '#FF2D78' }}
                     >
                       <Send size={11} />
                     </button>
                     <button
-                      onClick={() => { setReplyTo(null); setReplyText(''); }}
-                      className={`px-2.5 py-1.5 rounded-lg text-xs ${lightTheme ? 'bg-[#FFE6EA] text-gray-500' : 'bg-white/5 text-white/40'}`}
+                      onClick={() => { setReplyTo(null); setReplyText(''); }}                      className={`px-2.5 py-1.5 rounded-lg text-xs ${c.cancelBtnCls}`}
                     >
                       Cancelar
                     </button>
@@ -333,10 +350,10 @@ export function CommentSection({ targetId, targetType, lightTheme }: CommentSect
 
                 {/* Respuestas */}
                 {comment.replies && comment.replies.length > 0 && (
-                  <div className={`mt-3 space-y-2 pl-3 ${lightTheme ? 'border-l border-[#FFB6C8]/40' : 'border-l border-white/10'}`}>
+                  <div className={`mt-3 space-y-2 pl-3 border-l ${c.replyBorder}`}>
                     {comment.replies.map(reply => (
                       <div key={reply.id} className="flex items-start gap-2">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${lightTheme ? 'bg-[#FF2D78]/80' : 'bg-white/10'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${lightTheme ? c.avatarBgReply : 'bg-white/10'}`}>
                           {reply.author.avatar
                             ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" />
                             : <User size={13} className="text-white" />}
