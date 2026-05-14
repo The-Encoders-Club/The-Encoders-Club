@@ -184,6 +184,77 @@ function NatsukiFlowerBg() {
   );
 }
 
+/* ─── Flower Background (YURI ONLY - GRADIENT & BRICK PATTERN) ─── */
+function YuriFlowerBg() {
+  const GAP_X = 130;
+  const GAP_Y = 130;
+  const shift = GAP_Y * 2;
+  
+  const cols = Math.ceil(2000 / GAP_X) + 2;
+  const rows = Math.ceil(2000 / GAP_Y) + 2;
+  const items: { id: number; x: number; y: number }[] = [];
+  
+  for (let r = 0; r < rows; r++) {    for (let c = 0; c < cols; c++) {
+      // Brick pattern: offset every odd row
+      const offsetX = (r % 2 !== 0) ? GAP_X / 2 : 0;
+      items.push({ id: r * cols + c, x: c * GAP_X + offsetX, y: r * GAP_Y });
+    }
+  }
+
+  return (
+    <>
+      <style>{`
+        @keyframes yuriScroll {
+          0%   { transform: translate(0px, 0px); }
+          100% { transform: translate(0px, -${shift}px); }
+        }
+        .yuri-flower-layer {
+          animation: yuriScroll 25s linear infinite;
+        }
+      `}</style>
+      {/* Background Gradient */}
+      <div className="fixed inset-0 pointer-events-none" style={{ background: 'linear-gradient(180deg, #703D5F 0%, #A3598A 100%)' }} />
+      
+      {/* Animated Flower Layer */}
+      <div
+        className="yuri-flower-layer pointer-events-none"
+        style={{
+          position: 'fixed',
+          top: -shift,
+          left: -shift,
+          width: `calc(100vw + ${shift * 2}px)`,
+          height: `calc(100vh + ${shift * 2}px)`,
+        }}
+      >
+        {items.map(d => (
+          <svg
+            key={d.id}
+            viewBox="0 0 40 40"
+            width="70"
+            height="70"
+            className="absolute"
+            style={{
+              left: d.x - 35,
+              top: d.y - 35,
+              fill: '#DBA3C4',
+            }}
+          >
+            {/* 5 Petals */}
+            <g transform="translate(20, 20)">
+               <ellipse cx="0" cy="-10" rx="5" ry="10" />
+               <ellipse cx="9.5" cy="-3.1" rx="5" ry="10" transform="rotate(72)" />
+               <ellipse cx="5.9" cy="8.1" rx="5" ry="10" transform="rotate(144)" />               <ellipse cx="-5.9" cy="8.1" rx="5" ry="10" transform="rotate(216)" />
+               <ellipse cx="-9.5" cy="-3.1" rx="5" ry="10" transform="rotate(288)" />
+            </g>
+            {/* Center Highlight */}
+            <circle cx="20" cy="20" r="3" fill="#E8C4E0" />
+          </svg>
+        ))}
+      </div>
+    </>
+  );
+}
+
 /* ─── Image carousel (dark theme) ─── */
 function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: string }) {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -194,6 +265,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
       scrollRef.current.scrollBy({ left: dir === 'left' ? -280 : 280, behavior: 'smooth' });
     }
   };
+
   const closeLightbox = () => setLightboxIdx(null);
   const prevImage = () => setLightboxIdx(i => (i !== null ? Math.max(0, i - 1) : null));
   const nextImage = () => setLightboxIdx(i => (i !== null ? Math.min(images.length - 1, i + 1) : null));
@@ -220,8 +292,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
         <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
           <ChevronRight size={16} />
         </button>
-      </div>
-      <AnimatePresence>
+      </div>      <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeLightbox}>
             <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10"><X size={20} /></button>
@@ -243,7 +314,8 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
   const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
   const total = images.length;
 
-  const scroll = (dir: 'left' | 'right') => {    const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
+  const scroll = (dir: 'left' | 'right') => {
+    const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
     setCurrent(next);
     if (ref.current) {
       (ref.current.children[next] as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
@@ -269,8 +341,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
         {current < total - 1 && <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm"><ChevronRight size={14} /></button>}
       </div>
       <AnimatePresence>
-        {lightboxIdx !== null && (
-          <motion.div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeLightbox}>
+        {lightboxIdx !== null && (          <motion.div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeLightbox}>
             <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><X size={20} /></button>
             {lightboxIdx > 0 && <button onClick={e => { e.stopPropagation(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><ChevronLeft size={22} /></button>}
             {lightboxIdx < total - 1 && <button onClick={e => { e.stopPropagation(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><ChevronRight size={22} /></button>}
@@ -292,7 +363,8 @@ function PurplePreviewCarousel({ images }: { images: string[] }) {
 
   const scroll = (dir: 'left' | 'right') => {
     const next = dir === 'right' ? Math.min(current + 1, total - 1) : Math.max(current - 1, 0);
-    setCurrent(next);    if (ref.current) {
+    setCurrent(next);
+    if (ref.current) {
       (ref.current.children[next] as HTMLElement)?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'start' });
     }
   };
@@ -318,8 +390,7 @@ function PurplePreviewCarousel({ images }: { images: string[] }) {
       <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeLightbox}>
-            <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><X size={20} /></button>
-            {lightboxIdx > 0 && <button onClick={e => { e.stopPropagation(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><ChevronLeft size={22} /></button>}
+            <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><X size={20} /></button>            {lightboxIdx > 0 && <button onClick={e => { e.stopPropagation(); prevImage(); }} className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><ChevronLeft size={22} /></button>}
             {lightboxIdx < total - 1 && <button onClick={e => { e.stopPropagation(); nextImage(); }} className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/90 border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><ChevronRight size={22} /></button>}
             <motion.img key={lightboxIdx} src={images[lightboxIdx]} alt={`Preview ${lightboxIdx + 1}`} className="max-w-[90vw] max-h-[85vh] rounded-2xl object-contain shadow-2xl border-2 border-[#9B59B6]" initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.85, opacity: 0 }} transition={{ duration: 0.25 }} onClick={e => e.stopPropagation()} />
             <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white/80 text-[#8A2BE2] text-xs px-3 py-1.5 rounded-full font-bold border border-[#9B59B6]">{lightboxIdx + 1} / {total}</div>
@@ -342,6 +413,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
     }, 1500);
     return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
   }, []);
+
   const toggleMute = () => {
     if (musicRef.current) {
       try { musicRef.current.contentWindow?.postMessage(muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'); } catch (e) { /* cross-origin */ }
@@ -367,8 +439,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
           <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
             <Share2 className="w-5 h-5" />
           </button>
-        </div>
-      </nav>
+        </div>      </nav>
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           <div className="lg:col-span-2 space-y-8">
@@ -390,7 +461,8 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
               <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.status')}</span>                  <span className="text-white font-medium">{status}</span>
+                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.status')}</span>
+                  <span className="text-white font-medium">{status}</span>
                 </div>
                 <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
                   <span className="text-xs font-bold uppercase block mb-1" style={{ color: project.themeColor }}>{t('projects.rating')}</span>
@@ -416,8 +488,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
           <div className="space-y-8">
             <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32 space-y-6">
               <h3 className="text-xl font-bold flex items-center gap-2">
-                <Cpu className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.details')}
-              </h3>
+                <Cpu className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.details')}              </h3>
               <ul className="space-y-4">
                 {[
                   { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
@@ -439,7 +510,8 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
                     <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
                       <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
                       {isEs ? dl.label : (dl.labelEn || dl.label)}
-                    </a>                  );
+                    </a>
+                  );
                 })}
               </div>
             </div>
@@ -465,8 +537,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   }, []);
 
   const toggleMute = () => {
-    if (musicRef.current) {
-      try { musicRef.current.contentWindow?.postMessage(muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'); } catch (e) { /* cross-origin */ }
+    if (musicRef.current) {      try { musicRef.current.contentWindow?.postMessage(muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'); } catch (e) { /* cross-origin */ }
     }
     setMuted(!muted);
   };
@@ -488,7 +559,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
       `}</style>
       <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}>
         <PinkDots />
-        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}>          <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
+        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}>
+          <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-[15px]">{t('projects.backToProjects')}</span>
           </Link>
@@ -514,8 +586,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             </h3>
             <p className="text-gray-800 leading-relaxed text-[23px] font-extrabold">{desc}</p>
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
-                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
                 <span className="text-gray-800 font-extrabold text-[22px]">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
@@ -537,7 +608,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             <PinkPreviewCarousel images={project.previews} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5">
-            <h3 className="pink-stroke-lg text-[22px] font-black flex items-center gap-2">              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+            <h3 className="pink-stroke-lg text-[22px] font-black flex items-center gap-2">
+              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.details')}
             </h3>
             <ul className="space-y-2.5">
@@ -563,8 +635,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                 const Icon = getIcon(dl.icon);
                 const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
                 const stroke = strokeColors[i] || '#333';
-                return (
-                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
+                return (                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
                     <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
                     <span className="font-black uppercase tracking-wide text-[19px]" style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
                   </a>
@@ -586,7 +657,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                 <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>
                 <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
-                </button>              </div>
+                </button>
+              </div>
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
@@ -612,8 +684,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                 <p className="text-[25px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}</p>
                 <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[17px] hover:bg-[#C06080] hover:text-white transition-colors">
                   {isEs ? 'Explorar Submods' : 'Explore Submods'}
-                </button>
-              </div>
+                </button>              </div>
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm">
@@ -626,7 +697,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ── Light/pink theme detail view — NATSUKI (FLOWER BG - EXACT) ── */
+/* ─── Light/pink theme detail view — NATSUKI (FLOWER BG - EXACT) ─── */
 function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
@@ -635,7 +706,8 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   useEffect(() => {
     const timer = setTimeout(() => {
       try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch (e) { /* cross-origin */ }
-    }, 1500);    return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
+    }, 1500);
+    return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
   }, []);
 
   const toggleMute = () => {
@@ -661,8 +733,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
         .natsuki-title { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 9px #ba609e; paint-order: stroke fill; }
         .natsuki-stroke-lg { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 6px #ba609e; paint-order: stroke fill; }
         .natsuki-stroke-sm { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 5px #ba609e; paint-order: stroke fill; }
-        .natsuki-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px #ba609e; paint-order: stroke fill; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .natsuki-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px #ba609e; paint-order: stroke fill; }        .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: '#A36291' }}>
         <NatsukiFlowerBg />
@@ -679,12 +750,13 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
           <div className="space-y-4">
             <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <h1 className="natsuki-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
-              <p className="text-gray-800 text-[16px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg"></span></p>
+              <p className="text-gray-800 text-[16px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg">💗</span></p>
             </motion.div>
             <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group" style={{ boxShadow: '0 8px 32px #FF6B9D30' }}>
               <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-            </motion.div>          </div>
+            </motion.div>
+          </div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
             <h3 className="natsuki-stroke-lg text-xl font-black flex items-center gap-2">
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
@@ -710,8 +782,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
             <h4 className="natsuki-stroke-lg text-xl font-black flex items-center gap-2">
               <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {t('projects.preview')}
-            </h4>
+              {t('projects.preview')}            </h4>
             <PinkPreviewCarousel images={project.previews} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5">
@@ -733,7 +804,8 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                     <span className="text-gray-800 flex-1 font-extrabold">{item.label}</span>
                     <span className="text-gray-800 font-extrabold">{item.value}</span>
                   </li>
-                );              })}
+                );
+              })}
             </ul>
             <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
               <h4 className="natsuki-stroke-sm text-[15px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
@@ -759,8 +831,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
               <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="natsuki-stroke-sm text-[16px] font-black flex items-center gap-1">
                   <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  Wiki del Mod
-                </h4>
+                  Wiki del Mod                </h4>
                 <p className="text-[16px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>
                 <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[13px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
@@ -782,7 +853,8 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                 </div>
               </div>
             </div>
-            <div className="flex justify-center">              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+            <div className="flex justify-center">
+              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="natsuki-stroke-sm text-[18px] font-black flex items-center gap-1.5">
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
@@ -804,12 +876,11 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ─── Light/purple theme detail view — YURI (PURPLE BORDERS & GALLERY) ─── */
+/* ─── Light/purple theme detail view — YURI (NEW BACKGROUND) ─── */
 function YuriDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
-
   useEffect(() => {
     const timer = setTimeout(() => {
       try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch (e) { /* cross-origin */ }
@@ -828,7 +899,6 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
 
-  const dotColor = '#e8d5f5';
   const titleFontFamily = "'RifficFree', 'm1_fixed', monospace";
   const bodyFontFamily = "'m1_fixed', monospace";
   const borderColor = '#9B59B6';
@@ -850,24 +920,24 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
         .yuri-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px ${strokeColor}; paint-order: stroke fill; }
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: '#ffffff' }}>
-        <CharacterDots dotColor={dotColor} />
+      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: '#703D5F' }}>
+        {/* NEW BACKGROUND COMPONENT */}
+        <YuriFlowerBg />
+        
         <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: navBg, backdropFilter: 'blur(14px)', borderBottom: `1px solid ${borderColor}` }}>
           <Link href="/proyectos" className="flex items-center gap-2 text-[#6A1B9A] hover:text-[#8A2BE2] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-[13px]">{t('projects.backToProjects')}</span>
           </Link>
-          <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#9B59B6] text-[#8A2BE2] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
-            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+          <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#9B59B6] text-[#8A2BE2] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
         </nav>
         <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
           <div className="space-y-4">
             <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <h1 className="yuri-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
-              <p className="text-gray-800 text-[24px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg"></span></p>
+              <p className="text-gray-800 text-[24px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg">💜</span></p>
             </motion.div>
-            {/* Imagen principal con bordes morados consistentes */}
             <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#9B59B6] aspect-video relative group" style={{ boxShadow: `0 8px 32px ${shadowColor}` }}>
               <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
@@ -880,7 +950,8 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
             </h3>
             <p className="text-gray-800 leading-relaxed text-[23px] font-extrabold">{desc}</p>
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-white border-2 border-[#9B59B6] shadow-sm">                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
+              <div className="p-3 rounded-xl bg-white border-2 border-[#9B59B6] shadow-sm">
+                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
                 <span className="text-gray-800 font-extrabold text-[22px]">{status}</span>
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#9B59B6] shadow-sm">
@@ -899,7 +970,6 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               <ImageIcon className="w-5 h-5 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.preview')}
             </h4>
-            {/* Galería con bordes morados (PurplePreviewCarousel) */}
             <PurplePreviewCarousel images={project.previews} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#9B59B6] p-5 shadow-sm space-y-5">
@@ -908,8 +978,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               {t('projects.details')}
             </h3>
             <ul className="space-y-2.5">
-              {[
-                { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
+              {[                { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
                 { icon: Flag, label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
                 { icon: Settings, label: t('projects.engine'), value: project.details.engine },
                 { icon: Download, label: t('projects.downloads'), value: project.details.downloads },
@@ -929,7 +998,8 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               {project.downloads.map((dl, i) => {
                 const Icon = getIcon(dl.icon);
                 const strokeColors = ['#6A1B9A', '#006B6B', '#5B1890'];
-                const stroke = strokeColors[i] || '#333';                return (
+                const stroke = strokeColors[i] || '#333';
+                return (
                   <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
                     <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
                     <span className="font-black uppercase tracking-wide text-[19px]" style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
@@ -957,8 +1027,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               <div className="bg-[#F3E5F5] rounded-2xl border-2 border-[#9B59B6] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="yuri-stroke-sm text-[18px] font-black flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  Spritepacks
-                </h4>
+                  Spritepacks                </h4>
                 <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Cambia la ropa y accesorios de Yuri.' : "Change Yuri's clothes and accessories."}</p>
                 <div className="flex flex-col gap-2 w-full">
                   <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#8A2BE2] text-[#8A2BE2] bg-white text-[16px] font-black hover:bg-[#8A2BE2] hover:text-white transition-colors">
@@ -978,7 +1047,8 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
                 </h4>
                 <p className="text-[25px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}</p>
                 <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#8A2BE2] text-[#8A2BE2] bg-white font-black text-[17px] hover:bg-[#8A2BE2] hover:text-white transition-colors">
-                  {isEs ? 'Explorar Submods' : 'Explore Submods'}                </button>
+                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
+                </button>
               </div>
             </div>
           </motion.div>
@@ -1006,8 +1076,7 @@ export default function ProjectDetailPage() {
           <p className="text-gray-400">Project not found</p>
           <a href="/proyectos" className="text-[#FF2D78] hover:underline">Back to projects</a>
         </div>
-      </div>
-    );
+      </div>    );
   }
 
   const idLower = project.id?.toLowerCase() || '';
