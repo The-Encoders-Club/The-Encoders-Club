@@ -14,8 +14,8 @@ import { CommentSection } from '@/components/CommentSection';
 import { useI18n } from '@/hooks/useLocale';
 import { projects, getIcon } from '@/data/projects';
 
-/* ─── Animated diagonal pink polka dots background (MONIKA/NATSUKI) ─── */
-function PinkDots() {
+/* ─── Animated diagonal pink polka dots background (REUSABLE) ─── */
+function PinkDots({ dotColor = '#ffeef8' }) {
   const DOT = 72;
   const GAP = 130;
   const cols = Math.ceil(1800 / GAP) + 2;
@@ -59,7 +59,7 @@ function PinkDots() {
               height: DOT,
               left: d.x - DOT / 2,
               top: d.y - DOT / 2,
-              backgroundColor: '#ffeef8',
+              backgroundColor: dotColor,
             }}
           />
         ))}
@@ -562,7 +562,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ── Light/pink theme detail view — NATSUKI (UPDATED: WHITE BG + PINK DOTS) ── */
+/* ── Light/pink theme detail view — NATSUKI (STRONGER PINK) ── */
 function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
@@ -594,20 +594,20 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
         @font-face { font-family: 'm1_fixed'; src: url('/fonts/m1_fixed.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: block; }
         @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: block; }
         @font-face { font-family: 'natsuki'; src: url('/fonts/natsuki.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: block; }
-        .natsuki-title { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 9px #ba609e; paint-order: stroke fill; }
-        .natsuki-stroke-lg { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 6px #ba609e; paint-order: stroke fill; }
-        .natsuki-stroke-sm { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 5px #ba609e; paint-order: stroke fill; }
-        .natsuki-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px #ba609e; paint-order: stroke fill; }
+        .natsuki-title { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 9px #FF3D7F; paint-order: stroke fill; }
+        .natsuki-stroke-lg { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 6px #FF3D7F; paint-order: stroke fill; }
+        .natsuki-stroke-sm { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 5px #FF3D7F; paint-order: stroke fill; }
+        .natsuki-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px #FF3D7F; paint-order: stroke fill; }
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: '#ffffff' }}>
-        <PinkDots />
-        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}>
-          <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
+        <PinkDots dotColor="#ffc4d6" />
+        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,190,205,0.95)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FF7EB3' }}>
+          <Link href="/proyectos" className="flex items-center gap-2 text-[#D63384] hover:text-[#FF3D7F] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-[13px]">{t('projects.backToProjects')}</span>
           </Link>
-          <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
+          <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#FF7EB3] text-[#D63384] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
             {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
         </nav>
@@ -617,42 +617,42 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
               <h1 className="natsuki-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
               <p className="text-gray-800 text-[16px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg">💗</span></p>
             </motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group" style={{ boxShadow: '0 8px 32px #FF6B9D30' }}>
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#FF7EB3] aspect-video relative group" style={{ boxShadow: '0 8px 32px #FF3D7F30' }}>
               <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             </motion.div>
           </div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
             <h3 className="natsuki-stroke-lg text-xl font-black flex items-center gap-2">
-              <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              <FileText className="w-5 h-5 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}
             </h3>
             <p className="text-gray-800 leading-relaxed text-[16px] font-extrabold">{desc}</p>
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FF7EB3] shadow-sm">
                 <span className="text-[14px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
                 <span className="text-gray-800 font-extrabold text-[16px]">{status}</span>
               </div>
-              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FF7EB3] shadow-sm">
                 <span className="text-[14px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
                 <span className="text-gray-800 font-extrabold text-[16px] flex items-center gap-1">{project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" /></span>              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
-                <span key={tag} className="text-[13px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-800 font-extrabold hover:border-[#FF6B9D] transition-colors">{tag}</span>
+                <span key={tag} className="text-[13px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FF7EB3] text-gray-800 font-extrabold hover:border-[#FF3D7F] transition-colors">{tag}</span>
               ))}
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
             <h4 className="natsuki-stroke-lg text-xl font-black flex items-center gap-2">
-              <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              <ImageIcon className="w-5 h-5 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.preview')}
             </h4>
             <PinkPreviewCarousel images={project.previews} />
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5">
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#FF7EB3] p-5 shadow-sm space-y-5">
             <h3 className="natsuki-stroke-lg text-[18px] font-black flex items-center gap-2">
-              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              <Settings className="w-5 h-5 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.details')}
             </h3>
             <ul className="space-y-2.5">
@@ -665,14 +665,14 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                 const ItemIcon = item.icon;
                 return (
                   <li key={item.label} className="flex items-center gap-2 text-[14px]">
-                    <ItemIcon className="w-4 h-4 text-[#d87093] flex-shrink-0" />
+                    <ItemIcon className="w-4 h-4 text-[#D63384] flex-shrink-0" />
                     <span className="text-gray-800 flex-1 font-extrabold">{item.label}</span>
                     <span className="text-gray-800 font-extrabold">{item.value}</span>
                   </li>
                 );
               })}
             </ul>
-            <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
+            <div className="border-t border-[#FF7EB3]/50 pt-4 space-y-2">
               <h4 className="natsuki-stroke-sm text-[15px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
               {project.downloads.map((dl, i) => {
                 const Icon = getIcon(dl.icon);
@@ -688,50 +688,50 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
             <h3 className="natsuki-stroke-lg text-xl font-black flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              <BookOpen className="w-5 h-5 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-[#FFE6EE] rounded-2xl border-2 border-[#FF7EB3] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="natsuki-stroke-sm text-[16px] font-black flex items-center gap-1">
-                  <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  <Search className="w-4 h-4 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
                 <p className="text-[16px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[13px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#E84393] text-[#E84393] bg-white text-[13px] font-black hover:bg-[#E84393] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
                 </button>
               </div>
-              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-[#FFE6EE] rounded-2xl border-2 border-[#FF7EB3] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="natsuki-stroke-sm text-[16px] font-black flex items-center gap-1">
-                  <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  <Shirt className="w-4 h-4 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
                 </h4>
                 <p className="text-[16px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}</p>
                 <div className="flex flex-col gap-2 w-full">
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[13px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#E84393] text-[#E84393] bg-white text-[13px] font-black hover:bg-[#E84393] hover:text-white transition-colors">
                     <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
                   </button>
-                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[13px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#E84393] text-[#E84393] bg-white text-[13px] font-black hover:bg-[#E84393] hover:text-white transition-colors">
                     <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
                   </button>
                 </div>
               </div>
             </div>
             <div className="flex justify-center">
-              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+              <div className="w-full max-w-sm bg-[#FFE6EE] rounded-2xl border-2 border-[#FF7EB3] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="natsuki-stroke-sm text-[18px] font-black flex items-center gap-1.5">
-                  <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  <Puzzle className="w-5 h-5 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
                 </h4>
                 <p className="text-[16px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}</p>
-                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[14px] hover:bg-[#C06080] hover:text-white transition-colors">
+                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#E84393] text-[#E84393] bg-white font-black text-[14px] hover:bg-[#E84393] hover:text-white transition-colors">
                   {isEs ? 'Explorar Submods' : 'Explore Submods'}
                 </button>
               </div>
             </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm">
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white rounded-2xl border-2 border-[#FF7EB3] p-5 shadow-sm">
             <CommentSection targetId={project.id} targetType="project" lightTheme />
           </motion.div>        </main>
         <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
