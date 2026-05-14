@@ -8,12 +8,10 @@ import { toast } from 'sonner';
 interface CommentAuthor {
   id: string; nickname: string; avatar: string | null; role: string; isPremium: boolean;
 }
-
 interface CommentReply {
   id: string; content: string; createdAt: string; isDeleted: boolean;
   author: CommentAuthor; likes: number;
 }
-
 interface Comment {
   id: string; content: string; createdAt: string; likes: number; isDeleted: boolean;
   author: CommentAuthor; replies: CommentReply[];
@@ -23,11 +21,12 @@ interface Comment {
 interface CommentSectionProps {
   targetId: string;
   targetType: 'project' | 'news';
-  lightTheme?: boolean;
-  theme?: 'monika' | 'natsuki' | 'yuri';
 }
 
-export function CommentSection({ targetId, targetType, lightTheme, theme }: CommentSectionProps) {
+/* ──────────────────────────────────────────────────────────────
+   1. MONIKA COMMENTS (Original Pink)
+   ────────────────────────────────────────────────────────────── */
+export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [replyTo, setReplyTo] = useState<string | null>(null);
@@ -47,336 +46,340 @@ export function CommentSection({ targetId, targetType, lightTheme, theme }: Comm
   };
 
   const submitComment = async (content: string, parentId?: string) => {
-    if (!user) { toast.error('Inicia sesión para comentar'); return; }    setSubmitting(true);
-    try {
+    if (!user) { toast.error('Inicia sesión para comentar'); return; }
+    setSubmitting(true);    try {
       const res = await fetch('/api/comments', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, targetId, targetType, parentId }),
       });
       if (!res.ok) { const d = await res.json(); toast.error(d.error); return; }
       setNewComment(''); setReplyTo(null); setReplyText('');
       fetchComments();
       toast.success('Comentario publicado');
-    } catch {
-      toast.error('Error al enviar');
-    } finally { setSubmitting(false); }
+    } catch { toast.error('Error al enviar'); } finally { setSubmitting(false); }
   };
 
-  const toggleLike = async (commentId: string) => {
-    if (!user) return;
-    try {
-      await fetch(`/api/comments/${commentId}/like`, { method: 'POST' });
-      fetchComments();
-    } catch { /* ignore */ }
-  };
-
-  const reportComment = async (commentId: string) => {
-    try {
-      await fetch(`/api/comments/${commentId}/report`, { method: 'POST' });
-      toast.success('Comentario reportado');
-    } catch { /* ignore */ }
-  };
-
-  const deleteComment = async (commentId: string) => {
-    try {
-      await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId }) });
-      fetchComments();
-      toast.success('Comentario eliminado');
-    } catch { /* ignore */ }
-  };
-
+  const toggleLike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`, { method: 'POST' }); fetchComments(); } catch {} };
+  const reportComment = async (id: string) => { try { await fetch(`/api/comments/${id}/report`, { method: 'POST' }); toast.success('Comentario reportado'); } catch {} };
+  const deleteComment = async (id: string) => { try { await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId: id }) }); fetchComments(); toast.success('Comentario eliminado'); } catch {} };
   const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
 
-  /* ─── Theme Configuration ─── */
-  const isDark = !lightTheme;
-  const activeTheme = lightTheme ? (theme || 'monika') : 'dark';
-
-  const c = {
-    cardBg: isDark
-      ? 'bg-white/3 border border-white/5 hover:bg-white/5'
-      : activeTheme === 'natsuki' ? 'bg-[#FFE6EE]/60 border border-[#FF7EB3]/40 hover:bg-[#FFE6EE]/80'
-      : activeTheme === 'yuri' ? 'bg-[#F3E5F5]/60 border border-[#9B59B6]/40 hover:bg-[#F3E5F5]/80'      : 'bg-[#FFE6EA]/50 border border-[#FFB6C8]/30 hover:bg-[#FFE6EA]/70',
-    
-    inputCls: isDark
-      ? 'bg-white/5 border border-white/10 text-white placeholder-white/30 focus:border-[#FF2D78]/50'
-      : activeTheme === 'natsuki' ? 'bg-white border border-[#FF7EB3]/50 text-gray-700 placeholder-gray-400 focus:border-[#E84393]/60'
-      : activeTheme === 'yuri' ? 'bg-white border border-[#9B59B6]/50 text-gray-700 placeholder-gray-400 focus:border-[#8A2BE2]/60'
-      : 'bg-white border border-[#FFB6C8]/40 text-gray-700 placeholder-gray-400 focus:border-[#FF2D78]/50',
-    
-    sendBtnCls: isDark
-      ? 'bg-gradient-to-r from-[#FF2D78] to-[#a855f7]'
-      : activeTheme === 'natsuki' ? 'bg-[#E84393] hover:bg-[#D63384]'
-      : activeTheme === 'yuri' ? 'bg-[#8A2BE2] hover:bg-[#6A1B9A]'
-      : 'bg-[#FF2D78] hover:bg-[#d6336c]',
-    
-    cancelBtnCls: isDark
-      ? 'bg-white/5 text-white/40'
-      : activeTheme === 'natsuki' ? 'bg-[#FFE6EE] text-gray-500'
-      : activeTheme === 'yuri' ? 'bg-[#F3E5F5] text-gray-500'
-      : 'bg-[#FFE6EA] text-gray-500',
-    
-    textBody: isDark ? 'text-white/70' : 'text-gray-700',
-    textMuted: isDark ? 'text-white/30' : 'text-gray-400',
-    textMutedLight: isDark ? 'text-white/20' : 'text-gray-400',
-    replyBorder: isDark ? 'border-white/10' : activeTheme === 'natsuki' ? 'border-[#FF7EB3]/40' : activeTheme === 'yuri' ? 'border-[#9B59B6]/40' : 'border-[#FFB6C8]/40',
-    avatarBg: isDark ? 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]' : activeTheme === 'natsuki' ? 'bg-[#E84393]' : activeTheme === 'yuri' ? 'bg-[#8A2BE2]' : 'bg-[#FF2D78]',
-    avatarBgReply: isDark ? 'bg-white/10' : activeTheme === 'natsuki' ? 'bg-[#E84393]/80' : activeTheme === 'yuri' ? 'bg-[#8A2BE2]/80' : 'bg-[#FF2D78]/80',
-    avatarPlaceholder: isDark ? 'text-white/30' : activeTheme === 'natsuki' ? 'text-[#E84393]/50' : activeTheme === 'yuri' ? 'text-[#8A2BE2]/50' : 'text-[#FF2D78]/50',
-    strokeColor: isDark ? '#ffffff' : activeTheme === 'natsuki' ? '#FF3D7F' : activeTheme === 'yuri' ? '#8A2BE2' : '#ba609e',
-    titleColor: isDark ? '#ffffff' : '#fefefe',
-  };
-
   return (
-    <div
-      className="mt-4 space-y-4"
-      style={{ fontFamily: lightTheme ? "'m1_fixed', monospace" : undefined, '--stroke-color': c.strokeColor } as React.CSSProperties}
-    >
+    <div className="mt-4 space-y-4" style={{ fontFamily: "'m1_fixed', monospace" }}>
       <style>{`
-        @font-face {
-          font-family: 'RifficFree';
-          src: url('/fonts/RifficFree-Bold.ttf') format('truetype');
-          font-weight: bold;
-          font-style: normal;
-          font-display: swap;
-        }
-        @font-face {
-          font-family: 'Aller';
-          src: url('/fonts/Aller_Rg.ttf') format('truetype');
-          font-weight: normal;
-          font-style: normal;
-          font-display: swap;        }
-
-        .comment-section-title {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
-          font-size: 1.5rem;
-          line-height: 1.2;
-          font-weight: 900;
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-        }
-        .comment-section-title.stroked {
-          color: var(--stroke-color);
-          -webkit-text-stroke: 5px var(--stroke-color);
-          paint-order: stroke fill;
-        }
-        .comment-section-title.dark {
-          color: #fff;
-        }
-        .role-badge {
-          font-family: 'Aller', sans-serif;
-          font-size: 10px;
-          padding: 2px 7px;
-          border-radius: 9999px;
-          line-height: 1.4;
-          font-weight: normal;
-        }
+        @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Aller'; src: url('/fonts/Aller_Rg.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
+        .monika-title { font-family: 'RifficFree', monospace; font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; gap: 0.5rem; color: #fefefe; -webkit-text-stroke: 5px #ba609e; paint-order: stroke fill; }
+        .role-badge { font-family: 'Aller', sans-serif; font-size: 10px; padding: 2px 7px; border-radius: 9999px; line-height: 1.4; }
       `}</style>
 
-      {/* ── Título ─ */}
-      <h3 className={`comment-section-title ${lightTheme ? 'stroked' : 'dark'}`}>
-        <MessageCircle
-          className="flex-shrink-0"
-          style={{ width: '1.25rem', height: '1.25rem', strokeWidth: 2.2, color: activeTheme === 'yuri' ? '#8A2BE2' : activeTheme === 'natsuki' ? '#E84393' : '#FF2D78' }}
-        />
-        Comentarios
-      </h3>
+      <h3 className="monika-title"><MessageCircle className="w-5 h-5 text-[#FF2D78] flex-shrink-0" />Comentarios</h3>
 
-      {/* ── Input nuevo comentario ── */}
       <div className="flex items-center gap-2">
-        {/* Avatar */}
-        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
-          user ? c.avatarBg : lightTheme ? c.avatarBg.replace('bg-[#', 'bg-[#FF').replace(']', '/50') : 'bg-white/10'
-        }`}>
-          {user?.avatar
-            ? <img src={user.avatar} alt="" className="w-full h-full object-cover" />
-            : <User size={16} className={user ? 'text-white' : c.avatarPlaceholder} />
-          }
+        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user ? 'bg-[#FF2D78]' : 'bg-[#FFB6C8]/50'}`}>
+          {user?.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : <User size={16} className={user ? 'text-white' : 'text-[#FF2D78]/50'} />}
         </div>
-        {/* Campo + botón enviar */}
         <div className="flex flex-1 gap-2">
-          <input
-            type="text"
-            placeholder="Escribe un comentario..."
-            value={newComment}
-            onChange={e => setNewComment(e.target.value)}
+          <input type="text" placeholder="Escribe un comentario..." value={newComment} onChange={e => setNewComment(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
-            className={`flex-1 px-4 py-2 rounded-xl text-sm focus:outline-none transition-all ${c.inputCls}`}
-            style={{ fontFamily: "'Aller', sans-serif" }}
-          />
-          <button
-            onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }}
-            disabled={submitting || !newComment.trim()}
-            className={`w-10 h-10 flex items-center justify-center rounded-xl text-white flex-shrink-0 disabled:opacity-40 transition-all ${c.sendBtnCls}`}
-          >
+            className="flex-1 px-4 py-2 rounded-xl text-sm bg-white border border-[#FFB6C8]/40 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#FF2D78]/50 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
+          <button onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }} disabled={submitting || !newComment.trim()}
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-white bg-[#FF2D78] hover:bg-[#d6336c] disabled:opacity-40 transition-all">
             <Send size={15} />
           </button>
         </div>
       </div>
 
-      {/* ── Lista de comentarios ── */}
       <div className="space-y-3 max-h-[32rem] overflow-y-auto pr-1">
-        {comments.length === 0 && (
-          <div className={`text-center py-8 text-sm ${c.textMutedLight}`}
-            style={{ fontFamily: "'Aller', sans-serif" }}>
-            No hay comentarios aún. ¡Sé el primero!
-          </div>
-        )}
-
+        {comments.length === 0 && <div className="text-center py-8 text-sm text-gray-400" style={{ fontFamily: "'Aller', sans-serif" }}>No hay comentarios aún. ¡Sé el primero!</div>}
         {comments.map(comment => (
-          <motion.div
-            key={comment.id}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            className={`p-3 rounded-xl transition-all ${c.cardBg}`}
-          >
+          <motion.div key={comment.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-[#FFE6EA]/50 border border-[#FFB6C8]/30 hover:bg-[#FFE6EA]/70 transition-all">
             <div className="flex items-start gap-3">
-              {/* Avatar comentario */}
-              <div className={`w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${
-                lightTheme ? c.avatarBg : 'bg-gradient-to-r from-[#FF2D78] to-[#4D9FFF]'
-              }`}>
-                {comment.author.avatar
-                  ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" />
-                  : <User size={20} className="text-white" />}
-              </div>
-
+              <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#FF2D78]">
+                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}              </div>
               <div className="flex-1 min-w-0">
-                {/* Cabecera: nombre + rol + fecha */}
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">                  <span
-                    className={`text-sm font-semibold leading-none ${lightTheme ? 'text-gray-800' : 'text-white'}`}
-                    style={{ fontFamily: "'Aller', sans-serif" }}
-                  >
-                    {comment.author.nickname}
-                  </span>
-
-                  {comment.author.role !== 'user' && (
-                    <span className={`role-badge ${
-                      comment.author.role === 'admin'
-                        ? lightTheme ? 'bg-red-100 text-red-600'         : 'bg-red-500/20 text-red-400'
-                        : comment.author.role === 'moderator'
-                          ? lightTheme ? 'bg-blue-100 text-blue-600'     : 'bg-blue-500/20 text-blue-400'
-                          : comment.author.role === 'owner'
-                            ? lightTheme ? 'bg-yellow-100 text-yellow-700' : 'bg-yellow-500/20 text-yellow-400'
-                            : lightTheme ? 'bg-green-100 text-green-600' : 'bg-green-500/20 text-green-400'
-                    }`}>
-                      {comment.author.role}
-                    </span>
-                  )}
-
-                  {comment.author.isPremium && (
-                    <span className="text-yellow-400 text-xs leading-none">★</span>
-                  )}
-
-                  <span className={`text-[11px] leading-none ${lightTheme ? 'text-gray-400' : 'text-white/30'}`}>
-                    {new Date(comment.createdAt).toLocaleDateString()}
-                  </span>
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <span className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.author.nickname}</span>
+                  {comment.author.role !== 'user' && <span className={`role-badge ${comment.author.role === 'admin' ? 'bg-red-100 text-red-600' : comment.author.role === 'moderator' ? 'bg-blue-100 text-blue-600' : comment.author.role === 'owner' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-600'}`}>{comment.author.role}</span>}
+                  {comment.author.isPremium && <span className="text-yellow-400 text-xs">★</span>}
+                  <span className="text-[11px] text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
                 </div>
-
-                {/* Contenido */}
-                {comment.isDeleted ? (
-                  <p className={`text-sm italic mt-1 ${c.textMutedLight}`}>
-                    Este comentario fue eliminado
-                  </p>
-                ) : (
-                  <p
-                    className={`text-sm mt-1 break-words ${c.textBody}`}
-                    style={{ fontFamily: "'Aller', sans-serif" }}
-                  >
-                    {comment.content}
-                  </p>
-                )}
-
-                {/* Acciones */}
-                <div
-                  className="flex items-center gap-3 mt-2"
-                  style={{ fontFamily: "'Aller', sans-serif" }}
-                >
-                  <button                    onClick={() => toggleLike(comment.id)}
-                    className={`flex items-center gap-1 text-xs transition-colors ${lightTheme ? 'text-gray-400 hover:text-[#FF2D78]' : 'text-white/30 hover:text-[#FF2D78]'}`}
-                  >
-                    <Heart size={14} />
-                    {comment.likes > 0 && <span>{comment.likes}</span>}
-                  </button>
-                  <button
-                    onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)}
-                    className={`flex items-center gap-1 text-xs transition-colors ${lightTheme ? 'text-gray-400 hover:text-[#4D9FFF]' : 'text-white/30 hover:text-[#4D9FFF]'}`}
-                  >
-                    <MessageCircle size={14} /> Responder
-                  </button>
-                  <button
-                    onClick={() => reportComment(comment.id)}
-                    className={`flex items-center gap-1 text-xs transition-colors ${lightTheme ? 'text-gray-400 hover:text-yellow-500' : 'text-white/30 hover:text-yellow-400'}`}
-                  >
-                    <Flag size={14} /> Reportar
-                  </button>
-                  {canModerate && !comment.isDeleted && (
-                    <button
-                      onClick={() => deleteComment(comment.id)}
-                      className={`flex items-center gap-1 text-xs transition-colors ${lightTheme ? 'text-gray-400 hover:text-red-500' : 'text-white/30 hover:text-red-400'}`}
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
+                {comment.isDeleted ? <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p> :
+                  <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.content}</p>}
+                <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
+                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#FF2D78] transition-colors"><Heart size={14} />{comment.likes > 0 && <span>{comment.likes}</span>}</button>
+                  <button onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors"><MessageCircle size={14} />Responder</button>
+                  <button onClick={() => reportComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors"><Flag size={14} />Reportar</button>
+                  {canModerate && !comment.isDeleted && <button onClick={() => deleteComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>}
                 </div>
-
-                {/* Input respuesta */}
                 {replyTo === comment.id && (
                   <div className="flex gap-2 mt-2">
-                    <input
-                      type="text"
-                      placeholder="Escribe una respuesta..."
-                      value={replyText}
-                      onChange={e => setReplyText(e.target.value)}
+                    <input type="text" placeholder="Escribe una respuesta..." value={replyText} onChange={e => setReplyText(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter' && replyText.trim()) submitComment(replyText.trim(), comment.id); }}
-                      className={`flex-1 px-3 py-1.5 rounded-lg text-xs focus:outline-none transition-all ${c.inputCls}`}
-                      style={{ fontFamily: "'Aller', sans-serif" }}
-                    />
-                    <button
-                      onClick={() => { if (replyText.trim()) submitComment(replyText.trim(), comment.id); }}
-                      disabled={submitting}
-                      className="px-2.5 py-1.5 rounded-lg text-white disabled:opacity-50 flex items-center"
-                      style={{ backgroundColor: activeTheme === 'yuri' ? '#8A2BE2' : activeTheme === 'natsuki' ? '#E84393' : '#FF2D78' }}
-                    >
-                      <Send size={11} />
-                    </button>
-                    <button
-                      onClick={() => { setReplyTo(null); setReplyText(''); }}                      className={`px-2.5 py-1.5 rounded-lg text-xs ${c.cancelBtnCls}`}
-                    >
-                      Cancelar
-                    </button>
+                      className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white border border-[#FFB6C8]/40 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#FF2D78]/50 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
+                    <button onClick={() => { if (replyText.trim()) submitComment(replyText.trim(), comment.id); }} disabled={submitting} className="px-2.5 py-1.5 rounded-lg bg-[#FF2D78] text-white disabled:opacity-50 flex items-center"><Send size={11} /></button>
+                    <button onClick={() => { setReplyTo(null); setReplyText(''); }} className="px-2.5 py-1.5 rounded-lg text-xs bg-[#FFE6EA] text-gray-500">Cancelar</button>
                   </div>
                 )}
-
-                {/* Respuestas */}
                 {comment.replies && comment.replies.length > 0 && (
-                  <div className={`mt-3 space-y-2 pl-3 border-l ${c.replyBorder}`}>
+                  <div className="mt-3 space-y-2 pl-3 border-l border-[#FFB6C8]/40">
                     {comment.replies.map(reply => (
                       <div key={reply.id} className="flex items-start gap-2">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${lightTheme ? c.avatarBgReply : 'bg-white/10'}`}>
-                          {reply.author.avatar
-                            ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" />
-                            : <User size={13} className="text-white" />}
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#FF2D78]/80">
+                          {reply.author.avatar ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={13} className="text-white" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className={`text-xs font-semibold ${lightTheme ? 'text-gray-700' : 'text-white/80'}`}>
-                              {reply.author.nickname}
-                            </span>
-                            <span className={`text-[10px] ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
-                              {new Date(reply.createdAt).toLocaleDateString()}
-                            </span>
-                          </div>
-                          <p className={`text-xs break-words ${lightTheme ? 'text-gray-500' : 'text-white/60'}`}
-                            style={{ fontFamily: "'Aller', sans-serif" }}>
-                            {reply.content}
-                          </p>
+                          <div className="flex items-center gap-2"><span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span><span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span></div>
+                          <p className="text-xs break-words text-gray-500" style={{ fontFamily: "'Aller', sans-serif" }}>{reply.content}</p>
                         </div>
                       </div>
                     ))}
-                    <p className={`text-[10px] pl-10 ${lightTheme ? 'text-gray-400' : 'text-white/20'}`}>
-                      {comment.replies.length} {comment.replies.length === 1 ? 'respuesta' : 'respuestas'}
-                    </p>
+                    <p className="text-[10px] pl-10 text-gray-400">{comment.replies.length} {comment.replies.length === 1 ? 'respuesta' : 'respuestas'}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+/* ──────────────────────────────────────────────────────────────
+   2. NATSUKI COMMENTS (Strong Pink)
+   ────────────────────────────────────────────────────────────── */
+export function NatsukiComments({ targetId, targetType }: CommentSectionProps) {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [user, setUser] = useState<{ id: string; nickname: string; role: string; avatar?: string | null } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetchComments();
+    fetch('/api/auth/session').then(r => r.json()).then(d => { if (d.user) setUser(d.user); });
+  }, [targetId]);
+
+  const fetchComments = async () => {
+    const res = await fetch(`/api/comments?targetId=${targetId}&targetType=${targetType}`);
+    const data = await res.json();
+    setComments(data.comments || []);
+  };
+
+  const submitComment = async (content: string, parentId?: string) => {
+    if (!user) { toast.error('Inicia sesión para comentar'); return; }
+    setSubmitting(true);
+    try {
+      const res = await fetch('/api/comments', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, targetId, targetType, parentId }),
+      });
+      if (!res.ok) { const d = await res.json(); toast.error(d.error); return; }
+      setNewComment(''); setReplyTo(null); setReplyText('');
+      fetchComments();
+      toast.success('Comentario publicado');
+    } catch { toast.error('Error al enviar'); } finally { setSubmitting(false); }
+  };
+
+  const toggleLike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`, { method: 'POST' }); fetchComments(); } catch {} };
+  const reportComment = async (id: string) => { try { await fetch(`/api/comments/${id}/report`, { method: 'POST' }); toast.success('Comentario reportado'); } catch {} };
+  const deleteComment = async (id: string) => { try { await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId: id }) }); fetchComments(); toast.success('Comentario eliminado'); } catch {} };
+  const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
+
+  return (
+    <div className="mt-4 space-y-4" style={{ fontFamily: "'m1_fixed', monospace" }}>
+      <style>{`
+        @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Aller'; src: url('/fonts/Aller_Rg.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
+        .natsuki-title { font-family: 'RifficFree', monospace; font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; gap: 0.5rem; color: #fefefe; -webkit-text-stroke: 5px #FF3D7F; paint-order: stroke fill; }
+        .role-badge { font-family: 'Aller', sans-serif; font-size: 10px; padding: 2px 7px; border-radius: 9999px; line-height: 1.4; }
+      `}</style>
+      <h3 className="natsuki-title"><MessageCircle className="w-5 h-5 text-[#E84393] flex-shrink-0" />Comentarios</h3>
+
+      <div className="flex items-center gap-2">
+        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user ? 'bg-[#E84393]' : 'bg-[#FF7EB3]/50'}`}>
+          {user?.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : <User size={16} className={user ? 'text-white' : 'text-[#E84393]/50'} />}
+        </div>
+        <div className="flex flex-1 gap-2">
+          <input type="text" placeholder="Escribe un comentario..." value={newComment} onChange={e => setNewComment(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
+            className="flex-1 px-4 py-2 rounded-xl text-sm bg-white border border-[#FF7EB3]/50 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#E84393]/60 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
+          <button onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }} disabled={submitting || !newComment.trim()}
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-white bg-[#E84393] hover:bg-[#D63384] disabled:opacity-40 transition-all">
+            <Send size={15} />
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-3 max-h-[32rem] overflow-y-auto pr-1">
+        {comments.length === 0 && <div className="text-center py-8 text-sm text-gray-400" style={{ fontFamily: "'Aller', sans-serif" }}>No hay comentarios aún. ¡Sé el primero!</div>}
+        {comments.map(comment => (
+          <motion.div key={comment.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-[#FFE6EE]/60 border border-[#FF7EB3]/40 hover:bg-[#FFE6EE]/80 transition-all">
+            <div className="flex items-start gap-3">
+              <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#E84393]">
+                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <span className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.author.nickname}</span>
+                  {comment.author.role !== 'user' && <span className={`role-badge ${comment.author.role === 'admin' ? 'bg-red-100 text-red-600' : comment.author.role === 'moderator' ? 'bg-blue-100 text-blue-600' : comment.author.role === 'owner' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-600'}`}>{comment.author.role}</span>}
+                  {comment.author.isPremium && <span className="text-yellow-400 text-xs">★</span>}
+                  <span className="text-[11px] text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                </div>
+                {comment.isDeleted ? <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p> :
+                  <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.content}</p>}
+                <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
+                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#E84393] transition-colors"><Heart size={14} />{comment.likes > 0 && <span>{comment.likes}</span>}</button>
+                  <button onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors"><MessageCircle size={14} />Responder</button>
+                  <button onClick={() => reportComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors"><Flag size={14} />Reportar</button>
+                  {canModerate && !comment.isDeleted && <button onClick={() => deleteComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>}
+                </div>
+                {replyTo === comment.id && (
+                  <div className="flex gap-2 mt-2">
+                    <input type="text" placeholder="Escribe una respuesta..." value={replyText} onChange={e => setReplyText(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter' && replyText.trim()) submitComment(replyText.trim(), comment.id); }}
+                      className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white border border-[#FF7EB3]/50 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#E84393]/60 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
+                    <button onClick={() => { if (replyText.trim()) submitComment(replyText.trim(), comment.id); }} disabled={submitting} className="px-2.5 py-1.5 rounded-lg bg-[#E84393] text-white disabled:opacity-50 flex items-center"><Send size={11} /></button>
+                    <button onClick={() => { setReplyTo(null); setReplyText(''); }} className="px-2.5 py-1.5 rounded-lg text-xs bg-[#FFE6EE] text-gray-500">Cancelar</button>
+                  </div>
+                )}                {comment.replies && comment.replies.length > 0 && (
+                  <div className="mt-3 space-y-2 pl-3 border-l border-[#FF7EB3]/40">
+                    {comment.replies.map(reply => (
+                      <div key={reply.id} className="flex items-start gap-2">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#E84393]/80">
+                          {reply.author.avatar ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={13} className="text-white" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2"><span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span><span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span></div>
+                          <p className="text-xs break-words text-gray-500" style={{ fontFamily: "'Aller', sans-serif" }}>{reply.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                    <p className="text-[10px] pl-10 text-gray-400">{comment.replies.length} {comment.replies.length === 1 ? 'respuesta' : 'respuestas'}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   3. YURI COMMENTS (Purple)
+   ────────────────────────────────────────────────────────────── */
+export function YuriComments({ targetId, targetType }: CommentSectionProps) {
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [newComment, setNewComment] = useState('');
+  const [replyTo, setReplyTo] = useState<string | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [user, setUser] = useState<{ id: string; nickname: string; role: string; avatar?: string | null } | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    fetchComments();
+    fetch('/api/auth/session').then(r => r.json()).then(d => { if (d.user) setUser(d.user); });
+  }, [targetId]);
+
+  const fetchComments = async () => {
+    const res = await fetch(`/api/comments?targetId=${targetId}&targetType=${targetType}`);
+    const data = await res.json();
+    setComments(data.comments || []);
+  };
+
+  const submitComment = async (content: string, parentId?: string) => {
+    if (!user) { toast.error('Inicia sesión para comentar'); return; }
+    setSubmitting(true);    try {
+      const res = await fetch('/api/comments', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content, targetId, targetType, parentId }),
+      });
+      if (!res.ok) { const d = await res.json(); toast.error(d.error); return; }
+      setNewComment(''); setReplyTo(null); setReplyText('');
+      fetchComments();
+      toast.success('Comentario publicado');
+    } catch { toast.error('Error al enviar'); } finally { setSubmitting(false); }
+  };
+
+  const toggleLike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`, { method: 'POST' }); fetchComments(); } catch {} };
+  const reportComment = async (id: string) => { try { await fetch(`/api/comments/${id}/report`, { method: 'POST' }); toast.success('Comentario reportado'); } catch {} };
+  const deleteComment = async (id: string) => { try { await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId: id }) }); fetchComments(); toast.success('Comentario eliminado'); } catch {} };
+  const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
+
+  return (
+    <div className="mt-4 space-y-4" style={{ fontFamily: "'m1_fixed', monospace" }}>
+      <style>{`
+        @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: swap; }
+        @font-face { font-family: 'Aller'; src: url('/fonts/Aller_Rg.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
+        .yuri-title { font-family: 'RifficFree', monospace; font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; gap: 0.5rem; color: #fefefe; -webkit-text-stroke: 5px #8A2BE2; paint-order: stroke fill; }
+        .role-badge { font-family: 'Aller', sans-serif; font-size: 10px; padding: 2px 7px; border-radius: 9999px; line-height: 1.4; }
+      `}</style>
+
+      <h3 className="yuri-title"><MessageCircle className="w-5 h-5 text-[#8A2BE2] flex-shrink-0" />Comentarios</h3>
+
+      <div className="flex items-center gap-2">
+        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user ? 'bg-[#8A2BE2]' : 'bg-[#9B59B6]/50'}`}>
+          {user?.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : <User size={16} className={user ? 'text-white' : 'text-[#8A2BE2]/50'} />}
+        </div>
+        <div className="flex flex-1 gap-2">
+          <input type="text" placeholder="Escribe un comentario..." value={newComment} onChange={e => setNewComment(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
+            className="flex-1 px-4 py-2 rounded-xl text-sm bg-white border border-[#9B59B6]/50 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#8A2BE2]/60 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
+          <button onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }} disabled={submitting || !newComment.trim()}
+            className="w-10 h-10 flex items-center justify-center rounded-xl text-white bg-[#8A2BE2] hover:bg-[#6A1B9A] disabled:opacity-40 transition-all">
+            <Send size={15} />
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-3 max-h-[32rem] overflow-y-auto pr-1">
+        {comments.length === 0 && <div className="text-center py-8 text-sm text-gray-400" style={{ fontFamily: "'Aller', sans-serif" }}>No hay comentarios aún. ¡Sé el primero!</div>}
+        {comments.map(comment => (
+          <motion.div key={comment.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-[#F3E5F5]/60 border border-[#9B59B6]/40 hover:bg-[#F3E5F5]/80 transition-all">
+            <div className="flex items-start gap-3">
+              <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#8A2BE2]">
+                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+                  <span className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.author.nickname}</span>
+                  {comment.author.role !== 'user' && <span className={`role-badge ${comment.author.role === 'admin' ? 'bg-red-100 text-red-600' : comment.author.role === 'moderator' ? 'bg-blue-100 text-blue-600' : comment.author.role === 'owner' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-600'}`}>{comment.author.role}</span>}
+                  {comment.author.isPremium && <span className="text-yellow-400 text-xs">★</span>}
+                  <span className="text-[11px] text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
+                </div>
+                {comment.isDeleted ? <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p> :
+                  <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.content}</p>}
+                <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
+                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#8A2BE2] transition-colors"><Heart size={14} />{comment.likes > 0 && <span>{comment.likes}</span>}</button>
+                  <button onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors"><MessageCircle size={14} />Responder</button>
+                  <button onClick={() => reportComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors"><Flag size={14} />Reportar</button>
+                  {canModerate && !comment.isDeleted && <button onClick={() => deleteComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>}
+                </div>
+                {replyTo === comment.id && (
+                  <div className="flex gap-2 mt-2">
+                    <input type="text" placeholder="Escribe una respuesta..." value={replyText} onChange={e => setReplyText(e.target.value)}
+                      onKeyDown={e => { if (e.key === 'Enter' && replyText.trim()) submitComment(replyText.trim(), comment.id); }}
+                      className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white border border-[#9B59B6]/50 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#8A2BE2]/60 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
+                    <button onClick={() => { if (replyText.trim()) submitComment(replyText.trim(), comment.id); }} disabled={submitting} className="px-2.5 py-1.5 rounded-lg bg-[#8A2BE2] text-white disabled:opacity-50 flex items-center"><Send size={11} /></button>
+                    <button onClick={() => { setReplyTo(null); setReplyText(''); }} className="px-2.5 py-1.5 rounded-lg text-xs bg-[#F3E5F5] text-gray-500">Cancelar</button>
+                  </div>
+                )}
+                {comment.replies && comment.replies.length > 0 && (
+                  <div className="mt-3 space-y-2 pl-3 border-l border-[#9B59B6]/40">
+                    {comment.replies.map(reply => (
+                      <div key={reply.id} className="flex items-start gap-2">
+                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#8A2BE2]/80">
+                          {reply.author.avatar ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={13} className="text-white" />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2"><span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span><span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span></div>
+                          <p className="text-xs break-words text-gray-500" style={{ fontFamily: "'Aller', sans-serif" }}>{reply.content}</p>
+                        </div>
+                      </div>
+                    ))}
+                    <p className="text-[10px] pl-10 text-gray-400">{comment.replies.length} {comment.replies.length === 1 ? 'respuesta' : 'respuestas'}</p>
                   </div>
                 )}
               </div>
