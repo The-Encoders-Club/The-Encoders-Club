@@ -47,9 +47,7 @@ function PinkDots({ dotColor = '#ffeef8' }) {
         style={{
           position: 'fixed',
           top: -shift * 2,
-          left: -shift * 2,
-          width: `calc(100vw + ${shift * 4}px)`,
-          height: `calc(100vh + ${shift * 4}px)`,
+          left: -shift * 2,          width: `calc(100vw + ${shift * 4}px)`,          height: `calc(100vh + ${shift * 4}px)`,
         }}
       >
         {dots.map(d => (
@@ -98,9 +96,7 @@ function CharacterDots({ dotColor = '#ffeef8' }) {
       `}</style>
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
       <div
-        className="character-dots-layer pointer-events-none"
-        style={{
-          position: 'fixed',
+        className="character-dots-layer pointer-events-none"        style={{          position: 'fixed',
           top: -shift * 2,
           left: -shift * 2,
           width: `calc(100vw + ${shift * 4}px)`,
@@ -148,10 +144,8 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
               <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                 <ImageIcon className="text-white w-8 h-8" />
-              </div>
-              <div className="absolute bottom-2 right-2 bg-black/60 text-white/60 text-xs px-2 py-1 rounded-full">
-                {idx + 1}/{images.length}
-              </div>
+              </div>              <div className="absolute bottom-2 right-2 bg-black/60 text-white/60 text-xs px-2 py-1 rounded-full">
+                {idx + 1}/{images.length}              </div>
             </div>
           ))}
         </div>
@@ -198,11 +192,9 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
 
   return (
     <>
-      <div className="relative">
-        <div ref={ref} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
+      <div className="relative">        <div ref={ref} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
           {images.map((src, idx) => (
-            <div key={idx} onClick={() => setLightboxIdx(idx)} className="flex-none rounded-xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative snap-start cursor-zoom-in hover:border-[#FF6B9D] transition-all" style={{ width: 'calc(43% - 8px)', minWidth: 140 }}>
-              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
+            <div key={idx} onClick={() => setLightboxIdx(idx)} className="flex-none rounded-xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative snap-start cursor-zoom-in hover:border-[#FF6B9D] transition-all" style={{ width: 'calc(43% - 8px)', minWidth: 140 }}>              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
               <div className="absolute bottom-1.5 right-1.5 bg-[#d87093]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">{idx + 1}/{total}</div>
             </div>
           ))}
@@ -248,12 +240,10 @@ function PurplePreviewCarousel({ images }: { images: string[] }) {
     <>
       <div className="relative">
         <div ref={ref} className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
-          {images.map((src, idx) => (
-            <div key={idx} onClick={() => setLightboxIdx(idx)} className="flex-none rounded-xl overflow-hidden border-2 border-[#9B59B6] aspect-video relative snap-start cursor-zoom-in hover:border-[#8E44AD] transition-all" style={{ width: 'calc(43% - 8px)', minWidth: 140 }}>
+          {images.map((src, idx) => (            <div key={idx} onClick={() => setLightboxIdx(idx)} className="flex-none rounded-xl overflow-hidden border-2 border-[#9B59B6] aspect-video relative snap-start cursor-zoom-in hover:border-[#8E44AD] transition-all" style={{ width: 'calc(43% - 8px)', minWidth: 140 }}>
               <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
               <div className="absolute bottom-1.5 right-1.5 bg-[#8A2BE2]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">{idx + 1}/{total}</div>
-            </div>
-          ))}
+            </div>          ))}
         </div>
         {current > 0 && <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-purple-50 z-10 shadow-sm"><ChevronLeft size={14} /></button>}
         {current < total - 1 && <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-purple-50 z-10 shadow-sm"><ChevronRight size={14} /></button>}
@@ -298,13 +288,11 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
 
   return (
     <div className="relative z-10 min-h-screen w-full overflow-x-hidden">
-      <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-white/20 px-4 sm:px-6 py-4 flex justify-between items-center">
-        <Link href="/proyectos" className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group">
+      <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-white/20 px-4 sm:px-6 py-4 flex justify-between items-center">        <Link href="/proyectos" className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group">
           <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
           <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
         </Link>
-        <div className="flex items-center gap-2">
-          <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
+        <div className="flex items-center gap-2">          <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
             {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
           </button>
           <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
@@ -348,14 +336,12 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
               </div>
               <div className="pt-8 border-t border-white/10">
                 <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                  <ImageIcon className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.preview')}
-                </h4>
+                  <ImageIcon className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.preview')}                </h4>
                 <ImageCarousel images={project.previews} themeColor={project.themeColor} />
               </div>
               <div className="pt-8 border-t border-white/10">
                 {/* Aquí podrías añadir un comentario genérico si quisieras, o dejarlo vacío */}
-              </div>
-            </div>
+              </div>            </div>
           </div>
           <div className="space-y-8">
             <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32 space-y-6">
@@ -396,17 +382,15 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ─── Light/pink theme detail view — MONIKA (CLUB ROOM STYLE) ─── */
+/* ─── Light/pink theme detail view — MONIKA (ORIGINAL INTACTO) ─── */
 function MonikaDetail({ project }: { project: typeof projects[number] }) {
-  const { t, locale } = useI18n();
-  const musicRef = useRef<HTMLIFrameElement>(null);
+  const { t, locale } = useI18n();  const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
       try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch (e) { /* cross-origin */ }
-    }, 1500);
-    return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
+    }, 1500);    return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
   }, []);
 
   const toggleMute = () => {
@@ -420,14 +404,6 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
 
-  // Géneros con colores distintos
-  const genres = [
-    { name: 'Fan-Made', color: '#FFB3BA' },
-    { name: 'Drama', color: '#C5E99B' },
-    { name: 'Romance', color: '#FFDFBF' },
-    { name: 'Simulación', color: '#B5EAD7' }
-  ];
-
   return (
     <>
       <style>{`
@@ -436,40 +412,8 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
         .monika-title { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 9px #ba609e; paint-order: stroke fill; }
         .pink-stroke-lg { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 6px #ba609e; paint-order: stroke fill; }
         .pink-stroke-sm { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 5px #ba609e; paint-order: stroke fill; }
-        .club-card {
-          background: white;
-          border-radius: 24px;
-          border: 2px solid #FFB6C1;
-          box-shadow: 0 8px 20px rgba(255, 107, 157, 0.15);
-          padding: 1.5rem;
-          transition: all 0.2s ease;
-        }
-        .club-card:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 12px 28px rgba(255, 107, 157, 0.25);
-        }
-        .club-card-title {
-          font-family: 'RifficFree', 'm1_fixed', monospace;
-          font-size: 1.6rem;
-          color: #fefefe;
-          -webkit-text-stroke: 3px #ba609e;
-          paint-order: stroke fill;
-          margin-bottom: 1rem;
-          letter-spacing: -0.5px;
-        }
-        .genre-badge {
-          font-family: 'm1_fixed', monospace;
-          font-weight: bold;
-          padding: 0.4rem 1rem;
-          border-radius: 40px;
-          font-size: 0.9rem;
-          color: #2d2d2d;
-          border: 1px solid rgba(0,0,0,0.05);
-          transition: transform 0.1s ease;
-        }
-        .genre-badge:hover {
-          transform: scale(1.02);
-        }
+        .pink-stroke-xs { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 3px #ba609e; paint-order: stroke fill; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}>
         <PinkDots />
@@ -482,95 +426,126 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
           </button>
         </nav>
-
-        <main className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-6">
-          {/* Fila de géneros (colores distintos) */}
-          <div className="flex flex-wrap justify-center gap-3 mb-2">
-            {genres.map(genre => (
-              <span key={genre.name} className="genre-badge" style={{ backgroundColor: genre.color }}>
-                {genre.name}
-              </span>
-            ))}
-          </div>
-
-          {/* Cuadro 1: Tu sala del club */}
-          <div className="club-card">
-            <div className="club-card-title">Tu sala del club</div>
-            <div className="space-y-3">
+        <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+          <div className="space-y-4">
+            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <h1 className="monika-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
-              <p className="text-gray-800 text-[24px] font-extrabold">{project.subtitle}</p>
-              <div className="rounded-xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group max-w-2xl mx-auto">
-                <img src={project.image} alt={project.name} className="w-full h-full object-cover" />
+              <p className="text-gray-800 text-[24px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span></span></p>
+            </motion.div>
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group" style={{ boxShadow: '0 8px 32px #FF6B9D30' }}>              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+            </motion.div>
+          </div>
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
+            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+              <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {isEs ? 'Sobre este proyecto' : 'About this project'}            </h3>
+            <p className="text-gray-800 leading-relaxed text-[23px] font-extrabold">{desc}</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
+                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
+                <span className="text-gray-800 font-extrabold text-[22px]">{status}</span>
+              </div>
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FFB6C1] shadow-sm">
+                <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
+                <span className="text-gray-800 font-extrabold text-[22px] flex items-center gap-1">{project.rating} <Star className="w-4.5 h-4.5 fill-current text-yellow-400" /></span>
               </div>
             </div>
-          </div>
-
-          {/* Cuadro 2: Menú de interacciones mejorado */}
-          <div className="club-card">
-            <div className="club-card-title">Menú de interacciones mejorado</div>
-            <div className="space-y-4">
-              <p className="text-gray-800 text-lg font-bold leading-relaxed">{desc}</p>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-3 rounded-xl bg-pink-50 border border-[#FFB6C1]">
-                  <span className="text-sm font-extrabold uppercase text-gray-600">{t('projects.status')}</span>
-                  <p className="text-xl font-black text-gray-800">{status}</p>
-                </div>
-                <div className="p-3 rounded-xl bg-pink-50 border border-[#FFB6C1]">
-                  <span className="text-sm font-extrabold uppercase text-gray-600">{t('projects.rating')}</span>
-                  <p className="text-xl font-black text-gray-800 flex items-center gap-1">{project.rating} <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" /></p>
-                </div>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {project.tags.map(tag => (
-                  <span key={tag} className="text-sm px-3 py-1 rounded-full bg-white/80 border border-[#FFB6C1] text-gray-800 font-bold">{tag}</span>
-                ))}
-              </div>
+            <div className="flex flex-wrap gap-2">
+              {project.tags.map(tag => (
+                <span key={tag} className="text-[19px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#FFB6C1] text-gray-800 font-extrabold hover:border-[#FF6B9D] transition-colors">{tag}</span>
+              ))}
             </div>
-          </div>
-
-          {/* Cuadro 3: Nuevos temas de conversación */}
-          <div className="club-card">
-            <div className="club-card-title">Nuevos temas de conversación</div>
-            <div className="space-y-4">
-              <PinkPreviewCarousel images={project.previews} />
-              <div className="border-t border-[#FFB6C1]/30 pt-4">
-                <h4 className="font-black text-gray-700 mb-2 flex items-center gap-2">
-                  <Download size={18} className="text-[#d87093]" /> {t('projects.downloads')}
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
+            <h4 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+              <ImageIcon className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {t('projects.preview')}
+            </h4>
+            <PinkPreviewCarousel images={project.previews} />
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm space-y-5">
+            <h3 className="pink-stroke-lg text-[22px] font-black flex items-center gap-2">
+              <Settings className="w-5 h-5 text-[#F092A6]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {t('projects.details')}
+            </h3>
+            <ul className="space-y-2.5">
+              {[
+                { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
+                { icon: Flag, label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
+                { icon: Settings, label: t('projects.engine'), value: project.details.engine },
+                { icon: Download, label: t('projects.downloads'), value: project.details.downloads },
+              ].map(item => {
+                const ItemIcon = item.icon;
+                return (
+                  <li key={item.label} className="flex items-center gap-2 text-[21px]">
+                    <ItemIcon className="w-5 h-5 text-[#d87093] flex-shrink-0" />
+                    <span className="text-gray-800 flex-1 font-extrabold">{item.label}</span>                    <span className="text-gray-800 font-extrabold">{item.value}</span>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
+              <h4 className="pink-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
+              {project.downloads.map((dl, i) => {
+                const Icon = getIcon(dl.icon);                const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
+                const stroke = strokeColors[i] || '#333';
+                return (
+                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
+                    <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
+                    <span className="font-black uppercase tracking-wide text-[19px]" style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
+                  </a>
+                );
+              })}
+            </div>
+          </motion.div>
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
+            <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+              {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
+            </h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
+                  <Search className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  Wiki del Mod
                 </h4>
-                <div className="flex flex-wrap gap-3">
-                  {project.downloads.map((dl, i) => {
-                    const Icon = getIcon(dl.icon);
-                    return (
-                      <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border-2 border-[#FFB6C1] text-gray-800 font-bold hover:bg-pink-50 transition">
-                        <Icon size={16} className="text-[#d87093]" />
-                        {isEs ? dl.label : (dl.labelEn || dl.label)}
-                      </a>
-                    );
-                  })}
-                </div>
+                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>
+                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                  <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
+                </button>
+              </div>
+              <div className="bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="pink-stroke-sm text-[18px] font-black flex items-center gap-1">
+                  <Shirt className="w-4 h-4 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  Spritepacks
+                </h4>
+                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Cambia la ropa y accesorios de Monika.' : "Change Monika's clothes and accessories."}</p>
+                <div className="flex flex-col gap-2 w-full">
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                    <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
+                  </button>
+                  <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white text-[16px] font-black hover:bg-[#C06080] hover:text-white transition-colors">
+                    <Star className="w-3 h-3" /> {isEs ? 'Ver Accesorios' : 'View Accessories'}
+                  </button>
+                </div>              </div>
+            </div>
+            <div className="flex justify-center">
+              <div className="w-full max-w-sm bg-[#FFF0F5] rounded-2xl border-2 border-[#FFB6C1] p-6 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
+                <h4 className="pink-stroke-sm text-[22px] font-black flex items-center gap-1.5">
+                  <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+                  Submods
+                </h4>
+                <p className="text-[25px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}</p>
+                <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[17px] hover:bg-[#C06080] hover:text-white transition-colors">                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
+                </button>
               </div>
             </div>
-          </div>
-
-          {/* Cuadro 4: Genera de d */}
-          <div className="club-card">
-            <div className="club-card-title">Genera de d</div>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-pink-50 rounded-xl p-4 border border-[#FFB6C1] text-center">
-                  <h4 className="font-black text-gray-800 flex items-center justify-center gap-1"><Puzzle size={18} /> Submods</h4>
-                  <p className="text-sm text-gray-600 mt-1">{isEs ? 'Amplía los diálogos' : 'Expand dialogues'}</p>
-                  <button className="mt-2 text-sm font-bold text-[#d87093] underline">{isEs ? 'Explorar' : 'Explore'}</button>
-                </div>
-                <div className="bg-pink-50 rounded-xl p-4 border border-[#FFB6C1] text-center">
-                  <h4 className="font-black text-gray-800 flex items-center justify-center gap-1"><Shirt size={18} /> Spritepacks</h4>
-                  <p className="text-sm text-gray-600 mt-1">{isEs ? 'Personaliza a Monika' : 'Customize Monika'}</p>
-                  <button className="mt-2 text-sm font-bold text-[#d87093] underline">{isEs ? 'Ver más' : 'View'}</button>
-                </div>
-              </div>
-              <MonikaComments targetId={project.id} targetType="project" />
-            </div>
-          </div>
+          </motion.div>
+          {/* ✅ MONIKA COMMENTS */}
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white rounded-2xl border-2 border-[#FFB6C1] p-5 shadow-sm">
+            <MonikaComments targetId={project.id} targetType="project" />
+          </motion.div>
         </main>
         <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
       </div>
@@ -602,8 +577,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
 
-  const titleFontFamily = "'natsuki', sans-serif";
-  const bodyFontFamily = "'natsuki', monospace";
+  const titleFontFamily = "'natsuki', sans-serif";  const bodyFontFamily = "'natsuki', monospace";
 
   return (
     <>
@@ -612,8 +586,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
         @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: block; }
         @font-face { font-family: 'natsuki'; src: url('/fonts/natsuki.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: block; }
         .natsuki-title { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 9px #FF3D7F; paint-order: stroke fill; }
-        .natsuki-stroke-lg { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 6px #FF3D7F; paint-order: stroke fill; }
-        .natsuki-stroke-sm { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 5px #FF3D7F; paint-order: stroke fill; }
+        .natsuki-stroke-lg { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 6px #FF3D7F; paint-order: stroke fill; }        .natsuki-stroke-sm { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 5px #FF3D7F; paint-order: stroke fill; }
         .natsuki-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px #FF3D7F; paint-order: stroke fill; }
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
@@ -652,8 +625,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
               </div>
               <div className="p-3 rounded-xl bg-white border-2 border-[#FF7EB3] shadow-sm">
                 <span className="text-[14px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
-                <span className="text-gray-800 font-extrabold text-[16px] flex items-center gap-1">{project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" /></span>
-              </div>
+                <span className="text-gray-800 font-extrabold text-[16px] flex items-center gap-1">{project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" /></span>              </div>
             </div>
             <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
@@ -663,8 +635,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
             <h4 className="natsuki-stroke-lg text-xl font-black flex items-center gap-2">
-              <ImageIcon className="w-5 h-5 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-              {t('projects.preview')}
+              <ImageIcon className="w-5 h-5 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />              {t('projects.preview')}
             </h4>
             <PinkPreviewCarousel images={project.previews} />
           </motion.div>
@@ -702,8 +673,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                     <span className="font-black uppercase tracking-wide text-[14px]" style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
                   </a>
                 );
-              })}
-            </div>
+              })}            </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
             <h3 className="natsuki-stroke-lg text-xl font-black flex items-center gap-2">
@@ -714,8 +684,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
               <div className="bg-[#FFE6EE] rounded-2xl border-2 border-[#FF7EB3] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="natsuki-stroke-sm text-[16px] font-black flex items-center gap-1">
                   <Search className="w-4 h-4 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
-                  Wiki del Mod
-                </h4>
+                  Wiki del Mod                </h4>
                 <p className="text-[16px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>
                 <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#E84393] text-[#E84393] bg-white text-[13px] font-black hover:bg-[#E84393] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
@@ -764,8 +733,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
 /* ─── Light/purple theme detail view — YURI (PURPLE BORDERS & GALLERY) ─── */
 function YuriDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
-  const musicRef = useRef<HTMLIFrameElement>(null);
-  const [muted, setMuted] = useState(false);
+  const musicRef = useRef<HTMLIFrameElement>(null);  const [muted, setMuted] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -803,8 +771,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
         @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: block; }
         .yuri-title { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 9px ${strokeColor}; paint-order: stroke fill; }
         .yuri-stroke-lg { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 6px ${strokeColor}; paint-order: stroke fill; }
-        .yuri-stroke-sm { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 5px ${strokeColor}; paint-order: stroke fill; }
-        .yuri-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px ${strokeColor}; paint-order: stroke fill; }
+        .yuri-stroke-sm { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 5px ${strokeColor}; paint-order: stroke fill; }        .yuri-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px ${strokeColor}; paint-order: stroke fill; }
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
       <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: '#ffffff' }}>
@@ -815,8 +782,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
             <span className="font-bold tracking-wider uppercase text-[13px]">{t('projects.backToProjects')}</span>
           </Link>
           <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#9B59B6] text-[#8A2BE2] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
-            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-          </button>
+            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}          </button>
         </nav>
         <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
           <div className="space-y-4">
@@ -824,6 +790,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               <h1 className="yuri-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
               <p className="text-gray-800 text-[24px] font-extrabold mt-1 flex items-center gap-1.5">{project.subtitle} <span className="text-lg">💜</span></p>
             </motion.div>
+            {/* Imagen principal con bordes morados consistentes */}
             <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#9B59B6] aspect-video relative group" style={{ boxShadow: `0 8px 32px ${shadowColor}` }}>
               <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
@@ -852,10 +819,10 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
             </div>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
-            <h4 className="yuri-stroke-lg text-xl font-black flex items-center gap-2">
-              <ImageIcon className="w-5 h-5 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
+            <h4 className="yuri-stroke-lg text-xl font-black flex items-center gap-2">              <ImageIcon className="w-5 h-5 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {t('projects.preview')}
             </h4>
+            {/* Galería con bordes morados (PurplePreviewCarousel) */}
             <PurplePreviewCarousel images={project.previews} />
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white/85 rounded-2xl border-2 border-[#9B59B6] p-5 shadow-sm space-y-5">
@@ -864,8 +831,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               {t('projects.details')}
             </h3>
             <ul className="space-y-2.5">
-              {[
-                { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
+              {[                { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
                 { icon: Flag, label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
                 { icon: Settings, label: t('projects.engine'), value: project.details.engine },
                 { icon: Download, label: t('projects.downloads'), value: project.details.downloads },
@@ -901,8 +867,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
             <div className="grid grid-cols-2 gap-3">
-              <div className="bg-[#F3E5F5] rounded-2xl border-2 border-[#9B59B6] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
-                <h4 className="yuri-stroke-sm text-[18px] font-black flex items-center gap-1">
+              <div className="bg-[#F3E5F5] rounded-2xl border-2 border-[#9B59B6] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">                <h4 className="yuri-stroke-sm text-[18px] font-black flex items-center gap-1">
                   <Search className="w-4 h-4 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod
                 </h4>
@@ -915,8 +880,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
                 <h4 className="yuri-stroke-sm text-[18px] font-black flex items-center gap-1">
                   <Shirt className="w-4 h-4 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Spritepacks
-                </h4>
-                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Cambia la ropa y accesorios de Yuri.' : "Change Yuri's clothes and accessories."}</p>
+                </h4>                <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Cambia la ropa y accesorios de Yuri.' : "Change Yuri's clothes and accessories."}</p>
                 <div className="flex flex-col gap-2 w-full">
                   <button className="flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-[#8A2BE2] text-[#8A2BE2] bg-white text-[16px] font-black hover:bg-[#8A2BE2] hover:text-white transition-colors">
                     <Shirt className="w-3 h-3" /> {isEs ? 'Ver Ropa' : 'View Clothes'}
@@ -952,8 +916,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
 }
 
 /* ─── Page component ─── */
-export default function ProjectDetailPage() {
-  const params = useParams();
+export default function ProjectDetailPage() {  const params = useParams();
   const id = params.id as string;
   const project = projects.find(p => p.id === id);
 
@@ -966,8 +929,7 @@ export default function ProjectDetailPage() {
           <a href="/proyectos" className="text-[#FF2D78] hover:underline">Back to projects</a>
         </div>
       </div>
-    );
-  }
+    );  }
 
   const idLower = project.id?.toLowerCase() || '';
   const isYuri = idLower.includes('yuri');
