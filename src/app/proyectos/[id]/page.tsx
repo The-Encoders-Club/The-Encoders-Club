@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor, Download,
-  Share2, X, Sparkles, Volume2, VolumeX,
+  Share2, X, Sparkles, Volume2, VolumeX, Moon, Sun,
   ChevronLeft, ChevronRight, Search, Shirt, Puzzle, FileText,
   Clock, Flag, Settings
 } from 'lucide-react';
@@ -47,8 +47,7 @@ function PinkDots({ dotColor = '#ffeef8' }) {
         style={{
           position: 'fixed',
           top: -shift * 2,
-          left: -shift * 2,          width: `calc(100vw + ${shift * 4}px)`,          height: `calc(100vh + ${shift * 4}px)`,
-        }}
+          left: -shift * 2,          width: `calc(100vw + ${shift * 4}px)`,          height: `calc(100vh + ${shift * 4}px)`,        }}
       >
         {dots.map(d => (
           <div
@@ -97,8 +96,7 @@ function CharacterDots({ dotColor = '#ffeef8' }) {
       <div className="fixed inset-0 pointer-events-none" style={{ backgroundColor: '#ffffff' }} />
       <div
         className="character-dots-layer pointer-events-none"        style={{          position: 'fixed',
-          top: -shift * 2,
-          left: -shift * 2,
+          top: -shift * 2,          left: -shift * 2,
           width: `calc(100vw + ${shift * 4}px)`,
           height: `calc(100vh + ${shift * 4}px)`,
         }}
@@ -147,8 +145,7 @@ function ImageCarousel({ images, themeColor }: { images: string[]; themeColor: s
               </div>              <div className="absolute bottom-2 right-2 bg-black/60 text-white/60 text-xs px-2 py-1 rounded-full">
                 {idx + 1}/{images.length}              </div>
             </div>
-          ))}
-        </div>
+          ))}        </div>
         <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 w-8 h-8 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center opacity-0 group-hover/carousel:opacity-100 transition-opacity hover:bg-black/70 z-10">
           <ChevronLeft size={16} />
         </button>
@@ -197,8 +194,7 @@ function PinkPreviewCarousel({ images }: { images: string[] }) {
             <div key={idx} onClick={() => setLightboxIdx(idx)} className="flex-none rounded-xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative snap-start cursor-zoom-in hover:border-[#FF6B9D] transition-all" style={{ width: 'calc(43% - 8px)', minWidth: 140 }}>              <img src={src} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-400" />
               <div className="absolute bottom-1.5 right-1.5 bg-[#d87093]/80 text-white text-[9px] px-1.5 py-0.5 rounded-full font-bold">{idx + 1}/{total}</div>
             </div>
-          ))}
-        </div>
+          ))}        </div>
         {current > 0 && <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm"><ChevronLeft size={14} /></button>}
         {current < total - 1 && <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#FFB6C1] text-[#d87093] flex items-center justify-center hover:bg-pink-50 z-10 shadow-sm"><ChevronRight size={14} /></button>}
       </div>
@@ -247,8 +243,7 @@ function PurplePreviewCarousel({ images }: { images: string[] }) {
         </div>
         {current > 0 && <button onClick={() => scroll('left')} className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-purple-50 z-10 shadow-sm"><ChevronLeft size={14} /></button>}
         {current < total - 1 && <button onClick={() => scroll('right')} className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-7 h-7 rounded-full bg-white border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-purple-50 z-10 shadow-sm"><ChevronRight size={14} /></button>}
-      </div>
-      <AnimatePresence>
+      </div>      <AnimatePresence>
         {lightboxIdx !== null && (
           <motion.div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/85 backdrop-blur-sm" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={closeLightbox}>
             <button onClick={closeLightbox} className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/90 border-2 border-[#9B59B6] text-[#8A2BE2] flex items-center justify-center hover:bg-white transition-all z-10 shadow-md"><X size={20} /></button>
@@ -297,8 +292,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
           </button>
           <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
             <Share2 className="w-5 h-5" />
-          </button>
-        </div>
+          </button>        </div>
       </nav>
       <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
@@ -347,8 +341,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
             <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32 space-y-6">
               <h3 className="text-xl font-bold flex items-center gap-2">
                 <Cpu className="w-5 h-5" style={{ color: project.themeColor }} /> {t('projects.details')}
-              </h3>
-              <ul className="space-y-4">
+              </h3>              <ul className="space-y-4">
                 {[
                   { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
                   { label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
@@ -382,10 +375,11 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ─── Light/pink theme detail view — MONIKA (ORIGINAL INTACTO) ─── */
+/* ─── Light/pink theme detail view — MONIKA (WITH DARK MODE TOGGLE) ─── */
 function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();  const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false); // ✅ Estado local para modo oscuro
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -396,8 +390,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const toggleMute = () => {
     if (musicRef.current) {
       try { musicRef.current.contentWindow?.postMessage(muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'); } catch (e) { /* cross-origin */ }
-    }
-    setMuted(!muted);
+    }    setMuted(!muted);
   };
 
   const isEs = locale === 'es';
@@ -415,16 +408,27 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
         .pink-stroke-xs { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 3px #ba609e; paint-order: stroke fill; }
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: '#ffffff' }}>
+      {/* ✅ El fondo base cambia según isDarkMode, pero los puntos (PinkDots) se mantienen encima */}
+      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: "'m1_fixed', monospace", backgroundColor: isDarkMode ? '#0a0a1a' : '#ffffff' }}>
         <PinkDots />
         <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,224,236,0.92)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FFB6C1' }}>
           <Link href="/proyectos" className="flex items-center gap-2 text-[#d6336c] hover:text-[#FF2D78] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-[15px]">{t('projects.backToProjects')}</span>
           </Link>
-          <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
-            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-          </button>
+          <div className="flex items-center gap-2">
+            {/* ✅ BOTÓN DE MODO OSCURO */}
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)} 
+              className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all" 
+              title={isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}
+            >
+              {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#FFB6C1] text-[#d87093] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
+              {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            </button>
+          </div>
         </nav>
         <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
           <div className="space-y-4">
@@ -435,8 +439,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
             <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 border-[#FFB6C1] aspect-video relative group" style={{ boxShadow: '0 8px 32px #FF6B9D30' }}>              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
             </motion.div>
-          </div>
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
+          </div>          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
             <h3 className="pink-stroke-lg text-xl font-black flex items-center gap-2">
               <FileText className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Sobre este proyecto' : 'About this project'}            </h3>
@@ -485,8 +488,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                 );
               })}
             </ul>
-            <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">
-              <h4 className="pink-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
+            <div className="border-t border-[#FFB6C1]/50 pt-4 space-y-2">              <h4 className="pink-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
               {project.downloads.map((dl, i) => {
                 const Icon = getIcon(dl.icon);                const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
                 const stroke = strokeColors[i] || '#333';
@@ -535,8 +537,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                 <h4 className="pink-stroke-sm text-[22px] font-black flex items-center gap-1.5">
                   <Puzzle className="w-5 h-5 text-[#C06080]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Submods
-                </h4>
-                <p className="text-[25px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}</p>
+                </h4>                <p className="text-[25px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Amplía las características y diálogos.' : 'Expand features and dialogues.'}</p>
                 <button className="flex items-center gap-2 px-6 py-2 rounded-full border-2 border-[#C06080] text-[#C06080] bg-white font-black text-[17px] hover:bg-[#C06080] hover:text-white transition-colors">                  {isEs ? 'Explorar Submods' : 'Explore Submods'}
                 </button>
               </div>
@@ -553,11 +554,12 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
   );
 }
 
-/* ── Light/pink theme detail view — NATSUKI (STRONGER PINK) ── */
+/* ── Light/pink theme detail view — NATSUKI (STRONGER PINK + DARK MODE) ── */
 function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false); // ✅ Estado local para modo oscuro
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -584,22 +586,32 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
       <style>{`
         @font-face { font-family: 'm1_fixed'; src: url('/fonts/m1_fixed.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: block; }
         @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: block; }
-        @font-face { font-family: 'natsuki'; src: url('/fonts/natsuki.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: block; }
-        .natsuki-title { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 9px #FF3D7F; paint-order: stroke fill; }
+        @font-face { font-family: 'natsuki'; src: url('/fonts/natsuki.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: block; }        .natsuki-title { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 9px #FF3D7F; paint-order: stroke fill; }
         .natsuki-stroke-lg { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 6px #FF3D7F; paint-order: stroke fill; }        .natsuki-stroke-sm { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 5px #FF3D7F; paint-order: stroke fill; }
         .natsuki-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px #FF3D7F; paint-order: stroke fill; }
         .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
-      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: '#ffffff' }}>
+      {/* ✅ El fondo base cambia según isDarkMode, pero los puntos (PinkDots) se mantienen encima */}
+      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: isDarkMode ? '#0a0a1a' : '#ffffff' }}>
         <PinkDots dotColor="#ffc4d6" />
         <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: 'rgba(255,190,205,0.95)', backdropFilter: 'blur(14px)', borderBottom: '1px solid #FF7EB3' }}>
           <Link href="/proyectos" className="flex items-center gap-2 text-[#D63384] hover:text-[#FF3D7F] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-[13px]">{t('projects.backToProjects')}</span>
           </Link>
-          <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#FF7EB3] text-[#D63384] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
-            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
-          </button>
+          <div className="flex items-center gap-2">
+             {/* ✅ BOTÓN DE MODO OSCURO */}
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)} 
+              className="p-2 rounded-full bg-white/70 border border-[#FF7EB3] text-[#D63384] hover:bg-white transition-all" 
+              title={isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}
+            >
+              {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#FF7EB3] text-[#D63384] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
+              {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+            </button>
+          </div>
         </nav>
         <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
           <div className="space-y-4">
@@ -623,8 +635,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                 <span className="text-[14px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.status')}</span>
                 <span className="text-gray-800 font-extrabold text-[16px]">{status}</span>
               </div>
-              <div className="p-3 rounded-xl bg-white border-2 border-[#FF7EB3] shadow-sm">
-                <span className="text-[14px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
+              <div className="p-3 rounded-xl bg-white border-2 border-[#FF7EB3] shadow-sm">                <span className="text-[14px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
                 <span className="text-gray-800 font-extrabold text-[16px] flex items-center gap-1">{project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" /></span>              </div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -673,8 +684,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                     <span className="font-black uppercase tracking-wide text-[14px]" style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
                   </a>
                 );
-              })}            </div>
-          </motion.div>
+              })}            </div>          </motion.div>
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
             <h3 className="natsuki-stroke-lg text-xl font-black flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
@@ -723,17 +733,17 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
           <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="bg-white rounded-2xl border-2 border-[#FF7EB3] p-5 shadow-sm">
             <NatsukiComments targetId={project.id} targetType="project" />
           </motion.div>
-        </main>
-        <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
+        </main>        <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
       </div>
     </>
   );
 }
 
-/* ─── Light/purple theme detail view — YURI (PURPLE BORDERS & GALLERY) ─── */
+/* ─── Light/purple theme detail view — YURI (PURPLE BORDERS & GALLERY + DARK MODE) ─── */
 function YuriDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);  const [muted, setMuted] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(false); // ✅ Estado local para modo oscuro
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -772,17 +782,27 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
         .yuri-title { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 9px ${strokeColor}; paint-order: stroke fill; }
         .yuri-stroke-lg { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 6px ${strokeColor}; paint-order: stroke fill; }
         .yuri-stroke-sm { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 5px ${strokeColor}; paint-order: stroke fill; }        .yuri-stroke-xs { font-family: ${titleFontFamily}; color: #fefefe; -webkit-text-stroke: 3px ${strokeColor}; paint-order: stroke fill; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-      `}</style>
-      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: '#ffffff' }}>
+        .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }      `}</style>
+      {/* ✅ El fondo base cambia según isDarkMode, pero los puntos (CharacterDots) se mantienen encima */}
+      <div className="relative z-10 min-h-screen w-full overflow-hidden" style={{ fontFamily: bodyFontFamily, backgroundColor: isDarkMode ? '#0a0a1a' : '#ffffff' }}>
         <CharacterDots dotColor={dotColor} />
         <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: navBg, backdropFilter: 'blur(14px)', borderBottom: `1px solid ${borderColor}` }}>
           <Link href="/proyectos" className="flex items-center gap-2 text-[#6A1B9A] hover:text-[#8A2BE2] transition-colors group">
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
             <span className="font-bold tracking-wider uppercase text-[13px]">{t('projects.backToProjects')}</span>
           </Link>
-          <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#9B59B6] text-[#8A2BE2] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
-            {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}          </button>
+          <div className="flex items-center gap-2">
+            {/* ✅ BOTÓN DE MODO OSCURO */}
+            <button 
+              onClick={() => setIsDarkMode(!isDarkMode)} 
+              className="p-2 rounded-full bg-white/70 border border-[#9B59B6] text-[#8A2BE2] hover:bg-white transition-all" 
+              title={isDarkMode ? 'Modo Claro' : 'Modo Oscuro'}
+            >
+              {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+            </button>
+            <button onClick={toggleMute} className="p-2 rounded-full bg-white/70 border border-[#9B59B6] text-[#8A2BE2] hover:bg-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
+              {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}          </button>
+          </div>
         </nav>
         <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
           <div className="space-y-4">
@@ -811,8 +831,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
                 <span className="text-[20px] font-extrabold uppercase block mb-0.5 text-gray-800">{t('projects.rating')}</span>
                 <span className="text-gray-800 font-extrabold text-[22px] flex items-center gap-1">{project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" /></span>
               </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
+            </div>            <div className="flex flex-wrap gap-2">
               {project.tags.map(tag => (
                 <span key={tag} className="text-[19px] px-4 py-2 rounded-full bg-white/80 border-2 border-[#9B59B6] text-gray-800 font-extrabold hover:border-[#8E44AD] transition-colors">{tag}</span>
               ))}
@@ -861,8 +880,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               })}
             </div>
           </motion.div>
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
-            <h3 className="yuri-stroke-lg text-xl font-black flex items-center gap-2">
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">            <h3 className="yuri-stroke-lg text-xl font-black flex items-center gap-2">
               <BookOpen className="w-5 h-5 text-[#8A2BE2]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
               {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
             </h3>
@@ -911,8 +929,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
         </main>
         <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
       </div>
-    </>
-  );
+    </>  );
 }
 
 /* ─── Page component ─── */
