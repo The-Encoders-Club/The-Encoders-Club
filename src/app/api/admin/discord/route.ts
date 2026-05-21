@@ -127,8 +127,9 @@ export async function PUT(request: NextRequest) {
             id, botToken, serverId, channelId, webhookUrl,
             modRoleId, adminRoleId, collabRoleId,
             discordClientId, discordClientSecret, siteUrl,
+            notificationWebhookUrl, notificationEnabled,
             createdAt, updatedAt
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           configId,
@@ -142,6 +143,8 @@ export async function PUT(request: NextRequest) {
           discordClientId ? String(discordClientId) : null,
           discordClientSecret ? String(discordClientSecret) : null,
           siteUrl ? String(siteUrl) : null,
+          notificationWebhookUrl ? String(notificationWebhookUrl) : null,
+          notificationEnabled !== undefined ? (notificationEnabled ? 1 : 0) : 1,
           now,
           now
         )
