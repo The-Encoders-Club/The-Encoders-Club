@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDB, generateId, nowISO } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
-// GET: Get Discord config (admin+ only, with masked bot token)
+// GET: Get Discord config (admin+ only, with masked sensitive values)
 export async function GET() {
   try {
     const session = await getSession();
@@ -24,23 +24,27 @@ export async function GET() {
       return NextResponse.json({ config: null });
     }
 
-    // Mask the bot token for security
-    const botToken = config.botToken as string | null;
-    const maskedBotToken = botToken
-      ? botToken.substring(0, 8) + '•'.repeat(Math.max(0, botToken.length - 8))
-      : null;
+    // Mask sensitive values for security
+    const maskSecret = (val: string | null) =>
+      val ? val.substring(0, 6) + '•'.repeat(Math.max(0, val.length - 6)) : null;
 
     return NextResponse.json({
       config: {
         id: config.id,
-        botToken: maskedBotToken,
-        hasBotToken: !!botToken,
+        botToken: maskSecret(config.botToken as string | null),
+        hasBotToken: !!config.botToken,
         serverId: config.serverId,
         channelId: config.channelId,
         webhookUrl: config.webhookUrl,
         modRoleId: config.modRoleId,
         adminRoleId: config.adminRoleId,
         collabRoleId: config.collabRoleId,
+        discordClientId: config.discordClientId,
+        hasClientId: !!config.discordClientId,
+        discordClientSecret: maskSecret(config.discordClientSecret as string | null),
+        hasClientSecret: !!config.discordClientSecret,
+        siteUrl: config.siteUrl,
+        notificationEnabled: !!config.notificationEnabled,
         createdAt: config.createdAt,
         updatedAt: config.updatedAt,
       },
@@ -64,7 +68,12 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json() as Record<string, unknown>;
-    const { botToken, serverId, channelId, webhookUrl, modRoleId, adminRoleId, collabRoleId } = body;
+    const {
+      botToken, serverId, channelId, webhookUrl,
+      modRoleId, adminRoleId, collabRoleId,
+      discordClientId, discordClientSecret, siteUrl,
+      notificationEnabled,
+    } = body;
 
     const db = await getDB();
     const now = nowISO();
@@ -79,33 +88,18 @@ export async function PUT(request: NextRequest) {
       const updates: string[] = [];
       const values: unknown[] = [];
 
-      if (botToken !== undefined) {
-        updates.push('botToken = ?');
-        values.push(botToken ? String(botToken) : null);
-      }
-      if (serverId !== undefined) {
-        updates.push('serverId = ?');
-        values.push(serverId ? String(serverId) : null);
-      }
-      if (channelId !== undefined) {
-        updates.push('channelId = ?');
-        values.push(channelId ? String(channelId) : null);
-      }
-      if (webhookUrl !== undefined) {
-        updates.push('webhookUrl = ?');
-        values.push(webhookUrl ? String(webhookUrl) : null);
-      }
-      if (modRoleId !== undefined) {
-        updates.push('modRoleId = ?');
-        values.push(modRoleId ? String(modRoleId) : null);
-      }
-      if (adminRoleId !== undefined) {
-        updates.push('adminRoleId = ?');
-        values.push(adminRoleId ? String(adminRoleId) : null);
-      }
-      if (collabRoleId !== undefined) {
-        updates.push('collabRoleId = ?');
-        values.push(collabRoleId ? String(collabRoleId) : null);
+      const fields: Record<string, unknown> = {
+        botToken, serverId, channelId, webhookUrl,
+        modRoleId, adminRoleId, collabRoleId,
+        discordClientId, discordClientSecret, siteUrl,
+        notificationEnabled: notificationEnabled !== undefined ? (notificationEnabled ? 1 : 0) : undefined,
+      };
+
+      for (const [key, value] of Object.entries(fields)) {
+        if (value !== undefined) {
+          updates.push(`${key} = ?`);
+          values.push(value);
+        }
       }
 
       if (updates.length === 0) {
@@ -126,7 +120,12 @@ export async function PUT(request: NextRequest) {
 
       await db
         .prepare(
-          'INSERT INTO DiscordConfig (id, botToken, serverId, channelId, webhookUrl, modRoleId, adminRoleId, collabRoleId, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+          `INSERT INTO DiscordConfig (
+            id, botToken, serverId, channelId, webhookUrl,
+            modRoleId, adminRoleId, collabRoleId,
+            discordClientId, discordClientSecret, siteUrl,
+            createdAt, updatedAt
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           configId,
@@ -137,6 +136,9 @@ export async function PUT(request: NextRequest) {
           modRoleId ? String(modRoleId) : null,
           adminRoleId ? String(adminRoleId) : null,
           collabRoleId ? String(collabRoleId) : null,
+          discordClientId ? String(discordClientId) : null,
+          discordClientSecret ? String(discordClientSecret) : null,
+          siteUrl ? String(siteUrl) : null,
           now,
           now
         )
