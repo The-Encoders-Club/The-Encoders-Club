@@ -1,6 +1,6 @@
 // ============================================================
 // Discord Notification Utility - Send messages via Webhook URL
-// Uses webhookUrl from DiscordConfig (NOT Bot API)
+// Uses webhookUrl passed as parameter (avoids duplicate getDB calls)
 // ============================================================
 
 import { getDB } from './db';
@@ -24,31 +24,43 @@ interface DiscordEmbed {
   image?: { url: string };
 }
 
-// Send a message to Discord via Webhook URL (from DiscordConfig.webhookUrl)
-export async function sendDiscordMessage(payload: DiscordMessagePayload): Promise<boolean> {
+// Send a message to Discord via Webhook URL
+// If webhookUrl is provided, use it directly. Otherwise, read from DB.
+export async function sendDiscordMessage(
+  payload: DiscordMessagePayload,
+  webhookUrl?: string | null
+): Promise<boolean> {
   try {
-    const db = await getDB();
+    let url = webhookUrl || null;
 
-    // Read webhookUrl from DB — only query columns that exist in the schema
-    const config = await db
-      .prepare('SELECT webhookUrl FROM DiscordConfig LIMIT 1')
-      .first();
+    // If no URL provided, read from DB
+    if (!url) {
+      try {
+        const db = await getDB();
+        const config = await db
+          .prepare('SELECT webhookUrl FROM DiscordConfig LIMIT 1')
+          .first();
 
-    if (!config) {
-      console.error('[Discord Notif] No DiscordConfig row found in database.');
+        if (!config) {
+          console.error('[Discord Notif] No DiscordConfig row found in database.');
+          return false;
+        }
+
+        url = config.webhookUrl as string | null;
+      } catch (dbErr) {
+        console.error('[Discord Notif] Error reading webhookUrl from DB:', dbErr);
+        return false;
+      }
+    }
+
+    if (!url) {
+      console.error('[Discord Notif] webhookUrl is empty or not configured.');
       return false;
     }
 
-    const webhookUrl = config.webhookUrl as string | null;
+    console.log('[Discord Notif] Sending message to webhook:', url.substring(0, 60) + '...');
 
-    if (!webhookUrl) {
-      console.error('[Discord Notif] webhookUrl is empty or not configured in DiscordConfig.');
-      return false;
-    }
-
-    console.log('[Discord Notif] Sending message to webhook:', webhookUrl.substring(0, 50) + '...');
-
-    const response = await fetch(webhookUrl, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
@@ -56,15 +68,53 @@ export async function sendDiscordMessage(payload: DiscordMessagePayload): Promis
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Discord Notif] Webhook failed:', response.status, errorText);
+      console.error('[Discord Notif] Webhook request failed:', response.status, errorText);
       return false;
     }
 
-    console.log('[Discord Notif] Message sent successfully!');
+    const responseText = await response.text();
+    console.log('[Discord Notif] Message sent successfully! Response:', responseText.substring(0, 100));
     return true;
   } catch (error) {
-    console.error('[Discord Notif] Exception:', error);
+    console.error('[Discord Notif] Exception in sendDiscordMessage:', error);
     return false;
+  }
+}
+
+// Read the webhook URL and notificationEnabled flag from DB
+export async function getDiscordNotificationConfig(): Promise<{ webhookUrl: string | null; enabled: boolean }> {
+  try {
+    const db = await getDB();
+
+    // Try with notificationEnabled column first
+    const config = await db
+      .prepare('SELECT webhookUrl, notificationEnabled FROM DiscordConfig LIMIT 1')
+      .first();
+
+    if (!config) {
+      console.log('[Discord Notif] No DiscordConfig row found.');
+      return { webhookUrl: null, enabled: false };
+    }
+
+    const webhookUrl = config.webhookUrl as string | null;
+    // notificationEnabled might not exist as column — handle gracefully
+    const enabled = config.notificationEnabled !== undefined
+      && config.notificationEnabled !== 0
+      && config.notificationEnabled !== null;
+
+    return { webhookUrl, enabled };
+  } catch (error) {
+    // If column doesn't exist, fallback to just checking webhookUrl
+    console.warn('[Discord Notif] getDiscordNotificationConfig fallback:', error);
+    try {
+      const db = await getDB();
+      const config = await db
+        .prepare('SELECT webhookUrl FROM DiscordConfig LIMIT 1')
+        .first();
+      return { webhookUrl: (config?.webhookUrl as string) || null, enabled: true };
+    } catch {
+      return { webhookUrl: null, enabled: false };
+    }
   }
 }
 
@@ -88,9 +138,9 @@ export async function notifyNewComment(params: {
   const base = siteUrl || 'https://tu-dominio.pages.dev';
   const projectUrl = `${base}/proyectos/${projectId}`;
 
-  // Truncate content for Discord
-  const truncatedContent = content.length > 300
-    ? content.substring(0, 300) + '...'
+  // Truncate content for Discord (max 4096 chars for embed description)
+  const truncatedContent = content.length > 500
+    ? content.substring(0, 500) + '...'
     : content;
 
   // Role colors for the embed
@@ -133,7 +183,6 @@ export async function notifyNewUser(params: {
   siteUrl?: string;
 }): Promise<boolean> {
   const { nickname, avatar, siteUrl } = params;
-  const base = siteUrl || 'https://tu-dominio.pages.dev';
 
   const embed: DiscordEmbed = {
     title: '🆕 Nuevo registro',
