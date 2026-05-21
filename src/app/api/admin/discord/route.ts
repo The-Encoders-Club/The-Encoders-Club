@@ -24,6 +24,7 @@ export async function GET() {
       return NextResponse.json({ config: null });
     }
 
+    // Mask sensitive values for security
     const maskSecret = (val: string | null) =>
       val ? val.substring(0, 6) + '•'.repeat(Math.max(0, val.length - 6)) : null;
 
@@ -77,11 +78,13 @@ export async function PUT(request: NextRequest) {
     const db = await getDB();
     const now = nowISO();
 
+    // Check if config already exists
     const existing = await db
       .prepare('SELECT id FROM DiscordConfig LIMIT 1')
       .first();
 
     if (existing) {
+      // Build dynamic update query
       const updates: string[] = [];
       const values: unknown[] = [];
 
@@ -112,6 +115,7 @@ export async function PUT(request: NextRequest) {
         .bind(...values)
         .run();
     } else {
+      // Create new config
       const configId = generateId();
 
       await db
@@ -141,6 +145,7 @@ export async function PUT(request: NextRequest) {
         .run();
     }
 
+    // Log activity
     await db
       .prepare('INSERT INTO ActivityLog (id, userId, action, details, ipAddress, createdAt) VALUES (?, ?, ?, ?, ?, ?)')
       .bind(
@@ -158,4 +163,4 @@ export async function PUT(request: NextRequest) {
     console.error('Save Discord config error:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
-                                }
+}
