@@ -271,4 +271,4 @@ export async function DELETE(request: NextRequest) {
     console.error('Delete comment error:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
-                                                          }
+        }
