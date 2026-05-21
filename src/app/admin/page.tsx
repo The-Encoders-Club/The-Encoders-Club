@@ -95,6 +95,7 @@ export default function AdminPanel() {
   const [discordLoading, setDiscordLoading] = useState(false);
   const [syncLoading, setSyncLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
+  const [testWebhookLoading, setTestWebhookLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [showBanDialog, setShowBanDialog] = useState(false);
   const [banReason, setBanReason] = useState('');
@@ -188,6 +189,19 @@ export default function AdminPanel() {
       fetchDiscordConfig();
       fetchBotStatus();
     } catch { toast.error('Error'); } finally { setDiscordLoading(false); }
+  };
+  const handleTestWebhook = async () => {
+    setTestWebhookLoading(true);
+    try {
+      const res = await fetch('/api/admin/discord/test', { method: 'POST' });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(data.message);
+      } else {
+        toast.error(data.error || 'Error al probar el webhook');
+        if (data.step) console.warn('[Test Webhook] Failed at step:', data.step, data.detail);
+      }
+    } catch { toast.error('Error de conexion'); } finally { setTestWebhookLoading(false); }
   };
   const handleDeleteComment = async (commentId: string) => {
     try { const res = await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId }) }); if (!res.ok) { toast.error('Error'); return; } setAllComments(prev => prev.filter(c => c.id !== commentId)); toast.success('Comentario eliminado'); } catch { toast.error('Error'); }
@@ -640,6 +654,13 @@ export default function AdminPanel() {
                           <p className="text-[11px] text-white/30 mt-1.5">
                             Crea un webhook en tu servidor Discord: Canal &rarr; Editar &rarr; Integraciones &rarr; Webhooks &rarr; Nuevo Webhook. Copia la URL y pegala aqui.
                           </p>
+                          <button
+                            onClick={handleTestWebhook}
+                            disabled={testWebhookLoading || !discordConfig?.hasNotificationWebhook}
+                            className="mt-2 px-3 py-1.5 rounded-lg bg-[#22c55e]/10 border border-[#22c55e]/30 text-[#22c55e] text-xs font-medium hover:bg-[#22c55e]/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1.5"
+                          >
+                            {testWebhookLoading ? <><Loader2 size={12} className="animate-spin" /> Probando...</> : <>🔔 Probar Webhook</>}
+                          </button>
                         </div>
                         <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
                           <div>
