@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDB, generateId, nowISO, toBool } from '@/lib/db';
 import { checkRateLimit } from '@/lib/auth';
 import { getSession } from '@/lib/session';
+import { notifyNewComment } from '@/lib/discord-notification';
 
 // GET: Fetch comments by targetId and targetType
 export async function GET(request: NextRequest) {
@@ -149,77 +150,56 @@ export async function POST(request: NextRequest) {
       .bind(commentId)
       .first();
 
-    // =============================================
-    // DISCORD NOTIFICATION - Direct webhook send
-    // Same approach as /api/admin/discord/test
-    // =============================================
+    // --- Send Discord notification (await to ensure it executes before response) ---
     try {
-      const dcConfig = await db
-        .prepare('SELECT notificationWebhookUrl, notificationEnabled, siteUrl FROM DiscordConfig LIMIT 1')
-        .first();
+      console.log('[Comments] Starting Discord notification process...');
 
-      const webhookUrl = dcConfig?.notificationWebhookUrl as string | null;
-      const notifEnabled = dcConfig?.notificationEnabled as number | null;
+      const parentAuthorName = parentId
+        ? (() => {
+            const parentRow = db
+              .prepare(`SELECT c.id, u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?`)
+              .bind(String(parentId))
+              .first();
+            return parentRow.then((p) => (p?.nickname as string) || null);
+          })()
+        : null;
 
-      if (webhookUrl && notifEnabled !== 0) {
-        let parentAuthorName: string | null = null;
-        if (parentId) {
-          const parentRow = await db
-            .prepare('SELECT u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?')
-            .bind(String(parentId))
-            .first();
-          parentAuthorName = (parentRow?.nickname as string) || null;
-        }
+      const targetName = String(targetId);
+      const projectNames: Record<string, string> = {
+        monika: 'Monika After History',
+        natsuki: 'Just Natsuki',
+        yuri: 'Just Yuri',
+      };
+      const projectName = projectNames[targetName] || targetName;
 
-        const targetName = String(targetId);
-        const projectNames: Record<string, string> = {
-          monika: 'Monika After History',
-          natsuki: 'Just Natsuki',
-          yuri: 'Just Yuri',
-        };
-        const projectName = projectNames[targetName] || targetName;
+      const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
+      const siteUrl = (siteConfig?.siteUrl as string) || process.env.SITE_URL || 'https://tu-dominio.pages.dev';
 
-        const base = (dcConfig?.siteUrl as string) || process.env.SITE_URL || 'https://tu-dominio.pages.dev';
-        const projectUrl = `${base}/proyectos/${targetId}`;
+      const resolvedParentAuthor = parentAuthorName ? await parentAuthorName : null;
 
-        const truncated = contentStr.trim().length > 300
-          ? contentStr.trim().substring(0, 300) + '...'
-          : contentStr.trim();
+      console.log('[Comments] Calling notifyNewComment with:', {
+        projectName,
+        authorNickname: session.nickname,
+        contentLength: contentStr.trim().length,
+        isReply: !!parentId,
+        parentAuthor: resolvedParentAuthor,
+      });
 
-        const roleColors: Record<string, number> = {
-          owner: 0xFFD700, admin: 0xFF0000, moderator: 0x4D9FFF, collaborator: 0x22C55E,
-        };
-        const embedColor = roleColors[(session.role as string) || ''] || 0x5865F2;
-        const titlePrefix = !!parentId ? '💬 Respuesta en' : '💬 Nuevo comentario en';
-        const description = !!parentId && parentAuthorName
-          ? `**${session.nickname}** respondió a **${parentAuthorName}**:\n> ${truncated}`
-          : `**${session.nickname}** comentó:\n> ${truncated}`;
+      const notifResult = await notifyNewComment({
+        projectName,
+        projectId: String(targetId),
+        authorNickname: session.nickname,
+        authorAvatar: session.avatar,
+        authorRole: session.role,
+        content: contentStr.trim(),
+        siteUrl,
+        isReply: !!parentId,
+        parentAuthor: resolvedParentAuthor || undefined,
+      });
 
-        const embed: Record<string, unknown> = {
-          title: `${titlePrefix} ${projectName}`,
-          description,
-          url: projectUrl,
-          color: embedColor,
-          timestamp: new Date().toISOString(),
-          footer: { text: 'The Encoders Club' },
-        };
-
-        if (session.avatar) {
-          embed.author = { name: session.nickname, icon_url: session.avatar };
-        }
-
-        const discordRes = await fetch(webhookUrl, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username: 'The Encoders Club', embeds: [embed] }),
-        });
-
-        console.log('[Discord Notification] Status:', discordRes.status);
-      } else {
-        console.log('[Discord Notification] Skipped - webhookUrl:', !!webhookUrl, 'enabled:', notifEnabled);
-      }
-    } catch (notifErr) {
-      console.error('[Discord Notification] Error:', notifErr);
+      console.log('[Comments] Discord notification result:', notifResult ? 'SUCCESS' : 'FAILED');
+    } catch (notifError) {
+      console.error('[Comments] Discord notification threw exception:', notifError);
     }
 
     return NextResponse.json({
@@ -291,4 +271,4 @@ export async function DELETE(request: NextRequest) {
     console.error('Delete comment error:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
-}
+                                                          }
