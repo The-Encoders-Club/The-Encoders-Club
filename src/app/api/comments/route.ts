@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDB, generateId, nowISO, toBool } from '@/lib/db';
 import { checkRateLimit } from '@/lib/auth';
 import { getSession } from '@/lib/session';
+import { notifyNewComment } from '@/lib/discord-notification';
 
 // GET: Fetch comments by targetId and targetType
 export async function GET(request: NextRequest) {
@@ -154,6 +155,47 @@ export async function POST(request: NextRequest) {
       )
       .bind(commentId)
       .first();
+
+    // --- Send Discord notification (fire & forget) ---
+    try {
+      const parentAuthorName = parentId
+        ? (() => {
+            // We already verified parent exists above, fetch its author nickname
+            const parent = db
+              .prepare(`SELECT c.id, u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?`)
+              .bind(String(parentId))
+              .first();
+            return (parent?.nickname as string) || null;
+          })()
+        : null;
+
+      // Get project name from targetId (projects are identified by their id like 'monika', 'natsuki', 'yuri')
+      const targetName = String(targetId);
+      const projectNames: Record<string, string> = {
+        monika: 'Monika After History',
+        natsuki: 'Just Natsuki',
+        yuri: 'Just Yuri',
+      };
+      const projectName = projectNames[targetName] || targetName;
+
+      // Get site URL for the link
+      const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
+      const siteUrl = (siteConfig?.siteUrl as string) || process.env.SITE_URL || 'https://tu-dominio.pages.dev';
+
+      notifyNewComment({
+        projectName,
+        projectId: String(targetId),
+        authorNickname: session.nickname,
+        authorAvatar: session.avatar,
+        authorRole: session.role,
+        content: contentStr.trim(),
+        siteUrl,
+        isReply: !!parentId,
+        parentAuthor: parentAuthorName || undefined,
+      }).catch(() => {}); // Fire & forget - don't block the response
+    } catch {
+      // Non-critical: comment was saved successfully, Discord notification is optional
+    }
 
     return NextResponse.json({
       ...comment,
