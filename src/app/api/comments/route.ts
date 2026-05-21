@@ -156,61 +156,108 @@ export async function POST(request: NextRequest) {
       .bind(commentId)
       .first();
 
-    // --- Send Discord notification (await to ensure it executes before response) ---
+    // =====================================================
+    // Send Discord notification — fully awaited before response
+    // =====================================================
     try {
-      console.log('[Comments] Starting Discord notification process...');
+      console.log('[Comments] === Starting Discord notification ===');
 
-      // FIX: Added await for parent author lookup
-      const parentAuthorName = parentId
-        ? (() => {
-            const parentRow = db
-              .prepare(`SELECT c.id, u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?`)
+      // 1) Read Discord config from DB (same DB connection, no extra getDB call)
+      let discordWebhookUrl: string | null = null;
+      let notificationsEnabled = true;
+
+      try {
+        const dcConfig = await db
+          .prepare('SELECT webhookUrl, notificationEnabled FROM DiscordConfig LIMIT 1')
+          .first();
+
+        if (dcConfig) {
+          discordWebhookUrl = dcConfig.webhookUrl as string | null;
+          // notificationEnabled might not exist as column — handle gracefully
+          if (dcConfig.notificationEnabled !== undefined && dcConfig.notificationEnabled !== null) {
+            notificationsEnabled = dcConfig.notificationEnabled !== 0;
+          }
+        }
+      } catch (configErr) {
+        // Column might not exist — fallback to webhookUrl only
+        console.warn('[Comments] Could not read notificationEnabled, trying webhookUrl only:', configErr);
+        try {
+          const fallback = await db
+            .prepare('SELECT webhookUrl FROM DiscordConfig LIMIT 1')
+            .first();
+          discordWebhookUrl = (fallback?.webhookUrl as string) || null;
+        } catch {
+          // Both queries failed — config table might be empty
+        }
+      }
+
+      console.log('[Comments] Discord config:', {
+        hasWebhookUrl: !!discordWebhookUrl,
+        notificationsEnabled,
+      });
+
+      if (!discordWebhookUrl) {
+        console.log('[Comments] No webhookUrl configured — skipping notification.');
+      } else if (!notificationsEnabled) {
+        console.log('[Comments] Notifications are disabled — skipping.');
+      } else {
+        // 2) Get parent author name if this is a reply
+        let parentAuthorName: string | null = null;
+        if (parentId) {
+          try {
+            const parentRow = await db
+              .prepare(`SELECT u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?`)
               .bind(String(parentId))
               .first();
-            return parentRow.then((p) => (p?.nickname as string) || null);
-          })()
-        : null;
+            parentAuthorName = (parentRow?.nickname as string) || null;
+          } catch (err) {
+            console.warn('[Comments] Could not fetch parent author:', err);
+          }
+        }
 
-      // Get project name from targetId
-      const targetName = String(targetId);
-      const projectNames: Record<string, string> = {
-        monika: 'Monika After History',
-        natsuki: 'Just Natsuki',
-        yuri: 'Just Yuri',
-      };
-      const projectName = projectNames[targetName] || targetName;
+        // 3) Get project name
+        const targetName = String(targetId);
+        const projectNames: Record<string, string> = {
+          monika: 'Monika After History',
+          natsuki: 'Just Natsuki',
+          yuri: 'Just Yuri',
+        };
+        const projectName = projectNames[targetName] || targetName;
 
-      // Get site URL for the link
-      const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
-      const siteUrl = (siteConfig?.siteUrl as string) || process.env.SITE_URL || 'https://tu-dominio.pages.dev';
+        // 4) Get site URL
+        let siteUrl = 'https://tu-dominio.pages.dev';
+        try {
+          const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
+          if (siteConfig?.siteUrl) {
+            siteUrl = String(siteConfig.siteUrl);
+          }
+        } catch {}
 
-      // Get the resolved parent author name (await the promise)
-      const resolvedParentAuthor = parentAuthorName ? await parentAuthorName : null;
+        console.log('[Comments] Sending notification:', {
+          projectName,
+          author: session.nickname,
+          isReply: !!parentId,
+          parentAuthor: parentAuthorName,
+          contentLen: contentStr.trim().length,
+        });
 
-      console.log('[Comments] Calling notifyNewComment with:', {
-        projectName,
-        authorNickname: session.nickname,
-        contentLength: contentStr.trim().length,
-        isReply: !!parentId,
-        parentAuthor: resolvedParentAuthor,
-      });
+        // 5) Send the notification (fully awaited)
+        const notifResult = await notifyNewComment({
+          projectName,
+          projectId: targetName,
+          authorNickname: session.nickname,
+          authorAvatar: session.avatar,
+          authorRole: session.role,
+          content: contentStr.trim(),
+          siteUrl,
+          isReply: !!parentId,
+          parentAuthor: parentAuthorName || undefined,
+        });
 
-      // AWAIT the notification — do NOT fire-and-forget
-      const notifResult = await notifyNewComment({
-        projectName,
-        projectId: String(targetId),
-        authorNickname: session.nickname,
-        authorAvatar: session.avatar,
-        authorRole: session.role,
-        content: contentStr.trim(),
-        siteUrl,
-        isReply: !!parentId,
-        parentAuthor: resolvedParentAuthor || undefined,
-      });
-
-      console.log('[Comments] Discord notification result:', notifResult ? 'SUCCESS' : 'FAILED');
+        console.log('[Comments] Notification result:', notifResult ? 'SUCCESS' : 'FAILED');
+      }
     } catch (notifError) {
-      // Log the error but don't fail the comment creation
+      // Log the error but do NOT fail the comment creation
       console.error('[Comments] Discord notification threw exception:', notifError);
     }
 
