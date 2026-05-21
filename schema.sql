@@ -17,9 +17,11 @@ CREATE TABLE IF NOT EXISTS User (
   discordId     TEXT UNIQUE,
   discordLinked INTEGER NOT NULL DEFAULT 0,
   locale        TEXT NOT NULL DEFAULT 'es',
-  rememberToken TEXT UNIQUE,
-  createdAt     TEXT NOT NULL DEFAULT (datetime('now')),
-  updatedAt     TEXT NOT NULL DEFAULT (datetime('now'))
+  rememberToken      TEXT UNIQUE,
+  discordAccessToken  TEXT,
+  discordRefreshToken TEXT,
+  createdAt          TEXT NOT NULL DEFAULT (datetime('now')),
+  updatedAt          TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 -- ============ COMMENTS ============
@@ -78,16 +80,19 @@ CREATE TABLE IF NOT EXISTS ActivityLog (
 
 -- ============ DISCORD CONFIG ============
 CREATE TABLE IF NOT EXISTS DiscordConfig (
-  id           TEXT PRIMARY KEY,
-  botToken     TEXT,
-  serverId     TEXT,
-  channelId    TEXT,
-  webhookUrl   TEXT,
-  modRoleId    TEXT,
-  adminRoleId  TEXT,
-  collabRoleId TEXT,
-  createdAt    TEXT NOT NULL DEFAULT (datetime('now')),
-  updatedAt    TEXT NOT NULL DEFAULT (datetime('now'))
+  id                 TEXT PRIMARY KEY,
+  botToken           TEXT,
+  serverId           TEXT,
+  channelId          TEXT,
+  webhookUrl         TEXT,
+  modRoleId          TEXT,
+  adminRoleId        TEXT,
+  collabRoleId       TEXT,
+  discordClientId    TEXT,
+  discordClientSecret TEXT,
+  siteUrl            TEXT,
+  createdAt          TEXT NOT NULL DEFAULT (datetime('now')),
+  updatedAt          TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 -- ============ DONATIONS ============
@@ -113,3 +118,14 @@ CREATE INDEX IF NOT EXISTS idx_donation_created ON Donation(createdAt);
 CREATE INDEX IF NOT EXISTS idx_user_nickname ON User(nickname);
 CREATE INDEX IF NOT EXISTS idx_user_remember ON User(rememberToken);
 CREATE INDEX IF NOT EXISTS idx_user_discord ON User(discordId);
+CREATE INDEX IF NOT EXISTS idx_user_discord_linked ON User(discordLinked);
+
+-- ============================================================
+-- Migration: Add new columns to existing tables (run manually)
+-- ============================================================
+-- ALTER TABLE User ADD COLUMN discordAccessToken TEXT;
+-- ALTER TABLE User ADD COLUMN discordRefreshToken TEXT;
+-- ALTER TABLE DiscordConfig ADD COLUMN discordClientId TEXT;
+-- ALTER TABLE DiscordConfig ADD COLUMN discordClientSecret TEXT;
+-- ALTER TABLE DiscordConfig ADD COLUMN siteUrl TEXT;
+-- ALTER TABLE DiscordConfig ADD COLUMN notificationEnabled INTEGER NOT NULL DEFAULT 1;
