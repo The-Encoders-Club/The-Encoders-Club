@@ -98,10 +98,9 @@ export default function AdminPanel() {
   const [showBanDialog, setShowBanDialog] = useState(false);
   const [banReason, setBanReason] = useState('');
   const [showSyncDialog, setShowSyncDialog] = useState(false);
-  const [showBotToken, setShowBotToken] = useState(false);
   const [showClientSecret, setShowClientSecret] = useState(false);
   const [dcForm, setDcForm] = useState({
-    botToken: '', serverId: '', channelId: '', webhookUrl: '',
+    webhookUrl: '',
     modRoleId: '', adminRoleId: '', collabRoleId: '',
     discordClientId: '', discordClientSecret: '', siteUrl: '',
     notificationEnabled: true,
@@ -123,7 +122,6 @@ export default function AdminPanel() {
       const res = await fetch('/api/admin/discord'); if (!res.ok) return;
       const data = await res.json(); setDiscordConfig(data.config);
       setDcForm({
-        botToken: '', serverId: data.config?.serverId || '', channelId: data.config?.channelId || '',
         webhookUrl: data.config?.webhookUrl || '', modRoleId: data.config?.modRoleId || '',
         adminRoleId: data.config?.adminRoleId || '', collabRoleId: data.config?.collabRoleId || '',
         discordClientId: data.config?.discordClientId || '', discordClientSecret: '',
@@ -168,9 +166,7 @@ export default function AdminPanel() {
     setDiscordLoading(true);
     try {
       const payload: Record<string, string> = {};
-      if (dcForm.botToken) payload.botToken = dcForm.botToken;
-      if (dcForm.serverId) payload.serverId = dcForm.serverId;
-      if (dcForm.channelId) payload.channelId = dcForm.channelId;
+
       if (dcForm.webhookUrl) payload.webhookUrl = dcForm.webhookUrl;
       if (dcForm.modRoleId) payload.modRoleId = dcForm.modRoleId;
       if (dcForm.adminRoleId) payload.adminRoleId = dcForm.adminRoleId;
@@ -540,26 +536,22 @@ export default function AdminPanel() {
                     <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center"><Settings size={20} className="text-[#5865F2]" /></div>
                     <div>
                       <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Configuracion</h3>
-                      <p className="text-xs text-white/40">Token del bot, servidor, roles y OAuth2</p>
+                      <p className="text-xs text-white/40">Webhook de notificaciones, roles y OAuth2</p>
                     </div>
                   </div>
                   <div className="space-y-5">
-                    {/* Bot Credentials */}
+                    {/* Webhook de Notificaciones */}
                     <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                      <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">Credenciales del Bot</h4>
+                      <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">Webhook de Notificaciones</h4>
                       <div className="space-y-4">
                         <div>
-                          <label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Shield size={12} /> Token del Bot</label>
-                          <div className="relative">
-                            <input type={showBotToken ? 'text' : 'password'} value={dcForm.botToken} onChange={e => setDcForm(prev => ({ ...prev, botToken: e.target.value }))} placeholder={discordConfig?.hasBotToken ? 'Token configurado (dejar vacio para mantener)' : 'Ingresa el token del bot'} className="w-full px-4 py-2.5 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
-                            <button onClick={() => setShowBotToken(!showBotToken)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">{showBotToken ? <EyeOff size={16} /> : <Eye size={16} />}</button>
-                          </div>
+                          <label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Zap size={12} /> Discord Webhook URL</label>
+                          <input type="text" value={dcForm.webhookUrl} onChange={e => setDcForm(prev => ({ ...prev, webhookUrl: e.target.value }))} placeholder="https://discord.com/api/webhooks/xxx/xxx" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
                         </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div><label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Globe size={12} /> ID del Servidor</label><input type="text" value={dcForm.serverId} onChange={e => setDcForm(prev => ({ ...prev, serverId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
-                          <div><label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><MessageSquare size={12} /> ID del Canal</label><input type="text" value={dcForm.channelId} onChange={e => setDcForm(prev => ({ ...prev, channelId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
+                        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-[#5865F2]/5 border border-[#5865F2]/10">
+                          <Info size={14} className="text-[#5865F2] shrink-0 mt-0.5" />
+                          <p className="text-[11px] text-white/40">Crea un webhook en tu servidor de Discord: Editar Canal &gt; Integraciones &gt; Webhooks &gt; Nuevo Webhook. Copia la URL y pegala aqui. Las notificaciones de nuevos comentarios se enviaran a este canal.</p>
                         </div>
-                        <div><label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Zap size={12} /> Discord Webhook URL (notificaciones)</label><input type="text" value={dcForm.webhookUrl} onChange={e => setDcForm(prev => ({ ...prev, webhookUrl: e.target.value }))} placeholder="https://discord.com/api/webhooks/xxx/xxx" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
                       </div>
                     </div>
 
