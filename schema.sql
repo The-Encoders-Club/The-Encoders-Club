@@ -90,9 +90,11 @@ CREATE TABLE IF NOT EXISTS DiscordConfig (
   collabRoleId       TEXT,
   discordClientId    TEXT,
   discordClientSecret TEXT,
-  siteUrl            TEXT,
-  createdAt          TEXT NOT NULL DEFAULT (datetime('now')),
-  updatedAt          TEXT NOT NULL DEFAULT (datetime('now'))
+  siteUrl              TEXT,
+  notificationWebhookUrl TEXT,
+  notificationEnabled   INTEGER NOT NULL DEFAULT 1,
+  createdAt             TEXT NOT NULL DEFAULT (datetime('now')),
+  updatedAt             TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
 -- ============ DONATIONS ============
@@ -128,4 +130,5 @@ CREATE INDEX IF NOT EXISTS idx_user_discord_linked ON User(discordLinked);
 -- ALTER TABLE DiscordConfig ADD COLUMN discordClientId TEXT;
 -- ALTER TABLE DiscordConfig ADD COLUMN discordClientSecret TEXT;
 -- ALTER TABLE DiscordConfig ADD COLUMN siteUrl TEXT;
+-- ALTER TABLE DiscordConfig ADD COLUMN notificationWebhookUrl TEXT;
 -- ALTER TABLE DiscordConfig ADD COLUMN notificationEnabled INTEGER NOT NULL DEFAULT 1;
