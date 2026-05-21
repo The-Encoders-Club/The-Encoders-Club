@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
 
     const db = await getDB();
 
-    // Fetch top-level comments (not replies) for the target
     const { results: comments } = await db
       .prepare(
         `SELECT c.*, u.nickname, u.avatar, u.role
@@ -29,7 +28,6 @@ export async function GET(request: NextRequest) {
       .bind(targetId, targetType)
       .all();
 
-    // Fetch all replies for these comments
     const commentIds = (comments || []).map((c: Record<string, unknown>) => c.id as string);
     let replies: Record<string, unknown>[] = [];
 
@@ -48,7 +46,6 @@ export async function GET(request: NextRequest) {
       replies = (replyResults || []) as Record<string, unknown>[];
     }
 
-    // Attach replies to their parent comments
     const commentsWithReplies = (comments || []).map((comment: Record<string, unknown>) => ({
       ...comment,
       isDeleted: toBool(comment.isDeleted as number),
@@ -113,7 +110,6 @@ export async function POST(request: NextRequest) {
     const commentId = generateId();
     const now = nowISO();
 
-    // If this is a reply, verify the parent comment exists
     if (parentId) {
       const parent = await db
         .prepare('SELECT id, isDeleted FROM Comment WHERE id = ?')
@@ -132,7 +128,6 @@ export async function POST(request: NextRequest) {
       .bind(commentId, contentStr.trim(), session.id, parentId ? String(parentId) : null, String(targetId), String(targetType || 'project'), 0, 0, 0, 0, now, now)
       .run();
 
-    // Log activity
     await db
       .prepare('INSERT INTO ActivityLog (id, userId, action, details, ipAddress, createdAt) VALUES (?, ?, ?, ?, ?, ?)')
       .bind(
@@ -145,7 +140,6 @@ export async function POST(request: NextRequest) {
       )
       .run();
 
-    // Fetch the created comment with author info
     const comment = await db
       .prepare(
         `SELECT c.*, u.nickname, u.avatar, u.role
@@ -156,55 +150,46 @@ export async function POST(request: NextRequest) {
       .bind(commentId)
       .first();
 
-    // --- Send Discord notification ---
-    // Fire & forget: we don't want to block the comment response
-    // but we DO log errors for debugging
-    (async () => {
-      try {
-        let parentAuthorName: string | null = null;
-
-        if (parentId) {
-          const parentRow = await db
-            .prepare('SELECT u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?')
-            .bind(String(parentId))
-            .first();
-          parentAuthorName = (parentRow?.nickname as string) || null;
-        }
-
-        // Get project name from targetId
-        const targetName = String(targetId);
-        const projectNames: Record<string, string> = {
-          monika: 'Monika After History',
-          natsuki: 'Just Natsuki',
-          yuri: 'Just Yuri',
-        };
-        const projectName = projectNames[targetName] || targetName;
-
-        // Get site URL
-        const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
-        const siteUrl = (siteConfig?.siteUrl as string) || process.env.SITE_URL || 'https://tu-dominio.pages.dev';
-
-        const sent = await notifyNewComment({
-          projectName,
-          projectId: String(targetId),
-          authorNickname: session.nickname,
-          authorAvatar: session.avatar,
-          authorRole: session.role,
-          content: contentStr.trim(),
-          siteUrl,
-          isReply: !!parentId,
-          parentAuthor: parentAuthorName || undefined,
-        });
-
-        if (!sent) {
-          console.warn('[Discord Notification] Failed to send comment notification for comment', commentId, 'on project', targetId);
-        } else {
-          console.log('[Discord Notification] Comment notification sent for comment', commentId, 'on project', targetId);
-        }
-      } catch (notifError) {
-        console.error('[Discord Notification] Error sending comment notification:', notifError);
+    // --- Discord notification ---
+    // IMPORTANTE: Se usa await porque en Cloudflare Workers el
+    // "fire & forget" (async sin await) se muere cuando se
+    // envia la respuesta y el worker se termina.
+    try {
+      let parentAuthorName: string | null = null;
+      if (parentId) {
+        const parentRow = await db
+          .prepare('SELECT u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?')
+          .bind(String(parentId))
+          .first();
+        parentAuthorName = (parentRow?.nickname as string) || null;
       }
-    })();
+
+      const targetName = String(targetId);
+      const projectNames: Record<string, string> = {
+        monika: 'Monika After History',
+        natsuki: 'Just Natsuki',
+        yuri: 'Just Yuri',
+      };
+      const projectName = projectNames[targetName] || targetName;
+
+      const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
+      const siteUrl = (siteConfig?.siteUrl as string) || process.env.SITE_URL || 'https://tu-dominio.pages.dev';
+
+      await notifyNewComment({
+        projectName,
+        projectId: String(targetId),
+        authorNickname: session.nickname,
+        authorAvatar: session.avatar,
+        authorRole: session.role,
+        content: contentStr.trim(),
+        siteUrl,
+        isReply: !!parentId,
+        parentAuthor: parentAuthorName || undefined,
+      });
+    } catch (notifError) {
+      // No fallamos el comentario por un error de notificacion
+      console.error('[Discord] Error al enviar notificacion:', notifError);
+    }
 
     return NextResponse.json({
       ...comment,
@@ -258,7 +243,6 @@ export async function DELETE(request: NextRequest) {
       .bind(nowISO(), targetCommentId)
       .run();
 
-    // Log activity
     await db
       .prepare('INSERT INTO ActivityLog (id, userId, action, details, ipAddress, createdAt) VALUES (?, ?, ?, ?, ?, ?)')
       .bind(
