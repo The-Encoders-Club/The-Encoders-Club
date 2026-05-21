@@ -51,6 +51,7 @@ interface DiscordConfig {
   modRoleId?: string; adminRoleId?: string; collabRoleId?: string;
   hasBotToken: boolean; discordClientId?: string; hasClientId: boolean;
   hasClientSecret: boolean; siteUrl?: string;
+  hasNotificationWebhook: boolean; notificationEnabled: boolean;
 }
 interface DiscordBotStatus {
   connected: boolean; configured: boolean; botUsername: string | null;
@@ -100,11 +101,12 @@ export default function AdminPanel() {
   const [showSyncDialog, setShowSyncDialog] = useState(false);
   const [showBotToken, setShowBotToken] = useState(false);
   const [showClientSecret, setShowClientSecret] = useState(false);
+  const [showNotifWebhook, setShowNotifWebhook] = useState(false);
   const [dcForm, setDcForm] = useState({
     botToken: '', serverId: '', channelId: '', webhookUrl: '',
     modRoleId: '', adminRoleId: '', collabRoleId: '',
     discordClientId: '', discordClientSecret: '', siteUrl: '',
-    notificationEnabled: true,
+    notificationWebhookUrl: '', notificationEnabled: true,
   });
   const [syncTarget, setSyncTarget] = useState<'special' | 'all'>('special');
 
@@ -127,7 +129,7 @@ export default function AdminPanel() {
         webhookUrl: data.config?.webhookUrl || '', modRoleId: data.config?.modRoleId || '',
         adminRoleId: data.config?.adminRoleId || '', collabRoleId: data.config?.collabRoleId || '',
         discordClientId: data.config?.discordClientId || '', discordClientSecret: '',
-        siteUrl: data.config?.siteUrl || '',
+        siteUrl: data.config?.siteUrl || '', notificationWebhookUrl: '',
         notificationEnabled: data.config?.notificationEnabled !== false,
       });
     } catch {} finally { setDiscordLoading(false); }
@@ -178,6 +180,7 @@ export default function AdminPanel() {
       if (dcForm.discordClientId) payload.discordClientId = dcForm.discordClientId;
       if (dcForm.discordClientSecret) payload.discordClientSecret = dcForm.discordClientSecret;
       if (dcForm.siteUrl) payload.siteUrl = dcForm.siteUrl;
+      if (dcForm.notificationWebhookUrl) payload.notificationWebhookUrl = dcForm.notificationWebhookUrl;
       payload.notificationEnabled = dcForm.notificationEnabled;
       const res = await fetch('/api/admin/discord', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; }
@@ -618,18 +621,39 @@ export default function AdminPanel() {
                       {discordLoading ? <><div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> Guardando...</> : <><Save size={16} /> Guardar Configuracion</>}
                     </button>
 
-                    {/* Notification Toggle */}
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5">
-                      <div>
-                        <p className="text-sm font-medium text-white/70">Notificaciones de comentarios</p>
-                        <p className="text-[11px] text-white/30">Enviar avisos a Discord cuando alguien comente en un proyecto</p>
+                    {/* Notification Toggle + Webhook URL */}
+                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                      <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">Notificaciones por Webhook</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><MessageSquare size={12} /> Webhook URL para notificaciones</label>
+                          <div className="relative">
+                            <input
+                              type={showNotifWebhook ? 'text' : 'password'}
+                              value={dcForm.notificationWebhookUrl}
+                              onChange={e => setDcForm(prev => ({ ...prev, notificationWebhookUrl: e.target.value }))}
+                              placeholder={discordConfig?.hasNotificationWebhook ? 'Webhook configurado (dejar vacio para mantener)' : 'https://discord.com/api/webhooks/...'}
+                              className="w-full px-4 py-2.5 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25"
+                            />
+                            <button onClick={() => setShowNotifWebhook(!showNotifWebhook)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">{showNotifWebhook ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+                          </div>
+                          <p className="text-[11px] text-white/30 mt-1.5">
+                            Crea un webhook en tu servidor Discord: Canal &rarr; Editar &rarr; Integraciones &rarr; Webhooks &rarr; Nuevo Webhook. Copia la URL y pegala aqui.
+                          </p>
+                        </div>
+                        <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/5">
+                          <div>
+                            <p className="text-sm font-medium text-white/70">Activar notificaciones</p>
+                            <p className="text-[11px] text-white/30">Enviar avisos a Discord cuando alguien comente en un proyecto</p>
+                          </div>
+                          <button
+                            onClick={() => setDcForm(prev => ({ ...prev, notificationEnabled: !prev.notificationEnabled }))}
+                            className={`relative w-11 h-6 rounded-full transition-colors ${dcForm.notificationEnabled ? 'bg-[#5865F2]' : 'bg-white/10'}`}
+                          >
+                            <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${dcForm.notificationEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                          </button>
+                        </div>
                       </div>
-                      <button
-                        onClick={() => setDcForm(prev => ({ ...prev, notificationEnabled: !prev.notificationEnabled }))}
-                        className={`relative w-11 h-6 rounded-full transition-colors ${dcForm.notificationEnabled ? 'bg-[#5865F2]' : 'bg-white/10'}`}
-                      >
-                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${dcForm.notificationEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
-                      </button>
                     </div>
                   </div>
                 </div>
