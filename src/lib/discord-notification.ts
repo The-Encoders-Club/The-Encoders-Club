@@ -1,11 +1,11 @@
 // ============================================================
-// Discord Notification Utility - Send messages via Webhook
-// Uses a Discord Webhook URL from DiscordConfig
+// Discord Notification Utility - Send messages via Webhook URL
+// Uses webhookUrl from DiscordConfig (NOT Bot API)
 // ============================================================
 
 import { getDB } from './db';
 
-interface DiscordWebhookPayload {
+interface DiscordMessagePayload {
   content?: string;
   username?: string;
   avatar_url?: string;
@@ -24,50 +24,46 @@ interface DiscordEmbed {
   image?: { url: string };
 }
 
-// Send a message to Discord using a Webhook URL
-export async function sendDiscordWebhook(payload: DiscordWebhookPayload): Promise<boolean> {
+// Send a message to Discord via Webhook URL (from DiscordConfig.webhookUrl)
+export async function sendDiscordMessage(payload: DiscordMessagePayload): Promise<boolean> {
   try {
     const db = await getDB();
 
+    // Read webhookUrl from DB — only query columns that exist in the schema
     const config = await db
-      .prepare('SELECT notificationWebhookUrl, notificationEnabled FROM DiscordConfig LIMIT 1')
+      .prepare('SELECT webhookUrl FROM DiscordConfig LIMIT 1')
       .first();
 
     if (!config) {
-      console.warn('[Discord Webhook] No hay fila DiscordConfig en la base de datos.');
+      console.error('[Discord Notif] No DiscordConfig row found in database.');
       return false;
     }
 
-    const webhookUrl = config.notificationWebhookUrl as string | null;
-    const enabled = config.notificationEnabled as number | null;
+    const webhookUrl = config.webhookUrl as string | null;
 
     if (!webhookUrl) {
-      console.warn('[Discord Webhook] notificationWebhookUrl esta vacio.');
+      console.error('[Discord Notif] webhookUrl is empty or not configured in DiscordConfig.');
       return false;
     }
 
-    if (enabled === 0) {
-      console.log('[Discord Webhook] Notificaciones desactivadas.');
-      return false;
-    }
+    console.log('[Discord Notif] Sending message to webhook:', webhookUrl.substring(0, 50) + '...');
 
     const response = await fetch(webhookUrl, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('[Discord Webhook] Error HTTP', response.status, errorText);
+      console.error('[Discord Notif] Webhook failed:', response.status, errorText);
       return false;
     }
 
+    console.log('[Discord Notif] Message sent successfully!');
     return true;
   } catch (error) {
-    console.error('[Discord Webhook] Excepcion:', error);
+    console.error('[Discord Notif] Exception:', error);
     return false;
   }
 }
@@ -85,24 +81,26 @@ export async function notifyNewComment(params: {
   parentAuthor?: string;
 }): Promise<boolean> {
   const {
-    projectName, projectId, authorNickname,
+    projectName, projectId, authorNickname, authorAvatar,
     authorRole, content, siteUrl, isReply, parentAuthor,
   } = params;
 
   const base = siteUrl || 'https://tu-dominio.pages.dev';
   const projectUrl = `${base}/proyectos/${projectId}`;
 
+  // Truncate content for Discord
   const truncatedContent = content.length > 300
     ? content.substring(0, 300) + '...'
     : content;
 
+  // Role colors for the embed
   const roleColors: Record<string, number> = {
-    owner: 0xFFD700,
-    admin: 0xFF0000,
-    moderator: 0x4D9FFF,
-    collaborator: 0x22C55E,
+    owner: 0xFFD700,     // Gold
+    admin: 0xFF0000,     // Red
+    moderator: 0x4D9FFF, // Blue
+    collaborator: 0x22C55E, // Green
   };
-  const embedColor = roleColors[authorRole || ''] || 0x5865F2;
+  const embedColor = roleColors[authorRole || ''] || 0x5865F2; // Default Discord blurple
 
   const titlePrefix = isReply ? '💬 Respuesta en' : '💬 Nuevo comentario en';
   const description = isReply && parentAuthor
@@ -118,11 +116,11 @@ export async function notifyNewComment(params: {
     footer: { text: 'The Encoders Club' },
   };
 
-  if (params.authorAvatar) {
-    embed.author = { name: authorNickname, icon_url: params.authorAvatar };
+  if (authorAvatar) {
+    embed.author = { name: authorNickname, icon_url: authorAvatar };
   }
 
-  return sendDiscordWebhook({
+  return sendDiscordMessage({
     username: 'The Encoders Club',
     embeds: [embed],
   });
@@ -132,8 +130,10 @@ export async function notifyNewComment(params: {
 export async function notifyNewUser(params: {
   nickname: string;
   avatar?: string | null;
+  siteUrl?: string;
 }): Promise<boolean> {
-  const { nickname, avatar } = params;
+  const { nickname, avatar, siteUrl } = params;
+  const base = siteUrl || 'https://tu-dominio.pages.dev';
 
   const embed: DiscordEmbed = {
     title: '🆕 Nuevo registro',
@@ -147,8 +147,8 @@ export async function notifyNewUser(params: {
     embed.author = { name: nickname, icon_url: avatar };
   }
 
-  return sendDiscordWebhook({
+  return sendDiscordMessage({
     username: 'The Encoders Club',
     embeds: [embed],
   });
-}
+    }
