@@ -156,46 +156,55 @@ export async function POST(request: NextRequest) {
       .bind(commentId)
       .first();
 
-    // --- Send Discord notification (fire & forget) ---
-    try {
-      const parentAuthorName = parentId
-        ? (() => {
-            // We already verified parent exists above, fetch its author nickname
-            const parent = db
-              .prepare(`SELECT c.id, u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?`)
-              .bind(String(parentId))
-              .first();
-            return (parent?.nickname as string) || null;
-          })()
-        : null;
+    // --- Send Discord notification ---
+    // Fire & forget: we don't want to block the comment response
+    // but we DO log errors for debugging
+    (async () => {
+      try {
+        let parentAuthorName: string | null = null;
 
-      // Get project name from targetId (projects are identified by their id like 'monika', 'natsuki', 'yuri')
-      const targetName = String(targetId);
-      const projectNames: Record<string, string> = {
-        monika: 'Monika After History',
-        natsuki: 'Just Natsuki',
-        yuri: 'Just Yuri',
-      };
-      const projectName = projectNames[targetName] || targetName;
+        if (parentId) {
+          const parentRow = await db
+            .prepare('SELECT u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?')
+            .bind(String(parentId))
+            .first();
+          parentAuthorName = (parentRow?.nickname as string) || null;
+        }
 
-      // Get site URL for the link
-      const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
-      const siteUrl = (siteConfig?.siteUrl as string) || process.env.SITE_URL || 'https://tu-dominio.pages.dev';
+        // Get project name from targetId
+        const targetName = String(targetId);
+        const projectNames: Record<string, string> = {
+          monika: 'Monika After History',
+          natsuki: 'Just Natsuki',
+          yuri: 'Just Yuri',
+        };
+        const projectName = projectNames[targetName] || targetName;
 
-      notifyNewComment({
-        projectName,
-        projectId: String(targetId),
-        authorNickname: session.nickname,
-        authorAvatar: session.avatar,
-        authorRole: session.role,
-        content: contentStr.trim(),
-        siteUrl,
-        isReply: !!parentId,
-        parentAuthor: parentAuthorName || undefined,
-      }).catch(() => {}); // Fire & forget - don't block the response
-    } catch {
-      // Non-critical: comment was saved successfully, Discord notification is optional
-    }
+        // Get site URL
+        const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
+        const siteUrl = (siteConfig?.siteUrl as string) || process.env.SITE_URL || 'https://tu-dominio.pages.dev';
+
+        const sent = await notifyNewComment({
+          projectName,
+          projectId: String(targetId),
+          authorNickname: session.nickname,
+          authorAvatar: session.avatar,
+          authorRole: session.role,
+          content: contentStr.trim(),
+          siteUrl,
+          isReply: !!parentId,
+          parentAuthor: parentAuthorName || undefined,
+        });
+
+        if (!sent) {
+          console.warn('[Discord Notification] Failed to send comment notification for comment', commentId, 'on project', targetId);
+        } else {
+          console.log('[Discord Notification] Comment notification sent for comment', commentId, 'on project', targetId);
+        }
+      } catch (notifError) {
+        console.error('[Discord Notification] Error sending comment notification:', notifError);
+      }
+    })();
 
     return NextResponse.json({
       ...comment,
