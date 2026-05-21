@@ -44,6 +44,8 @@ export async function GET() {
         discordClientSecret: maskSecret(config.discordClientSecret as string | null),
         hasClientSecret: !!config.discordClientSecret,
         siteUrl: config.siteUrl,
+        notificationWebhookUrl: maskSecret(config.notificationWebhookUrl as string | null),
+        hasNotificationWebhook: !!config.notificationWebhookUrl,
         notificationEnabled: !!config.notificationEnabled,
         createdAt: config.createdAt,
         updatedAt: config.updatedAt,
@@ -72,7 +74,7 @@ export async function PUT(request: NextRequest) {
       botToken, serverId, channelId, webhookUrl,
       modRoleId, adminRoleId, collabRoleId,
       discordClientId, discordClientSecret, siteUrl,
-      notificationEnabled,
+      notificationWebhookUrl, notificationEnabled,
     } = body;
 
     const db = await getDB();
@@ -92,6 +94,7 @@ export async function PUT(request: NextRequest) {
         botToken, serverId, channelId, webhookUrl,
         modRoleId, adminRoleId, collabRoleId,
         discordClientId, discordClientSecret, siteUrl,
+        notificationWebhookUrl,
         notificationEnabled: notificationEnabled !== undefined ? (notificationEnabled ? 1 : 0) : undefined,
       };
 
