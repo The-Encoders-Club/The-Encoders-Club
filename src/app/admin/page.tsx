@@ -198,10 +198,12 @@ export default function AdminPanel() {
       if (data.success) {
         toast.success(data.message);
       } else {
-        toast.error(data.error || 'Error al probar el webhook');
-        if (data.step) console.warn('[Test Webhook] Failed at step:', data.step, data.detail);
+        let errorMsg = data.error || 'Error al probar el webhook';
+        if (data.statusCode) errorMsg += ` (HTTP ${data.statusCode})`;
+        if (data.discordError) errorMsg += ` — ${data.discordError}`;
+        toast.error(errorMsg, { duration: 6000 });
       }
-    } catch { toast.error('Error de conexion'); } finally { setTestWebhookLoading(false); }
+    } catch (e) { toast.error('Error de conexion con el servidor'); } finally { setTestWebhookLoading(false); }
   };
   const handleDeleteComment = async (commentId: string) => {
     try { const res = await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId }) }); if (!res.ok) { toast.error('Error'); return; } setAllComments(prev => prev.filter(c => c.id !== commentId)); toast.success('Comentario eliminado'); } catch { toast.error('Error'); }
