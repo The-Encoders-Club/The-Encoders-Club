@@ -24,7 +24,6 @@ export async function GET() {
       return NextResponse.json({ config: null });
     }
 
-    // Mask sensitive values for security
     const maskSecret = (val: string | null) =>
       val ? val.substring(0, 6) + '•'.repeat(Math.max(0, val.length - 6)) : null;
 
@@ -44,9 +43,7 @@ export async function GET() {
         discordClientSecret: maskSecret(config.discordClientSecret as string | null),
         hasClientSecret: !!config.discordClientSecret,
         siteUrl: config.siteUrl,
-        notificationWebhookUrl: maskSecret(config.notificationWebhookUrl as string | null),
-        hasNotificationWebhook: !!config.notificationWebhookUrl,
-        notificationEnabled: !!config.notificationEnabled,
+        notificationEnabled: config.notificationEnabled !== undefined && config.notificationEnabled !== 0,
         createdAt: config.createdAt,
         updatedAt: config.updatedAt,
       },
@@ -74,19 +71,17 @@ export async function PUT(request: NextRequest) {
       botToken, serverId, channelId, webhookUrl,
       modRoleId, adminRoleId, collabRoleId,
       discordClientId, discordClientSecret, siteUrl,
-      notificationWebhookUrl, notificationEnabled,
+      notificationEnabled,
     } = body;
 
     const db = await getDB();
     const now = nowISO();
 
-    // Check if config already exists
     const existing = await db
       .prepare('SELECT id FROM DiscordConfig LIMIT 1')
       .first();
 
     if (existing) {
-      // Build dynamic update query
       const updates: string[] = [];
       const values: unknown[] = [];
 
@@ -94,7 +89,6 @@ export async function PUT(request: NextRequest) {
         botToken, serverId, channelId, webhookUrl,
         modRoleId, adminRoleId, collabRoleId,
         discordClientId, discordClientSecret, siteUrl,
-        notificationWebhookUrl,
         notificationEnabled: notificationEnabled !== undefined ? (notificationEnabled ? 1 : 0) : undefined,
       };
 
@@ -118,7 +112,6 @@ export async function PUT(request: NextRequest) {
         .bind(...values)
         .run();
     } else {
-      // Create new config
       const configId = generateId();
 
       await db
@@ -127,9 +120,8 @@ export async function PUT(request: NextRequest) {
             id, botToken, serverId, channelId, webhookUrl,
             modRoleId, adminRoleId, collabRoleId,
             discordClientId, discordClientSecret, siteUrl,
-            notificationWebhookUrl, notificationEnabled,
             createdAt, updatedAt
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
           configId,
@@ -143,15 +135,12 @@ export async function PUT(request: NextRequest) {
           discordClientId ? String(discordClientId) : null,
           discordClientSecret ? String(discordClientSecret) : null,
           siteUrl ? String(siteUrl) : null,
-          notificationWebhookUrl ? String(notificationWebhookUrl) : null,
-          notificationEnabled !== undefined ? (notificationEnabled ? 1 : 0) : 1,
           now,
           now
         )
         .run();
     }
 
-    // Log activity
     await db
       .prepare('INSERT INTO ActivityLog (id, userId, action, details, ipAddress, createdAt) VALUES (?, ?, ?, ?, ?, ?)')
       .bind(
@@ -169,4 +158,4 @@ export async function PUT(request: NextRequest) {
     console.error('Save Discord config error:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
-}
+                                }
