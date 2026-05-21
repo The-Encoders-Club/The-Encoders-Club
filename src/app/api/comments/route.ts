@@ -17,6 +17,7 @@ export async function GET(request: NextRequest) {
 
     const db = await getDB();
 
+    // Fetch top-level comments (not replies) for the target
     const { results: comments } = await db
       .prepare(
         `SELECT c.*, u.nickname, u.avatar, u.role
@@ -28,6 +29,7 @@ export async function GET(request: NextRequest) {
       .bind(targetId, targetType)
       .all();
 
+    // Fetch all replies for these comments
     const commentIds = (comments || []).map((c: Record<string, unknown>) => c.id as string);
     let replies: Record<string, unknown>[] = [];
 
@@ -46,6 +48,7 @@ export async function GET(request: NextRequest) {
       replies = (replyResults || []) as Record<string, unknown>[];
     }
 
+    // Attach replies to their parent comments
     const commentsWithReplies = (comments || []).map((comment: Record<string, unknown>) => ({
       ...comment,
       isDeleted: toBool(comment.isDeleted as number),
@@ -110,6 +113,7 @@ export async function POST(request: NextRequest) {
     const commentId = generateId();
     const now = nowISO();
 
+    // If this is a reply, verify the parent comment exists
     if (parentId) {
       const parent = await db
         .prepare('SELECT id, isDeleted FROM Comment WHERE id = ?')
@@ -128,6 +132,7 @@ export async function POST(request: NextRequest) {
       .bind(commentId, contentStr.trim(), session.id, parentId ? String(parentId) : null, String(targetId), String(targetType || 'project'), 0, 0, 0, 0, now, now)
       .run();
 
+    // Log activity
     await db
       .prepare('INSERT INTO ActivityLog (id, userId, action, details, ipAddress, createdAt) VALUES (?, ?, ?, ?, ?, ?)')
       .bind(
@@ -140,6 +145,7 @@ export async function POST(request: NextRequest) {
       )
       .run();
 
+    // Fetch the created comment with author info
     const comment = await db
       .prepare(
         `SELECT c.*, u.nickname, u.avatar, u.role
@@ -154,6 +160,7 @@ export async function POST(request: NextRequest) {
     try {
       console.log('[Comments] Starting Discord notification process...');
 
+      // FIX: Added await for parent author lookup
       const parentAuthorName = parentId
         ? (() => {
             const parentRow = db
@@ -164,6 +171,7 @@ export async function POST(request: NextRequest) {
           })()
         : null;
 
+      // Get project name from targetId
       const targetName = String(targetId);
       const projectNames: Record<string, string> = {
         monika: 'Monika After History',
@@ -172,9 +180,11 @@ export async function POST(request: NextRequest) {
       };
       const projectName = projectNames[targetName] || targetName;
 
+      // Get site URL for the link
       const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
       const siteUrl = (siteConfig?.siteUrl as string) || process.env.SITE_URL || 'https://tu-dominio.pages.dev';
 
+      // Get the resolved parent author name (await the promise)
       const resolvedParentAuthor = parentAuthorName ? await parentAuthorName : null;
 
       console.log('[Comments] Calling notifyNewComment with:', {
@@ -185,6 +195,7 @@ export async function POST(request: NextRequest) {
         parentAuthor: resolvedParentAuthor,
       });
 
+      // AWAIT the notification — do NOT fire-and-forget
       const notifResult = await notifyNewComment({
         projectName,
         projectId: String(targetId),
@@ -199,6 +210,7 @@ export async function POST(request: NextRequest) {
 
       console.log('[Comments] Discord notification result:', notifResult ? 'SUCCESS' : 'FAILED');
     } catch (notifError) {
+      // Log the error but don't fail the comment creation
       console.error('[Comments] Discord notification threw exception:', notifError);
     }
 
@@ -254,6 +266,7 @@ export async function DELETE(request: NextRequest) {
       .bind(nowISO(), targetCommentId)
       .run();
 
+    // Log activity
     await db
       .prepare('INSERT INTO ActivityLog (id, userId, action, details, ipAddress, createdAt) VALUES (?, ?, ?, ?, ?, ?)')
       .bind(
@@ -271,4 +284,4 @@ export async function DELETE(request: NextRequest) {
     console.error('Delete comment error:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
-        }
+}
