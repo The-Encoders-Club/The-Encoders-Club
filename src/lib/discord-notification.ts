@@ -151,4 +151,4 @@ export async function notifyNewUser(params: {
     username: 'The Encoders Club',
     embeds: [embed],
   });
-    }
+}
