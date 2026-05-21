@@ -34,13 +34,25 @@ export async function sendDiscordWebhook(payload: DiscordWebhookPayload): Promis
       .prepare('SELECT notificationWebhookUrl, notificationEnabled FROM DiscordConfig LIMIT 1')
       .first();
 
-    if (!config) return false;
+    if (!config) {
+      console.warn('[Discord Webhook] No DiscordConfig row found in database.');
+      return false;
+    }
 
     const webhookUrl = config.notificationWebhookUrl as string | null;
     const enabled = config.notificationEnabled as number | null;
 
-    if (!webhookUrl) return false;
-    if (enabled === 0) return false; // Notifications explicitly disabled
+    if (!webhookUrl) {
+      console.warn('[Discord Webhook] notificationWebhookUrl is empty or null.');
+      return false;
+    }
+
+    if (enabled === 0) {
+      console.log('[Discord Webhook] Notifications are disabled (notificationEnabled = 0).');
+      return false;
+    }
+
+    console.log('[Discord Webhook] Sending message to:', webhookUrl.substring(0, 50) + '...');
 
     const response = await fetch(webhookUrl, {
       method: 'POST',
@@ -52,13 +64,14 @@ export async function sendDiscordWebhook(payload: DiscordWebhookPayload): Promis
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Discord webhook send failed:', response.status, errorText);
+      console.error('[Discord Webhook] Send failed:', response.status, errorText);
       return false;
     }
 
+    console.log('[Discord Webhook] Message sent successfully (HTTP', response.status, ')');
     return true;
   } catch (error) {
-    console.error('Discord notification error:', error);
+    console.error('[Discord Webhook] Exception:', error);
     return false;
   }
 }
@@ -114,6 +127,8 @@ export async function notifyNewComment(params: {
   if (authorAvatar) {
     embed.author = { name: authorNickname, icon_url: authorAvatar };
   }
+
+  console.log('[Discord Webhook] Sending comment notification for project:', projectName, 'by:', authorNickname);
 
   return sendDiscordWebhook({
     username: 'The Encoders Club',
