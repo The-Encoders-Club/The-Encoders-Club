@@ -1,11 +1,12 @@
 // ============================================================
-// Discord Notification Utility - Send messages to Discord channels
-// Uses bot token + channel ID from DiscordConfig
+// Discord Notification Utility - Send messages via Webhook
+// Uses a Discord Webhook URL from DiscordConfig
+// No bot token or channel ID required
 // ============================================================
 
 import { getDB } from './db';
 
-interface DiscordMessagePayload {
+interface DiscordWebhookPayload {
   content?: string;
   username?: string;
   avatar_url?: string;
@@ -24,28 +25,26 @@ interface DiscordEmbed {
   image?: { url: string };
 }
 
-// Send a message to a Discord channel using the bot API
-export async function sendDiscordMessage(payload: DiscordMessagePayload): Promise<boolean> {
+// Send a message to Discord using a Webhook URL
+export async function sendDiscordWebhook(payload: DiscordWebhookPayload): Promise<boolean> {
   try {
     const db = await getDB();
 
     const config = await db
-      .prepare('SELECT botToken, channelId, notificationEnabled FROM DiscordConfig LIMIT 1')
+      .prepare('SELECT notificationWebhookUrl, notificationEnabled FROM DiscordConfig LIMIT 1')
       .first();
 
     if (!config) return false;
 
-    const botToken = config.botToken as string | null;
-    const channelId = config.channelId as string | null;
+    const webhookUrl = config.notificationWebhookUrl as string | null;
     const enabled = config.notificationEnabled as number | null;
 
-    if (!botToken || !channelId) return false;
+    if (!webhookUrl) return false;
     if (enabled === 0) return false; // Notifications explicitly disabled
 
-    const response = await fetch(`https://discord.com/api/channels/${channelId}/messages`, {
+    const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: {
-        Authorization: `Bot ${botToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(payload),
@@ -53,7 +52,7 @@ export async function sendDiscordMessage(payload: DiscordMessagePayload): Promis
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Discord message send failed:', response.status, errorText);
+      console.error('Discord webhook send failed:', response.status, errorText);
       return false;
     }
 
@@ -116,7 +115,8 @@ export async function notifyNewComment(params: {
     embed.author = { name: authorNickname, icon_url: authorAvatar };
   }
 
-  return sendDiscordMessage({
+  return sendDiscordWebhook({
+    username: 'The Encoders Club',
     embeds: [embed],
   });
 }
@@ -127,8 +127,7 @@ export async function notifyNewUser(params: {
   avatar?: string | null;
   siteUrl?: string;
 }): Promise<boolean> {
-  const { nickname, avatar, siteUrl } = params;
-  const base = siteUrl || 'https://tu-dominio.pages.dev';
+  const { nickname, avatar } = params;
 
   const embed: DiscordEmbed = {
     title: '🆕 Nuevo registro',
@@ -142,5 +141,8 @@ export async function notifyNewUser(params: {
     embed.author = { name: nickname, icon_url: avatar };
   }
 
-  return sendDiscordMessage({ embeds: [embed] });
+  return sendDiscordWebhook({
+    username: 'The Encoders Club',
+    embeds: [embed],
+  });
 }
