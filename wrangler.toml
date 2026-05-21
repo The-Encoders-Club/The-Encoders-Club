@@ -27,3 +27,5 @@ id = "1907cbbd211545bb85230d803d6abb5b"
 [vars]
 NODE_ENV = "production"
 SITE_URL = "https://tu-dominio.pages.dev"
+# DISCORD_WEBHOOK_SECRET = "your-secret-here"  # Uncomment and set your webhook secret
+# DISCORD_PUBLIC_KEY = ""                       # For Ed25519 verification (optional)
