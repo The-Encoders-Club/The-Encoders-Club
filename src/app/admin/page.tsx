@@ -5,7 +5,8 @@ import { motion } from 'framer-motion';
 import {
   Users, MessageSquare, DollarSign, Activity, Shield, Search,
   Ban, CheckCircle, UserCog, Trash2, Save, AlertTriangle, RefreshCw,
-  Settings, Clock, Bot, Crown, Eye, EyeOff, TrendingUp, Zap, Globe
+  Settings, Clock, Bot, Crown, Eye, EyeOff, TrendingUp, Zap, Globe,
+  Unlink, ArrowUpDown, Wifi, WifiOff, Loader2, Info
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
@@ -27,7 +28,7 @@ import { Badge } from '@/components/ui/badge';
 interface AdminUser {
   id: string; nickname: string; email?: string; avatar?: string;
   role: string; isPremium: boolean; isBanned: boolean; banReason?: string;
-  discordLinked: boolean; createdAt: string; _count?: { comments: number };
+  discordLinked: boolean; discordId?: string; createdAt: string; _count?: { comments: number };
 }
 interface RecentComment {
   id: string; content: string; createdAt: string; isDeleted: boolean;
@@ -47,7 +48,16 @@ interface StatsData {
 }
 interface DiscordConfig {
   id: string; serverId?: string; channelId?: string; webhookUrl?: string;
-  modRoleId?: string; adminRoleId?: string; collabRoleId?: string; hasBotToken: boolean;
+  modRoleId?: string; adminRoleId?: string; collabRoleId?: string;
+  hasBotToken: boolean; discordClientId?: string; hasClientId: boolean;
+  hasClientSecret: boolean; siteUrl?: string;
+}
+interface DiscordBotStatus {
+  connected: boolean; configured: boolean; botUsername: string | null;
+  botAvatar: string | null; botId?: string; isBot?: boolean;
+  linkedUsers: number; server: { name: string | null; memberCount: number | null };
+  roleConfig: { hasAdminRole: boolean; hasModRole: boolean; hasCollabRole: boolean };
+  hasClientId: boolean; hasClientSecret: boolean; message: string;
 }
 
 const roleColors: Record<string, string> = {
@@ -60,6 +70,8 @@ const roleColors: Record<string, string> = {
 const roleLabels: Record<string, string> = { owner: 'Owner', admin: 'Admin', moderator: 'Mod', collaborator: 'Colab', user: 'User' };
 const actionLabels: Record<string, string> = {
   admin_user_update: 'Usuario modificado', discord_config_update: 'Config Discord actualizada',
+  discord_role_sync: 'Rol sincronizado (Discord)', discord_linked: 'Discord vinculado',
+  discord_unlinked: 'Discord desvinculado', discord_role_push: 'Roles empujados a Discord',
   user_login: 'Inicio de sesion', user_register: 'Registro', user_logout: 'Cierre de sesion',
   comment_create: 'Comentario creado', comment_delete: 'Comentario eliminado',
   donation_received: 'Donacion recibida', password_change: 'Contrasena cambiada',
@@ -74,16 +86,27 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [allComments, setAllComments] = useState<RecentComment[]>([]);
   const [discordConfig, setDiscordConfig] = useState<DiscordConfig | null>(null);
+  const [botStatus, setBotStatus] = useState<DiscordBotStatus | null>(null);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(false);
   const [discordLoading, setDiscordLoading] = useState(false);
+  const [syncLoading, setSyncLoading] = useState(false);
+  const [statusLoading, setStatusLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null);
   const [showBanDialog, setShowBanDialog] = useState(false);
   const [banReason, setBanReason] = useState('');
+  const [showSyncDialog, setShowSyncDialog] = useState(false);
   const [showBotToken, setShowBotToken] = useState(false);
-  const [dcForm, setDcForm] = useState({ botToken: '', serverId: '', channelId: '', webhookUrl: '', modRoleId: '', adminRoleId: '', collabRoleId: '' });
+  const [showClientSecret, setShowClientSecret] = useState(false);
+  const [dcForm, setDcForm] = useState({
+    botToken: '', serverId: '', channelId: '', webhookUrl: '',
+    modRoleId: '', adminRoleId: '', collabRoleId: '',
+    discordClientId: '', discordClientSecret: '', siteUrl: '',
+    notificationEnabled: true,
+  });
+  const [syncTarget, setSyncTarget] = useState<'special' | 'all'>('special');
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -96,7 +119,25 @@ export default function AdminPanel() {
   }, []);
   const fetchDiscordConfig = useCallback(async () => {
     setDiscordLoading(true);
-    try { const res = await fetch('/api/admin/discord'); if (!res.ok) return; const data = await res.json(); setDiscordConfig(data.config); setDcForm({ botToken: '', serverId: data.config?.serverId || '', channelId: data.config?.channelId || '', webhookUrl: data.config?.webhookUrl || '', modRoleId: data.config?.modRoleId || '', adminRoleId: data.config?.adminRoleId || '', collabRoleId: data.config?.collabRoleId || '' }); } catch {} finally { setDiscordLoading(false); }
+    try {
+      const res = await fetch('/api/admin/discord'); if (!res.ok) return;
+      const data = await res.json(); setDiscordConfig(data.config);
+      setDcForm({
+        botToken: '', serverId: data.config?.serverId || '', channelId: data.config?.channelId || '',
+        webhookUrl: data.config?.webhookUrl || '', modRoleId: data.config?.modRoleId || '',
+        adminRoleId: data.config?.adminRoleId || '', collabRoleId: data.config?.collabRoleId || '',
+        discordClientId: data.config?.discordClientId || '', discordClientSecret: '',
+        siteUrl: data.config?.siteUrl || '',
+        notificationEnabled: data.config?.notificationEnabled !== false,
+      });
+    } catch {} finally { setDiscordLoading(false); }
+  }, []);
+  const fetchBotStatus = useCallback(async () => {
+    setStatusLoading(true);
+    try {
+      const res = await fetch('/api/admin/discord/status');
+      if (res.ok) { const data = await res.json(); setBotStatus(data); }
+    } catch {} finally { setStatusLoading(false); }
   }, []);
 
   useEffect(() => {
@@ -109,8 +150,8 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([fetchStats(), fetchUsers(), fetchDiscordConfig()]).finally(() => { setLoading(false); });
-  }, [user, fetchStats, fetchUsers, fetchDiscordConfig]);
+    Promise.all([fetchStats(), fetchUsers(), fetchDiscordConfig(), fetchBotStatus()]).finally(() => { setLoading(false); });
+  }, [user, fetchStats, fetchUsers, fetchDiscordConfig, fetchBotStatus]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     try { const res = await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, role: newRole }) }); if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; } setUsers(prev => prev.map(u => (u.id === userId ? { ...u, role: newRole } : u))); toast.success('Rol actualizado'); } catch { toast.error('Error de conexion'); }
@@ -125,10 +166,47 @@ export default function AdminPanel() {
   };
   const handleDiscordSave = async () => {
     setDiscordLoading(true);
-    try { const payload: Record<string, string> = {}; if (dcForm.botToken) payload.botToken = dcForm.botToken; if (dcForm.serverId) payload.serverId = dcForm.serverId; if (dcForm.channelId) payload.channelId = dcForm.channelId; if (dcForm.webhookUrl) payload.webhookUrl = dcForm.webhookUrl; if (dcForm.modRoleId) payload.modRoleId = dcForm.modRoleId; if (dcForm.adminRoleId) payload.adminRoleId = dcForm.adminRoleId; if (dcForm.collabRoleId) payload.collabRoleId = dcForm.collabRoleId; const res = await fetch('/api/admin/discord', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }); if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; } toast.success('Config Discord guardada'); fetchDiscordConfig(); } catch { toast.error('Error'); } finally { setDiscordLoading(false); }
+    try {
+      const payload: Record<string, string> = {};
+      if (dcForm.botToken) payload.botToken = dcForm.botToken;
+      if (dcForm.serverId) payload.serverId = dcForm.serverId;
+      if (dcForm.channelId) payload.channelId = dcForm.channelId;
+      if (dcForm.webhookUrl) payload.webhookUrl = dcForm.webhookUrl;
+      if (dcForm.modRoleId) payload.modRoleId = dcForm.modRoleId;
+      if (dcForm.adminRoleId) payload.adminRoleId = dcForm.adminRoleId;
+      if (dcForm.collabRoleId) payload.collabRoleId = dcForm.collabRoleId;
+      if (dcForm.discordClientId) payload.discordClientId = dcForm.discordClientId;
+      if (dcForm.discordClientSecret) payload.discordClientSecret = dcForm.discordClientSecret;
+      if (dcForm.siteUrl) payload.siteUrl = dcForm.siteUrl;
+      payload.notificationEnabled = dcForm.notificationEnabled;
+      const res = await fetch('/api/admin/discord', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+      if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; }
+      toast.success('Configuracion Discord guardada');
+      fetchDiscordConfig();
+      fetchBotStatus();
+    } catch { toast.error('Error'); } finally { setDiscordLoading(false); }
   };
   const handleDeleteComment = async (commentId: string) => {
     try { const res = await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId }) }); if (!res.ok) { toast.error('Error'); return; } setAllComments(prev => prev.filter(c => c.id !== commentId)); toast.success('Comentario eliminado'); } catch { toast.error('Error'); }
+  };
+  const handleSyncRoles = async () => {
+    setSyncLoading(true);
+    try {
+      const body: Record<string, unknown> = {};
+      if (syncTarget === 'all') body.syncAll = true;
+
+      const res = await fetch('/api/admin/discord/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; }
+      const data = await res.json();
+      toast.success(`Sincronizacion completada: ${data.synced} actualizados, ${data.errors} errores`);
+      setShowSyncDialog(false);
+      fetchStats();
+      fetchUsers();
+    } catch { toast.error('Error de conexion'); } finally { setSyncLoading(false); }
   };
 
   const filteredUsers = users.filter(u => u.nickname.toLowerCase().includes(searchQuery.toLowerCase()) || (u.email && u.email.toLowerCase().includes(searchQuery.toLowerCase())));
@@ -178,6 +256,8 @@ export default function AdminPanel() {
                 <TabsTrigger value="discord" className="data-[state=active]:bg-[#5865F2]/20 data-[state=active]:text-[#5865F2] text-white/50 px-4 py-2 rounded-lg text-sm"><Bot size={16} className="mr-1.5" /> Discord</TabsTrigger>
                 <TabsTrigger value="logs" className="data-[state=active]:bg-[#22c55e]/20 data-[state=active]:text-[#22c55e] text-white/50 px-4 py-2 rounded-lg text-sm"><Clock size={16} className="mr-1.5" /> Logs</TabsTrigger>
               </TabsList>
+
+              {/* ==================== DASHBOARD ==================== */}
               <TabsContent value="dashboard" className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                   {[
@@ -264,6 +344,8 @@ export default function AdminPanel() {
                   </div>
                 </div>
               </TabsContent>
+
+              {/* ==================== USERS ==================== */}
               <TabsContent value="users" className="space-y-6">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <div className="relative flex-1">
@@ -277,6 +359,8 @@ export default function AdminPanel() {
                   <span>{filteredUsers.length} usuario{filteredUsers.length !== 1 ? 's' : ''}</span>
                   <span className="text-white/20">·</span>
                   <span className="text-[#FF2D78]">{filteredUsers.filter(u => u.isBanned).length} baneados</span>
+                  <span className="text-white/20">·</span>
+                  <span className="text-[#5865F2]">{filteredUsers.filter(u => u.discordLinked).length} Discord vinculados</span>
                 </div>
                 <div className="glass-card overflow-hidden">
                   <div className="overflow-x-auto">
@@ -285,6 +369,7 @@ export default function AdminPanel() {
                         <TableRow className="border-white/10 hover:bg-transparent">
                           <TableHead className="text-white/40 text-xs">Usuario</TableHead>
                           <TableHead className="text-white/40 text-xs">Rol</TableHead>
+                          <TableHead className="text-white/40 text-xs hidden md:table-cell">Discord</TableHead>
                           <TableHead className="text-white/40 text-xs hidden md:table-cell">Estado</TableHead>
                           <TableHead className="text-white/40 text-xs hidden lg:table-cell">Comentarios</TableHead>
                           <TableHead className="text-white/40 text-xs hidden lg:table-cell">Registro</TableHead>
@@ -317,6 +402,13 @@ export default function AdminPanel() {
                               </Select>
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
+                              {u.discordLinked ? (
+                                <span className="flex items-center gap-1 text-xs text-[#5865F2]"><MessageSquare size={12} /> Vinculado</span>
+                              ) : (
+                                <span className="text-xs text-white/20">No vinculado</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
                               <Badge variant="outline" className={u.isBanned ? 'border-red-500/30 bg-red-500/10 text-red-400' : 'border-green-500/30 bg-green-500/10 text-green-400'}>
                                 {u.isBanned ? <><Ban size={10} className="mr-1" /> Baneado</> : <><CheckCircle size={10} className="mr-1" /> Activo</>}
                               </Badge>
@@ -334,12 +426,14 @@ export default function AdminPanel() {
                             </TableCell>
                           </TableRow>
                         ))}
-                        {filteredUsers.length === 0 && <TableRow><TableCell colSpan={6} className="text-center py-8 text-white/30">No se encontraron usuarios</TableCell></TableRow>}
+                        {filteredUsers.length === 0 && <TableRow><TableCell colSpan={7} className="text-center py-8 text-white/30">No se encontraron usuarios</TableCell></TableRow>}
                       </TableBody>
                     </Table>
                   </div>
                 </div>
               </TabsContent>
+
+              {/* ==================== COMMENTS ==================== */}
               <TabsContent value="comments" className="space-y-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2 text-sm text-white/40"><MessageSquare size={14} /><span>{allComments.length} comentarios recientes</span></div>
@@ -363,34 +457,185 @@ export default function AdminPanel() {
                   {allComments.length === 0 && <div className="glass-card p-8 text-center"><MessageSquare size={32} className="mx-auto text-white/10 mb-3" /><p className="text-sm text-white/30">No hay comentarios aun</p></div>}
                 </div>
               </TabsContent>
+
+              {/* ==================== DISCORD ==================== */}
               <TabsContent value="discord" className="space-y-6">
+                {/* Bot Status Card */}
+                <div className="glass-card p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center">
+                        {botStatus?.connected ? <Wifi size={20} className="text-green-400" /> : <WifiOff size={20} className="text-red-400" />}
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Estado del Bot</h3>
+                        <p className="text-xs text-white/40">Conectividad y estadisticas</p>
+                      </div>
+                    </div>
+                    <button onClick={fetchBotStatus} disabled={statusLoading} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/50 text-xs hover:bg-white/10 transition-all flex items-center gap-1">
+                      <RefreshCw size={12} className={statusLoading ? 'animate-spin' : ''} /> Verificar
+                    </button>
+                  </div>
+
+                  {statusLoading && !botStatus ? (
+                    <div className="flex items-center justify-center py-8"><Loader2 size={24} className="animate-spin text-white/30" /></div>
+                  ) : botStatus ? (
+                    <div className="space-y-4">
+                      {/* Connection Status */}
+                      <div className={`flex items-center gap-3 p-3 rounded-xl border ${botStatus.connected ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
+                        {botStatus.connected ? (
+                          <>
+                            {botStatus.botAvatar && <img src={botStatus.botAvatar} alt="" className="w-10 h-10 rounded-full" />}
+                            <div>
+                              <p className="text-sm font-medium text-green-400">{botStatus.botUsername}</p>
+                              <p className="text-xs text-white/40">Conectado correctamente</p>
+                            </div>
+                          </>
+                        ) : (
+                          <>
+                            <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center"><Bot size={20} className="text-red-400" /></div>
+                            <div>
+                              <p className="text-sm font-medium text-red-400">Desconectado</p>
+                              <p className="text-xs text-white/40">{botStatus.message}</p>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Stats Grid */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        <div className="text-center p-3 rounded-xl bg-white/5">
+                          <p className="text-lg font-bold text-white">{botStatus.linkedUsers}</p>
+                          <p className="text-[10px] text-white/40">Cuentas vinculadas</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-white/5">
+                          <p className="text-lg font-bold text-white">{botStatus.server?.memberCount || '—'}</p>
+                          <p className="text-[10px] text-white/40">Miembros del server</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-white/5">
+                          <p className="text-lg font-bold text-white">{botStatus.roleConfig?.hasAdminRole ? '✓' : '—'}</p>
+                          <p className="text-[10px] text-white/40">Rol Admin</p>
+                        </div>
+                        <div className="text-center p-3 rounded-xl bg-white/5">
+                          <p className="text-lg font-bold text-white">{botStatus.hasClientId ? '✓' : '—'}</p>
+                          <p className="text-[10px] text-white/40">OAuth2 Config</p>
+                        </div>
+                      </div>
+
+                      {/* Role Sync Button */}
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        <button onClick={() => setShowSyncDialog(true)} className="flex-1 py-3 rounded-xl bg-[#5865F2]/10 border border-[#5865F2]/30 text-[#5865F2] text-sm font-medium hover:bg-[#5865F2]/20 transition-all flex items-center justify-center gap-2">
+                          <ArrowUpDown size={16} /> Sincronizar Roles a Discord
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-white/30 text-center py-4">No se pudo obtener el estado</p>
+                  )}
+                </div>
+
+                {/* Configuration Card */}
                 <div className="glass-card p-6">
                   <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center"><Bot size={20} className="text-[#5865F2]" /></div>
+                    <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center"><Settings size={20} className="text-[#5865F2]" /></div>
                     <div>
-                      <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Configuracion del Bot Discord</h3>
-                      <p className="text-xs text-white/40">Conecta el bot de Discord para sincronizacion de roles</p>
+                      <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Configuracion</h3>
+                      <p className="text-xs text-white/40">Token del bot, servidor, roles y OAuth2</p>
                     </div>
                   </div>
                   <div className="space-y-5">
-                    <div>
-                      <label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Shield size={12} /> Token del Bot</label>
-                      <div className="relative">
-                        <input type={showBotToken ? 'text' : 'password'} value={dcForm.botToken} onChange={e => setDcForm(prev => ({ ...prev, botToken: e.target.value }))} placeholder={discordConfig?.hasBotToken ? 'Token configurado' : 'Ingresa el token del bot'} className="w-full px-4 py-2.5 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
-                        <button onClick={() => setShowBotToken(!showBotToken)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">{showBotToken ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+                    {/* Bot Credentials */}
+                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                      <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">Credenciales del Bot</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Shield size={12} /> Token del Bot</label>
+                          <div className="relative">
+                            <input type={showBotToken ? 'text' : 'password'} value={dcForm.botToken} onChange={e => setDcForm(prev => ({ ...prev, botToken: e.target.value }))} placeholder={discordConfig?.hasBotToken ? 'Token configurado (dejar vacio para mantener)' : 'Ingresa el token del bot'} className="w-full px-4 py-2.5 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
+                            <button onClick={() => setShowBotToken(!showBotToken)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">{showBotToken ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+                          </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div><label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Globe size={12} /> ID del Servidor</label><input type="text" value={dcForm.serverId} onChange={e => setDcForm(prev => ({ ...prev, serverId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
+                          <div><label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><MessageSquare size={12} /> ID del Canal</label><input type="text" value={dcForm.channelId} onChange={e => setDcForm(prev => ({ ...prev, channelId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
+                        </div>
+                        <div><label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Zap size={12} /> Webhook URL (para eventos)</label><input type="text" value={dcForm.webhookUrl} onChange={e => setDcForm(prev => ({ ...prev, webhookUrl: e.target.value }))} placeholder="https://tu-sitio.pages.dev/api/discord/webhook" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
                       </div>
                     </div>
-                    <div><label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Globe size={12} /> ID del Servidor</label><input type="text" value={dcForm.serverId} onChange={e => setDcForm(prev => ({ ...prev, serverId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
-                    <div><label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><MessageSquare size={12} /> ID del Canal</label><input type="text" value={dcForm.channelId} onChange={e => setDcForm(prev => ({ ...prev, channelId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
-                    <div><label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Zap size={12} /> Webhook URL</label><input type="text" value={dcForm.webhookUrl} onChange={e => setDcForm(prev => ({ ...prev, webhookUrl: e.target.value }))} placeholder="https://discord.com/api/webhooks/..." className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
-                    <div className="h-px bg-white/10 my-2" />
-                    <div><label className="text-xs text-white/40 block mb-1.5">ID Rol Moderador</label><input type="text" value={dcForm.modRoleId} onChange={e => setDcForm(prev => ({ ...prev, modRoleId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
-                    <div><label className="text-xs text-white/40 block mb-1.5">ID Rol Admin</label><input type="text" value={dcForm.adminRoleId} onChange={e => setDcForm(prev => ({ ...prev, adminRoleId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
-                    <div><label className="text-xs text-white/40 block mb-1.5">ID Rol Colaborador</label><input type="text" value={dcForm.collabRoleId} onChange={e => setDcForm(prev => ({ ...prev, collabRoleId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" /></div>
+
+                    {/* Role Mapping */}
+                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                      <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">Mapeo de Roles</h4>
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                          <div>
+                            <label className="text-xs text-white/40 block mb-1.5">ID Rol Admin</label>
+                            <input type="text" value={dcForm.adminRoleId} onChange={e => setDcForm(prev => ({ ...prev, adminRoleId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
+                          </div>
+                          <div>
+                            <label className="text-xs text-white/40 block mb-1.5">ID Rol Moderador</label>
+                            <input type="text" value={dcForm.modRoleId} onChange={e => setDcForm(prev => ({ ...prev, modRoleId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
+                          </div>
+                          <div>
+                            <label className="text-xs text-white/40 block mb-1.5">ID Rol Colaborador</label>
+                            <input type="text" value={dcForm.collabRoleId} onChange={e => setDcForm(prev => ({ ...prev, collabRoleId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-[#5865F2]/5 border border-[#5865F2]/10">
+                          <Info size={14} className="text-[#5865F2] shrink-0 mt-0.5" />
+                          <p className="text-[11px] text-white/40">Los roles se sincronizan bidireccionalmente. Los roles de Discord se reflejan en la web y viceversa. Los admins obtienen automaticamente los roles de mod y colab tambien.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* OAuth2 Configuration */}
+                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
+                      <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">OAuth2 (Vinculacion de cuentas)</h4>
+                      <div className="space-y-4">
+                        <div>
+                          <label className="text-xs text-white/40 block mb-1.5">Client ID de la Aplicacion</label>
+                          <input type="text" value={dcForm.discordClientId} onChange={e => setDcForm(prev => ({ ...prev, discordClientId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
+                        </div>
+                        <div>
+                          <label className="text-xs text-white/40 block mb-1.5">Client Secret</label>
+                          <div className="relative">
+                            <input type={showClientSecret ? 'text' : 'password'} value={dcForm.discordClientSecret} onChange={e => setDcForm(prev => ({ ...prev, discordClientSecret: e.target.value }))} placeholder={discordConfig?.hasClientSecret ? 'Secret configurado (dejar vacio para mantener)' : 'Client Secret de Discord'} className="w-full px-4 py-2.5 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
+                            <button onClick={() => setShowClientSecret(!showClientSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">{showClientSecret ? <EyeOff size={16} /> : <Eye size={16} />}</button>
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs text-white/40 block mb-1.5">URL del Sitio (para redirect OAuth2)</label>
+                          <input type="text" value={dcForm.siteUrl} onChange={e => setDcForm(prev => ({ ...prev, siteUrl: e.target.value }))} placeholder="https://tu-sitio.pages.dev" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
+                        </div>
+                        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-[#5865F2]/5 border border-[#5865F2]/10">
+                          <Info size={14} className="text-[#5865F2] shrink-0 mt-0.5" />
+                          <p className="text-[11px] text-white/40">Crea una aplicacion en el <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer" className="text-[#5865F2] underline">Portal de Desarrolladores de Discord</a>. En OAuth2, agrega el redirect URI: <code className="text-white/60 bg-white/5 px-1 rounded">TU_SITIO/api/auth/discord/callback</code></p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <button onClick={handleDiscordSave} disabled={discordLoading} className="w-full py-3 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                      {discordLoading ? <><div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> Guardando...</> : <><Save size={16} /> Guardar Configuracion</>}
+                    </button>
+
+                    {/* Notification Toggle */}
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5">
+                      <div>
+                        <p className="text-sm font-medium text-white/70">Notificaciones de comentarios</p>
+                        <p className="text-[11px] text-white/30">Enviar avisos a Discord cuando alguien comente en un proyecto</p>
+                      </div>
+                      <button
+                        onClick={() => setDcForm(prev => ({ ...prev, notificationEnabled: !prev.notificationEnabled }))}
+                        className={`relative w-11 h-6 rounded-full transition-colors ${dcForm.notificationEnabled ? 'bg-[#5865F2]' : 'bg-white/10'}`}
+                      >
+                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${dcForm.notificationEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                      </button>
+                    </div>
                   </div>
-                  <button onClick={handleDiscordSave} disabled={discordLoading} className="mt-6 w-full py-3 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2">{discordLoading ? <><div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> Guardando...</> : <><Save size={16} /> Guardar Configuracion</>}</button>
                 </div>
               </TabsContent>
+
+              {/* ==================== LOGS ==================== */}
               <TabsContent value="logs" className="space-y-6">
                 <div className="glass-card p-6">
                   <h3 className="font-bold text-white mb-4 text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}><Clock size={18} className="inline mr-2 text-[#22c55e]" /> Registro de Actividad</h3>
@@ -414,6 +659,8 @@ export default function AdminPanel() {
         </div>
       </main>
       <Footer />
+
+      {/* Ban Dialog */}
       <Dialog open={showBanDialog} onOpenChange={setShowBanDialog}>
         <DialogContent className="bg-[#0d0d24] border-white/10">
           <DialogHeader>
@@ -424,6 +671,38 @@ export default function AdminPanel() {
           <DialogFooter>
             <button onClick={() => setShowBanDialog(false)} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all">Cancelar</button>
             <button onClick={confirmBan} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-all flex items-center gap-2"><Ban size={14} /> Banear</button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Sync Dialog */}
+      <Dialog open={showSyncDialog} onOpenChange={setShowSyncDialog}>
+        <DialogContent className="bg-[#0d0d24] border-white/10">
+          <DialogHeader>
+            <DialogTitle className="text-white">Sincronizar Roles a Discord</DialogTitle>
+            <DialogDescription className="text-white/50">
+              Empuja los roles locales de los usuarios a Discord. Los roles Admin/Moderador/Colaborador se asignaran como roles de Discord.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-white/60 flex items-center gap-2">
+                <input type="radio" name="syncTarget" checked={syncTarget === 'special'} onChange={() => setSyncTarget('special')} className="accent-[#5865F2]" />
+                Solo roles especiales (Admin, Mod, Colab)
+              </label>
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="text-sm text-white/60 flex items-center gap-2">
+                <input type="radio" name="syncTarget" checked={syncTarget === 'all'} onChange={() => setSyncTarget('all')} className="accent-[#5865F2]" />
+                Todas las cuentas vinculadas
+              </label>
+            </div>
+          </div>
+          <DialogFooter>
+            <button onClick={() => setShowSyncDialog(false)} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all">Cancelar</button>
+            <button onClick={handleSyncRoles} disabled={syncLoading} className="px-4 py-2 rounded-lg bg-[#5865F2] hover:bg-[#4752C4] text-white text-sm font-semibold transition-all flex items-center gap-2 disabled:opacity-50">
+              {syncLoading ? <><Loader2 size={14} className="animate-spin" /> Sincronizando...</> : <><ArrowUpDown size={14} /> Sincronizar</>}
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
