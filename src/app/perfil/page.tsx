@@ -1,21 +1,22 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import {
   User, Mail, Calendar, Camera, Crown, Lock, Save,
-  MessageCircle, Edit3, X, Check, Shield, Star
+  MessageCircle, Edit3, X, Check, Shield, Star, Unlink, Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog';
 
 interface UserProfile {
@@ -27,21 +28,38 @@ interface UserProfile {
   isPremium: boolean;
   isBanned: boolean;
   discordLinked: boolean;
+  discordId?: string;
   createdAt?: string;
   _count?: { comments: number };
 }
 
 export default function Perfil() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-[#080818] flex items-center justify-center">
+        <div className="animate-spin w-8 h-8 border-2 border-[#FF2D78] border-t-transparent rounded-full" />
+      </div>
+    }>
+      <PerfilContent />
+    </Suspense>
+  );
+}
+
+function PerfilContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [editing, setEditing] = useState(false);
   const [editNickname, setEditNickname] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showUnlinkDialog, setShowUnlinkDialog] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [linkingDiscord, setLinkingDiscord] = useState(false);
+  const [unlinkingDiscord, setUnlinkingDiscord] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
@@ -62,7 +80,78 @@ export default function Perfil() {
           setUser(prev => (prev ? { ...prev, ...d.user } : d.user));
         }
       });
-  }, [router]);
+
+    // Handle Discord OAuth callback messages
+    const discordSuccess = searchParams.get('discord_success');
+    const discordError = searchParams.get('discord_error');
+    const syncedRole = searchParams.get('role');
+
+    if (discordSuccess) {
+      toast.success('Discord vinculado correctamente', {
+        description: syncedRole ? `Tu rol se sincronizó a: ${syncedRole}` : undefined,
+      });
+      // Clean URL params
+      window.history.replaceState({}, '', '/perfil');
+    }
+
+    if (discordError) {
+      const errorMessages: Record<string, string> = {
+        access_denied: 'Acceso denegado por Discord.',
+        missing_params: 'Parámetros faltantes.',
+        invalid_state: 'Sesión inválida, intenta de nuevo.',
+        user_not_found: 'Usuario no encontrado.',
+        already_linked: 'Tu cuenta ya está vinculada con Discord.',
+        discord_already_linked: 'Esa cuenta de Discord ya está vinculada a otro usuario.',
+        token_exchange_failed: 'Error al obtener token de Discord.',
+        user_fetch_failed: 'Error al obtener información de Discord.',
+        oauth_not_configured: 'OAuth2 no está configurado por el administrador.',
+        internal_error: 'Error interno del servidor.',
+      };
+
+      toast.error('Error al vincular Discord', {
+        description: errorMessages[discordError] || discordError,
+      });
+      window.history.replaceState({}, '', '/perfil');
+    }
+  }, [router, searchParams]);
+
+  const handleDiscordLink = async () => {
+    setLinkingDiscord(true);
+    try {
+      const res = await fetch('/api/auth/discord/link');
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.error || 'Error al iniciar vinculación');
+        return;
+      }
+      const data = await res.json();
+      // Redirect to Discord OAuth
+      window.location.href = data.url;
+    } catch {
+      toast.error('Error de conexión');
+    } finally {
+      setLinkingDiscord(false);
+    }
+  };
+
+  const handleDiscordUnlink = async () => {
+    setUnlinkingDiscord(true);
+    try {
+      const res = await fetch('/api/auth/discord/unlink', { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json();
+        toast.error(data.error || 'Error al desvincular');
+        return;
+      }
+      setUser(prev => (prev ? { ...prev, discordLinked: false, discordId: undefined } : prev));
+      toast.success('Discord desvinculado correctamente');
+      setShowUnlinkDialog(false);
+    } catch {
+      toast.error('Error de conexión');
+    } finally {
+      setUnlinkingDiscord(false);
+    }
+  };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -352,29 +441,85 @@ export default function Perfil() {
             {/* Discord Link Card */}
             <div className="glass-card p-6 mb-8">
               <div className="flex items-center gap-3 mb-3">
-                <MessageCircle size={20} className="text-[#5865F2]" />
-                <h3
-                  className="font-bold text-white"
-                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                >
-                  Discord
-                </h3>
+                <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center">
+                  <MessageCircle size={20} className="text-[#5865F2]" />
+                </div>
+                <div>
+                  <h3
+                    className="font-bold text-white"
+                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
+                    Discord
+                  </h3>
+                  <p className="text-xs text-white/40">Sincronización de roles y perfil</p>
+                </div>
               </div>
+
               {user.discordLinked ? (
-                <div className="flex items-center gap-2 text-sm text-white/60">
-                  <Check size={16} className="text-green-400" /> Cuenta vinculada con Discord
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 text-sm text-white/60">
+                    <Check size={16} className="text-green-400" />
+                    Cuenta vinculada con Discord
+                    {user.discordId && (
+                      <span className="text-white/30 text-xs">({user.discordId})</span>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#5865F2]/5 border border-[#5865F2]/10">
+                    <Shield size={16} className="text-[#5865F2] shrink-0" />
+                    <p className="text-xs text-white/50">
+                      Tus roles de Discord se sincronizan automáticamente con tu cuenta del club.
+                      Si obtienes un rol nuevo en Discord, se reflejará aquí.
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setShowUnlinkDialog(true)}
+                    className="flex items-center gap-2 text-sm text-red-400/70 hover:text-red-400 transition-colors"
+                  >
+                    <Unlink size={14} />
+                    Desvincular cuenta de Discord
+                  </button>
                 </div>
               ) : (
-                <div>
-                  <p className="text-sm text-white/50 mb-3">
+                <div className="space-y-4">
+                  <p className="text-sm text-white/50">
                     Vincula tu cuenta de Discord para sincronizar roles, avatar y obtener
-                    funciones especiales.
+                    funciones especiales. Cuando obtengas un rol en Discord (Admin, Mod, Colaborador),
+                    se reflejará automáticamente en tu cuenta del club.
                   </p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    {[
+                      { icon: <Shield size={16} />, label: 'Sincronización de roles', desc: 'Admin, Mod, Colab' },
+                      { icon: <Star size={16} />, label: 'Avatar automático', desc: 'Se sincroniza de Discord' },
+                      { icon: <Crown size={16} />, label: 'Acceso especial', desc: 'Funciones exclusivas' },
+                    ].map((item, i) => (
+                      <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
+                        <div className="flex justify-center text-[#5865F2] mb-1.5">{item.icon}</div>
+                        <p className="text-xs font-medium text-white/70">{item.label}</p>
+                        <p className="text-[10px] text-white/30 mt-0.5">{item.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+
                   <button
-                    className="px-4 py-2 rounded-xl text-sm font-medium transition-all flex items-center gap-2 border hover:bg-white/5"
+                    onClick={handleDiscordLink}
+                    disabled={linkingDiscord}
+                    className="w-full py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 border hover:bg-[#5865F2]/10"
                     style={{ borderColor: '#5865F2', color: '#5865F2' }}
                   >
-                    <MessageCircle size={14} /> Vincular Discord (Próximamente)
+                    {linkingDiscord ? (
+                      <>
+                        <Loader2 size={16} className="animate-spin" />
+                        Redirigiendo a Discord...
+                      </>
+                    ) : (
+                      <>
+                        <MessageCircle size={16} />
+                        Vincular con Discord
+                      </>
+                    )}
                   </button>
                 </div>
               )}
@@ -463,6 +608,39 @@ export default function Perfil() {
               {loading ? 'Cambiando...' : 'Cambiar Contraseña'}
             </button>
           </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Unlink Discord Confirmation Dialog */}
+      <Dialog open={showUnlinkDialog} onOpenChange={setShowUnlinkDialog}>
+        <DialogContent className="bg-[#0d0d24] border border-white/10 text-white sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Desvincular Discord
+            </DialogTitle>
+            <DialogDescription className="text-white/40">
+              ¿Estás seguro de que deseas desvincular tu cuenta de Discord? Tu rol podría cambiar si fue asignado por Discord.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 mt-4">
+            <button
+              onClick={() => setShowUnlinkDialog(false)}
+              className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleDiscordUnlink}
+              disabled={unlinkingDiscord}
+              className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              {unlinkingDiscord ? (
+                <><Loader2 size={14} className="animate-spin" /> Desvinculando...</>
+              ) : (
+                <><Unlink size={14} /> Desvincular</>
+              )}
+            </button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
