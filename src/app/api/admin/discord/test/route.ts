@@ -41,4 +41,4 @@ export async function POST() {
     console.error('[Discord Test] Error:', error);
     return NextResponse.json({ success: false, message: 'Internal server error.' }, { status: 500 });
   }
-        }
+                              }
