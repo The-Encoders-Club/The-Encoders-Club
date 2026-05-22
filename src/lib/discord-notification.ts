@@ -82,15 +82,28 @@ export async function sendDiscordMessage(
 // Build a valid absolute URL from a potentially relative path
 function toAbsoluteUrl(path: string | null | undefined, baseUrl: string): string | null {
   if (!path) return null;
-  // If already absolute, return as-is
   if (path.startsWith('http://') || path.startsWith('https://')) return path;
-  // Convert relative path to absolute
   try {
     return new URL(path, baseUrl).href;
   } catch {
     return null;
   }
 }
+
+// Get siteUrl from DB for building absolute URLs
+export async function getSiteUrl(): Promise<string> {
+  try {
+    const db = await getDB();
+    const config = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
+    return (config?.siteUrl as string) || 'https://tu-dominio.pages.dev';
+  } catch {
+    return 'https://tu-dominio.pages.dev';
+  }
+}
+
+// =============================================
+// NOTIFICATION FUNCTIONS
+// =============================================
 
 // Send a notification when a new comment is created
 export async function notifyNewComment(params: {
@@ -103,33 +116,37 @@ export async function notifyNewComment(params: {
   siteUrl?: string;
   isReply?: boolean;
   parentAuthor?: string;
+  parentContent?: string;
 }): Promise<boolean> {
   const {
     projectName, projectId, authorNickname, authorAvatar,
-    authorRole, content, siteUrl, isReply, parentAuthor,
+    authorRole, content, siteUrl, isReply, parentAuthor, parentContent,
   } = params;
 
   const base = siteUrl || 'https://tu-dominio.pages.dev';
   const projectUrl = `${base}/proyectos/${projectId}`;
 
-  // Truncate content for Discord (max 4096 chars for embed description)
-  const truncatedContent = content.length > 500
-    ? content.substring(0, 500) + '...'
-    : content;
+  const truncate = (text: string, max: number) => text.length > max ? text.substring(0, max) + '...' : text;
 
-  // Role colors for the embed
   const roleColors: Record<string, number> = {
-    owner: 0xFFD700,     // Gold
-    admin: 0xFF0000,     // Red
-    moderator: 0x4D9FFF, // Blue
-    collaborator: 0x22C55E, // Green
+    owner: 0xFFD700,
+    admin: 0xFF0000,
+    moderator: 0x4D9FFF,
+    collaborator: 0x22C55E,
   };
-  const embedColor = roleColors[authorRole || ''] || 0x5865F2; // Default Discord blurple
+  const embedColor = roleColors[authorRole || ''] || 0x5865F2;
 
   const titlePrefix = isReply ? '💬 Respuesta en' : '💬 Nuevo comentario en';
-  const description = isReply && parentAuthor
-    ? `**${authorNickname}** respondió a **${parentAuthor}**:\n> ${truncatedContent}`
-    : `**${authorNickname}** comentó:\n> ${truncatedContent}`;
+
+  let description = '';
+  if (isReply && parentAuthor && parentContent) {
+    const quotedParent = truncate(parentContent, 200);
+    description = `**${authorNickname}** respondio a **${parentAuthor}**:\n\n❝ *${quotedParent}* ❞\n\n> ${truncate(content, 500)}`;
+  } else if (isReply && parentAuthor) {
+    description = `**${authorNickname}** respondio a **${parentAuthor}**:\n> ${truncate(content, 500)}`;
+  } else {
+    description = `**${authorNickname}** comento:\n> ${truncate(content, 500)}`;
+  }
 
   const embed: DiscordEmbed = {
     title: `${titlePrefix} ${projectName}`,
@@ -140,16 +157,12 @@ export async function notifyNewComment(params: {
     footer: { text: 'The Encoders Club' },
   };
 
-  // FIX: Convert avatar relative path to absolute URL before sending to Discord
   const absoluteAvatarUrl = toAbsoluteUrl(authorAvatar, base);
   if (absoluteAvatarUrl) {
     embed.author = { name: authorNickname, icon_url: absoluteAvatarUrl };
   }
 
-  return sendDiscordMessage({
-    username: 'The Encoders Club',
-    embeds: [embed],
-  });
+  return sendDiscordMessage({ username: 'The Encoders Club', embeds: [embed] });
 }
 
 // Send a notification when a new user registers
@@ -169,14 +182,78 @@ export async function notifyNewUser(params: {
     footer: { text: 'The Encoders Club' },
   };
 
-  // FIX: Convert avatar relative path to absolute URL before sending to Discord
   const absoluteAvatarUrl = toAbsoluteUrl(avatar, base);
   if (absoluteAvatarUrl) {
     embed.author = { name: nickname, icon_url: absoluteAvatarUrl };
   }
 
-  return sendDiscordMessage({
-    username: 'The Encoders Club',
-    embeds: [embed],
-  });
+  return sendDiscordMessage({ username: 'The Encoders Club', embeds: [embed] });
+}
+
+// Send a notification when a user logs in
+export async function notifyUserLogin(params: {
+  nickname: string;
+  avatar?: string | null;
+  role?: string;
+  siteUrl?: string;
+}): Promise<boolean> {
+  const { nickname, avatar, role, siteUrl } = params;
+  const base = siteUrl || 'https://tu-dominio.pages.dev';
+
+  const roleColors: Record<string, number> = {
+    owner: 0xFFD700,
+    admin: 0xFF0000,
+    moderator: 0x4D9FFF,
+    collaborator: 0x22C55E,
+  };
+  const embedColor = roleColors[role || ''] || 0x5865F2;
+
+  const embed: DiscordEmbed = {
+    title: '🟢 Inicio de sesion',
+    description: `**${nickname}** ha iniciado sesion.`,
+    color: embedColor,
+    timestamp: new Date().toISOString(),
+    footer: { text: 'The Encoders Club' },
+  };
+
+  if (role) {
+    embed.fields = [{ name: 'Rol', value: role.charAt(0).toUpperCase() + role.slice(1), inline: true }];
+  }
+
+  const absoluteAvatarUrl = toAbsoluteUrl(avatar, base);
+  if (absoluteAvatarUrl) {
+    embed.author = { name: nickname, icon_url: absoluteAvatarUrl };
+  }
+
+  return sendDiscordMessage({ username: 'The Encoders Club', embeds: [embed] });
+}
+
+// Send a notification when a user logs out
+export async function notifyUserLogout(params: {
+  nickname: string;
+  avatar?: string | null;
+  role?: string;
+  siteUrl?: string;
+}): Promise<boolean> {
+  const { nickname, avatar, role, siteUrl } = params;
+  const base = siteUrl || 'https://tu-dominio.pages.dev';
+
+  const embed: DiscordEmbed = {
+    title: '🔴 Cierre de sesion',
+    description: `**${nickname}** ha cerrado sesion.`,
+    color: 0xED4245,
+    timestamp: new Date().toISOString(),
+    footer: { text: 'The Encoders Club' },
+  };
+
+  if (role) {
+    embed.fields = [{ name: 'Rol', value: role.charAt(0).toUpperCase() + role.slice(1), inline: true }];
+  }
+
+  const absoluteAvatarUrl = toAbsoluteUrl(avatar, base);
+  if (absoluteAvatarUrl) {
+    embed.author = { name: nickname, icon_url: absoluteAvatarUrl };
+  }
+
+  return sendDiscordMessage({ username: 'The Encoders Club', embeds: [embed] });
 }
