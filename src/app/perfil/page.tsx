@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import {
   User, Mail, Calendar, Camera, Crown, Lock, Save,
-  MessageCircle, Edit3, X, Check, Shield, Star, Unlink, Loader2
+  MessageCircle, Edit3, X, Check, Shield, Star, Unlink, Loader2, Trash2, AlertTriangle
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
@@ -54,6 +54,10 @@ function PerfilContent() {
   const [editEmail, setEditEmail] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
   const [showUnlinkDialog, setShowUnlinkDialog] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteConfirmText, setDeleteConfirmText] = useState('');
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
@@ -240,6 +244,42 @@ function PerfilContent() {
       toast.error('Error');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!deletePassword) {
+      toast.error('Ingresa tu contraseña');
+      return;
+    }
+    if (deleteConfirmText !== 'BORRAR') {
+      toast.error('Escribe BORRAR para confirmar');
+      return;
+    }
+    if (user?.role === 'owner') {
+      toast.error('Los owners no pueden borrar su cuenta');
+      return;
+    }
+    setDeletingAccount(true);
+    try {
+      const res = await fetch('/api/user/profile', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: deletePassword }),
+      });
+      if (!res.ok) {
+        const d = await res.json();
+        toast.error(d.error || 'Error al borrar cuenta');
+        return;
+      }
+      toast.success('Tu cuenta ha sido eliminada. Te redirigimos...');
+      setTimeout(() => {
+        router.push('/');
+      }, 2000);
+    } catch {
+      toast.error('Error de conexion');
+    } finally {
+      setDeletingAccount(false);
     }
   };
 
@@ -563,6 +603,51 @@ function PerfilContent() {
                 </div>
               </div>
             </div>
+
+            {/* Danger Zone Card */}
+            <div className="glass-card p-6 mt-8 border border-red-500/20">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
+                  <AlertTriangle size={20} className="text-red-400" />
+                </div>
+                <div>
+                  <h3
+                    className="font-bold text-red-400"
+                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                  >
+                    Zona de Peligro
+                  </h3>
+                  <p className="text-xs text-white/40">Acciones irreversibles</p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10">
+                  <p className="text-sm text-white/60 mb-1">
+                    <strong className="text-white/80">Eliminar mi cuenta</strong>
+                  </p>
+                  <p className="text-xs text-white/40 mb-4">
+                    Esta accion no se puede deshacer. Se eliminaran permanentemente tu perfil, 
+                    tus comentarios (se marcaran como eliminados), tus notificaciones y tu historial de actividad. 
+                    {user.role === 'owner' && (
+                      <span className="text-red-400 font-medium"> Como owner, no puedes eliminar tu cuenta.</span>
+                    )}
+                  </p>
+                  <button
+                    onClick={() => {
+                      setDeletePassword('');
+                      setDeleteConfirmText('');
+                      setShowDeleteDialog(true);
+                    }}
+                    disabled={user.role === 'owner'}
+                    className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    <Trash2 size={14} />
+                    Eliminar mi cuenta
+                  </button>
+                </div>
+              </div>
+            </div>
           </motion.div>
         </div>
       </main>
@@ -638,6 +723,66 @@ function PerfilContent() {
                 <><Loader2 size={14} className="animate-spin" /> Desvinculando...</>
               ) : (
                 <><Unlink size={14} /> Desvincular</>
+              )}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Account Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent className="bg-[#0d0d24] border border-red-500/20 text-white sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-red-400" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              Eliminar Cuenta
+            </DialogTitle>
+            <DialogDescription className="text-white/40">
+              Esta accion es permanente y no se puede deshacer.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 mt-2">
+            <div className="p-3 rounded-xl bg-red-500/5 border border-red-500/10">
+              <p className="text-xs text-white/50">
+                Se eliminara tu perfil, tus comentarios se marcaran como eliminados, 
+                se borraran tus notificaciones y tu historial de actividad.
+              </p>
+            </div>
+            <input
+              type="password"
+              placeholder="Tu contraseña"
+              value={deletePassword}
+              onChange={e => setDeletePassword(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-red-500/50 placeholder:text-white/25"
+            />
+            <div>
+              <p className="text-xs text-white/40 mb-1.5">
+                Escribe <span className="text-red-400 font-bold">BORRAR</span> para confirmar:
+              </p>
+              <input
+                type="text"
+                value={deleteConfirmText}
+                onChange={e => setDeleteConfirmText(e.target.value)}
+                placeholder="BORRAR"
+                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-red-500/50 placeholder:text-white/25"
+              />
+            </div>
+          </div>
+          <DialogFooter className="gap-2 mt-4">
+            <button
+              onClick={() => setShowDeleteDialog(false)}
+              className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all"
+            >
+              Cancelar
+            </button>
+            <button
+              onClick={handleDeleteAccount}
+              disabled={deletingAccount || !deletePassword || deleteConfirmText !== 'BORRAR'}
+              className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-all flex items-center gap-2 disabled:opacity-50"
+            >
+              {deletingAccount ? (
+                <><Loader2 size={14} className="animate-spin" /> Eliminando...</>
+              ) : (
+                <><Trash2 size={14} /> Eliminar Cuenta</>
               )}
             </button>
           </DialogFooter>
