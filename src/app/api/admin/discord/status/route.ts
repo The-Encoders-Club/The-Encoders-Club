@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { getDB } from '@/lib/db';
 
-// GET: Check Discord bot connection status (admin+ only)
+// GET: Check Discord integration status (admin+ only)
 export async function GET() {
   try {
     const session = await getSession();
@@ -17,7 +17,7 @@ export async function GET() {
     const db = await getDB();
 
     const config = await db
-      .prepare('SELECT * FROM DiscordConfig LIMIT 1')
+      .prepare('SELECT botToken, serverId, webhookUrl, adminRoleId, modRoleId, collabRoleId, discordClientId, discordClientSecret FROM DiscordConfig LIMIT 1')
       .first();
 
     if (!config) {
@@ -26,21 +26,50 @@ export async function GET() {
         configured: false,
         botUsername: null,
         botAvatar: null,
-        message: 'Discord is not configured. Please set up the bot in the Discord settings tab.',
+        linkedUsers: 0,
+        server: { name: null, memberCount: null },
+        roleConfig: { hasAdminRole: false, hasModRole: false, hasCollabRole: false },
+        hasClientId: false,
+        hasClientSecret: false,
+        hasWebhookUrl: false,
+        message: 'Discord no esta configurado. Configura el Webhook URL y los roles.',
       });
     }
 
-    if (!config.botToken) {
+    const hasWebhookUrl = !!config.webhookUrl;
+    const hasBotToken = !!config.botToken;
+    const hasServerId = !!config.serverId;
+    const hasAdminRole = !!config.adminRoleId;
+    const hasModRole = !!config.modRoleId;
+    const hasCollabRole = !!config.collabRoleId;
+    const hasClientId = !!config.discordClientId;
+    const hasClientSecret = !!config.discordClientSecret;
+
+    // Get linked user count
+    const linkedCount = await db
+      .prepare('SELECT COUNT(*) as count FROM User WHERE discordLinked = 1')
+      .first();
+
+    // If no bot token, return webhook-only status
+    if (!hasBotToken) {
       return NextResponse.json({
         connected: false,
-        configured: false,
+        configured: hasWebhookUrl,
         botUsername: null,
         botAvatar: null,
-        message: 'Bot token is not set.',
+        linkedUsers: (linkedCount?.count as number) || 0,
+        server: { name: null, memberCount: null },
+        roleConfig: { hasAdminRole, hasModRole, hasCollabRole },
+        hasClientId,
+        hasClientSecret,
+        hasWebhookUrl,
+        message: hasWebhookUrl
+          ? 'Webhook configurado. El Bot no esta configurado (las notificaciones de comentarios funcionan, pero la sincronizacion de roles requiere un Bot Token en la base de datos).'
+          : 'Webhook no configurado. Configura el Webhook URL para recibir notificaciones.',
       });
     }
 
-    // Try to get bot info from Discord API
+    // Bot token exists — try to connect
     try {
       const botResponse = await fetch('https://discord.com/api/users/@me', {
         headers: { Authorization: `Bot ${config.botToken}` },
@@ -48,16 +77,21 @@ export async function GET() {
 
       if (!botResponse.ok) {
         const errStatus = botResponse.status;
-        let message = 'Failed to connect to Discord.';
-        if (errStatus === 401) message = 'Invalid bot token. Please check your bot token.';
-        else if (errStatus === 429) message = 'Rate limited by Discord. Try again later.';
-        else if (errStatus === 0) message = 'Network error connecting to Discord.';
+        let message = 'No se pudo conectar a Discord.';
+        if (errStatus === 401) message = 'Token de bot invalido.';
+        else if (errStatus === 429) message = 'Rate limited por Discord. Intenta mas tarde.';
 
         return NextResponse.json({
           connected: false,
           configured: true,
           botUsername: null,
           botAvatar: null,
+          linkedUsers: (linkedCount?.count as number) || 0,
+          server: { name: null, memberCount: null },
+          roleConfig: { hasAdminRole, hasModRole, hasCollabRole },
+          hasClientId,
+          hasClientSecret,
+          hasWebhookUrl,
           message,
         });
       }
@@ -74,14 +108,9 @@ export async function GET() {
         ? `https://cdn.discordapp.com/avatars/${botData.id}/${botData.avatar}.png?size=128`
         : null;
 
-      // Get linked user count
-      const linkedCount = await db
-        .prepare('SELECT COUNT(*) as count FROM User WHERE discordLinked = 1')
-        .first();
-
-      // Check server info if server ID is set
+      // Get server info if server ID is set
       let serverInfo: { name: string | null; memberCount: number | null } = { name: null, memberCount: null };
-      if (config.serverId) {
+      if (hasServerId) {
         try {
           const guildResponse = await fetch(
             `https://discord.com/api/guilds/${config.serverId}?with_counts=true`,
@@ -105,14 +134,11 @@ export async function GET() {
         isBot: botData.bot,
         linkedUsers: (linkedCount?.count as number) || 0,
         server: serverInfo,
-        roleConfig: {
-          hasAdminRole: !!config.adminRoleId,
-          hasModRole: !!config.modRoleId,
-          hasCollabRole: !!config.collabRoleId,
-        },
-        hasClientId: !!config.discordClientId,
-        hasClientSecret: !!config.discordClientSecret,
-        message: 'Bot is connected and working.',
+        roleConfig: { hasAdminRole, hasModRole, hasCollabRole },
+        hasClientId,
+        hasClientSecret,
+        hasWebhookUrl,
+        message: hasWebhookUrl ? 'Bot conectado y Webhook configurado.' : 'Bot conectado, pero el Webhook URL no esta configurado.',
       });
     } catch (err) {
       return NextResponse.json({
@@ -120,7 +146,13 @@ export async function GET() {
         configured: true,
         botUsername: null,
         botAvatar: null,
-        message: 'Could not reach Discord API. Check your network or token.',
+        linkedUsers: (linkedCount?.count as number) || 0,
+        server: { name: null, memberCount: null },
+        roleConfig: { hasAdminRole, hasModRole, hasCollabRole },
+        hasClientId,
+        hasClientSecret,
+        hasWebhookUrl,
+        message: 'No se pudo conectar con la API de Discord.',
       });
     }
   } catch (error) {
