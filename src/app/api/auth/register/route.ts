@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDB, generateId, nowISO } from '@/lib/db';
-import { hashPassword, checkRateLimit, isValidNickname, isValidPassword } from '@/lib/auth';
+import { hashPassword, checkRateLimit, isValidNickname, isValidPassword, generateRecoveryCode, hashSecurityData } from '@/lib/auth';
 import { createSession } from '@/lib/session';
 import { notifyNewUser } from '@/lib/discord-notification';
 
@@ -12,8 +12,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Too many registration attempts. Please try again later.' }, { status: 429 });
     }
 
-    const body = await request.json() as { nickname: string; password: string; email?: string; locale?: string };
-    const { nickname, password, email, locale } = body;
+    const body = await request.json() as { nickname: string; password: string; confirmPassword?: string; email?: string; locale?: string; securityQuestion?: string; securityAnswer?: string };
+    const { nickname, password, confirmPassword, email, locale, securityQuestion, securityAnswer } = body;
 
     if (!nickname || !password) {
       return NextResponse.json({ error: 'Nickname and password are required.' }, { status: 400 });
@@ -32,6 +32,19 @@ export async function POST(request: NextRequest) {
 
     if (email && typeof email !== 'string') {
       return NextResponse.json({ error: 'Invalid email format.' }, { status: 400 });
+    }
+
+    // Validate confirmPassword
+    if (confirmPassword && password !== confirmPassword) {
+      return NextResponse.json({ error: 'Las contraseñas no coinciden.' }, { status: 400 });
+    }
+
+    // Validate security question and answer
+    if (!securityQuestion || !securityAnswer) {
+      return NextResponse.json({ error: 'La pregunta y respuesta de seguridad son requeridas.' }, { status: 400 });
+    }
+    if (securityAnswer.trim().length < 2) {
+      return NextResponse.json({ error: 'La respuesta de seguridad es muy corta.' }, { status: 400 });
     }
 
     const db = await getDB();
@@ -62,9 +75,30 @@ export async function POST(request: NextRequest) {
     const passwordHash = await hashPassword(password);
     const now = nowISO();
 
+    // Generate unique recovery code
+    let recoveryCode = generateRecoveryCode();
+    let recoveryCodeHash = await hashSecurityData(recoveryCode);
+
+    // Ensure uniqueness (extremely unlikely collision, but check anyway)
+    let codeExists = true;
+    let attempts = 0;
+    while (codeExists && attempts < 5) {
+      const existing = await db.prepare('SELECT id FROM User WHERE recoveryCodeHash = ?').bind(recoveryCodeHash).first();
+      if (!existing) {
+        codeExists = false;
+      } else {
+        recoveryCode = generateRecoveryCode();
+        recoveryCodeHash = await hashSecurityData(recoveryCode);
+        attempts++;
+      }
+    }
+
+    // Hash security answer
+    const securityAnswerHash = await hashSecurityData(securityAnswer);
+
     await db
       .prepare(
-        'INSERT INTO User (id, nickname, email, passwordHash, role, isPremium, isBanned, discordLinked, locale, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+        'INSERT INTO User (id, nickname, email, passwordHash, role, isPremium, isBanned, discordLinked, locale, securityQuestion, securityAnswerHash, recoveryCodeHash, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
       )
       .bind(
         userId,
@@ -76,6 +110,9 @@ export async function POST(request: NextRequest) {
         0,
         0,
         locale || 'es',
+        securityQuestion,
+        securityAnswerHash,
+        recoveryCodeHash,
         now,
         now
       )
@@ -121,6 +158,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
+      recoveryCode,
       user: {
         id: userId,
         nickname,
