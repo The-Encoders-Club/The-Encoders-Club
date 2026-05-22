@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDB, generateId, nowISO } from '@/lib/db';
 import { hashPassword, checkRateLimit, isValidNickname, isValidPassword } from '@/lib/auth';
 import { createSession } from '@/lib/session';
+import { notifyNewUser } from '@/lib/discord-notification';
 
 export async function POST(request: NextRequest) {
   try {
@@ -108,6 +109,9 @@ export async function POST(request: NextRequest) {
 
     // Create session
     await createSession(userId, false);
+
+    // Send Discord notification (fire-and-forget, don't block response)
+    notifyNewUser({ nickname, avatar: null, siteUrl: undefined }).catch(() => {});
 
     return NextResponse.json({
       success: true,
