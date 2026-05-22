@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDB, nowISO, toBool } from '@/lib/db';
 import { verifyPassword, checkRateLimit } from '@/lib/auth';
 import { createSession } from '@/lib/session';
-import { notifyUserLogin } from '@/lib/discord-notification';
 
 export async function POST(request: NextRequest) {
   try {
@@ -60,20 +59,6 @@ export async function POST(request: NextRequest) {
       .prepare("UPDATE User SET updatedAt = ? WHERE id = ?")
       .bind(nowISO(), user.id as string)
       .run();
-
-    // Send Discord notification (await to ensure it sends before response)
-    try {
-      const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
-      const siteUrl = (siteConfig?.siteUrl as string) || undefined;
-      await notifyUserLogin({
-        nickname: user.nickname as string,
-        avatar: user.avatar as string | null,
-        role: user.role as string,
-        siteUrl,
-      });
-    } catch (notifErr) {
-      console.error('[Login] Discord notification error:', notifErr);
-    }
 
     return NextResponse.json({
       success: true,
