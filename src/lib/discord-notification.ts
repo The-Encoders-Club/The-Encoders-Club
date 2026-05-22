@@ -257,3 +257,33 @@ export async function notifyUserLogout(params: {
 
   return sendDiscordMessage({ username: 'The Encoders Club', embeds: [embed] });
 }
+
+// Send a notification when a user deletes their account
+export async function notifyUserDeleteAccount(params: {
+  nickname: string;
+  avatar?: string | null;
+  role?: string;
+  siteUrl?: string;
+}, webhookUrl?: string): Promise<boolean> {
+  const { nickname, avatar, role, siteUrl } = params;
+  const base = siteUrl || 'https://tu-dominio.pages.dev';
+
+  const embed: DiscordEmbed = {
+    title: '🗑️ Cuenta eliminada',
+    description: `**${nickname}** ha eliminado su cuenta permanentemente.`,
+    color: 0xED4245,
+    timestamp: new Date().toISOString(),
+    footer: { text: 'The Encoders Club' },
+  };
+
+  if (role) {
+    embed.fields = [{ name: 'Rol', value: role.charAt(0).toUpperCase() + role.slice(1), inline: true }];
+  }
+
+  const absoluteAvatarUrl = toAbsoluteUrl(avatar, base);
+  if (absoluteAvatarUrl) {
+    embed.author = { name: nickname, icon_url: absoluteAvatarUrl };
+  }
+
+  return sendDiscordMessage({ username: 'The Encoders Club', embeds: [embed] }, webhookUrl);
+}
