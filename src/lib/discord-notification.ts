@@ -1,6 +1,5 @@
 // ============================================================
 // Discord Notification Utility - Send messages via Webhook URL
-// Uses webhookUrl passed as parameter (avoids duplicate getDB calls)
 // ============================================================
 
 import { getDB } from './db';
@@ -72,8 +71,7 @@ export async function sendDiscordMessage(
       return false;
     }
 
-    const responseText = await response.text();
-    console.log('[Discord Notif] Message sent successfully! Response:', responseText.substring(0, 100));
+    console.log('[Discord Notif] Message sent successfully!');
     return true;
   } catch (error) {
     console.error('[Discord Notif] Exception in sendDiscordMessage:', error);
@@ -81,40 +79,16 @@ export async function sendDiscordMessage(
   }
 }
 
-// Read the webhook URL and notificationEnabled flag from DB
-export async function getDiscordNotificationConfig(): Promise<{ webhookUrl: string | null; enabled: boolean }> {
+// Build a valid absolute URL from a potentially relative path
+function toAbsoluteUrl(path: string | null | undefined, baseUrl: string): string | null {
+  if (!path) return null;
+  // If already absolute, return as-is
+  if (path.startsWith('http://') || path.startsWith('https://')) return path;
+  // Convert relative path to absolute
   try {
-    const db = await getDB();
-
-    // Try with notificationEnabled column first
-    const config = await db
-      .prepare('SELECT webhookUrl, notificationEnabled FROM DiscordConfig LIMIT 1')
-      .first();
-
-    if (!config) {
-      console.log('[Discord Notif] No DiscordConfig row found.');
-      return { webhookUrl: null, enabled: false };
-    }
-
-    const webhookUrl = config.webhookUrl as string | null;
-    // notificationEnabled might not exist as column — handle gracefully
-    const enabled = config.notificationEnabled !== undefined
-      && config.notificationEnabled !== 0
-      && config.notificationEnabled !== null;
-
-    return { webhookUrl, enabled };
-  } catch (error) {
-    // If column doesn't exist, fallback to just checking webhookUrl
-    console.warn('[Discord Notif] getDiscordNotificationConfig fallback:', error);
-    try {
-      const db = await getDB();
-      const config = await db
-        .prepare('SELECT webhookUrl FROM DiscordConfig LIMIT 1')
-        .first();
-      return { webhookUrl: (config?.webhookUrl as string) || null, enabled: true };
-    } catch {
-      return { webhookUrl: null, enabled: false };
-    }
+    return new URL(path, baseUrl).href;
+  } catch {
+    return null;
   }
 }
 
@@ -166,8 +140,10 @@ export async function notifyNewComment(params: {
     footer: { text: 'The Encoders Club' },
   };
 
-  if (authorAvatar) {
-    embed.author = { name: authorNickname, icon_url: authorAvatar };
+  // FIX: Convert avatar relative path to absolute URL before sending to Discord
+  const absoluteAvatarUrl = toAbsoluteUrl(authorAvatar, base);
+  if (absoluteAvatarUrl) {
+    embed.author = { name: authorNickname, icon_url: absoluteAvatarUrl };
   }
 
   return sendDiscordMessage({
@@ -183,6 +159,7 @@ export async function notifyNewUser(params: {
   siteUrl?: string;
 }): Promise<boolean> {
   const { nickname, avatar, siteUrl } = params;
+  const base = siteUrl || 'https://tu-dominio.pages.dev';
 
   const embed: DiscordEmbed = {
     title: '🆕 Nuevo registro',
@@ -192,8 +169,10 @@ export async function notifyNewUser(params: {
     footer: { text: 'The Encoders Club' },
   };
 
-  if (avatar) {
-    embed.author = { name: nickname, icon_url: avatar };
+  // FIX: Convert avatar relative path to absolute URL before sending to Discord
+  const absoluteAvatarUrl = toAbsoluteUrl(avatar, base);
+  if (absoluteAvatarUrl) {
+    embed.author = { name: nickname, icon_url: absoluteAvatarUrl };
   }
 
   return sendDiscordMessage({
