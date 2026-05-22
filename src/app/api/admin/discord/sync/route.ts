@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { getDB, nowISO } from '@/lib/db';
 
@@ -22,11 +22,13 @@ export async function POST(request: NextRequest) {
 
     // Get Discord config
     const config = await db
-      .prepare('SELECT * FROM DiscordConfig LIMIT 1')
+      .prepare('SELECT botToken, serverId, adminRoleId, modRoleId, collabRoleId FROM DiscordConfig LIMIT 1')
       .first();
 
     if (!config || !config.botToken || !config.serverId) {
-      return NextResponse.json({ error: 'Discord bot is not configured. Set Bot Token and Server ID first.' }, { status: 400 });
+      return NextResponse.json({
+        error: 'Para sincronizar roles necesitas configurar el Bot Token y Server ID en la base de datos directamente (no estan disponibles en el panel). Consulta la documentacion de Discord Developers.',
+      }, { status: 400 });
     }
 
     const botToken = config.botToken as string;
@@ -36,7 +38,7 @@ export async function POST(request: NextRequest) {
     const collabRoleId = config.collabRoleId as string | null;
 
     if (!adminRoleId && !modRoleId && !collabRoleId) {
-      return NextResponse.json({ error: 'No Discord role IDs configured. Set at least one role ID.' }, { status: 400 });
+      return NextResponse.json({ error: 'No Discord role IDs configured. Set at least one role ID in the Discord config.' }, { status: 400 });
     }
 
     const roleMap: Record<string, string[]> = {
@@ -69,6 +71,16 @@ export async function POST(request: NextRequest) {
 
     const users = await getUsers();
     const userList = Array.isArray(users) ? users : (users as { results: unknown[] }).results || [];
+
+    if (userList.length === 0) {
+      return NextResponse.json({
+        message: 'No hay usuarios vinculados a Discord para sincronizar.',
+        synced: 0,
+        errors: 0,
+        total: 0,
+        results: [],
+      });
+    }
 
     for (const u of userList) {
       const user = u as { id: string; nickname: string; role: string; discordId: string };
