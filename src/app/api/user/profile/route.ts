@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDB, nowISO, toBool } from '@/lib/db';
 import { getSession, destroySession } from '@/lib/session';
 import { verifyPassword } from '@/lib/auth';
-import { notifyUserLogout } from '@/lib/discord-notification';
+import { notifyUserDeleteAccount } from '@/lib/discord-notification';
 
 // GET: Get current user's full profile with comment count
 export async function GET() {
@@ -221,13 +221,15 @@ export async function DELETE(request: NextRequest) {
 
     // 4) Send Discord notification (await, before deleting user)
     try {
-      const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
-      const siteUrl = (siteConfig?.siteUrl as string) || undefined;
-      await sendDiscordDeleteNotification({
+      const discordConfig = await db.prepare('SELECT webhookUrl, siteUrl FROM DiscordConfig LIMIT 1').first();
+      const webhookUrl = discordConfig?.webhookUrl as string | null;
+      const siteUrl = (discordConfig?.siteUrl as string) || undefined;
+      await notifyUserDeleteAccount({
         nickname: session.nickname,
+        avatar: session.avatar,
         role: session.role,
         siteUrl,
-      });
+      }, webhookUrl || undefined);
     } catch (notifErr) {
       console.error('[Delete Account] Discord notification error:', notifErr);
     }
@@ -250,25 +252,4 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// Helper: Send notification when a user deletes their account
-async function sendDiscordDeleteNotification(params: {
-  nickname: string;
-  role?: string;
-  siteUrl?: string;
-}): Promise<boolean> {
-  const { nickname, role, siteUrl } = params;
-  const base = siteUrl || 'https://tu-dominio.pages.dev';
 
-  const { sendDiscordMessage } = await import('@/lib/discord-notification');
-
-  const embed = {
-    title: '🗑️ Cuenta eliminada',
-    description: `**${nickname}** ha eliminado su cuenta.`,
-    color: 0xED4245,
-    timestamp: new Date().toISOString(),
-    footer: { text: 'The Encoders Club' },
-    fields: role ? [{ name: 'Rol', value: role.charAt(0).toUpperCase() + role.slice(1), inline: true }] : [],
-  };
-
-  return sendDiscordMessage({ username: 'The Encoders Club', embeds: [embed] });
-}
