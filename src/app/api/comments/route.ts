@@ -201,17 +201,19 @@ export async function POST(request: NextRequest) {
       } else if (!notificationsEnabled) {
         console.log('[Comments] Notifications are disabled — skipping.');
       } else {
-        // 2) Get parent author name if this is a reply
+        // 2) Get parent comment info if this is a reply (author + content)
         let parentAuthorName: string | null = null;
+        let parentContent: string | null = null;
         if (parentId) {
           try {
             const parentRow = await db
-              .prepare(`SELECT u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?`)
+              .prepare(`SELECT c.content, u.nickname FROM Comment c LEFT JOIN User u ON c.authorId = u.id WHERE c.id = ?`)
               .bind(String(parentId))
               .first();
             parentAuthorName = (parentRow?.nickname as string) || null;
+            parentContent = (parentRow?.content as string) || null;
           } catch (err) {
-            console.warn('[Comments] Could not fetch parent author:', err);
+            console.warn('[Comments] Could not fetch parent comment:', err);
           }
         }
 
@@ -252,6 +254,7 @@ export async function POST(request: NextRequest) {
           siteUrl,
           isReply: !!parentId,
           parentAuthor: parentAuthorName || undefined,
+          parentContent: parentContent || undefined,
         });
 
         console.log('[Comments] Notification result:', notifResult ? 'SUCCESS' : 'FAILED');
