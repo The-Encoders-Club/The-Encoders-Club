@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getSession, destroySession } from '@/lib/session';
 import { notifyUserLogout } from '@/lib/discord-notification';
+import { getDB } from '@/lib/db';
 
 export async function POST() {
   try {
@@ -19,9 +20,16 @@ export async function POST() {
     // Destroy session
     await destroySession();
 
-    // Send Discord notification (fire-and-forget)
+    // Send Discord notification (await to ensure it sends before response)
     if (nickname) {
-      notifyUserLogout({ nickname, avatar: avatar || null, role }).catch(() => {});
+      try {
+        const db = await getDB();
+        const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
+        const siteUrl = (siteConfig?.siteUrl as string) || undefined;
+        await notifyUserLogout({ nickname, avatar: avatar || null, role, siteUrl });
+      } catch (notifErr) {
+        console.error('[Logout] Discord notification error:', notifErr);
+      }
     }
 
     return NextResponse.json({ message: 'Logged out successfully.' });
