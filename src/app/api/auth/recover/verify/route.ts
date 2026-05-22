@@ -7,7 +7,7 @@ import { verifySecurityData, checkRateLimit } from '@/lib/auth';
 export async function POST(request: NextRequest) {
   try {
     const ip = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
-    const allowed = await checkRateLimit(ip, 5, 300000); // 5 attempts per 5 minutes
+    const allowed = await checkRateLimit(ip, 15, 300000); // 15 attempts per 5 minutes
     if (!allowed) {
       return NextResponse.json({ error: 'Too many attempts. Please try again later.' }, { status: 429 });
     }
@@ -70,4 +70,3 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
-
