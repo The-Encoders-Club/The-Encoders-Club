@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDB, generateId, nowISO } from '@/lib/db';
 import { hashPassword, checkRateLimit, isValidNickname, isValidPassword, generateRecoveryCode, hashSecurityData } from '@/lib/auth';
 import { createSession } from '@/lib/session';
-import { notifyNewUser } from '@/lib/discord-notification';
 
 export async function POST(request: NextRequest) {
   try {
@@ -146,15 +145,6 @@ export async function POST(request: NextRequest) {
 
     // Create session
     await createSession(userId, false);
-
-    // Send Discord notification (await to ensure it sends before response)
-    try {
-      const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
-      const siteUrl = (siteConfig?.siteUrl as string) || undefined;
-      await notifyNewUser({ nickname, avatar: null, siteUrl });
-    } catch (notifErr) {
-      console.error('[Register] Discord notification error:', notifErr);
-    }
 
     return NextResponse.json({
       success: true,
