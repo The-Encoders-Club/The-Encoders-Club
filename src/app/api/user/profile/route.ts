@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getDB, nowISO, toBool } from '@/lib/db';
-import { getSession } from '@/lib/session';
+import { getSession, destroySession } from '@/lib/session';
+import { verifyPassword } from '@/lib/auth';
+import { notifyUserLogout } from '@/lib/discord-notification';
 
 // GET: Get current user's full profile with comment count
 export async function GET() {
@@ -157,4 +159,116 @@ export async function PUT(request: NextRequest) {
     console.error('Update profile error:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
+}
+
+// DELETE: Delete user account (requires password confirmation)
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
+    }
+
+    // Owners cannot delete their account
+    if (session.role === 'owner') {
+      return NextResponse.json({ error: 'Los owners no pueden borrar su cuenta.' }, { status: 403 });
+    }
+
+    const body = await request.json() as { password: string };
+    const { password } = body;
+
+    if (!password) {
+      return NextResponse.json({ error: 'Debes ingresar tu contraseña para confirmar.' }, { status: 400 });
+    }
+
+    const db = await getDB();
+
+    // Verify password
+    const user = await db
+      .prepare('SELECT passwordHash FROM User WHERE id = ?')
+      .bind(session.id)
+      .first();
+
+    if (!user) {
+      return NextResponse.json({ error: 'Usuario no encontrado.' }, { status: 404 });
+    }
+
+    const valid = await verifyPassword(password, user.passwordHash as string);
+    if (!valid) {
+      return NextResponse.json({ error: 'Contraseña incorrecta.' }, { status: 401 });
+    }
+
+    const now = nowISO();
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown';
+
+    // 1) Soft-delete all comments by this user
+    await db
+      .prepare("UPDATE Comment SET isDeleted = 1, content = '[Comentario eliminado]', updatedAt = ? WHERE authorId = ?")
+      .bind(now, session.id)
+      .run();
+
+    // 2) Delete all notifications for this user
+    await db
+      .prepare('DELETE FROM Notification WHERE userId = ?')
+      .bind(session.id)
+      .run();
+
+    // 3) Delete activity logs for this user (optional, keeps DB clean)
+    await db
+      .prepare('DELETE FROM ActivityLog WHERE userId = ?')
+      .bind(session.id)
+      .run();
+
+    // 4) Send Discord notification (await, before deleting user)
+    try {
+      const siteConfig = await db.prepare('SELECT siteUrl FROM DiscordConfig LIMIT 1').first();
+      const siteUrl = (siteConfig?.siteUrl as string) || undefined;
+      await sendDiscordDeleteNotification({
+        nickname: session.nickname,
+        role: session.role,
+        siteUrl,
+      });
+    } catch (notifErr) {
+      console.error('[Delete Account] Discord notification error:', notifErr);
+    }
+
+    // 5) Delete the user account
+    await db
+      .prepare('DELETE FROM User WHERE id = ?')
+      .bind(session.id)
+      .run();
+
+    // 6) Destroy the session
+    await destroySession();
+
+    return NextResponse.json({
+      message: 'Cuenta eliminada correctamente.',
+    });
+  } catch (error) {
+    console.error('Delete account error:', error);
+    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+  }
+}
+
+// Helper: Send notification when a user deletes their account
+async function sendDiscordDeleteNotification(params: {
+  nickname: string;
+  role?: string;
+  siteUrl?: string;
+}): Promise<boolean> {
+  const { nickname, role, siteUrl } = params;
+  const base = siteUrl || 'https://tu-dominio.pages.dev';
+
+  const { sendDiscordMessage } = await import('@/lib/discord-notification');
+
+  const embed = {
+    title: '🗑️ Cuenta eliminada',
+    description: `**${nickname}** ha eliminado su cuenta.`,
+    color: 0xED4245,
+    timestamp: new Date().toISOString(),
+    footer: { text: 'The Encoders Club' },
+    fields: role ? [{ name: 'Rol', value: role.charAt(0).toUpperCase() + role.slice(1), inline: true }] : [],
+  };
+
+  return sendDiscordMessage({ username: 'The Encoders Club', embeds: [embed] });
 }
