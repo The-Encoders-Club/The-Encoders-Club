@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Menu, X, Youtube, MessageCircle, Heart, Send, User, LogOut, Bell, Shield, Settings, Globe } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuthModal } from "./AuthModal";
+import { RecoveryModal } from "./RecoveryModal";
 import { NotificationDropdown } from "./NotificationDropdown";
 import { useI18n } from "@/hooks/useLocale";
 
@@ -25,6 +26,7 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [user, setUser] = useState<UserSession | null>(null);
   const [showAuth, setShowAuth] = useState<'login' | 'register' | null>(null);
+  const [showRecovery, setShowRecovery] = useState(false);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -199,7 +201,7 @@ export default function Navbar() {
                     </button>
                   </div>
                 ) : (
-                  <button onClick={() => { setShowAuth('login'); setMenuOpen(false); }} className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] text-white font-bold text-center">
+                  <button onClick={() => { setShowAuth('login'); setShowRecovery(false); setMenuOpen(false); }} className="w-full py-4 rounded-2xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] text-white font-bold text-center">
                     {t('auth.login')}
                   </button>
                 )}
@@ -210,7 +212,10 @@ export default function Navbar() {
       </AnimatePresence>
 
       {/* Auth Modal */}
-      {showAuth && <AuthModal mode={showAuth} onClose={() => setShowAuth(null)} onSwitch={(mode) => setShowAuth(mode)} onSuccess={() => { fetch('/api/auth/session').then(r => r.json()).then(data => { if (data.user) setUser(data.user); }); setShowAuth(null); }} />}
+      {showAuth && <AuthModal mode={showAuth} onClose={() => setShowAuth(null)} onSwitch={(mode) => setShowAuth(mode)} onForgotPassword={() => { setShowAuth(null); setShowRecovery(true); }} onSuccess={() => { fetch('/api/auth/session').then(r => r.json()).then(data => { if (data.user) setUser(data.user); }); setShowAuth(null); }} />}
+
+      {/* Recovery Modal */}
+      {showRecovery && <RecoveryModal onClose={() => setShowRecovery(false)} onBackToLogin={() => { setShowRecovery(false); setShowAuth('login'); }} />}
 
       {/* Notifications */}
       {showNotifs && user && <NotificationDropdown onClose={() => setShowNotifs(false)} />}
