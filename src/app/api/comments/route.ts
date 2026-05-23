@@ -4,12 +4,23 @@ import { checkRateLimit } from '@/lib/auth';
 import { getSession } from '@/lib/session';
 import { notifyNewComment } from '@/lib/discord-notification';
 
-// GET: Fetch comments by targetId and targetType
+// GET: Fetch comments by targetId and targetType with pagination and sorting
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const targetId = searchParams.get('targetId');
     const targetType = searchParams.get('targetType') || 'project';
+
+    // Pagination
+    const limitParam = searchParams.get('limit');
+    const offsetParam = searchParams.get('offset');
+    const limit = Math.min(Math.max(parseInt(limitParam || '5', 10) || 5, 1), 100);
+    const offset = Math.max(parseInt(offsetParam || '0', 10) || 0, 0);
+
+    // Sorting
+    const sort = searchParams.get('sort') || 'newest';
+    const validSorts = ['newest', 'oldest', 'most_liked'];
+    const sortDir = validSorts.includes(sort) ? sort : 'newest';
 
     if (!targetId) {
       return NextResponse.json({ error: 'targetId is required.' }, { status: 400 });
@@ -17,16 +28,42 @@ export async function GET(request: NextRequest) {
 
     const db = await getDB();
 
-    // Fetch top-level comments (not replies) for the target
+    // Build ORDER BY clause based on sort parameter
+    let orderBy: string;
+    switch (sortDir) {
+      case 'oldest':
+        orderBy = 'ORDER BY c.createdAt ASC';
+        break;
+      case 'most_liked':
+        orderBy = 'ORDER BY c.likes DESC, c.createdAt DESC';
+        break;
+      case 'newest':
+      default:
+        orderBy = 'ORDER BY c.createdAt DESC';
+        break;
+    }
+
+    // Count total top-level comments
+    const countRow = await db
+      .prepare(
+        'SELECT COUNT(*) as total FROM Comment WHERE targetId = ? AND targetType = ? AND isDeleted = 0 AND parentId IS NULL'
+      )
+      .bind(targetId, targetType)
+      .first<{ total: number }>();
+
+    const total = countRow?.total ?? 0;
+
+    // Fetch top-level comments (not replies) for the target with pagination
     const { results: comments } = await db
       .prepare(
-        `SELECT c.*, u.nickname, u.avatar, u.role
+        `SELECT c.*, u.nickname, u.avatar, u.role, u.isPremium
          FROM Comment c
          LEFT JOIN User u ON c.authorId = u.id
          WHERE c.targetId = ? AND c.targetType = ? AND c.isDeleted = 0 AND c.parentId IS NULL
-         ORDER BY c.createdAt DESC`
+         ${orderBy}
+         LIMIT ? OFFSET ?`
       )
-      .bind(targetId, targetType)
+      .bind(targetId, targetType, limit, offset)
       .all();
 
     // Fetch all replies for these comments
@@ -37,7 +74,7 @@ export async function GET(request: NextRequest) {
       const placeholders = commentIds.map(() => '?').join(',');
       const { results: replyResults } = await db
         .prepare(
-          `SELECT c.*, u.nickname, u.avatar, u.role
+          `SELECT c.*, u.nickname, u.avatar, u.role, u.isPremium
            FROM Comment c
            LEFT JOIN User u ON c.authorId = u.id
            WHERE c.parentId IN (${placeholders}) AND c.isDeleted = 0
@@ -58,6 +95,7 @@ export async function GET(request: NextRequest) {
         nickname: comment.nickname,
         avatar: comment.avatar,
         role: comment.role,
+        isPremium: toBool(comment.isPremium as number),
       },
       replies: replies.filter((r) => r.parentId === comment.id).map((reply) => ({
         ...reply,
@@ -68,11 +106,12 @@ export async function GET(request: NextRequest) {
           nickname: reply.nickname,
           avatar: reply.avatar,
           role: reply.role,
+          isPremium: toBool(reply.isPremium as number),
         },
       })),
     }));
 
-    return NextResponse.json({ comments: commentsWithReplies });
+    return NextResponse.json({ comments: commentsWithReplies, total });
   } catch (error) {
     console.error('Fetch comments error:', error);
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
@@ -281,16 +320,12 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// DELETE: Soft-delete a comment (moderator+ only)
+// DELETE: Soft-delete a comment (moderator+ OR own comment author)
 export async function DELETE(request: NextRequest) {
   try {
     const session = await getSession();
     if (!session) {
       return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
-    }
-
-    if (session.role !== 'owner' && session.role !== 'admin' && session.role !== 'moderator') {
-      return NextResponse.json({ error: 'Insufficient permissions.' }, { status: 403 });
     }
 
     const body = await request.json() as Record<string, unknown>;
@@ -305,10 +340,18 @@ export async function DELETE(request: NextRequest) {
     const comment = await db
       .prepare('SELECT id, authorId FROM Comment WHERE id = ? AND isDeleted = 0')
       .bind(targetCommentId)
-      .first();
+      .first<{ id: string; authorId: string }>();
 
     if (!comment) {
       return NextResponse.json({ error: 'Comment not found.' }, { status: 404 });
+    }
+
+    // Allow deletion if user is the comment author OR has moderator+ role
+    const isAuthor = session.id === comment.authorId;
+    const hasModeratorRole = session.role === 'owner' || session.role === 'admin' || session.role === 'moderator';
+
+    if (!isAuthor && !hasModeratorRole) {
+      return NextResponse.json({ error: 'Insufficient permissions.' }, { status: 403 });
     }
 
     await db
@@ -316,14 +359,19 @@ export async function DELETE(request: NextRequest) {
       .bind(nowISO(), targetCommentId)
       .run();
 
-    // Log activity
+    // Log activity (different action depending on whether it's self-delete or moderator action)
+    const action = isAuthor && !hasModeratorRole ? 'comment_self_deleted' : 'comment_deleted';
+    const details = isAuthor && !hasModeratorRole
+      ? `Self-deleted own comment ${targetCommentId}`
+      : `Deleted comment ${targetCommentId}`;
+
     await db
       .prepare('INSERT INTO ActivityLog (id, userId, action, details, ipAddress, createdAt) VALUES (?, ?, ?, ?, ?, ?)')
       .bind(
         `log-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         session.id,
-        'comment_deleted',
-        `Deleted comment ${targetCommentId}`,
+        action,
+        details,
         request.headers.get('x-forwarded-for') || request.headers.get('cf-connecting-ip') || 'unknown',
         nowISO()
       )
