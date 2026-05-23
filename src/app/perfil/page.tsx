@@ -1,15 +1,16 @@
 'use client';
 
 import { useState, useEffect, useRef, Suspense } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Mail, Calendar, Camera, Crown, Lock, Save,
-  MessageCircle, Edit3, X, Check, Shield, Star, Unlink, Loader2, Trash2, AlertTriangle
+  Edit3, X, Check, Shield, Star, Loader2, Trash2, AlertTriangle,
+  Clock, MessageSquare, Award, Settings, ChevronRight, Eye, EyeOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -27,10 +28,9 @@ interface UserProfile {
   role: string;
   isPremium: boolean;
   isBanned: boolean;
-  discordLinked: boolean;
-  discordId?: string;
   createdAt?: string;
-  _count?: { comments: number };
+  updatedAt?: string;
+  commentCount?: number;
 }
 
 export default function Perfil() {
@@ -47,13 +47,11 @@ export default function Perfil() {
 
 function PerfilContent() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [editing, setEditing] = useState(false);
   const [editNickname, setEditNickname] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showUnlinkDialog, setShowUnlinkDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
@@ -62,10 +60,11 @@ function PerfilContent() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmNewPassword, setConfirmNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [linkingDiscord, setLinkingDiscord] = useState(false);
-  const [unlinkingDiscord, setUnlinkingDiscord] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/auth/session')
@@ -84,78 +83,7 @@ function PerfilContent() {
           setUser(prev => (prev ? { ...prev, ...d.user } : d.user));
         }
       });
-
-    // Handle Discord OAuth callback messages
-    const discordSuccess = searchParams.get('discord_success');
-    const discordError = searchParams.get('discord_error');
-    const syncedRole = searchParams.get('role');
-
-    if (discordSuccess) {
-      toast.success('Discord vinculado correctamente', {
-        description: syncedRole ? `Tu rol se sincronizó a: ${syncedRole}` : undefined,
-      });
-      // Clean URL params
-      window.history.replaceState({}, '', '/perfil');
-    }
-
-    if (discordError) {
-      const errorMessages: Record<string, string> = {
-        access_denied: 'Acceso denegado por Discord.',
-        missing_params: 'Parámetros faltantes.',
-        invalid_state: 'Sesión inválida, intenta de nuevo.',
-        user_not_found: 'Usuario no encontrado.',
-        already_linked: 'Tu cuenta ya está vinculada con Discord.',
-        discord_already_linked: 'Esa cuenta de Discord ya está vinculada a otro usuario.',
-        token_exchange_failed: 'Error al obtener token de Discord.',
-        user_fetch_failed: 'Error al obtener información de Discord.',
-        oauth_not_configured: 'OAuth2 no está configurado por el administrador.',
-        internal_error: 'Error interno del servidor.',
-      };
-
-      toast.error('Error al vincular Discord', {
-        description: errorMessages[discordError] || discordError,
-      });
-      window.history.replaceState({}, '', '/perfil');
-    }
-  }, [router, searchParams]);
-
-  const handleDiscordLink = async () => {
-    setLinkingDiscord(true);
-    try {
-      const res = await fetch('/api/auth/discord/link');
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.error || 'Error al iniciar vinculación');
-        return;
-      }
-      const data = await res.json();
-      // Redirect to Discord OAuth
-      window.location.href = data.url;
-    } catch {
-      toast.error('Error de conexión');
-    } finally {
-      setLinkingDiscord(false);
-    }
-  };
-
-  const handleDiscordUnlink = async () => {
-    setUnlinkingDiscord(true);
-    try {
-      const res = await fetch('/api/auth/discord/unlink', { method: 'POST' });
-      if (!res.ok) {
-        const data = await res.json();
-        toast.error(data.error || 'Error al desvincular');
-        return;
-      }
-      setUser(prev => (prev ? { ...prev, discordLinked: false, discordId: undefined } : prev));
-      toast.success('Discord desvinculado correctamente');
-      setShowUnlinkDialog(false);
-    } catch {
-      toast.error('Error de conexión');
-    } finally {
-      setUnlinkingDiscord(false);
-    }
-  };
+  }, [router]);
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -177,7 +105,7 @@ function PerfilContent() {
       setUser(prev => (prev ? { ...prev, avatar: data.avatar } : prev));
       toast.success('Avatar actualizado');
     } catch {
-      toast.error('Error de conexión');
+      toast.error('Error de conexion');
     } finally {
       setUploadingAvatar(false);
     }
@@ -185,7 +113,7 @@ function PerfilContent() {
 
   const handleSaveProfile = async () => {
     if (!editNickname.trim()) {
-      toast.error('El nickname no puede estar vacío');
+      toast.error('El nickname no puede estar vacio');
       return;
     }
     setLoading(true);
@@ -212,15 +140,15 @@ function PerfilContent() {
 
   const handleChangePassword = async () => {
     if (newPassword !== confirmNewPassword) {
-      toast.error('Las contraseñas no coinciden');
+      toast.error('Las contrasenas no coinciden');
       return;
     }
     if (newPassword.length < 6) {
-      toast.error('Mínimo 6 caracteres');
+      toast.error('Minimo 6 caracteres');
       return;
     }
     if (!currentPassword) {
-      toast.error('Ingresa tu contraseña actual');
+      toast.error('Ingresa tu contrasena actual');
       return;
     }
     setLoading(true);
@@ -232,10 +160,10 @@ function PerfilContent() {
       });
       if (!res.ok) {
         const d = await res.json();
-        toast.error(d.error || 'Error al cambiar contraseña');
+        toast.error(d.error || 'Error al cambiar contrasena');
         return;
       }
-      toast.success('Contraseña actualizada');
+      toast.success('Contrasena actualizada');
       setShowPasswordModal(false);
       setCurrentPassword('');
       setNewPassword('');
@@ -249,7 +177,7 @@ function PerfilContent() {
 
   const handleDeleteAccount = async () => {
     if (!deletePassword) {
-      toast.error('Ingresa tu contraseña');
+      toast.error('Ingresa tu contrasena');
       return;
     }
     if (deleteConfirmText !== 'BORRAR') {
@@ -292,10 +220,10 @@ function PerfilContent() {
   }
 
   const roleColors: Record<string, string> = {
-    owner: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-    admin: 'bg-red-500/20 text-red-400 border-red-500/30',
-    moderator: 'bg-[#4D9FFF]/20 text-[#4D9FFF] border-[#4D9FFF]/30',
-    collaborator: 'bg-green-500/20 text-green-400 border-green-500/30',
+    owner: 'from-yellow-500/20 to-amber-600/20 text-yellow-300 border-yellow-500/30',
+    admin: 'from-red-500/20 to-rose-600/20 text-red-300 border-red-500/30',
+    moderator: 'from-[#4D9FFF]/20 to-blue-600/20 text-[#4D9FFF] border-[#4D9FFF]/30',
+    collaborator: 'from-green-500/20 to-emerald-600/20 text-green-300 border-green-500/30',
   };
   const roleLabels: Record<string, string> = {
     owner: 'Owner',
@@ -304,480 +232,585 @@ function PerfilContent() {
     collaborator: 'Colaborador',
     user: 'Usuario',
   };
+  const roleIcons: Record<string, React.ReactNode> = {
+    owner: <Crown size={14} />,
+    admin: <Shield size={14} />,
+    moderator: <Shield size={14} />,
+    collaborator: <Star size={14} />,
+    user: <User size={14} />,
+  };
+
+  const memberSince = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : 'Desconocido';
+
+  const memberDays = user.createdAt
+    ? Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.15 },
+    },
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+  };
 
   return (
     <div className="min-h-screen bg-[#080818] text-white flex flex-col">
       <Navbar />
-      <main className="flex-1 pt-28 pb-20 px-4">
-        <div className="max-w-4xl mx-auto">
+      <main className="flex-1 pt-24 pb-20 px-4">
+        <div className="max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6"
           >
-            <h1 className="section-title text-white mb-8">
-              Mi <span className="brand-gradient-text">Perfil</span>
-            </h1>
+            {/* === PROFILE HERO HEADER === */}
+            <motion.div
+              variants={itemVariants}
+              className="relative overflow-hidden rounded-2xl"
+            >
+              {/* Gradient background banner */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FF2D78]/10 via-[#7C3AED]/10 to-[#4D9FFF]/10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24] via-transparent to-transparent" />
+              {/* Decorative circles */}
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#FF2D78]/8 rounded-full blur-3xl" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#4D9FFF]/8 rounded-full blur-3xl" />
 
-            {/* Main Profile Card */}
-            <div className="glass-card p-6 sm:p-8 mb-8">
-              {/* Avatar & Info Header */}
-              <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
-                <div
-                  className="relative group cursor-pointer"
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <div className="w-28 h-28 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-[#FF2D78]/50 transition-all duration-300">
-                    {user.avatar ? (
-                      <img
-                        src={user.avatar}
-                        alt={user.nickname}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center">
-                        <User size={40} className="text-white" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="absolute inset-0 bg-black/50 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                    {uploadingAvatar ? (
-                      <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
-                    ) : (
-                      <Camera size={24} className="text-white" />
-                    )}
-                  </div>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    onChange={handleAvatarUpload}
-                    className="hidden"
-                  />
-                </div>
-
-                <div className="text-center sm:text-left">
-                  <div className="flex items-center gap-3 flex-wrap justify-center sm:justify-start">
-                    <h2
-                      className="text-2xl font-bold text-white"
-                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                    >
-                      {user.nickname}
-                    </h2>
-                    {user.isPremium && (
-                      <span className="flex items-center gap-1 text-yellow-400 text-sm font-medium">
-                        <Crown size={16} /> Premium
-                      </span>
-                    )}
-                    <span
-                      className={`text-xs px-2.5 py-1 rounded-full border ${
-                        roleColors[user.role] || 'bg-white/10 text-white/50 border-white/20'
-                      }`}
-                    >
-                      {roleLabels[user.role] || user.role}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4 mt-2 text-sm text-white/40">
-                    {user.createdAt && (
-                      <span className="flex items-center gap-1">
-                        <Calendar size={14} />
-                        {new Date(user.createdAt).toLocaleDateString('es-ES', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                        })}
-                      </span>
-                    )}
-                    {user.email && (
-                      <span className="flex items-center gap-1">
-                        <Mail size={14} />
-                        {user.email}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Edit Section */}
-              <div className="border-t border-white/10 pt-6">
-                {!editing ? (
-                  <button
-                    onClick={() => {
-                      setEditing(true);
-                      setEditNickname(user.nickname);
-                      setEditEmail(user.email || '');
-                    }}
-                    className="btn-outline text-sm px-5 py-2.5 flex items-center gap-2"
+              <div className="relative p-6 sm:p-8 md:p-10">
+                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                  {/* Avatar */}
+                  <div
+                    className="relative group cursor-pointer shrink-0"
+                    onClick={() => fileInputRef.current?.click()}
                   >
-                    <Edit3 size={16} /> Editar Perfil
-                  </button>
-                ) : (
-                  <div className="space-y-4">
-                    <div>
-                      <label className="text-xs text-white/40 block mb-1.5">Nickname</label>
-                      <div className="relative">
-                        <User
-                          size={16}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"
+                    {/* Avatar glow ring */}
+                    <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] opacity-60 group-hover:opacity-100 blur-sm transition-opacity duration-500" />
+                    <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-white/10 bg-[#0d0d24]">
+                      {user.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.nickname}
+                          className="w-full h-full object-cover"
                         />
-                        <input
-                          type="text"
-                          value={editNickname}
-                          onChange={e => setEditNickname(e.target.value)}
-                          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 transition-all"
-                          placeholder="Tu nickname"
-                        />
-                      </div>
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center">
+                          <User size={48} className="text-white/80" />
+                        </div>
+                      )}
                     </div>
-                    <div>
-                      <label className="text-xs text-white/40 block mb-1.5">
-                        Correo electrónico (opcional)
-                      </label>
-                      <div className="relative">
-                        <Mail
-                          size={16}
-                          className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"
-                        />
-                        <input
-                          type="email"
-                          value={editEmail}
-                          onChange={e => setEditEmail(e.target.value)}
-                          className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 transition-all"
-                          placeholder="correo@ejemplo.com"
-                        />
-                      </div>
+                    {/* Hover overlay */}
+                    <div className="absolute inset-1 rounded-xl bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-sm">
+                      {uploadingAvatar ? (
+                        <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1">
+                          <Camera size={20} className="text-white" />
+                          <span className="text-[10px] text-white/70">Cambiar</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="flex gap-3">
-                      <button
-                        onClick={handleSaveProfile}
-                        disabled={loading}
-                        className="btn-primary text-sm px-5 py-2.5 disabled:opacity-50 flex items-center gap-2"
+                    {/* Online status dot */}
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#0d0d24] flex items-center justify-center">
+                      <div className="w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-[#0d0d24]" />
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
+                    />
+                  </div>
+
+                  {/* User Info */}
+                  <div className="text-center md:text-left flex-1">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 mb-3">
+                      <h2
+                        className="text-3xl sm:text-4xl font-bold text-white tracking-tight"
+                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                       >
-                        <Save size={16} />
-                        {loading ? 'Guardando...' : 'Guardar'}
-                      </button>
-                      <button
-                        onClick={() => setEditing(false)}
-                        className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-all flex items-center gap-2"
+                        {user.nickname}
+                      </h2>
+                      {user.isPremium && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-full"
+                        >
+                          <Crown size={14} className="fill-yellow-300" />
+                          PREMIUM
+                        </motion.span>
+                      )}
+                    </div>
+
+                    {/* Role badge */}
+                    <div className="flex items-center gap-2 justify-center md:justify-start mb-4">
+                      <span
+                        className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border bg-gradient-to-r ${
+                          roleColors[user.role] || 'bg-white/10 text-white/50 border-white/20'
+                        }`}
                       >
-                        <X size={16} /> Cancelar
-                      </button>
+                        {roleIcons[user.role]}
+                        {roleLabels[user.role] || user.role}
+                      </span>
+                    </div>
+
+                    {/* Meta info */}
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-white/50 justify-center md:justify-start">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar size={14} className="text-[#FF2D78]/60" />
+                        {memberSince}
+                      </span>
+                      {memberDays > 0 && (
+                        <span className="flex items-center gap-1.5">
+                          <Clock size={14} className="text-[#4D9FFF]/60" />
+                          {memberDays} dias como miembro
+                        </span>
+                      )}
+                      {user.email && (
+                        <span className="flex items-center gap-1.5">
+                          <Mail size={14} className="text-[#a855f7]/60" />
+                          {user.email}
+                        </span>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
 
-              {/* Password Change */}
-              <div className="border-t border-white/10 pt-6 mt-6">
-                <button
-                  onClick={() => setShowPasswordModal(true)}
-                  className="flex items-center gap-2 text-sm text-white/40 hover:text-[#FF2D78] transition-colors"
-                >
-                  <Lock size={16} /> Cambiar Contraseña
-                </button>
-              </div>
-            </div>
-
-            {/* Discord Link Card */}
-            <div className="glass-card p-6 mb-8">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center">
-                  <MessageCircle size={20} className="text-[#5865F2]" />
+                  {/* Action button - desktop */}
+                  <div className="hidden md:flex shrink-0">
+                    {!editing ? (
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => {
+                          setEditing(true);
+                          setEditNickname(user.nickname);
+                          setEditEmail(user.email || '');
+                        }}
+                        className="btn-outline text-sm px-6 py-3"
+                      >
+                        <Edit3 size={16} />
+                        Editar Perfil
+                      </motion.button>
+                    ) : (
+                      <div className="flex gap-2">
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={handleSaveProfile}
+                          disabled={loading}
+                          className="btn-primary text-sm px-5 py-3 disabled:opacity-50"
+                        >
+                          <Save size={16} />
+                          {loading ? 'Guardando...' : 'Guardar'}
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => setEditing(false)}
+                          className="px-5 py-3 rounded-full bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-all"
+                        >
+                          <X size={16} />
+                        </motion.button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h3
-                    className="font-bold text-white"
+
+                {/* Edit Form - inline below header (mobile friendly) */}
+                <AnimatePresence>
+                  {editing && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-6 pt-6 border-t border-white/10 grid sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                            Nickname
+                          </label>
+                          <div className="relative">
+                            <User
+                              size={16}
+                              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25"
+                            />
+                            <input
+                              type="text"
+                              value={editNickname}
+                              onChange={e => setEditNickname(e.target.value)}
+                              className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 focus:bg-white/8 transition-all placeholder:text-white/20"
+                              placeholder="Tu nickname"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                            Correo electronico
+                          </label>
+                          <div className="relative">
+                            <Mail
+                              size={16}
+                              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25"
+                            />
+                            <input
+                              type="email"
+                              value={editEmail}
+                              onChange={e => setEditEmail(e.target.value)}
+                              className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 focus:bg-white/8 transition-all placeholder:text-white/20"
+                              placeholder="correo@ejemplo.com"
+                            />
+                          </div>
+                        </div>
+                        {/* Mobile save buttons */}
+                        <div className="flex gap-2 sm:hidden">
+                          <button
+                            onClick={handleSaveProfile}
+                            disabled={loading}
+                            className="btn-primary text-sm px-5 py-2.5 disabled:opacity-50 flex-1"
+                          >
+                            <Save size={16} />
+                            {loading ? 'Guardando...' : 'Guardar'}
+                          </button>
+                          <button
+                            onClick={() => setEditing(false)}
+                            className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-all"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+
+            {/* === STATS ROW === */}
+            <motion.div
+              variants={itemVariants}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-4"
+            >
+              {[
+                {
+                  icon: <MessageSquare size={18} />,
+                  value: user.commentCount || 0,
+                  label: 'Comentarios',
+                  color: 'text-[#FF2D78]',
+                  bg: 'from-[#FF2D78]/10 to-[#FF2D78]/5',
+                  border: 'border-[#FF2D78]/15',
+                },
+                {
+                  icon: <Award size={18} />,
+                  value: user.role !== 'user' ? 'Si' : 'No',
+                  label: 'Verificado',
+                  color: user.role !== 'user' ? 'text-green-400' : 'text-white/30',
+                  bg: user.role !== 'user' ? 'from-green-500/10 to-green-500/5' : 'from-white/5 to-white/3',
+                  border: user.role !== 'user' ? 'border-green-500/15' : 'border-white/10',
+                },
+                {
+                  icon: <Crown size={18} />,
+                  value: user.isPremium ? 'Si' : 'No',
+                  label: 'Premium',
+                  color: user.isPremium ? 'text-yellow-400' : 'text-white/30',
+                  bg: user.isPremium ? 'from-yellow-500/10 to-yellow-500/5' : 'from-white/5 to-white/3',
+                  border: user.isPremium ? 'border-yellow-500/15' : 'border-white/10',
+                },
+                {
+                  icon: <Calendar size={18} />,
+                  value: memberDays,
+                  label: 'Dias activo',
+                  color: 'text-[#4D9FFF]',
+                  bg: 'from-[#4D9FFF]/10 to-[#4D9FFF]/5',
+                  border: 'border-[#4D9FFF]/15',
+                },
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${stat.bg} border ${stat.border} p-4 sm:p-5 text-center`}
+                >
+                  <div className={`${stat.color} mb-2 flex justify-center`}>{stat.icon}</div>
+                  <p
+                    className={`text-2xl sm:text-3xl font-bold ${stat.color}`}
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                   >
-                    Discord
-                  </h3>
-                  <p className="text-xs text-white/40">Sincronización de roles y perfil</p>
-                </div>
-              </div>
-
-              {user.discordLinked ? (
-                <div className="space-y-4">
-                  <div className="flex items-center gap-2 text-sm text-white/60">
-                    <Check size={16} className="text-green-400" />
-                    Cuenta vinculada con Discord
-                    {user.discordId && (
-                      <span className="text-white/30 text-xs">({user.discordId})</span>
-                    )}
-                  </div>
-
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-[#5865F2]/5 border border-[#5865F2]/10">
-                    <Shield size={16} className="text-[#5865F2] shrink-0" />
-                    <p className="text-xs text-white/50">
-                      Tus roles de Discord se sincronizan automáticamente con tu cuenta del club.
-                      Si obtienes un rol nuevo en Discord, se reflejará aquí.
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => setShowUnlinkDialog(true)}
-                    className="flex items-center gap-2 text-sm text-red-400/70 hover:text-red-400 transition-colors"
-                  >
-                    <Unlink size={14} />
-                    Desvincular cuenta de Discord
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <p className="text-sm text-white/50">
-                    Vincula tu cuenta de Discord para sincronizar roles, avatar y obtener
-                    funciones especiales. Cuando obtengas un rol en Discord (Admin, Mod, Colaborador),
-                    se reflejará automáticamente en tu cuenta del club.
+                    {stat.value}
                   </p>
+                  <p className="text-[11px] sm:text-xs text-white/40 mt-1 font-medium uppercase tracking-wider">
+                    {stat.label}
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    {[
-                      { icon: <Shield size={16} />, label: 'Sincronización de roles', desc: 'Admin, Mod, Colab' },
-                      { icon: <Star size={16} />, label: 'Avatar automático', desc: 'Se sincroniza de Discord' },
-                      { icon: <Crown size={16} />, label: 'Acceso especial', desc: 'Funciones exclusivas' },
-                    ].map((item, i) => (
-                      <div key={i} className="p-3 rounded-xl bg-white/5 border border-white/5 text-center">
-                        <div className="flex justify-center text-[#5865F2] mb-1.5">{item.icon}</div>
-                        <p className="text-xs font-medium text-white/70">{item.label}</p>
-                        <p className="text-[10px] text-white/30 mt-0.5">{item.desc}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={handleDiscordLink}
-                    disabled={linkingDiscord}
-                    className="w-full py-3 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 border hover:bg-[#5865F2]/10"
-                    style={{ borderColor: '#5865F2', color: '#5865F2' }}
-                  >
-                    {linkingDiscord ? (
-                      <>
-                        <Loader2 size={16} className="animate-spin" />
-                        Redirigiendo a Discord...
-                      </>
-                    ) : (
-                      <>
-                        <MessageCircle size={16} />
-                        Vincular con Discord
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Stats Card */}
-            <div className="glass-card p-6">
+            {/* === SETTINGS SECTION === */}
+            <motion.div variants={itemVariants}>
               <h3
-                className="font-bold text-white mb-4"
+                className="text-lg font-bold text-white/80 mb-4 flex items-center gap-2"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                Estadísticas
+                <Settings size={18} className="text-white/40" />
+                Configuracion
               </h3>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
-                  <p
-                    className="text-2xl font-bold text-[#FF2D78]"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {user._count?.comments || 0}
-                  </p>
-                  <p className="text-xs text-white/40 mt-1">Comentarios</p>
-                </div>
-                <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
-                  <p
-                    className="text-2xl font-bold text-[#4D9FFF]"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {user.role !== 'user' ? '✓' : '—'}
-                  </p>
-                  <p className="text-xs text-white/40 mt-1">Verificado</p>
-                </div>
-                <div className="text-center p-4 rounded-xl bg-white/5 border border-white/10">
-                  <p
-                    className="text-2xl font-bold text-[#a855f7]"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    {user.isPremium ? '★' : '—'}
-                  </p>
-                  <p className="text-xs text-white/40 mt-1">Premium</p>
-                </div>
-              </div>
-            </div>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {/* Change Password Card */}
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => setShowPasswordModal(true)}
+                  className="group relative overflow-hidden rounded-xl bg-white/3 border border-white/8 p-5 text-left transition-all hover:bg-white/6 hover:border-white/15"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-[#FF2D78]/10 border border-[#FF2D78]/15 flex items-center justify-center shrink-0 group-hover:bg-[#FF2D78]/15 transition-colors">
+                      <Lock size={20} className="text-[#FF2D78]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white text-sm mb-1">Cambiar Contrasena</p>
+                      <p className="text-xs text-white/40 leading-relaxed">
+                        Actualiza tu contrasena para mantener tu cuenta segura
+                      </p>
+                    </div>
+                    <ChevronRight size={16} className="text-white/20 mt-1 group-hover:text-white/40 transition-colors shrink-0" />
+                  </div>
+                </motion.button>
 
-            {/* Danger Zone Card */}
-            <div className="glass-card p-6 mt-8 border border-red-500/20">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center">
-                  <AlertTriangle size={20} className="text-red-400" />
-                </div>
-                <div>
-                  <h3
-                    className="font-bold text-red-400"
-                    style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                  >
-                    Zona de Peligro
-                  </h3>
-                  <p className="text-xs text-white/40">Acciones irreversibles</p>
-                </div>
+                {/* Edit Profile Card */}
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => {
+                    setEditing(true);
+                    setEditNickname(user.nickname);
+                    setEditEmail(user.email || '');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="group relative overflow-hidden rounded-xl bg-white/3 border border-white/8 p-5 text-left transition-all hover:bg-white/6 hover:border-white/15"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-[#4D9FFF]/10 border border-[#4D9FFF]/15 flex items-center justify-center shrink-0 group-hover:bg-[#4D9FFF]/15 transition-colors">
+                      <Edit3 size={20} className="text-[#4D9FFF]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white text-sm mb-1">Editar Informacion</p>
+                      <p className="text-xs text-white/40 leading-relaxed">
+                        Modifica tu nickname, correo y foto de perfil
+                      </p>
+                    </div>
+                    <ChevronRight size={16} className="text-white/20 mt-1 group-hover:text-white/40 transition-colors shrink-0" />
+                  </div>
+                </motion.button>
               </div>
+            </motion.div>
 
-              <div className="space-y-4">
-                <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10">
-                  <p className="text-sm text-white/60 mb-1">
-                    <strong className="text-white/80">Eliminar mi cuenta</strong>
-                  </p>
-                  <p className="text-xs text-white/40 mb-4">
-                    Esta accion no se puede deshacer. Se eliminaran permanentemente tu perfil, 
-                    tus comentarios (se marcaran como eliminados), tus notificaciones y tu historial de actividad. 
-                    {user.role === 'owner' && (
-                      <span className="text-red-400 font-medium"> Como owner, no puedes eliminar tu cuenta.</span>
-                    )}
-                  </p>
-                  <button
-                    onClick={() => {
-                      setDeletePassword('');
-                      setDeleteConfirmText('');
-                      setShowDeleteDialog(true);
-                    }}
-                    disabled={user.role === 'owner'}
-                    className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  >
-                    <Trash2 size={14} />
-                    Eliminar mi cuenta
-                  </button>
+            {/* === DANGER ZONE === */}
+            <motion.div variants={itemVariants}>
+              <h3
+                className="text-lg font-bold text-red-400/80 mb-4 flex items-center gap-2"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                <AlertTriangle size={18} />
+                Zona de Peligro
+              </h3>
+              <div className="relative overflow-hidden rounded-xl border border-red-500/15 bg-red-500/[0.03] p-6">
+                {/* Subtle red gradient */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-500/5 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                      <Trash2 size={22} className="text-red-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-white text-sm mb-1">Eliminar mi cuenta</h4>
+                      <p className="text-xs text-white/40 leading-relaxed mb-4">
+                        Esta accion no se puede deshacer. Se eliminaran permanentemente tu perfil,
+                        tus comentarios (se marcaran como eliminados), tus notificaciones y tu historial de actividad.
+                        {user.role === 'owner' && (
+                          <span className="text-red-400 font-medium block mt-1">
+                            Como owner, no puedes eliminar tu cuenta.
+                          </span>
+                        )}
+                      </p>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setDeletePassword('');
+                          setDeleteConfirmText('');
+                          setShowDeleteDialog(true);
+                        }}
+                        disabled={user.role === 'owner'}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-semibold hover:bg-red-500/20 hover:border-red-500/30 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <Trash2 size={14} />
+                        Eliminar cuenta
+                      </motion.button>
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           </motion.div>
         </div>
       </main>
 
-      {/* Password Modal */}
+      {/* === PASSWORD MODAL === */}
       <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
-        <DialogContent className="bg-[#0d0d24] border border-white/10 text-white sm:max-w-sm">
+        <DialogContent className="bg-[#0d0d24] border border-white/10 text-white sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Cambiar Contraseña
+            <DialogTitle className="text-white flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <Lock size={18} className="text-[#FF2D78]" />
+              Cambiar Contrasena
             </DialogTitle>
             <DialogDescription className="text-white/40">
-              Ingresa tu contraseña actual y la nueva contraseña.
+              Ingresa tu contrasena actual y la nueva contrasena.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 mt-2">
-            <input
-              type="password"
-              placeholder="Contraseña actual"
-              value={currentPassword}
-              onChange={e => setCurrentPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/25"
-            />
-            <input
-              type="password"
-              placeholder="Nueva contraseña"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/25"
-            />
-            <input
-              type="password"
-              placeholder="Confirmar nueva contraseña"
-              value={confirmNewPassword}
-              onChange={e => setConfirmNewPassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/25"
-            />
+          <div className="space-y-4 mt-2">
+            <div>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                Contrasena actual
+              </label>
+              <div className="relative">
+                <input
+                  type={showCurrentPassword ? 'text' : 'password'}
+                  placeholder="Tu contrasena actual"
+                  value={currentPassword}
+                  onChange={e => setCurrentPassword(e.target.value)}
+                  className="w-full px-4 py-3 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/20 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                >
+                  {showCurrentPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                Nueva contrasena
+              </label>
+              <div className="relative">
+                <input
+                  type={showNewPassword ? 'text' : 'password'}
+                  placeholder="Minimo 6 caracteres"
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  className="w-full px-4 py-3 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/20 transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowNewPassword(!showNewPassword)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                >
+                  {showNewPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                </button>
+              </div>
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                Confirmar nueva contrasena
+              </label>
+              <input
+                type="password"
+                placeholder="Repite la nueva contrasena"
+                value={confirmNewPassword}
+                onChange={e => setConfirmNewPassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/20 transition-all"
+              />
+            </div>
             <button
               onClick={handleChangePassword}
               disabled={loading}
-              className="w-full btn-primary text-sm py-2.5 disabled:opacity-50 mt-2"
+              className="w-full btn-primary text-sm py-3 disabled:opacity-50 mt-1"
             >
-              {loading ? 'Cambiando...' : 'Cambiar Contraseña'}
+              {loading ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Cambiando...
+                </>
+              ) : (
+                <>
+                  <Lock size={16} />
+                  Cambiar Contrasena
+                </>
+              )}
             </button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Unlink Discord Confirmation Dialog */}
-      <Dialog open={showUnlinkDialog} onOpenChange={setShowUnlinkDialog}>
-        <DialogContent className="bg-[#0d0d24] border border-white/10 text-white sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              Desvincular Discord
-            </DialogTitle>
-            <DialogDescription className="text-white/40">
-              ¿Estás seguro de que deseas desvincular tu cuenta de Discord? Tu rol podría cambiar si fue asignado por Discord.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 mt-4">
-            <button
-              onClick={() => setShowUnlinkDialog(false)}
-              className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all"
-            >
-              Cancelar
-            </button>
-            <button
-              onClick={handleDiscordUnlink}
-              disabled={unlinkingDiscord}
-              className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-all flex items-center gap-2 disabled:opacity-50"
-            >
-              {unlinkingDiscord ? (
-                <><Loader2 size={14} className="animate-spin" /> Desvinculando...</>
-              ) : (
-                <><Unlink size={14} /> Desvincular</>
-              )}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Account Confirmation Dialog */}
+      {/* === DELETE ACCOUNT CONFIRMATION === */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <DialogContent className="bg-[#0d0d24] border border-red-500/20 text-white sm:max-w-sm">
+        <DialogContent className="bg-[#0d0d24] border border-red-500/20 text-white sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-red-400" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <DialogTitle className="text-red-400 flex items-center gap-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <AlertTriangle size={18} />
               Eliminar Cuenta
             </DialogTitle>
             <DialogDescription className="text-white/40">
               Esta accion es permanente y no se puede deshacer.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 mt-2">
-            <div className="p-3 rounded-xl bg-red-500/5 border border-red-500/10">
-              <p className="text-xs text-white/50">
-                Se eliminara tu perfil, tus comentarios se marcaran como eliminados, 
+          <div className="space-y-4 mt-2">
+            <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/10">
+              <p className="text-xs text-white/50 leading-relaxed">
+                Se eliminara tu perfil, tus comentarios se marcaran como eliminados,
                 se borraran tus notificaciones y tu historial de actividad.
               </p>
             </div>
-            <input
-              type="password"
-              placeholder="Tu contraseña"
-              value={deletePassword}
-              onChange={e => setDeletePassword(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-red-500/50 placeholder:text-white/25"
-            />
             <div>
-              <p className="text-xs text-white/40 mb-1.5">
-                Escribe <span className="text-red-400 font-bold">BORRAR</span> para confirmar:
-              </p>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                Tu contrasena
+              </label>
+              <input
+                type="password"
+                placeholder="Ingresa tu contrasena"
+                value={deletePassword}
+                onChange={e => setDeletePassword(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-red-500/50 placeholder:text-white/20 transition-all"
+              />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                Escribe <span className="text-red-400 font-bold">BORRAR</span> para confirmar
+              </label>
               <input
                 type="text"
                 value={deleteConfirmText}
                 onChange={e => setDeleteConfirmText(e.target.value)}
                 placeholder="BORRAR"
-                className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-red-500/50 placeholder:text-white/25"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-red-500/50 placeholder:text-white/20 transition-all"
               />
             </div>
           </div>
           <DialogFooter className="gap-2 mt-4">
             <button
               onClick={() => setShowDeleteDialog(false)}
-              className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all"
+              className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all font-medium"
             >
               Cancelar
             </button>
             <button
               onClick={handleDeleteAccount}
               disabled={deletingAccount || !deletePassword || deleteConfirmText !== 'BORRAR'}
-              className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-all flex items-center gap-2 disabled:opacity-50"
+              className="flex-1 px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {deletingAccount ? (
                 <><Loader2 size={14} className="animate-spin" /> Eliminando...</>
