@@ -6,7 +6,6 @@ import { ArrowRight, Calendar, Tag, X, Share2, Clock, Eye, ChevronRight, Sparkle
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackgroundParticles from '@/components/BackgroundParticles';
-import { CommentSection } from '@/components/CommentSection';
 
 interface NewsItem {
   id: number;
@@ -172,15 +171,7 @@ function NewsDetail({ item, onClose }: { item: NewsItem; onClose: () => void }) 
           })}
         </motion.div>
 
-        {/* Comments */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-          className="pt-8 border-t border-white/10"
-        >
-          <CommentSection targetId={item.id.toString()} targetType="news" />
-        </motion.div>
+
       </article>
     </div>
   );
