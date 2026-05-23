@@ -1,22 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Flag, Trash2, Send, User, ThumbsUp, ThumbsDown } from 'lucide-react';
-import { toast } from 'sonner';
-
-interface CommentAuthor {
-  id: string; nickname: string; avatar: string | null; role: string; isPremium: boolean;
-}
-interface CommentReply {
-  id: string; content: string; createdAt: string; isDeleted: boolean;
-  author: CommentAuthor; likes: number; dislikes: number;
-}
-interface Comment {
-  id: string; content: string; createdAt: string; likes: number; dislikes: number; isDeleted: boolean;
-  author: CommentAuthor; replies: CommentReply[];
-  _count: { reactions: number };
-}
+import { Heart, MessageCircle, Flag, Trash2, Send, User, Pencil, ChevronDown, ChevronUp, Loader2, ArrowUpDown } from 'lucide-react';
+import { useComments } from '@/hooks/useComments';
+import type { Comment, CommentReply } from '@/hooks/useComments';
 
 interface CommentSectionProps {
   targetId: string;
@@ -24,473 +11,594 @@ interface CommentSectionProps {
 }
 
 /* ──────────────────────────────────────────────────────────────
-   1. MONIKA COMMENTS (Original Pink)
+   SHARED THEME TYPES
    ────────────────────────────────────────────────────────────── */
-export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState('');
-  const [replyTo, setReplyTo] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState('');
-  const [user, setUser] = useState<{ id: string; nickname: string; role: string; avatar?: string | null } | null>(null);
-  const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchComments();
-    fetch('/api/auth/session').then(r => r.json()).then(d => { if (d.user) setUser(d.user); });
-  }, [targetId]);
+interface CommentTheme {
+  name: string;
+  titleStroke: string;
+  titleClass: string;
+  primary: string;
+  primaryBg: string;
+  primaryHover: string;
+  avatarBg: string;
+  avatarBgMuted: string;
+  border: string;
+  cardBg: string;
+  cardHover: string;
+  replyBorder: string;
+  cancelBg: string;
+  sortArrowColor: string;
+}
 
-  const fetchComments = async () => {
-    const res = await fetch(`/api/comments?targetId=${targetId}&targetType=${targetType}`);
-    const data = await res.json();
-    setComments(data.comments || []);
+const MONIKA_THEME: CommentTheme = {
+  name: 'monika',
+  titleStroke: '#ba609e',
+  titleClass: 'monika-title',
+  primary: '#FF2D78',
+  primaryBg: '#FF2D78',
+  primaryHover: '#d6336c',
+  avatarBg: '#FF2D78',
+  avatarBgMuted: '#FFB6C8/50',
+  border: '#FFB6C8/40',
+  cardBg: '#FFE6EA/50',
+  cardHover: '#FFE6EA/70',
+  replyBorder: '#FFB6C8/40',
+  cancelBg: '#FFE6EA',
+  sortArrowColor: '#FF2D78',
+};
+
+const NATSUKI_THEME: CommentTheme = {
+  name: 'natsuki',
+  titleStroke: '#FF3D7F',
+  titleClass: 'natsuki-title',
+  primary: '#E84393',
+  primaryBg: '#E84393',
+  primaryHover: '#D63384',
+  avatarBg: '#E84393',
+  avatarBgMuted: '#FF7EB3/50',
+  border: '#FF7EB3/50',
+  cardBg: '#FFE6EE/60',
+  cardHover: '#FFE6EE/80',
+  replyBorder: '#FF7EB3/40',
+  cancelBg: '#FFE6EE',
+  sortArrowColor: '#E84393',
+};
+
+const YURI_THEME: CommentTheme = {
+  name: 'yuri',
+  titleStroke: '#8A2BE2',
+  titleClass: 'yuri-title',
+  primary: '#8A2BE2',
+  primaryBg: '#8A2BE2',
+  primaryHover: '#6A1B9A',
+  avatarBg: '#8A2BE2',
+  avatarBgMuted: '#9B59B6/50',
+  border: '#9B59B6/50',
+  cardBg: '#F3E5F5/60',
+  cardHover: '#F3E5F5/80',
+  replyBorder: '#9B59B6/40',
+  cancelBg: '#F3E5F5',
+  sortArrowColor: '#8A2BE2',
+};
+
+/* ──────────────────────────────────────────────────────────────
+   SHARED SUB-COMPONENTS
+   ────────────────────────────────────────────────────────────── */
+
+function RoleBadge({ role }: { role: string }) {
+  const colors: Record<string, string> = {
+    admin: 'bg-red-100 text-red-600',
+    moderator: 'bg-blue-100 text-blue-600',
+    owner: 'bg-yellow-100 text-yellow-700',
+    collaborator: 'bg-green-100 text-green-600',
+  };
+  return role !== 'user'
+    ? <span className={`role-badge ${colors[role] || ''}`}>{role}</span>
+    : null;
+}
+
+function Avatar({ src, size, bg }: { src?: string | null; size: 'sm' | 'md'; bg: string }) {
+  const s = size === 'sm' ? 'w-8 h-8' : 'w-11 h-11';
+  const iconS = size === 'sm' ? 13 : 20;
+  return (
+    <div className={`${s} rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden`} style={{ backgroundColor: bg }}>
+      {src ? <img src={src} alt="" className="w-full h-full object-cover" /> : <User size={iconS} className="text-white" />}
+    </div>
+  );
+}
+
+function CommentInput({
+  value, onChange, onSubmit, disabled, placeholder, theme, compact,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  onSubmit: () => void;
+  disabled: boolean;
+  placeholder: string;
+  theme: CommentTheme;
+  compact?: boolean;
+}) {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey && value.trim()) {
+      e.preventDefault();
+      onSubmit();
+    }
   };
 
-  const submitComment = async (content: string, parentId?: string) => {
-    if (!user) { toast.error('Inicia sesión para comentar'); return; }
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/comments', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, targetId, targetType, parentId }),
-      });
-      if (!res.ok) { const d = await res.json(); toast.error(d.error); return; }
-      setNewComment(''); setReplyTo(null); setReplyText('');
-      fetchComments();
-      toast.success('Comentario publicado');
-    } catch { toast.error('Error al enviar'); } finally { setSubmitting(false); }
-  };
+  if (compact) {
+    return (
+      <div className="flex gap-2 mt-2">
+        <textarea
+          value={value}
+          onChange={e => onChange(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={placeholder}
+          rows={1}
+          maxLength={2000}
+          className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white text-gray-700 placeholder-gray-400 focus:outline-none transition-all resize-none"
+          style={{ fontFamily: "'Aller', sans-serif", border: `1px solid color-mix(in srgb, ${theme.primary} 40%, transparent)` }}
+        />
+        <button onClick={onSubmit} disabled={disabled || !value.trim()}
+          className="px-2.5 py-1.5 rounded-lg text-white disabled:opacity-50 flex items-center" style={{ backgroundColor: theme.primaryBg }}>
+          <Send size={11} />
+        </button>
+      </div>
+    );
+  }
 
-  const toggleLike    = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`,    { method: 'POST' }); fetchComments(); } catch {} };
-  const toggleDislike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/dislike`, { method: 'POST' }); fetchComments(); } catch {} };
-  const reportComment = async (id: string) => { try { await fetch(`/api/comments/${id}/report`, { method: 'POST' }); toast.success('Comentario reportado'); } catch {} };
-  const deleteComment = async (id: string) => { try { await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId: id }) }); fetchComments(); toast.success('Comentario eliminado'); } catch {} };
-  const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
+  return (
+    <div className="flex items-start gap-2">
+      <textarea
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        onKeyDown={handleKeyDown}
+        placeholder={placeholder}
+        rows={1}
+        maxLength={2000}
+        className="flex-1 px-4 py-2 rounded-xl text-sm bg-white text-gray-700 placeholder-gray-400 focus:outline-none transition-all resize-none min-h-[38px] max-h-[120px]"
+        style={{ fontFamily: "'Aller', sans-serif", border: `1px solid color-mix(in srgb, ${theme.primary} 40%, transparent)` }}
+      />
+      <div className="flex flex-col items-center gap-0.5">
+        <button onClick={onSubmit} disabled={disabled || !value.trim()}
+          className="w-10 h-10 flex items-center justify-center rounded-xl text-white disabled:opacity-40 transition-all"
+          style={{ backgroundColor: theme.primaryBg }}
+          onMouseOver={e => (e.currentTarget.style.backgroundColor = theme.primaryHover)}
+          onMouseOut={e => (e.currentTarget.style.backgroundColor = theme.primaryBg)}>
+          <Send size={15} />
+        </button>
+        {value.length > 0 && (
+          <span className="text-[10px] text-gray-400">{value.length}/{2000}</span>
+        )}
+      </div>
+    </div>
+  );
+}
 
-  // Responder a una reply: abre el input del comentario padre y precarga @mención
-  const replyToReply = (parentCommentId: string, authorNickname: string) => {
-    setReplyTo(parentCommentId);
-    setReplyText(`@${authorNickname} `);
-  };
+function SortDropdown({
+  sort, onSort, theme,
+}: {
+  sort: string;
+  onSort: (v: 'newest' | 'oldest' | 'most_liked') => void;
+  theme: CommentTheme;
+}) {
+  const labels: Record<string, string> = { newest: 'Más nuevos', oldest: 'Más antiguos', most_liked: 'Más gustados' };
+  return (
+    <div className="flex items-center gap-1">
+      <ArrowUpDown size={13} style={{ color: theme.sortArrowColor }} />
+      <select
+        value={sort}
+        onChange={e => onSort(e.target.value as 'newest' | 'oldest' | 'most_liked')}
+        className="text-[11px] bg-transparent text-gray-500 border-none focus:outline-none cursor-pointer"
+        style={{ fontFamily: "'Aller', sans-serif" }}
+      >
+        <option value="newest">Más nuevos</option>
+        <option value="oldest">Más antiguos</option>
+        <option value="most_liked">Más gustados</option>
+      </select>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   REPLY CARD (with all Facebook-like actions)
+   ────────────────────────────────────────────────────────────── */
+
+function ReplyCard({
+  reply, theme, ctx,
+}: {
+  reply: CommentReply;
+  theme: CommentTheme;
+  ctx: ReturnType<typeof useComments>;
+}) {
+  const liked = ctx.userLikedComments.has(reply.id);
+  const isOwn = ctx.isOwnComment(reply.author.id);
+  const isEditing = ctx.editId === reply.id;
+  const replyingToThis = ctx.replyToReply === reply.id;
+
+  return (
+    <div className="flex items-start gap-2">
+      <Avatar src={reply.author.avatar} size="sm" bg={`${theme.avatarBg}80`} />
+
+      <div className="flex-1 min-w-0">
+        {/* Author row */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+          <span className="text-xs font-semibold text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>
+            {reply.author.nickname}
+          </span>
+          <RoleBadge role={reply.author.role} />
+          {reply.author.isPremium && <span className="text-yellow-400 text-xs">★</span>}
+          <span className="text-[10px] text-gray-400">{ctx.timeAgo(reply.createdAt)}</span>
+        </div>
+
+        {/* Edit mode */}
+        {isEditing ? (
+          <div className="mt-1">
+            <textarea
+              value={ctx.editText}
+              onChange={e => ctx.setEditText(e.target.value)}
+              rows={2}
+              maxLength={2000}
+              className="w-full px-3 py-1.5 rounded-lg text-xs bg-white text-gray-700 focus:outline-none transition-all resize-none"
+              style={{ fontFamily: "'Aller', sans-serif", border: `1px solid color-mix(in srgb, ${theme.primary} 40%, transparent)` }}
+            />
+            <div className="flex items-center gap-2 mt-1">
+              <button onClick={() => ctx.editComment(reply.id)} disabled={ctx.submitting || !ctx.editText.trim()}
+                className="px-2.5 py-1 rounded-lg text-[10px] text-white disabled:opacity-50" style={{ backgroundColor: theme.primaryBg }}>
+                Guardar
+              </button>
+              <button onClick={ctx.cancelEdit} className="px-2.5 py-1 rounded-lg text-[10px] text-gray-500" style={{ backgroundColor: theme.cancelBg }}>
+                Cancelar
+              </button>
+              {ctx.editText.length > 0 && <span className="text-[10px] text-gray-400 ml-auto">{ctx.editText.length}/2000</span>}
+            </div>
+          </div>
+        ) : (
+          <p className="text-xs break-words text-gray-600 mt-0.5" style={{ fontFamily: "'Aller', sans-serif" }}>
+            {reply.content}
+          </p>
+        )}
+
+        {/* Actions */}
+        {!isEditing && (
+          <div className="flex items-center gap-2.5 mt-1" style={{ fontFamily: "'Aller', sans-serif" }}>
+            <button onClick={() => ctx.toggleLike(reply.id)}
+              className={`flex items-center gap-0.5 text-[10px] transition-colors ${liked ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'}`}>
+              <Heart size={12} fill={liked ? 'currentColor' : 'none'} />
+              {reply.likes > 0 && <span>{reply.likes}</span>}
+            </button>
+            <button onClick={() => ctx.startReplyToReply(reply.id, reply.parentCommentId || '')}
+              className="flex items-center gap-0.5 text-[10px] text-gray-400 hover:text-[#4D9FFF] transition-colors">
+              <MessageCircle size={12} />Responder
+            </button>
+            {!ctx.userReportedComments.has(reply.id) && (
+              <button onClick={() => ctx.reportComment(reply.id)}
+                className="flex items-center gap-0.5 text-[10px] text-gray-400 hover:text-yellow-500 transition-colors">
+                <Flag size={12} />
+              </button>
+            )}
+            {isOwn && (
+              <button onClick={() => ctx.startEdit(reply.id, reply.content)}
+                className="flex items-center gap-0.5 text-[10px] text-gray-400 hover:text-blue-500 transition-colors">
+                <Pencil size={12} />
+              </button>
+            )}
+            {(isOwn || ctx.canModerate) && (
+              <button onClick={() => ctx.deleteComment(reply.id)}
+                className="flex items-center gap-0.5 text-[10px] text-gray-400 hover:text-red-500 transition-colors">
+                <Trash2 size={12} />
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Reply to reply input */}
+        {replyingToThis && (
+          <CommentInput
+            value={ctx.replyText}
+            onChange={ctx.setReplyText}
+            onSubmit={() => { if (ctx.replyText.trim()) ctx.submitComment(ctx.replyText.trim(), ctx.replyTo!); }}
+            disabled={ctx.submitting}
+            placeholder={`Respondiendo a ${reply.author.nickname}...`}
+            theme={theme}
+            compact
+          />
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   MAIN COMMENT CARD (with all Facebook-like actions)
+   ────────────────────────────────────────────────────────────── */
+
+function CommentCard({
+  comment, theme, ctx,
+}: {
+  comment: Comment;
+  theme: CommentTheme;
+  ctx: ReturnType<typeof useComments>;
+}) {
+  const liked = ctx.userLikedComments.has(comment.id);
+  const isOwn = ctx.isOwnComment(comment.author.id);
+  const isEditing = ctx.editId === comment.id;
+  const showReplies = ctx.expandedReplies.has(comment.id);
+  const isReplying = ctx.replyTo === comment.id && !ctx.replyToReply;
+  const hasReplies = comment.replies && comment.replies.length > 0;
+
+  // Attach parentId to each reply for reply-to-reply functionality
+  const repliesWithParent = (comment.replies || []).map(r => ({
+    ...r,
+    parentCommentId: comment.id,
+  }));
+
+  return (
+    <motion.div
+      key={comment.id}
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="p-3 rounded-xl border hover:opacity-95 transition-all"
+      style={{
+        backgroundColor: theme.cardBg,
+        borderColor: `color-mix(in srgb, ${theme.primary} 30%, transparent)`,
+      }}
+    >
+      <div className="flex items-start gap-3">
+        <Avatar src={comment.author.avatar} size="md" bg={theme.avatarBg} />
+
+        <div className="flex-1 min-w-0">
+          {/* Author row */}
+          <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
+            <span className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Aller', sans-serif" }}>
+              {comment.author.nickname}
+            </span>
+            <RoleBadge role={comment.author.role} />
+            {comment.author.isPremium && <span className="text-yellow-400 text-xs">★</span>}
+            <span className="text-[11px] text-gray-400">{ctx.timeAgo(comment.createdAt)}</span>
+          </div>
+
+          {/* Content / Edit / Deleted */}
+          {comment.isDeleted ? (
+            <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p>
+          ) : isEditing ? (
+            <div className="mt-1">
+              <textarea
+                value={ctx.editText}
+                onChange={e => ctx.setEditText(e.target.value)}
+                rows={2}
+                maxLength={2000}
+                className="w-full px-3 py-2 rounded-lg text-sm bg-white text-gray-700 focus:outline-none transition-all resize-none"
+                style={{ fontFamily: "'Aller', sans-serif", border: `1px solid color-mix(in srgb, ${theme.primary} 40%, transparent)` }}
+              />
+              <div className="flex items-center gap-2 mt-1.5">
+                <button onClick={() => ctx.editComment(comment.id)} disabled={ctx.submitting || !ctx.editText.trim()}
+                  className="px-3 py-1.5 rounded-lg text-xs text-white disabled:opacity-50 transition-all"
+                  style={{ backgroundColor: theme.primaryBg }}>
+                  {ctx.submitting ? <Loader2 size={13} className="animate-spin" /> : 'Guardar'}
+                </button>
+                <button onClick={ctx.cancelEdit} className="px-3 py-1.5 rounded-lg text-xs text-gray-500 transition-all"
+                  style={{ backgroundColor: theme.cancelBg }}>
+                  Cancelar
+                </button>
+                <span className="text-[10px] text-gray-400 ml-auto">{ctx.editText.length}/2000</span>
+              </div>
+            </div>
+          ) : (
+            <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>
+              {comment.content}
+            </p>
+          )}
+
+          {/* Actions */}
+          {!comment.isDeleted && !isEditing && (
+            <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
+              <button onClick={() => ctx.toggleLike(comment.id)}
+                className={`flex items-center gap-1 text-xs transition-colors ${liked ? 'text-red-500' : 'text-gray-400 hover:text-gray-600'}`}>
+                <Heart size={14} fill={liked ? 'currentColor' : 'none'} />
+                {comment.likes > 0 && <span>{comment.likes}</span>}
+              </button>
+              <button onClick={() => isReplying ? ctx.cancelReply() : ctx.startReply(comment.id)}
+                className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors">
+                <MessageCircle size={14} />Responder
+              </button>
+              {!ctx.userReportedComments.has(comment.id) && (
+                <button onClick={() => ctx.reportComment(comment.id)}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors">
+                  <Flag size={14} />
+                </button>
+              )}
+              {isOwn && (
+                <button onClick={() => ctx.startEdit(comment.id, comment.content)}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-blue-500 transition-colors">
+                  <Pencil size={14} />
+                </button>
+              )}
+              {(isOwn || ctx.canModerate) && !comment.isDeleted && (
+                <button onClick={() => ctx.deleteComment(comment.id)}
+                  className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors">
+                  <Trash2 size={14} />
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Reply input (parent comment) */}
+          {isReplying && (
+            <div className="mt-2">
+              <CommentInput
+                value={ctx.replyText}
+                onChange={ctx.setReplyText}
+                onSubmit={() => { if (ctx.replyText.trim()) ctx.submitComment(ctx.replyText.trim(), comment.id); }}
+                disabled={ctx.submitting}
+                placeholder="Escribe una respuesta..."
+                theme={theme}
+                compact
+              />
+              <button onClick={ctx.cancelReply} className="px-2.5 py-1 rounded-lg text-[10px] text-gray-500 mt-1 transition-all"
+                style={{ backgroundColor: theme.cancelBg }}>
+                Cancelar
+              </button>
+            </div>
+          )}
+
+          {/* Replies section */}
+          {hasReplies && (
+            <div className="mt-3 pl-3" style={{ borderLeft: `2px solid color-mix(in srgb, ${theme.primary} 30%, transparent)` }}>
+              {/* Toggle replies button */}
+              <button
+                onClick={() => ctx.toggleReplies(comment.id)}
+                className="flex items-center gap-1 text-[11px] font-medium mb-2 transition-colors"
+                style={{ color: theme.primary }}
+              >
+                {showReplies ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                {showReplies
+                  ? 'Ocultar respuestas'
+                  : `Ver ${comment.replies.length} ${comment.replies.length === 1 ? 'respuesta' : 'respuestas'}`
+                }
+              </button>
+
+              {/* Replies list */}
+              {showReplies && (
+                <div className="space-y-2">
+                  {repliesWithParent.map(reply => (
+                    <ReplyCard key={reply.id} reply={reply} theme={theme} ctx={ctx} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   COMMENT SECTION WRAPPER (shared layout used by all 3 themes)
+   ────────────────────────────────────────────────────────────── */
+
+function CommentSectionInner({ targetId, targetType, theme }: CommentSectionProps & { theme: CommentTheme }) {
+  const ctx = useComments(targetId, targetType);
 
   return (
     <div className="mt-4 space-y-4" style={{ fontFamily: "'m1_fixed', monospace" }}>
       <style>{`
         @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: swap; }
         @font-face { font-family: 'Aller'; src: url('/fonts/Aller_Rg.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
-        .monika-title { font-family: 'RifficFree', monospace; font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; gap: 0.5rem; color: #fefefe; -webkit-text-stroke: 5px #ba609e; paint-order: stroke fill; }
+        .${theme.titleClass} { font-family: 'RifficFree', monospace; font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; gap: 0.5rem; color: #fefefe; -webkit-text-stroke: 5px ${theme.titleStroke}; paint-order: stroke fill; }
         .role-badge { font-family: 'Aller', sans-serif; font-size: 10px; padding: 2px 7px; border-radius: 9999px; line-height: 1.4; }
       `}</style>
 
-      <h3 className="monika-title"><MessageCircle className="w-5 h-5 text-[#FF2D78] flex-shrink-0" />Comentarios</h3>
+      {/* Header: title + count + sort */}
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <h3 className={theme.titleClass}>
+          <MessageCircle className="w-5 h-5 flex-shrink-0" style={{ color: theme.primary }} />
+          Comentarios
+          {!ctx.loading && ctx.total > 0 && (
+            <span className="text-[13px] font-normal" style={{ color: theme.primary, WebkitTextStroke: '0px', fontFamily: "'Aller', sans-serif" }}>
+              ({ctx.total})
+            </span>
+          )}
+        </h3>
+        <SortDropdown sort={ctx.sort} onSort={ctx.setSort} theme={theme} />
+      </div>
 
-      <div className="flex items-center gap-2">
-        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user ? 'bg-[#FF2D78]' : 'bg-[#FFB6C8]/50'}`}>
-          {user?.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : <User size={16} className={user ? 'text-white' : 'text-[#FF2D78]/50'} />}
+      {/* New comment input */}
+      <div className="flex items-start gap-2">
+        <div className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden"
+          style={{ backgroundColor: ctx.user ? theme.avatarBg : theme.avatarBgMuted }}>
+          {ctx.user?.avatar
+            ? <img src={ctx.user.avatar} alt="" className="w-full h-full object-cover" />
+            : <User size={16} className={ctx.user ? 'text-white' : ''} style={ctx.user ? {} : { color: theme.primary, opacity: 0.5 }} />}
         </div>
-        <div className="flex flex-1 gap-2">
-          <input type="text" placeholder="Escribe un comentario..." value={newComment} onChange={e => setNewComment(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
-            className="flex-1 px-4 py-2 rounded-xl text-sm bg-white border border-[#FFB6C8]/40 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#FF2D78]/50 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
-          <button onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }} disabled={submitting || !newComment.trim()}
-            className="w-10 h-10 flex items-center justify-center rounded-xl text-white bg-[#FF2D78] hover:bg-[#d6336c] disabled:opacity-40 transition-all">
-            <Send size={15} />
-          </button>
+        <div className="flex-1">
+          <CommentInput
+            value={ctx.newComment}
+            onChange={ctx.setNewComment}
+            onSubmit={() => { if (ctx.newComment.trim()) ctx.submitComment(ctx.newComment.trim()); }}
+            disabled={ctx.submitting}
+            placeholder="Escribe un comentario..."
+            theme={theme}
+          />
         </div>
       </div>
 
-      <div className="space-y-3 max-h-[32rem] overflow-y-auto pr-1">
-        {comments.length === 0 && <div className="text-center py-8 text-sm text-gray-400" style={{ fontFamily: "'Aller', sans-serif" }}>No hay comentarios aún. ¡Sé el primero!</div>}
-        {comments.map(comment => (
-          <motion.div key={comment.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-[#FFE6EA]/50 border border-[#FFB6C8]/30 hover:bg-[#FFE6EA]/70 transition-all">
-            <div className="flex items-start gap-3">
-              <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#FF2D78]">
-                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <span className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.author.nickname}</span>
-                  {comment.author.role !== 'user' && <span className={`role-badge ${comment.author.role === 'admin' ? 'bg-red-100 text-red-600' : comment.author.role === 'moderator' ? 'bg-blue-100 text-blue-600' : comment.author.role === 'owner' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-600'}`}>{comment.author.role}</span>}
-                  {comment.author.isPremium && <span className="text-yellow-400 text-xs">★</span>}
-                  <span className="text-[11px] text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
-                </div>
-                {comment.isDeleted ? <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p> :
-                  <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.content}</p>}
+      {/* Loading state */}
+      {ctx.loading && (
+        <div className="flex justify-center py-8">
+          <Loader2 size={24} className="animate-spin" style={{ color: theme.primary }} />
+        </div>
+      )}
 
-                <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
-                  {/* ❤ likes — siempre visible */}
-                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#FF2D78] transition-colors">
-                    <Heart size={14} /><span>{comment.likes}</span>
-                  </button>
-                  {/* 👍 thumbs up */}
-                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#FF2D78] transition-colors">
-                    <ThumbsUp size={13} /><span>{comment.likes}</span>
-                  </button>
-                  {/* 👎 thumbs down */}
-                  <button onClick={() => toggleDislike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-500 transition-colors">
-                    <ThumbsDown size={13} /><span>{comment.dislikes}</span>
-                  </button>
-                  <button onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors"><MessageCircle size={14} />Responder</button>
-                  <button onClick={() => reportComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors"><Flag size={14} />Reportar</button>
-                  {canModerate && !comment.isDeleted && <button onClick={() => deleteComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>}
-                </div>
-
-                {replyTo === comment.id && (
-                  <div className="flex gap-2 mt-2">
-                    <input type="text" placeholder="Escribe una respuesta..." value={replyText} onChange={e => setReplyText(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter' && replyText.trim()) submitComment(replyText.trim(), comment.id); }}
-                      className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white border border-[#FFB6C8]/40 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#FF2D78]/50 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
-                    <button onClick={() => { if (replyText.trim()) submitComment(replyText.trim(), comment.id); }} disabled={submitting} className="px-2.5 py-1.5 rounded-lg bg-[#FF2D78] text-white disabled:opacity-50 flex items-center"><Send size={11} /></button>
-                    <button onClick={() => { setReplyTo(null); setReplyText(''); }} className="px-2.5 py-1.5 rounded-lg text-xs bg-[#FFE6EA] text-gray-500">Cancelar</button>
-                  </div>
-                )}
-
-                {comment.replies && comment.replies.length > 0 && (
-                  <div className="mt-3 space-y-2 pl-3 border-l border-[#FFB6C8]/40">
-                    {comment.replies.map(reply => (
-                      <div key={reply.id} className="flex items-start gap-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#FF2D78]/80">
-                          {reply.author.avatar ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={13} className="text-white" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span>
-                            <span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span>
-                          </div>
-                          <p className="text-xs break-words text-gray-500" style={{ fontFamily: "'Aller', sans-serif" }}>{reply.content}</p>
-                          {/* Acciones de la reply */}
-                          <div className="flex items-center gap-3 mt-1">
-                            <button onClick={() => toggleLike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#FF2D78] transition-colors">
-                              <ThumbsUp size={11} /><span>{reply.likes}</span>
-                            </button>
-                            <button onClick={() => toggleDislike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-500 transition-colors">
-                              <ThumbsDown size={11} /><span>{reply.dislikes}</span>
-                            </button>
-                            <button onClick={() => replyToReply(comment.id, reply.author.nickname)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#4D9FFF] transition-colors">
-                              <MessageCircle size={11} />Responder
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <p className="text-[10px] pl-10 text-gray-400">{comment.replies.length} {comment.replies.length === 1 ? 'respuesta' : 'respuestas'}</p>
-                  </div>
-                )}
-              </div>
+      {/* Comments list */}
+      {!ctx.loading && (
+        <div className="space-y-3 max-h-[40rem] overflow-y-auto pr-1">
+          {ctx.comments.length === 0 && (
+            <div className="text-center py-8 text-sm text-gray-400" style={{ fontFamily: "'Aller', sans-serif" }}>
+              No hay comentarios aún. ¡Sé el primero!
             </div>
-          </motion.div>
-        ))}
-      </div>
+          )}
+          {ctx.comments.map(comment => (
+            <CommentCard key={comment.id} comment={comment} theme={theme} ctx={ctx} />
+          ))}
+
+          {/* Load more button */}
+          {ctx.hasMore && (
+            <div className="flex justify-center pt-2">
+              <button
+                onClick={ctx.loadMore}
+                disabled={ctx.loadingMore}
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium text-white disabled:opacity-50 transition-all"
+                style={{ backgroundColor: theme.primaryBg }}
+                onMouseOver={e => (e.currentTarget.style.backgroundColor = theme.primaryHover)}
+                onMouseOut={e => (e.currentTarget.style.backgroundColor = theme.primaryBg)}
+              >
+                {ctx.loadingMore ? (
+                  <><Loader2 size={14} className="animate-spin" /> Cargando...</>
+                ) : (
+                  <>Cargar más comentarios</>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* End of list indicator */}
+          {!ctx.hasMore && ctx.comments.length > 0 && (
+            <p className="text-center text-[11px] text-gray-400 py-2" style={{ fontFamily: "'Aller', sans-serif" }}>
+              No hay más comentarios
+            </p>
+          )}
+        </div>
+      )}
     </div>
   );
+}
+
+/* ──────────────────────────────────────────────────────────────
+   1. MONIKA COMMENTS (Original Pink)
+   ────────────────────────────────────────────────────────────── */
+export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
+  return <CommentSectionInner targetId={targetId} targetType={targetType} theme={MONIKA_THEME} />;
 }
 
 /* ──────────────────────────────────────────────────────────────
    2. NATSUKI COMMENTS (Strong Pink)
    ────────────────────────────────────────────────────────────── */
 export function NatsukiComments({ targetId, targetType }: CommentSectionProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState('');
-  const [replyTo, setReplyTo] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState('');
-  const [user, setUser] = useState<{ id: string; nickname: string; role: string; avatar?: string | null } | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-
-  useEffect(() => {
-    fetchComments();
-    fetch('/api/auth/session').then(r => r.json()).then(d => { if (d.user) setUser(d.user); });
-  }, [targetId]);
-
-  const fetchComments = async () => {
-    const res = await fetch(`/api/comments?targetId=${targetId}&targetType=${targetType}`);
-    const data = await res.json();
-    setComments(data.comments || []);
-  };
-
-  const submitComment = async (content: string, parentId?: string) => {
-    if (!user) { toast.error('Inicia sesión para comentar'); return; }
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/comments', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, targetId, targetType, parentId }),
-      });
-      if (!res.ok) { const d = await res.json(); toast.error(d.error); return; }
-      setNewComment(''); setReplyTo(null); setReplyText('');
-      fetchComments();
-      toast.success('Comentario publicado');
-    } catch { toast.error('Error al enviar'); } finally { setSubmitting(false); }
-  };
-
-  const toggleLike    = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`,    { method: 'POST' }); fetchComments(); } catch {} };
-  const toggleDislike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/dislike`, { method: 'POST' }); fetchComments(); } catch {} };
-  const reportComment = async (id: string) => { try { await fetch(`/api/comments/${id}/report`, { method: 'POST' }); toast.success('Comentario reportado'); } catch {} };
-  const deleteComment = async (id: string) => { try { await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId: id }) }); fetchComments(); toast.success('Comentario eliminado'); } catch {} };
-  const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
-
-  const replyToReply = (parentCommentId: string, authorNickname: string) => {
-    setReplyTo(parentCommentId);
-    setReplyText(`@${authorNickname} `);
-  };
-
-  return (
-    <div className="mt-4 space-y-4" style={{ fontFamily: "'m1_fixed', monospace" }}>
-      <style>{`
-        @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: swap; }
-        @font-face { font-family: 'Aller'; src: url('/fonts/Aller_Rg.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
-        .natsuki-title { font-family: 'RifficFree', monospace; font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; gap: 0.5rem; color: #fefefe; -webkit-text-stroke: 5px #FF3D7F; paint-order: stroke fill; }
-        .role-badge { font-family: 'Aller', sans-serif; font-size: 10px; padding: 2px 7px; border-radius: 9999px; line-height: 1.4; }
-      `}</style>
-      <h3 className="natsuki-title"><MessageCircle className="w-5 h-5 text-[#E84393] flex-shrink-0" />Comentarios</h3>
-
-      <div className="flex items-center gap-2">
-        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user ? 'bg-[#E84393]' : 'bg-[#FF7EB3]/50'}`}>
-          {user?.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : <User size={16} className={user ? 'text-white' : 'text-[#E84393]/50'} />}
-        </div>
-        <div className="flex flex-1 gap-2">
-          <input type="text" placeholder="Escribe un comentario..." value={newComment} onChange={e => setNewComment(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
-            className="flex-1 px-4 py-2 rounded-xl text-sm bg-white border border-[#FF7EB3]/50 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#E84393]/60 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
-          <button onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }} disabled={submitting || !newComment.trim()}
-            className="w-10 h-10 flex items-center justify-center rounded-xl text-white bg-[#E84393] hover:bg-[#D63384] disabled:opacity-40 transition-all">
-            <Send size={15} />
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-3 max-h-[32rem] overflow-y-auto pr-1">
-        {comments.length === 0 && <div className="text-center py-8 text-sm text-gray-400" style={{ fontFamily: "'Aller', sans-serif" }}>No hay comentarios aún. ¡Sé el primero!</div>}
-        {comments.map(comment => (
-          <motion.div key={comment.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-[#FFE6EE]/60 border border-[#FF7EB3]/40 hover:bg-[#FFE6EE]/80 transition-all">
-            <div className="flex items-start gap-3">
-              <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#E84393]">
-                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <span className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.author.nickname}</span>
-                  {comment.author.role !== 'user' && <span className={`role-badge ${comment.author.role === 'admin' ? 'bg-red-100 text-red-600' : comment.author.role === 'moderator' ? 'bg-blue-100 text-blue-600' : comment.author.role === 'owner' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-600'}`}>{comment.author.role}</span>}
-                  {comment.author.isPremium && <span className="text-yellow-400 text-xs">★</span>}
-                  <span className="text-[11px] text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
-                </div>
-                {comment.isDeleted ? <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p> :
-                  <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.content}</p>}
-
-                <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
-                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#E84393] transition-colors">
-                    <Heart size={14} /><span>{comment.likes}</span>
-                  </button>
-                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#E84393] transition-colors">
-                    <ThumbsUp size={13} /><span>{comment.likes}</span>
-                  </button>
-                  <button onClick={() => toggleDislike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-500 transition-colors">
-                    <ThumbsDown size={13} /><span>{comment.dislikes}</span>
-                  </button>
-                  <button onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors"><MessageCircle size={14} />Responder</button>
-                  <button onClick={() => reportComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors"><Flag size={14} />Reportar</button>
-                  {canModerate && !comment.isDeleted && <button onClick={() => deleteComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>}
-                </div>
-
-                {replyTo === comment.id && (
-                  <div className="flex gap-2 mt-2">
-                    <input type="text" placeholder="Escribe una respuesta..." value={replyText} onChange={e => setReplyText(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter' && replyText.trim()) submitComment(replyText.trim(), comment.id); }}
-                      className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white border border-[#FF7EB3]/50 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#E84393]/60 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
-                    <button onClick={() => { if (replyText.trim()) submitComment(replyText.trim(), comment.id); }} disabled={submitting} className="px-2.5 py-1.5 rounded-lg bg-[#E84393] text-white disabled:opacity-50 flex items-center"><Send size={11} /></button>
-                    <button onClick={() => { setReplyTo(null); setReplyText(''); }} className="px-2.5 py-1.5 rounded-lg text-xs bg-[#FFE6EE] text-gray-500">Cancelar</button>
-                  </div>
-                )}
-
-                {comment.replies && comment.replies.length > 0 && (
-                  <div className="mt-3 space-y-2 pl-3 border-l border-[#FF7EB3]/40">
-                    {comment.replies.map(reply => (
-                      <div key={reply.id} className="flex items-start gap-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#E84393]/80">
-                          {reply.author.avatar ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={13} className="text-white" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span>
-                            <span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span>
-                          </div>
-                          <p className="text-xs break-words text-gray-500" style={{ fontFamily: "'Aller', sans-serif" }}>{reply.content}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <button onClick={() => toggleLike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#E84393] transition-colors">
-                              <ThumbsUp size={11} /><span>{reply.likes}</span>
-                            </button>
-                            <button onClick={() => toggleDislike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-500 transition-colors">
-                              <ThumbsDown size={11} /><span>{reply.dislikes}</span>
-                            </button>
-                            <button onClick={() => replyToReply(comment.id, reply.author.nickname)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#4D9FFF] transition-colors">
-                              <MessageCircle size={11} />Responder
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <p className="text-[10px] pl-10 text-gray-400">{comment.replies.length} {comment.replies.length === 1 ? 'respuesta' : 'respuestas'}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
+  return <CommentSectionInner targetId={targetId} targetType={targetType} theme={NATSUKI_THEME} />;
 }
 
 /* ──────────────────────────────────────────────────────────────
    3. YURI COMMENTS (Purple)
    ────────────────────────────────────────────────────────────── */
 export function YuriComments({ targetId, targetType }: CommentSectionProps) {
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [newComment, setNewComment] = useState('');
-  const [replyTo, setReplyTo] = useState<string | null>(null);
-  const [replyText, setReplyText] = useState('');
-  const [user, setUser] = useState<{ id: string; nickname: string; role: string; avatar?: string | null } | null>(null);
-  const [submitting, setSubmitting] = useState(false);
+  return <CommentSectionInner targetId={targetId} targetType={targetType} theme={YURI_THEME} />;
+}
 
-  useEffect(() => {
-    fetchComments();
-    fetch('/api/auth/session').then(r => r.json()).then(d => { if (d.user) setUser(d.user); });
-  }, [targetId]);
-
-  const fetchComments = async () => {
-    const res = await fetch(`/api/comments?targetId=${targetId}&targetType=${targetType}`);
-    const data = await res.json();
-    setComments(data.comments || []);
-  };
-
-  const submitComment = async (content: string, parentId?: string) => {
-    if (!user) { toast.error('Inicia sesión para comentar'); return; }
-    setSubmitting(true);
-    try {
-      const res = await fetch('/api/comments', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content, targetId, targetType, parentId }),
-      });
-      if (!res.ok) { const d = await res.json(); toast.error(d.error); return; }
-      setNewComment(''); setReplyTo(null); setReplyText('');
-      fetchComments();
-      toast.success('Comentario publicado');
-    } catch { toast.error('Error al enviar'); } finally { setSubmitting(false); }
-  };
-
-  const toggleLike    = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`,    { method: 'POST' }); fetchComments(); } catch {} };
-  const toggleDislike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/dislike`, { method: 'POST' }); fetchComments(); } catch {} };
-  const reportComment = async (id: string) => { try { await fetch(`/api/comments/${id}/report`, { method: 'POST' }); toast.success('Comentario reportado'); } catch {} };
-  const deleteComment = async (id: string) => { try { await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId: id }) }); fetchComments(); toast.success('Comentario eliminado'); } catch {} };
-  const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
-
-  const replyToReply = (parentCommentId: string, authorNickname: string) => {
-    setReplyTo(parentCommentId);
-    setReplyText(`@${authorNickname} `);
-  };
-
-  return (
-    <div className="mt-4 space-y-4" style={{ fontFamily: "'m1_fixed', monospace" }}>
-      <style>{`
-        @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: swap; }
-        @font-face { font-family: 'Aller'; src: url('/fonts/Aller_Rg.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
-        .yuri-title { font-family: 'RifficFree', monospace; font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; gap: 0.5rem; color: #fefefe; -webkit-text-stroke: 5px #8A2BE2; paint-order: stroke fill; }
-        .role-badge { font-family: 'Aller', sans-serif; font-size: 10px; padding: 2px 7px; border-radius: 9999px; line-height: 1.4; }
-      `}</style>
-
-      <h3 className="yuri-title"><MessageCircle className="w-5 h-5 text-[#8A2BE2] flex-shrink-0" />Comentarios</h3>
-
-      <div className="flex items-center gap-2">
-        <div className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden ${user ? 'bg-[#8A2BE2]' : 'bg-[#9B59B6]/50'}`}>
-          {user?.avatar ? <img src={user.avatar} alt="" className="w-full h-full object-cover" /> : <User size={16} className={user ? 'text-white' : 'text-[#8A2BE2]/50'} />}
-        </div>
-        <div className="flex flex-1 gap-2">
-          <input type="text" placeholder="Escribe un comentario..." value={newComment} onChange={e => setNewComment(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter' && newComment.trim()) submitComment(newComment.trim()); }}
-            className="flex-1 px-4 py-2 rounded-xl text-sm bg-white border border-[#9B59B6]/50 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#8A2BE2]/60 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
-          <button onClick={() => { if (newComment.trim()) submitComment(newComment.trim()); }} disabled={submitting || !newComment.trim()}
-            className="w-10 h-10 flex items-center justify-center rounded-xl text-white bg-[#8A2BE2] hover:bg-[#6A1B9A] disabled:opacity-40 transition-all">
-            <Send size={15} />
-          </button>
-        </div>
-      </div>
-
-      <div className="space-y-3 max-h-[32rem] overflow-y-auto pr-1">
-        {comments.length === 0 && <div className="text-center py-8 text-sm text-gray-400" style={{ fontFamily: "'Aller', sans-serif" }}>No hay comentarios aún. ¡Sé el primero!</div>}
-        {comments.map(comment => (
-          <motion.div key={comment.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-[#F3E5F5]/60 border border-[#9B59B6]/40 hover:bg-[#F3E5F5]/80 transition-all">
-            <div className="flex items-start gap-3">
-              <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#8A2BE2]">
-                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <span className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.author.nickname}</span>
-                  {comment.author.role !== 'user' && <span className={`role-badge ${comment.author.role === 'admin' ? 'bg-red-100 text-red-600' : comment.author.role === 'moderator' ? 'bg-blue-100 text-blue-600' : comment.author.role === 'owner' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-600'}`}>{comment.author.role}</span>}
-                  {comment.author.isPremium && <span className="text-yellow-400 text-xs">★</span>}
-                  <span className="text-[11px] text-gray-400">{new Date(comment.createdAt).toLocaleDateString()}</span>
-                </div>
-                {comment.isDeleted ? <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p> :
-                  <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.content}</p>}
-
-                <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
-                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#8A2BE2] transition-colors">
-                    <Heart size={14} /><span>{comment.likes}</span>
-                  </button>
-                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#8A2BE2] transition-colors">
-                    <ThumbsUp size={13} /><span>{comment.likes}</span>
-                  </button>
-                  <button onClick={() => toggleDislike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-500 transition-colors">
-                    <ThumbsDown size={13} /><span>{comment.dislikes}</span>
-                  </button>
-                  <button onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors"><MessageCircle size={14} />Responder</button>
-                  <button onClick={() => reportComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors"><Flag size={14} />Reportar</button>
-                  {canModerate && !comment.isDeleted && <button onClick={() => deleteComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>}
-                </div>
-
-                {replyTo === comment.id && (
-                  <div className="flex gap-2 mt-2">
-                    <input type="text" placeholder="Escribe una respuesta..." value={replyText} onChange={e => setReplyText(e.target.value)}
-                      onKeyDown={e => { if (e.key === 'Enter' && replyText.trim()) submitComment(replyText.trim(), comment.id); }}
-                      className="flex-1 px-3 py-1.5 rounded-lg text-xs bg-white border border-[#9B59B6]/50 text-gray-700 placeholder-gray-400 focus:outline-none focus:border-[#8A2BE2]/60 transition-all" style={{ fontFamily: "'Aller', sans-serif" }} />
-                    <button onClick={() => { if (replyText.trim()) submitComment(replyText.trim(), comment.id); }} disabled={submitting} className="px-2.5 py-1.5 rounded-lg bg-[#8A2BE2] text-white disabled:opacity-50 flex items-center"><Send size={11} /></button>
-                    <button onClick={() => { setReplyTo(null); setReplyText(''); }} className="px-2.5 py-1.5 rounded-lg text-xs bg-[#F3E5F5] text-gray-500">Cancelar</button>
-                  </div>
-                )}
-
-                {comment.replies && comment.replies.length > 0 && (
-                  <div className="mt-3 space-y-2 pl-3 border-l border-[#9B59B6]/40">
-                    {comment.replies.map(reply => (
-                      <div key={reply.id} className="flex items-start gap-2">
-                        <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#8A2BE2]/80">
-                          {reply.author.avatar ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={13} className="text-white" />}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span>
-                            <span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span>
-                          </div>
-                          <p className="text-xs break-words text-gray-500" style={{ fontFamily: "'Aller', sans-serif" }}>{reply.content}</p>
-                          <div className="flex items-center gap-3 mt-1">
-                            <button onClick={() => toggleLike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#8A2BE2] transition-colors">
-                              <ThumbsUp size={11} /><span>{reply.likes}</span>
-                            </button>
-                            <button onClick={() => toggleDislike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-500 transition-colors">
-                              <ThumbsDown size={11} /><span>{reply.dislikes}</span>
-                            </button>
-                            <button onClick={() => replyToReply(comment.id, reply.author.nickname)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#4D9FFF] transition-colors">
-                              <MessageCircle size={11} />Responder
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <p className="text-[10px] pl-10 text-gray-400">{comment.replies.length} {comment.replies.length === 1 ? 'respuesta' : 'respuestas'}</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
+/* ──────────────────────────────────────────────────────────────
+   4. GENERIC COMMENT SECTION (for noticias / dark theme)
+   ────────────────────────────────────────────────────────────── */
+export function CommentSection({ targetId, targetType }: CommentSectionProps) {
+  return <CommentSectionInner targetId={targetId} targetType={targetType} theme={MONIKA_THEME} />;
 }
