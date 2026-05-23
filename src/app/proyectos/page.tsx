@@ -1,9 +1,10 @@
 'use client';
 
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import {
-  Star, Sparkles, ArrowRight, Gamepad2
+  Star, Sparkles, ArrowRight, Gamepad2, Search, X
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -17,6 +18,37 @@ const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/g
 export default function Proyectos() {
   const { t, locale } = useI18n();
   const isEs = locale === 'es';
+
+  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => setDebouncedQuery(searchQuery), 300);
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
+  }, [searchQuery]);
+
+  const clearSearch = useCallback(() => {
+    setSearchQuery('');
+    setDebouncedQuery('');
+  }, []);
+
+  const featuredProjects = useMemo(() => projects.filter(p => p.featured), []);
+  const otherProjects = useMemo(() => projects.filter(p => !p.featured), []);
+
+  const isSearching = debouncedQuery.trim().length > 0;
+
+  const filteredProjects = useMemo(() => {
+    if (!isSearching) return { featured: featuredProjects, other: otherProjects };
+    const q = debouncedQuery.toLowerCase().trim();
+    const results = projects.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      (p.description && p.description.toLowerCase().includes(q)) ||
+      (p.descriptionEn && p.descriptionEn.toLowerCase().includes(q))
+    );
+    return { featured: [], other: results };
+  }, [debouncedQuery, isSearching, featuredProjects, otherProjects]);
 
   return (
     <div
@@ -53,13 +85,42 @@ export default function Proyectos() {
         </div>
       </section>
 
+      {/* SEARCH BAR */}
+      <section className="pb-8 relative z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="relative max-w-lg"
+          >
+            <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Buscar proyecto..."
+              className="w-full pl-11 pr-10 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/35 outline-none focus:border-[#4D9FFF]/50 focus:ring-1 focus:ring-[#4D9FFF]/30 transition-all duration-200"
+            />
+            {searchQuery.length > 0 && (
+              <button
+                onClick={clearSearch}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors p-0.5"
+                aria-label="Limpiar búsqueda"
+              >
+                <X size={16} />
+              </button>
+            )}
+          </motion.div>
+        </div>
+      </section>
+
       {/* PROJECTS */}
       <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
           {/* ── FEATURED (Monika) — no tocar ── */}
-          {projects
-            .filter(p => p.featured)
+          {!isSearching && filteredProjects.featured
             .map(project => (
               <Link key={project.id} href={`/proyectos/${project.id}`}>
                 <motion.div
@@ -122,10 +183,21 @@ export default function Proyectos() {
             ))}
 
           {/* ── GRID (Natsuki / Yuri) ── */}
-          <div className="grid sm:grid-cols-2 gap-6">
-            {projects
-              .filter(p => !p.featured)
-              .map((project, i) => {
+          {isSearching && filteredProjects.other.length === 0 ? (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="text-center py-16"
+            >
+              <Search size={40} className="text-white/15 mx-auto mb-4" />
+              <p className="text-white/40 text-lg font-medium">No se encontraron proyectos</p>
+              <p className="text-white/25 text-sm mt-1">Intenta con otro término de búsqueda</p>
+            </motion.div>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-6">
+              {filteredProjects.other
+                .map((project, i) => {
                 const isCover = project.coverFit === 'cover';
                 return (
                   <Link key={project.id} href={`/proyectos/${project.id}`}>
@@ -178,25 +250,28 @@ export default function Proyectos() {
                   </Link>
                 );
               })}
-          </div>
+            </div>
+          )}
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mt-10 bg-white/5 border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-[#a855f7]/5 to-[#00F3FF]/5 pointer-events-none" />
-            <Gamepad2 size={32} className="text-[#FF2D78] mx-auto mb-3" />
-            <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-              {isEs ? 'Más proyectos en camino' : 'More projects coming'}
-            </h3>
-            <p className="text-white/50 text-sm max-w-md mx-auto">
-              {isEs
-                ? 'Estamos trabajando en nuevas novelas visuales. Únete a nuestro Discord para ser el primero en enterarte.'
-                : 'We are working on new visual novels. Join our Discord to be the first to know.'}
-            </p>
-          </motion.div>
+          {!isSearching && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="mt-10 bg-white/5 border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-[#a855f7]/5 to-[#00F3FF]/5 pointer-events-none" />
+              <Gamepad2 size={32} className="text-[#FF2D78] mx-auto mb-3" />
+              <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                {isEs ? 'Más proyectos en camino' : 'More projects coming'}
+              </h3>
+              <p className="text-white/50 text-sm max-w-md mx-auto">
+                {isEs
+                  ? 'Estamos trabajando en nuevas novelas visuales. Únete a nuestro Discord para ser el primero en enterarte.'
+                  : 'We are working on new visual novels. Join our Discord to be the first to know.'}
+              </p>
+            </motion.div>
+          )}
         </div>
       </section>
       <Footer />
