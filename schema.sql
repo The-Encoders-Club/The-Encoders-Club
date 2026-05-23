@@ -130,6 +130,19 @@ CREATE INDEX IF NOT EXISTS idx_user_discord_linked ON User(discordLinked);
 -- ALTER TABLE DiscordConfig ADD COLUMN siteUrl TEXT;
 -- ALTER TABLE DiscordConfig ADD COLUMN notificationEnabled INTEGER NOT NULL DEFAULT 1;
 
+-- ============ COMMENT REPORTS (prevent duplicate reports) ============
+CREATE TABLE IF NOT EXISTS CommentReport (
+  id        TEXT PRIMARY KEY,
+  userId    TEXT NOT NULL,
+  commentId TEXT NOT NULL,
+  createdAt TEXT NOT NULL DEFAULT (datetime('now')),
+  FOREIGN KEY (userId) REFERENCES User(id),
+  FOREIGN KEY (commentId) REFERENCES Comment(id),
+  UNIQUE(userId, commentId)
+);
+CREATE INDEX IF NOT EXISTS idx_comment_report_user ON CommentReport(userId);
+CREATE INDEX IF NOT EXISTS idx_comment_report_comment ON CommentReport(commentId);
+
 -- ============================================================
 -- Migration: Password Recovery System (run manually)
 -- ============================================================
