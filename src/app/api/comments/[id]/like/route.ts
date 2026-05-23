@@ -43,7 +43,7 @@ export async function POST(
         db.prepare('DELETE FROM Reaction WHERE id = ?').bind(existingReaction.id as string),
         db.prepare('UPDATE Comment SET likes = MAX(0, likes - 1), updatedAt = ? WHERE id = ?').bind(nowISO(), commentId),
       ]);
-      return NextResponse.json({ liked: false, likes: Math.max(0, (comment.likes as number) - 1) });
+      return NextResponse.json({ liked: false, likes: Math.max(0, (comment.likes as number) - 1), commentId });
     } else {
       // Like: create a reaction and increment likes using batch for atomicity
       const reactionId = generateId();
@@ -57,7 +57,7 @@ export async function POST(
         ),
         db.prepare('UPDATE Comment SET likes = likes + 1, updatedAt = ? WHERE id = ?').bind(nowISO(), commentId),
       ]);
-      return NextResponse.json({ liked: true, likes: (comment.likes as number) + 1 });
+      return NextResponse.json({ liked: true, likes: (comment.likes as number) + 1, commentId });
     }
   } catch (error) {
     console.error('Toggle like error:', error);
