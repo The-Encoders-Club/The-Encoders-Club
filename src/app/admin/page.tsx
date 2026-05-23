@@ -1,18 +1,17 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, MessageSquare, DollarSign, Activity, Shield, Search,
   Ban, CheckCircle, UserCog, Trash2, Save, AlertTriangle, RefreshCw,
   Settings, Clock, Bot, Crown, Eye, EyeOff, TrendingUp, Zap, Globe,
-  Unlink, ArrowUpDown, Wifi, WifiOff, Loader2, Info
+  Unlink, ArrowUpDown, Wifi, WifiOff, Loader2, Info,
+  LayoutDashboard, FileText, ChevronLeft, Menu, X, Heart,
+  UserPlus, LogIn, LogOut, ShieldCheck, MessageCircle, Bell,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
 import { useRouter } from 'next/navigation';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
@@ -25,6 +24,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 
+// ─── Interfaces ───
 interface AdminUser {
   id: string; nickname: string; email?: string; avatar?: string;
   role: string; isPremium: boolean; isBanned: boolean; banReason?: string;
@@ -60,6 +60,7 @@ interface DiscordBotStatus {
   hasClientId: boolean; hasClientSecret: boolean; message: string;
 }
 
+// ─── Constants ───
 const roleColors: Record<string, string> = {
   owner: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
   admin: 'bg-red-500/20 text-red-400 border-red-500/30',
@@ -77,9 +78,81 @@ const actionLabels: Record<string, string> = {
   donation_received: 'Donacion recibida', password_change: 'Contrasena cambiada',
 };
 
+const getActionColor = (action: string) => {
+  if (action.includes('create') || action.includes('register') || action.includes('linked') || action.includes('received')) return 'text-green-400';
+  if (action.includes('update') || action.includes('sync') || action.includes('push') || action.includes('login') || action.includes('logout')) return 'text-[#4D9FFF]';
+  if (action.includes('delete') || action.includes('unlinked')) return 'text-red-400';
+  if (action.includes('report')) return 'text-yellow-400';
+  return 'text-white/50';
+};
+
+const getActionIcon = (action: string) => {
+  if (action.includes('register') || action.includes('create')) return <UserPlus size={14} />;
+  if (action.includes('login') || action.includes('logout')) return <LogIn size={14} />;
+  if (action.includes('delete') || action.includes('unlinked')) return <Trash2 size={14} />;
+  if (action.includes('update') || action.includes('sync') || action.includes('push')) return <RefreshCw size={14} />;
+  if (action.includes('donation')) return <Heart size={14} />;
+  if (action.includes('discord')) return <MessageCircle size={14} />;
+  if (action.includes('password')) return <ShieldCheck size={14} />;
+  return <Zap size={14} />;
+};
+
+const getActionDotColor = (action: string) => {
+  if (action.includes('create') || action.includes('register') || action.includes('linked') || action.includes('received')) return 'bg-green-400';
+  if (action.includes('update') || action.includes('sync') || action.includes('push') || action.includes('login') || action.includes('logout')) return 'bg-[#4D9FFF]';
+  if (action.includes('delete') || action.includes('unlinked')) return 'bg-red-400';
+  if (action.includes('report')) return 'bg-yellow-400';
+  return 'bg-white/30';
+};
+
+const getActionBgColor = (action: string) => {
+  if (action.includes('create') || action.includes('register') || action.includes('linked') || action.includes('received')) return 'bg-green-400/10';
+  if (action.includes('update') || action.includes('sync') || action.includes('push') || action.includes('login') || action.includes('logout')) return 'bg-[#4D9FFF]/10';
+  if (action.includes('delete') || action.includes('unlinked')) return 'bg-red-400/10';
+  if (action.includes('report')) return 'bg-yellow-400/10';
+  return 'bg-white/5';
+};
+
+// ─── Skeleton Component ───
+const Skeleton = ({ className = '' }: { className?: string }) => (
+  <div className={`animate-pulse rounded-lg bg-white/[0.04] ${className}`} />
+);
+
+// ─── Nav Items ───
+const navItems = [
+  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'users', label: 'Usuarios', icon: Users },
+  { id: 'comments', label: 'Comentarios', icon: MessageSquare },
+  { id: 'discord', label: 'Discord', icon: MessageCircle },
+  { id: 'logs', label: 'Logs', icon: FileText },
+];
+
+// ─── Input Component ───
+const AdminInput = ({ value, onChange, placeholder, type = 'text', className = '' }: {
+  value: string; onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder?: string; type?: string; className?: string;
+}) => (
+  <input
+    type={type}
+    value={value}
+    onChange={onChange}
+    placeholder={placeholder}
+    className={`w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/[0.08] text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 focus:ring-1 focus:ring-[#FF2D78]/20 placeholder:text-white/25 transition-all ${className}`}
+  />
+);
+
+// ─── Card Component ───
+const AdminCard = ({ children, className = '', padding = true }: { children: React.ReactNode; className?: string; padding?: boolean }) => (
+  <div className={`bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/[0.07] rounded-2xl ${padding ? 'p-6' : ''} shadow-lg shadow-black/10 backdrop-blur-sm ${className}`}>
+    {children}
+  </div>
+);
+
+// ─── Main Component ───
 export default function AdminPanel() {
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [user, setUser] = useState<{ id: string; role: string } | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
   const [stats, setStats] = useState<StatsData | null>(null);
@@ -99,6 +172,7 @@ export default function AdminPanel() {
   const [banReason, setBanReason] = useState('');
   const [showSyncDialog, setShowSyncDialog] = useState(false);
   const [showClientSecret, setShowClientSecret] = useState(false);
+  const [roleChangeUser, setRoleChangeUser] = useState<AdminUser | null>(null);
   const [dcForm, setDcForm] = useState({
     webhookUrl: '',
     modRoleId: '', adminRoleId: '', collabRoleId: '',
@@ -166,7 +240,6 @@ export default function AdminPanel() {
     setDiscordLoading(true);
     try {
       const payload: Record<string, string> = {};
-
       if (dcForm.webhookUrl) payload.webhookUrl = dcForm.webhookUrl;
       if (dcForm.modRoleId) payload.modRoleId = dcForm.modRoleId;
       if (dcForm.adminRoleId) payload.adminRoleId = dcForm.adminRoleId;
@@ -190,7 +263,6 @@ export default function AdminPanel() {
     try {
       const body: Record<string, unknown> = {};
       if (syncTarget === 'all') body.syncAll = true;
-
       const res = await fetch('/api/admin/discord/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -210,7 +282,10 @@ export default function AdminPanel() {
   if (!mounted || !user || loading) {
     return (
       <div className="min-h-screen bg-[#080818] flex items-center justify-center">
-        <div className="animate-spin w-8 h-8 border-2 border-[#FF2D78] border-t-transparent rounded-full" />
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin w-10 h-10 border-2 border-[#FF2D78]/30 border-t-[#FF2D78] rounded-full" />
+          <p className="text-sm text-white/30">Cargando panel...</p>
+        </div>
       </div>
     );
   }
@@ -227,272 +302,640 @@ export default function AdminPanel() {
     return new Date(dateStr).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
   };
 
+  const tabVariants = {
+    hidden: { opacity: 0, x: 12 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.25, ease: 'easeOut' } },
+    exit: { opacity: 0, x: -12, transition: { duration: 0.15, ease: 'easeIn' } },
+  };
+
+  const handleNavClick = (id: string) => {
+    setActiveTab(id);
+    setSidebarOpen(false);
+  };
+
   return (
-    <div className="min-h-screen bg-[#080818] text-white flex flex-col">
-      <Navbar />
-      <main className="flex-1 pt-28 pb-20 px-4">
-        <div className="max-w-7xl mx-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-            <div className="flex items-center gap-4 mb-8">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center">
-                <Shield size={24} className="text-white" />
+    <div className="min-h-screen bg-[#080818] text-white">
+      {/* ─── Mobile Overlay ─── */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* ─── Sidebar ─── */}
+      <aside className={`fixed top-0 left-0 h-full w-[270px] bg-gradient-to-b from-[#0c0c20] to-[#080818] border-r border-white/[0.06] z-50 flex flex-col transition-transform duration-300 lg:translate-x-0 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        {/* Sidebar Header */}
+        <div className="p-5 border-b border-white/[0.06] bg-gradient-to-r from-[#FF2D78]/[0.04] to-[#4D9FFF]/[0.04]">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center shadow-lg shadow-[#FF2D78]/25">
+                <Shield size={19} className="text-white" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  Panel de <span className="brand-gradient-text">Administracion</span>
-                </h1>
-                <p className="text-sm text-white/40 mt-0.5">Gestiona usuarios, comentarios, Discord y mas</p>
+                <h2 className="text-sm font-bold text-white tracking-tight">Admin Panel</h2>
+                <p className="text-[10px] text-white/30 uppercase tracking-widest">The Encoders Club</p>
               </div>
             </div>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-              <TabsList className="bg-white/5 border border-white/10 p-1 mb-6 flex flex-wrap h-auto gap-1">
-                <TabsTrigger value="dashboard" className="data-[state=active]:bg-[#FF2D78]/20 data-[state=active]:text-[#FF2D78] text-white/50 px-4 py-2 rounded-lg text-sm"><Activity size={16} className="mr-1.5" /> Dashboard</TabsTrigger>
-                <TabsTrigger value="users" className="data-[state=active]:bg-[#4D9FFF]/20 data-[state=active]:text-[#4D9FFF] text-white/50 px-4 py-2 rounded-lg text-sm"><Users size={16} className="mr-1.5" /> Usuarios</TabsTrigger>
-                <TabsTrigger value="comments" className="data-[state=active]:bg-[#a855f7]/20 data-[state=active]:text-[#a855f7] text-white/50 px-4 py-2 rounded-lg text-sm"><MessageSquare size={16} className="mr-1.5" /> Comentarios</TabsTrigger>
-                <TabsTrigger value="discord" className="data-[state=active]:bg-[#5865F2]/20 data-[state=active]:text-[#5865F2] text-white/50 px-4 py-2 rounded-lg text-sm"><Bot size={16} className="mr-1.5" /> Discord</TabsTrigger>
-                <TabsTrigger value="logs" className="data-[state=active]:bg-[#22c55e]/20 data-[state=active]:text-[#22c55e] text-white/50 px-4 py-2 rounded-lg text-sm"><Clock size={16} className="mr-1.5" /> Logs</TabsTrigger>
-              </TabsList>
+            <button onClick={() => setSidebarOpen(false)} className="lg:hidden p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/5 transition-all">
+              <X size={18} />
+            </button>
+          </div>
+        </div>
 
-              {/* ==================== DASHBOARD ==================== */}
-              <TabsContent value="dashboard" className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {/* Nav Items */}
+        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+          {navItems.map(item => {
+            const isActive = activeTab === item.id;
+            const Icon = item.icon;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNavClick(item.id)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative group ${
+                  isActive
+                    ? 'bg-white/[0.06] text-white'
+                    : 'text-white/40 hover:text-white/70 hover:bg-white/[0.03]'
+                }`}
+              >
+                {isActive && (
+                  <motion.div
+                    layoutId="activeNav"
+                    className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-[#FF2D78]"
+                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
+                  />
+                )}
+                <Icon size={18} className={`shrink-0 transition-colors ${isActive ? 'text-[#FF2D78]' : 'group-hover:text-white/60'}`} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Sidebar Footer */}
+        <div className="p-4 border-t border-white/[0.06] bg-gradient-to-t from-[#FF2D78]/[0.03] to-transparent">
+          <button
+            onClick={() => router.push('/')}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-white/40 hover:text-white/70 hover:bg-white/[0.04] transition-all"
+          >
+            <ChevronLeft size={16} />
+            <span>Volver al sitio</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* ─── Main Content ─── */}
+      <div className="lg:pl-[270px] min-h-screen flex flex-col">
+        {/* Top Bar */}
+        <header className="sticky top-0 z-30 bg-[#080818]/80 backdrop-blur-xl border-b border-white/[0.06]">
+          <div className="flex items-center justify-between px-4 sm:px-6 h-16">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="lg:hidden p-2 rounded-lg text-white/50 hover:text-white hover:bg-white/5 transition-all"
+              >
+                <Menu size={20} />
+              </button>
+              <div className="hidden sm:flex items-center gap-2 text-sm text-white/30">
+                <span>Admin</span>
+                <span className="text-white/10">/</span>
+                <span className="text-white/60 capitalize">{activeTab}</span>
+              </div>
+              <h1 className="sm:hidden text-sm font-medium text-white/60 capitalize">{navItems.find(n => n.id === activeTab)?.label}</h1>
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-white/[0.03] to-white/[0.01] border border-white/[0.07]">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center shadow-sm">
+                  <Shield size={13} className="text-white" />
+                </div>
+                <div className="hidden sm:block">
+                  <p className="text-xs font-medium text-white/80">Administrador</p>
+                </div>
+                <Badge className={`text-[10px] px-2 py-0 rounded-full border font-semibold uppercase tracking-wider ${
+                  user.role === 'owner'
+                    ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
+                    : 'bg-red-500/10 text-red-400 border-red-500/20'
+                }`}>
+                  {user.role}
+                </Badge>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="flex-1 p-4 sm:p-6 lg:p-8">
+          <AnimatePresence mode="wait">
+            {/* ═══════════════ DASHBOARD ═══════════════ */}
+            {activeTab === 'dashboard' && (
+              <motion.div key="dashboard" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
+                {/* Welcome Banner */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#FF2D78]/[0.08] via-[#a855f7]/[0.06] to-[#4D9FFF]/[0.08] border border-white/[0.08] p-6">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-[#FF2D78]/[0.06] to-transparent rounded-full -translate-y-1/2 translate-x-1/3" />
+                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-gradient-to-tr from-[#4D9FFF]/[0.06] to-transparent rounded-full translate-y-1/2 -translate-x-1/4" />
+                  <div className="relative">
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center shadow-lg shadow-[#FF2D78]/20">
+                        <Shield size={22} className="text-white" />
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Panel de Administracion</h2>
+                        <p className="text-xs text-white/40">The Encoders Club</p>
+                      </div>
+                    </div>
+                    <p className="text-sm text-white/50 max-w-lg">
+                      Resumen general de la plataforma. Gestiona usuarios, comentarios, integraciones de Discord y monitorea la actividad reciente.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Stat Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
                   {[
-                    (<Users size={22} />, 'Usuarios Registrados', stats?.stats.totalUsers || 0, '#FF2D78'),
-                    (<MessageSquare size={22} />, 'Comentarios Totales', stats?.stats.totalComments || 0, '#4D9FFF'),
-                    (<DollarSign size={22} />, 'Donaciones', stats?.stats.totalDonations || 0, '#22c55e'),
-                  ].map(([icon, label, value, color], i) => (
-                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="glass-card p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                      <div className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0" style={{ background: `${color}15` }}><div style={{ color: color as string }}>{icon}</div></div>
-                      <div><p className="text-2xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{value}</p><p className="text-sm text-white/40">{label}</p></div>
+                    { icon: Users, label: 'Total Users', value: stats?.stats.totalUsers || 0, gradient: 'from-[#FF2D78] to-[#a855f7]', shadowColor: 'shadow-[#FF2D78]/15', bgGlow: 'from-[#FF2D78]/[0.06] to-transparent' },
+                    { icon: MessageSquare, label: 'Total Comments', value: stats?.stats.totalComments || 0, gradient: 'from-[#4D9FFF] to-[#00D4FF]', shadowColor: 'shadow-[#4D9FFF]/15', bgGlow: 'from-[#4D9FFF]/[0.06] to-transparent' },
+                    { icon: DollarSign, label: 'Total Donations', value: `$${(stats?.stats.totalDonations || 0).toFixed(2)}`, gradient: 'from-[#22C55E] to-[#4ADE80]', shadowColor: 'shadow-[#22C55E]/15', bgGlow: 'from-[#22C55E]/[0.06] to-transparent' },
+                    { icon: TrendingUp, label: 'Active Today', value: stats?.recentUsers?.length || 0, gradient: 'from-purple-500 to-pink-500', shadowColor: 'shadow-purple-500/15', bgGlow: 'from-purple-500/[0.06] to-transparent' },
+                  ].map((stat, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.08, duration: 0.4 }}
+                      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/[0.07] p-5 shadow-lg ${stat.shadowColor} hover:border-white/[0.12] transition-all duration-300 group`}
+                    >
+                      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.bgGlow} rounded-full -translate-y-1/2 translate-x-1/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                      <div className="flex items-start justify-between relative">
+                        <div>
+                          <p className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-2">{stat.label}</p>
+                          <p className="text-3xl font-bold text-white tracking-tight">{stat.value}</p>
+                        </div>
+                        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg ${stat.shadowColor}`}>
+                          <stat.icon size={18} className="text-white" />
+                        </div>
+                      </div>
                     </motion.div>
                   ))}
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="glass-card p-6">
-                    <h3 className="font-bold text-white mb-4 text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Usuarios por Rol</h3>
-                    <div className="space-y-3">
-                      {(stats?.usersByRole || []).map(r => {
+
+                {/* Two Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                  {/* Recent Activity - Wider */}
+                  <AdminCard className="lg:col-span-3">
+                    <div className="flex items-center justify-between mb-5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-[#FF2D78]/10 flex items-center justify-center">
+                          <Activity size={16} className="text-[#FF2D78]" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-semibold text-white/90">Actividad Reciente</h3>
+                          <p className="text-[10px] text-white/30">Eventos recientes de la plataforma</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] text-white/20 uppercase tracking-widest bg-white/[0.03] px-2.5 py-1 rounded-full">{logs?.length || 0} eventos</span>
+                    </div>
+                    <div className="space-y-0 max-h-[400px] overflow-y-auto pr-1">
+                      {(!logs || logs.length === 0) ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-white/20">
+                          <FileText size={36} strokeWidth={1} />
+                          <p className="text-sm mt-3">Sin actividad reciente</p>
+                        </div>
+                      ) : logs.map((log, idx) => (
+                        <div key={log.id} className="relative flex items-start gap-3 pb-4">
+                          {/* Timeline line */}
+                          {idx < logs.length - 1 && (
+                            <div className="absolute left-[11px] top-7 bottom-0 w-px bg-white/[0.04]" />
+                          )}
+                          <div className={`w-[22px] h-[22px] rounded-full ${getActionBgColor(log.action)} flex items-center justify-center shrink-0 mt-0.5`}>
+                            <div className={`w-[7px] h-[7px] rounded-full ${getActionDotColor(log.action)}`} />
+                          </div>
+                          <div className="flex-1 min-w-0 -mt-0.5">
+                            <p className="text-sm text-white/70 leading-relaxed">
+                              <span className="font-medium text-white/90">{log.user?.nickname || 'Sistema'}</span>
+                              {' — '}
+                              <span className={getActionColor(log.action)}>{actionLabels[log.action] || log.action}</span>
+                            </p>
+                            <p className="text-[11px] text-white/25 mt-1">{formatTimeAgo(log.createdAt)}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </AdminCard>
+
+                  {/* Users by Role */}
+                  <AdminCard className="lg:col-span-2">
+                    <div className="flex items-center gap-2.5 mb-5">
+                      <div className="w-8 h-8 rounded-lg bg-[#4D9FFF]/10 flex items-center justify-center">
+                        <Users size={16} className="text-[#4D9FFF]" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-white/90">Usuarios por Rol</h3>
+                        <p className="text-[10px] text-white/30">Distribucion de roles</p>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      {(!stats?.usersByRole || stats.usersByRole.length === 0) ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-white/20">
+                          <Users size={36} strokeWidth={1} />
+                          <p className="text-sm mt-3">Sin datos</p>
+                        </div>
+                      ) : (stats.usersByRole || []).map(r => {
                         const total = stats?.stats.totalUsers || 1;
                         const pct = Math.round((r._count / total) * 100);
+                        const barColor = r.role === 'owner' ? 'bg-yellow-400' : r.role === 'admin' ? 'bg-red-400' : r.role === 'moderator' ? 'bg-[#4D9FFF]' : r.role === 'collaborator' ? 'bg-green-400' : 'bg-white/30';
                         return (
                           <div key={r.role}>
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="text-sm text-white/60">{roleLabels[r.role] || r.role}</span>
-                              <span className="text-sm font-semibold text-white">{r._count} <span className="text-white/30">({pct}%)</span></span>
+                            <div className="flex items-center justify-between mb-1.5">
+                              <div className="flex items-center gap-2">
+                                <div className={`w-2 h-2 rounded-full ${barColor}`} />
+                                <span className="text-xs text-white/50">{roleLabels[r.role] || r.role}</span>
+                              </div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-semibold text-white/80">{r._count}</span>
+                                <span className="text-[10px] text-white/25">{pct}%</span>
+                              </div>
                             </div>
-                            <div className="w-full h-1.5 rounded-full bg-white/5">
-                              <motion.div initial={{ width: 0 }} animate={{ width: `${pct}%` }} transition={{ duration: 0.8, ease: 'easeOut' }} className={`h-full rounded-full ${r.role === 'owner' ? 'bg-yellow-400' : r.role === 'admin' ? 'bg-red-400' : r.role === 'moderator' ? 'bg-[#4D9FFF]' : r.role === 'collaborator' ? 'bg-green-400' : 'bg-white/30'}`} />
+                            <div className="w-full h-1.5 rounded-full bg-white/[0.04] overflow-hidden">
+                              <motion.div
+                                initial={{ width: 0 }}
+                                animate={{ width: `${pct}%` }}
+                                transition={{ duration: 0.8, ease: 'easeOut', delay: 0.2 }}
+                                className={`h-full rounded-full ${barColor}`}
+                              />
                             </div>
                           </div>
                         );
                       })}
                     </div>
-                  </div>
-                  <div className="glass-card p-6">
-                    <h3 className="font-bold text-white mb-4 text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Actividad Reciente</h3>
-                    <div className="space-y-3 max-h-80 overflow-y-auto">
-                      {(logs || []).map(log => (
-                        <div key={log.id} className="flex items-start gap-3 p-2 rounded-lg hover:bg-white/5 transition-all">
-                          <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-0.5"><Zap size={14} className="text-white/30" /></div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-white/70"><span className="font-medium text-white/90">{log.user?.nickname || 'Sistema'}</span> — {actionLabels[log.action] || log.action}</p>
-                            <p className="text-xs text-white/30 mt-0.5">{formatTimeAgo(log.createdAt)}</p>
-                          </div>
-                        </div>
-                      ))}
-                      {(!logs || logs.length === 0) && <p className="text-sm text-white/30 text-center py-4">Sin actividad reciente</p>}
-                    </div>
-                  </div>
+                  </AdminCard>
                 </div>
-                <div className="glass-card p-6">
-                  <h3 className="font-bold text-white mb-4 text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}><TrendingUp size={18} className="inline mr-2 text-[#FF2D78]" /> Usuarios Recientes</h3>
+
+                {/* Recent Users */}
+                <AdminCard>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-[#FF2D78]/10 flex items-center justify-center">
+                        <TrendingUp size={16} className="text-[#FF2D78]" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-white/90">Usuarios Recientes</h3>
+                        <p className="text-[10px] text-white/30">Ultimos registros en la plataforma</p>
+                      </div>
+                    </div>
+                    <span className="text-[10px] text-white/20 uppercase tracking-widest bg-white/[0.03] px-2.5 py-1 rounded-full">
+                      {stats?.recentUsers?.length || 0} nuevos
+                    </span>
+                  </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3">
                     {(stats?.recentUsers || []).map(u => (
-                      <div key={u.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                        <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
-                          {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center"><Users size={14} className="text-white" /></div>}
+                      <div key={u.id} className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] transition-all">
+                        <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-[#FF2D78] to-[#a855f7]">
+                          {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Users size={14} className="text-white" /></div>}
                         </div>
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex-1">
                           <p className="text-sm font-medium text-white truncate">{u.nickname}</p>
-                          <span className={`text-xs px-1.5 py-0.5 rounded-full border ${roleColors[u.role] || roleColors.user}`}>{roleLabels[u.role] || u.role}</span>
+                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${roleColors[u.role] || roleColors.user}`}>{roleLabels[u.role] || u.role}</span>
                         </div>
                       </div>
                     ))}
-                    {(!stats?.recentUsers || stats.recentUsers.length === 0) && <p className="text-sm text-white/30 col-span-full text-center py-4">Sin usuarios</p>}
+                    {(!stats?.recentUsers || stats.recentUsers.length === 0) && (
+                      <div className="col-span-full flex flex-col items-center justify-center py-8 text-white/20">
+                        <Users size={32} strokeWidth={1} />
+                        <p className="text-sm mt-2">Sin usuarios</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-                <div className="glass-card p-6">
-                  <h3 className="font-bold text-white mb-4 text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}><DollarSign size={18} className="inline mr-2 text-[#22c55e]" /> Donaciones Recientes</h3>
+                </AdminCard>
+
+                {/* Recent Donations */}
+                <AdminCard>
+                  <div className="flex items-center gap-2.5 mb-5">
+                    <div className="w-8 h-8 rounded-lg bg-[#22C55E]/10 flex items-center justify-center">
+                      <Heart size={16} className="text-[#22C55E]" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white/90">Donaciones Recientes</h3>
+                      <p className="text-[10px] text-white/30">Contribuciones de la comunidad</p>
+                    </div>
+                  </div>
                   <div className="space-y-2 max-h-60 overflow-y-auto">
                     {(stats?.donations || []).map(d => (
-                      <div key={d.id} className="flex items-center justify-between p-3 rounded-lg bg-white/5">
+                      <div key={d.id} className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] hover:bg-white/[0.04] transition-all">
                         <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-[#22c55e]/10 flex items-center justify-center"><DollarSign size={14} className="text-[#22c55e]" /></div>
+                          <div className="w-9 h-9 rounded-lg bg-[#22C55E]/10 flex items-center justify-center">
+                            <DollarSign size={15} className="text-[#22C55E]" />
+                          </div>
                           <div>
-                            <p className="text-sm font-medium text-white">{d.currency === 'USD' ? '$' : '\u20AC'}{d.amount.toFixed(2)}</p>
-                            {d.message && <p className="text-xs text-white/40 truncate max-w-xs">{d.message}</p>}
+                            <p className="text-sm font-semibold text-white">{d.currency === 'USD' ? '$' : '\u20AC'}{d.amount.toFixed(2)}</p>
+                            {d.message && <p className="text-xs text-white/30 truncate max-w-xs">{d.message}</p>}
                           </div>
                         </div>
-                        <span className="text-xs text-white/30">{formatTimeAgo(d.createdAt)}</span>
+                        <span className="text-[11px] text-white/25">{formatTimeAgo(d.createdAt)}</span>
                       </div>
                     ))}
-                    {(!stats?.donations || stats.donations.length === 0) && <p className="text-sm text-white/30 text-center py-4">Sin donaciones</p>}
+                    {(!stats?.donations || stats.donations.length === 0) && (
+                      <div className="flex flex-col items-center justify-center py-8 text-white/20">
+                        <Heart size={32} strokeWidth={1} />
+                        <p className="text-sm mt-2">Sin donaciones</p>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </TabsContent>
+                </AdminCard>
+              </motion.div>
+            )}
 
-              {/* ==================== USERS ==================== */}
-              <TabsContent value="users" className="space-y-6">
-                <div className="flex flex-col sm:flex-row gap-3">
+            {/* ═══════════════ USERS ═══════════════ */}
+            {activeTab === 'users' && (
+              <motion.div key="users" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
+                {/* Search & Stats */}
+                <div className="flex flex-col sm:flex-row gap-4">
                   <div className="relative flex-1">
-                    <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-                    <input type="text" placeholder="Buscar por nickname o email..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/25" />
+                    <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25" />
+                    <input
+                      type="text"
+                      placeholder="Buscar por nickname o email..."
+                      value={searchQuery}
+                      onChange={e => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/5 border border-white/[0.08] text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 focus:ring-1 focus:ring-[#FF2D78]/20 placeholder:text-white/25 transition-all"
+                    />
                   </div>
-                  <button onClick={fetchUsers} className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-all flex items-center gap-2"><RefreshCw size={14} className={usersLoading ? 'animate-spin' : ''} /> Refrescar</button>
+                  <button
+                    onClick={fetchUsers}
+                    className="px-4 py-2.5 rounded-xl bg-white/5 border border-white/[0.08] text-white/50 text-sm hover:bg-white/[0.08] hover:text-white/70 transition-all flex items-center gap-2"
+                  >
+                    <RefreshCw size={14} className={usersLoading ? 'animate-spin' : ''} />
+                    Refrescar
+                  </button>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-white/40">
-                  <Users size={14} />
-                  <span>{filteredUsers.length} usuario{filteredUsers.length !== 1 ? 's' : ''}</span>
-                  <span className="text-white/20">·</span>
-                  <span className="text-[#FF2D78]">{filteredUsers.filter(u => u.isBanned).length} baneados</span>
-                  <span className="text-white/20">·</span>
-                  <span className="text-[#5865F2]">{filteredUsers.filter(u => u.discordLinked).length} Discord vinculados</span>
+
+                {/* Stats Row */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs text-white/30 px-3 py-1.5 rounded-lg bg-white/[0.03] border border-white/[0.04]">
+                    {filteredUsers.length} usuario{filteredUsers.length !== 1 ? 's' : ''}
+                  </span>
+                  <span className="text-xs text-green-400/80 px-3 py-1.5 rounded-lg bg-green-500/[0.06] border border-green-500/10">
+                    {filteredUsers.filter(u => !u.isBanned).length} activos
+                  </span>
+                  <span className="text-xs text-red-400/80 px-3 py-1.5 rounded-lg bg-red-500/[0.06] border border-red-500/10">
+                    {filteredUsers.filter(u => u.isBanned).length} baneados
+                  </span>
+                  <span className="text-xs text-[#5865F2]/80 px-3 py-1.5 rounded-lg bg-[#5865F2]/[0.06] border border-[#5865F2]/10">
+                    {filteredUsers.filter(u => u.discordLinked).length} Discord
+                  </span>
                 </div>
-                <div className="glass-card overflow-hidden">
+
+                {/* Users Table */}
+                <AdminCard padding={false}>
                   <div className="overflow-x-auto">
                     <Table>
                       <TableHeader>
-                        <TableRow className="border-white/10 hover:bg-transparent">
-                          <TableHead className="text-white/40 text-xs">Usuario</TableHead>
-                          <TableHead className="text-white/40 text-xs">Rol</TableHead>
-                          <TableHead className="text-white/40 text-xs hidden md:table-cell">Discord</TableHead>
-                          <TableHead className="text-white/40 text-xs hidden md:table-cell">Estado</TableHead>
-                          <TableHead className="text-white/40 text-xs hidden lg:table-cell">Comentarios</TableHead>
-                          <TableHead className="text-white/40 text-xs hidden lg:table-cell">Registro</TableHead>
-                          <TableHead className="text-white/40 text-xs text-right">Acciones</TableHead>
+                        <TableRow className="border-white/[0.06] hover:bg-transparent bg-white/[0.02]">
+                          <TableHead className="text-white/35 text-[11px] font-medium uppercase tracking-wider">Usuario</TableHead>
+                          <TableHead className="text-white/35 text-[11px] font-medium uppercase tracking-wider">Rol</TableHead>
+                          <TableHead className="text-white/35 text-[11px] font-medium uppercase tracking-wider hidden md:table-cell">Discord</TableHead>
+                          <TableHead className="text-white/35 text-[11px] font-medium uppercase tracking-wider hidden md:table-cell">Estado</TableHead>
+                          <TableHead className="text-white/35 text-[11px] font-medium uppercase tracking-wider hidden lg:table-cell">Comentarios</TableHead>
+                          <TableHead className="text-white/35 text-[11px] font-medium uppercase tracking-wider hidden lg:table-cell">Registro</TableHead>
+                          <TableHead className="text-white/35 text-[11px] font-medium uppercase tracking-wider text-right">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {filteredUsers.map(u => (
-                          <TableRow key={u.id} className="border-white/5 hover:bg-white/5">
+                        {filteredUsers.map((u, idx) => (
+                          <TableRow key={u.id} className={`border-white/[0.04] hover:bg-white/[0.03] transition-colors ${idx % 2 === 1 ? 'bg-white/[0.01]' : ''}`}>
                             <TableCell>
                               <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0">
-                                  {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center"><Users size={14} className="text-white" /></div>}
+                                <div className="w-9 h-9 rounded-lg overflow-hidden shrink-0 bg-gradient-to-br from-[#FF2D78] to-[#a855f7]">
+                                  {u.avatar ? <img src={u.avatar} alt="" className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center"><Users size={14} className="text-white" /></div>}
                                 </div>
                                 <div className="min-w-0">
-                                  <p className="text-sm font-medium text-white truncate max-w-[140px]">{u.nickname}{u.isPremium && <Crown size={12} className="inline text-yellow-400 ml-1" />}</p>
-                                  {u.email && <p className="text-xs text-white/30 truncate max-w-[140px]">{u.email}</p>}
+                                  <p className="text-sm font-medium text-white truncate max-w-[160px]">
+                                    {u.nickname}
+                                    {u.isPremium && <Crown size={12} className="inline text-yellow-400 ml-1.5" />}
+                                  </p>
+                                  {u.email && <p className="text-[11px] text-white/25 truncate max-w-[160px]">{u.email}</p>}
                                 </div>
                               </div>
                             </TableCell>
                             <TableCell>
-                              <Select value={u.role} onValueChange={val => handleRoleChange(u.id, val)} disabled={u.role === 'owner' || (user.role === 'admin' && u.role === 'admin')}>
-                                <SelectTrigger className="w-[100px] h-8 text-xs bg-white/5 border-white/10 text-white"><SelectValue /></SelectTrigger>
-                                <SelectContent className="bg-[#0d0d24] border-white/10">
-                                  <SelectItem value="user" className="text-white/70">Usuario</SelectItem>
-                                  <SelectItem value="collaborator" className="text-white/70">Colaborador</SelectItem>
-                                  <SelectItem value="moderator" className="text-white/70">Moderador</SelectItem>
-                                  <SelectItem value="admin" className="text-white/70">Admin</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <div className="relative">
+                                <button
+                                  onClick={() => setRoleChangeUser(roleChangeUser?.id === u.id ? null : u)}
+                                  disabled={u.role === 'owner' || (user.role === 'admin' && u.role === 'admin')}
+                                  className="px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all hover:opacity-80 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                                  style={{
+                                    backgroundColor: `${u.role === 'owner' ? '#eab308' : u.role === 'admin' ? '#ef4444' : u.role === 'moderator' ? '#4D9FFF' : u.role === 'collaborator' ? '#22c55e' : '#fff'}15`,
+                                    color: u.role === 'owner' ? '#facc15' : u.role === 'admin' ? '#f87171' : u.role === 'moderator' ? '#4D9FFF' : u.role === 'collaborator' ? '#4ade80' : '#999',
+                                    borderColor: `${u.role === 'owner' ? '#eab308' : u.role === 'admin' ? '#ef4444' : u.role === 'moderator' ? '#4D9FFF' : u.role === 'collaborator' ? '#22c55e' : '#fff'}25`,
+                                  }}
+                                >
+                                  {roleLabels[u.role] || u.role}
+                                  {(u.role !== 'owner' && !(user.role === 'admin' && u.role === 'admin')) && (
+                                    <UserCog size={10} className="inline ml-1 opacity-50" />
+                                  )}
+                                </button>
+                                {/* Role Change Popover */}
+                                <AnimatePresence>
+                                  {roleChangeUser?.id === u.id && (
+                                    <motion.div
+                                      initial={{ opacity: 0, scale: 0.95, y: -4 }}
+                                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                                      exit={{ opacity: 0, scale: 0.95, y: -4 }}
+                                      className="absolute top-full mt-1 left-0 z-20 bg-[#12122a] border border-white/[0.08] rounded-xl p-1.5 shadow-xl shadow-black/30 min-w-[120px]"
+                                    >
+                                      {['user', 'collaborator', 'moderator', 'admin'].map(role => (
+                                        <button
+                                          key={role}
+                                          onClick={() => { handleRoleChange(u.id, role); setRoleChangeUser(null); }}
+                                          className={`w-full text-left px-3 py-1.5 rounded-lg text-xs transition-all hover:bg-white/5 ${
+                                            u.role === role ? 'text-white/80 bg-white/5' : 'text-white/50'
+                                          }`}
+                                        >
+                                          {role === 'user' ? 'Usuario' : role === 'collaborator' ? 'Colaborador' : role === 'moderator' ? 'Moderador' : 'Admin'}
+                                        </button>
+                                      ))}
+                                    </motion.div>
+                                  )}
+                                </AnimatePresence>
+                              </div>
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
                               {u.discordLinked ? (
-                                <span className="flex items-center gap-1 text-xs text-[#5865F2]"><MessageSquare size={12} /> Vinculado</span>
+                                <span className="flex items-center gap-1.5 text-xs text-[#5865F2]/80">
+                                  <MessageCircle size={12} />
+                                  Vinculado
+                                </span>
                               ) : (
-                                <span className="text-xs text-white/20">No vinculado</span>
+                                <span className="text-xs text-white/15">—</span>
                               )}
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
-                              <Badge variant="outline" className={u.isBanned ? 'border-red-500/30 bg-red-500/10 text-red-400' : 'border-green-500/30 bg-green-500/10 text-green-400'}>
-                                {u.isBanned ? <><Ban size={10} className="mr-1" /> Baneado</> : <><CheckCircle size={10} className="mr-1" /> Activo</>}
-                              </Badge>
+                              <div className="flex items-center gap-1.5">
+                                <div className={`w-1.5 h-1.5 rounded-full ${u.isBanned ? 'bg-red-400' : 'bg-green-400'}`} />
+                                <span className={`text-xs ${u.isBanned ? 'text-red-400/70' : 'text-green-400/70'}`}>
+                                  {u.isBanned ? 'Baneado' : 'Activo'}
+                                </span>
+                              </div>
                             </TableCell>
-                            <TableCell className="hidden lg:table-cell"><span className="text-sm text-white/50">{u._count?.comments || 0}</span></TableCell>
-                            <TableCell className="hidden lg:table-cell"><span className="text-xs text-white/30">{new Date(u.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: '2-digit' })}</span></TableCell>
+                            <TableCell className="hidden lg:table-cell"><span className="text-xs text-white/30">{u._count?.comments || 0}</span></TableCell>
+                            <TableCell className="hidden lg:table-cell"><span className="text-[11px] text-white/20">{new Date(u.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: '2-digit' })}</span></TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-1">
                                 {u.isBanned ? (
-                                  <button onClick={() => handleBanToggle(u, false)} className="p-2 rounded-lg text-green-400 hover:bg-green-500/10 transition-all" title="Desbanear"><CheckCircle size={16} /></button>
+                                  <button onClick={() => handleBanToggle(u, false)} className="p-2 rounded-lg text-green-400/70 hover:text-green-400 hover:bg-green-500/10 transition-all" title="Desbanear"><CheckCircle size={16} /></button>
                                 ) : (
-                                  <button onClick={() => handleBanToggle(u, true)} className="p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-all" title="Banear"><Ban size={16} /></button>
+                                  <button onClick={() => handleBanToggle(u, true)} className="p-2 rounded-lg text-red-400/50 hover:text-red-400 hover:bg-red-500/10 transition-all" title="Banear"><Ban size={16} /></button>
                                 )}
                               </div>
                             </TableCell>
                           </TableRow>
                         ))}
-                        {filteredUsers.length === 0 && <TableRow><TableCell colSpan={7} className="text-center py-8 text-white/30">No se encontraron usuarios</TableCell></TableRow>}
+                        {filteredUsers.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={7} className="text-center py-12">
+                              <div className="flex flex-col items-center text-white/20">
+                                <Users size={32} strokeWidth={1} />
+                                <p className="text-sm mt-2">No se encontraron usuarios</p>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
                       </TableBody>
                     </Table>
                   </div>
-                </div>
-              </TabsContent>
+                </AdminCard>
+              </motion.div>
+            )}
 
-              {/* ==================== COMMENTS ==================== */}
-              <TabsContent value="comments" className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-sm text-white/40"><MessageSquare size={14} /><span>{allComments.length} comentarios recientes</span></div>
-                  <button onClick={fetchStats} className="px-4 py-2 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-all flex items-center gap-2"><RefreshCw size={14} /> Refrescar</button>
-                </div>
-                <div className="space-y-3 max-h-[600px] overflow-y-auto">
-                  {allComments.map(c => (
-                    <div key={c.id} className="glass-card p-4 flex items-start gap-4 group">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#a855f7] to-[#4D9FFF] flex items-center justify-center shrink-0"><MessageSquare size={16} className="text-white" /></div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="text-sm font-medium text-white">{c.author?.nickname || 'Anonimo'}</span>
-                          <span className="text-xs text-white/30">{formatTimeAgo(c.createdAt)}</span>
-                          {c.reports > 0 && <Badge variant="outline" className="border-red-500/30 bg-red-500/10 text-red-400 text-xs"><AlertTriangle size={10} className="mr-1" /> {c.reports} reporte{c.reports !== 1 ? 's' : ''}</Badge>}
-                        </div>
-                        <p className="text-sm text-white/60 line-clamp-2">{c.content}</p>
-                      </div>
-                      <button onClick={() => handleDeleteComment(c.id)} className="p-2 rounded-lg text-white/20 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100" title="Eliminar"><Trash2 size={16} /></button>
-                    </div>
-                  ))}
-                  {allComments.length === 0 && <div className="glass-card p-8 text-center"><MessageSquare size={32} className="mx-auto text-white/10 mb-3" /><p className="text-sm text-white/30">No hay comentarios aun</p></div>}
-                </div>
-              </TabsContent>
-
-              {/* ==================== DISCORD ==================== */}
-              <TabsContent value="discord" className="space-y-6">
-                {/* Bot Status Card */}
-                <div className="glass-card p-6">
-                  <div className="flex items-center justify-between mb-4">
+            {/* ═══════════════ COMMENTS ═══════════════ */}
+            {activeTab === 'comments' && (
+              <motion.div key="comments" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
+                {/* Header */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#a855f7]/[0.06] to-[#4D9FFF]/[0.06] border border-white/[0.07] p-5">
+                  <div className="flex items-center justify-between relative">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center">
-                        {botStatus?.connected ? <Wifi size={20} className="text-green-400" /> : <WifiOff size={20} className="text-red-400" />}
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#a855f7] to-[#4D9FFF] flex items-center justify-center shadow-lg shadow-[#a855f7]/15">
+                        <MessageSquare size={18} className="text-white" />
                       </div>
                       <div>
-                        <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Estado del Bot</h3>
-                        <p className="text-xs text-white/40">Conectividad y estadisticas</p>
+                        <h2 className="text-base font-bold text-white">Moderacion de Comentarios</h2>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs text-white/40">{allComments.length} comentarios recientes</span>
+                          {allComments.some(c => c.reports > 0) && (
+                            <Badge className="bg-red-500/15 text-red-400 border-red-500/25 text-[10px]">
+                              <AlertTriangle size={10} className="mr-1" />
+                              {allComments.filter(c => c.reports > 0).length} con reportes
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <button onClick={fetchBotStatus} disabled={statusLoading} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/50 text-xs hover:bg-white/10 transition-all flex items-center gap-1">
-                      <RefreshCw size={12} className={statusLoading ? 'animate-spin' : ''} /> Verificar
+                    <button onClick={fetchStats} className="px-3.5 py-2 rounded-xl bg-white/5 border border-white/[0.08] text-white/50 text-xs hover:bg-white/[0.08] hover:text-white/70 transition-all flex items-center gap-1.5">
+                      <RefreshCw size={13} /> Refrescar
+                    </button>
+                  </div>
+                </div>
+
+                <div className="space-y-3 max-h-[calc(100vh-280px)] overflow-y-auto pr-1">
+                  {allComments.map(c => (
+                    <div key={c.id} className="group relative bg-gradient-to-br from-white/[0.03] to-white/[0.01] border border-white/[0.06] border-l-2 border-l-[#FF2D78]/50 rounded-xl p-4 hover:border-white/[0.1] transition-all duration-200 hover:shadow-lg hover:shadow-black/5">
+                      <div className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-[#a855f7] to-[#4D9FFF] flex items-center justify-center shrink-0 mt-0.5 shadow-sm">
+                          <MessageSquare size={14} className="text-white" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                            <span className="text-sm font-semibold text-white/90">{c.author?.nickname || 'Anonimo'}</span>
+                            {c.reports > 0 && (
+                              <Badge className="bg-red-500/10 text-red-400 border-red-500/20 text-[10px] py-0 px-1.5">
+                                <AlertTriangle size={9} className="mr-0.5" />
+                                {c.reports} reporte{c.reports > 1 ? 's' : ''}
+                              </Badge>
+                            )}
+                            <span className="text-[11px] text-white/20 ml-auto">{formatTimeAgo(c.createdAt)}</span>
+                          </div>
+                          <p className="text-sm text-white/50 line-clamp-2 leading-relaxed">{c.content}</p>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteComment(c.id)}
+                          className="p-1.5 rounded-lg text-white/15 hover:text-red-400 hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100 shrink-0"
+                          title="Eliminar"
+                        >
+                          <Trash2 size={15} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                  {allComments.length === 0 && (
+                    <div className="flex flex-col items-center justify-center py-20 text-white/15">
+                      <MessageSquare size={44} strokeWidth={1} />
+                      <p className="text-sm mt-3 text-white/25">No hay comentarios aun</p>
+                      <p className="text-xs text-white/15 mt-1">Los comentarios nuevos apareceran aqui</p>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            )}
+
+            {/* ═══════════════ DISCORD ═══════════════ */}
+            {activeTab === 'discord' && (
+              <motion.div key="discord" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
+                {/* Section Header */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#5865F2]/[0.06] to-[#5865F2]/[0.02] border border-white/[0.07] p-5">
+                  <div className="flex items-center gap-3 relative">
+                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#5865F2] to-[#7289DA] flex items-center justify-center shadow-lg shadow-[#5865F2]/15">
+                      <MessageCircle size={18} className="text-white" />
+                    </div>
+                    <div>
+                      <h2 className="text-base font-bold text-white">Integracion con Discord</h2>
+                      <p className="text-[11px] text-white/40">Bot, webhook, roles y OAuth2</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bot Status Card */}
+                <AdminCard>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center">
+                        {botStatus?.connected ? <Wifi size={18} className="text-green-400" /> : <WifiOff size={18} className="text-red-400/60" />}
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-white/90">Estado del Bot</h3>
+                        <p className="text-[11px] text-white/30">Conectividad y estadisticas</p>
+                      </div>
+                    </div>
+                    <button onClick={fetchBotStatus} disabled={statusLoading} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/[0.08] text-white/40 text-[11px] hover:bg-white/[0.08] transition-all flex items-center gap-1.5 disabled:opacity-50">
+                      <RefreshCw size={11} className={statusLoading ? 'animate-spin' : ''} /> Verificar
                     </button>
                   </div>
 
                   {statusLoading && !botStatus ? (
-                    <div className="flex items-center justify-center py-8"><Loader2 size={24} className="animate-spin text-white/30" /></div>
+                    <div className="flex items-center justify-center py-10">
+                      <Loader2 size={24} className="animate-spin text-white/20" />
+                    </div>
                   ) : botStatus ? (
                     <div className="space-y-4">
                       {/* Connection Status */}
-                      <div className={`flex items-center gap-3 p-3 rounded-xl border ${botStatus.connected ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'}`}>
+                      <div className={`flex items-center gap-3 p-3.5 rounded-xl border ${botStatus.connected ? 'bg-green-500/[0.04] border-green-500/15' : 'bg-red-500/[0.04] border-red-500/15'}`}>
                         {botStatus.connected ? (
                           <>
                             {botStatus.botAvatar && <img src={botStatus.botAvatar} alt="" className="w-10 h-10 rounded-full" />}
                             <div>
                               <p className="text-sm font-medium text-green-400">{botStatus.botUsername}</p>
-                              <p className="text-xs text-white/40">Conectado correctamente</p>
+                              <p className="text-[11px] text-white/30">Conectado correctamente</p>
                             </div>
                           </>
                         ) : (
                           <>
-                            <div className="w-10 h-10 rounded-full bg-red-500/20 flex items-center justify-center"><Bot size={20} className="text-red-400" /></div>
+                            <div className="w-10 h-10 rounded-full bg-red-500/15 flex items-center justify-center"><Bot size={18} className="text-red-400/60" /></div>
                             <div>
                               <p className="text-sm font-medium text-red-400">Desconectado</p>
-                              <p className="text-xs text-white/40">{botStatus.message}</p>
+                              <p className="text-[11px] text-white/30">{botStatus.message}</p>
                             </div>
                           </>
                         )}
@@ -500,215 +943,297 @@ export default function AdminPanel() {
 
                       {/* Stats Grid */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                        <div className="text-center p-3 rounded-xl bg-white/5">
-                          <p className="text-lg font-bold text-white">{botStatus.linkedUsers}</p>
-                          <p className="text-[10px] text-white/40">Cuentas vinculadas</p>
-                        </div>
-                        <div className="text-center p-3 rounded-xl bg-white/5">
-                          <p className="text-lg font-bold text-white">{botStatus.server?.memberCount || '—'}</p>
-                          <p className="text-[10px] text-white/40">Miembros del server</p>
-                        </div>
-                        <div className="text-center p-3 rounded-xl bg-white/5">
-                          <p className="text-lg font-bold text-white">{botStatus.roleConfig?.hasAdminRole ? '✓' : '—'}</p>
-                          <p className="text-[10px] text-white/40">Rol Admin</p>
-                        </div>
-                        <div className="text-center p-3 rounded-xl bg-white/5">
-                          <p className="text-lg font-bold text-white">{botStatus.hasClientId ? '✓' : '—'}</p>
-                          <p className="text-[10px] text-white/40">OAuth2 Config</p>
-                        </div>
+                        {[
+                          { label: 'Cuentas vinculadas', value: botStatus.linkedUsers, check: null },
+                          { label: 'Miembros', value: botStatus.server?.memberCount || '—', check: null },
+                          { label: 'Rol Admin', value: null, check: botStatus.roleConfig?.hasAdminRole },
+                          { label: 'OAuth2', value: null, check: botStatus.hasClientId },
+                        ].map((s, i) => (
+                          <div key={i} className="text-center p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
+                            <p className="text-lg font-bold text-white/80">{s.check !== null ? (s.check ? '✓' : '—') : s.value}</p>
+                            <p className="text-[10px] text-white/25 mt-0.5">{s.label}</p>
+                          </div>
+                        ))}
                       </div>
 
                       {/* Role Sync Button */}
-                      <div className="flex flex-col sm:flex-row gap-3">
-                        <button onClick={() => setShowSyncDialog(true)} className="flex-1 py-3 rounded-xl bg-[#5865F2]/10 border border-[#5865F2]/30 text-[#5865F2] text-sm font-medium hover:bg-[#5865F2]/20 transition-all flex items-center justify-center gap-2">
-                          <ArrowUpDown size={16} /> Sincronizar Roles a Discord
+                      <button onClick={() => setShowSyncDialog(true)} className="w-full py-2.5 rounded-xl bg-[#5865F2]/10 border border-[#5865F2]/20 text-[#5865F2]/90 text-sm font-medium hover:bg-[#5865F2]/15 transition-all flex items-center justify-center gap-2">
+                        <ArrowUpDown size={15} /> Sincronizar Roles a Discord
+                      </button>
+                    </div>
+                  ) : (
+                    <p className="text-sm text-white/25 text-center py-8">No se pudo obtener el estado</p>
+                  )}
+                </AdminCard>
+
+                {/* Webhook Configuration */}
+                <AdminCard>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center">
+                      <Zap size={18} className="text-[#5865F2]" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white/90">Webhook de Notificaciones</h3>
+                      <p className="text-[11px] text-white/30">Canal de destino para alertas</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">Discord Webhook URL</label>
+                      <AdminInput
+                        value={dcForm.webhookUrl}
+                        onChange={e => setDcForm(prev => ({ ...prev, webhookUrl: e.target.value }))}
+                        placeholder="https://discord.com/api/webhooks/xxx/xxx"
+                      />
+                    </div>
+                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#5865F2]/[0.04] border border-[#5865F2]/10">
+                      <Info size={14} className="text-[#5865F2]/70 shrink-0 mt-0.5" />
+                      <p className="text-[11px] text-white/35 leading-relaxed">Crea un webhook en tu servidor de Discord: Editar Canal &gt; Integraciones &gt; Webhooks &gt; Nuevo Webhook. Copia la URL y pegala aqui.</p>
+                    </div>
+                  </div>
+                </AdminCard>
+
+                {/* Role Mapping */}
+                <AdminCard>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center">
+                      <ShieldCheck size={18} className="text-[#5865F2]" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white/90">Mapeo de Roles</h3>
+                      <p className="text-[11px] text-white/30">Sincronizacion bidireccional</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {[
+                      { key: 'adminRoleId' as const, label: 'ID Rol Admin', value: dcForm.adminRoleId },
+                      { key: 'modRoleId' as const, label: 'ID Rol Moderador', value: dcForm.modRoleId },
+                      { key: 'collabRoleId' as const, label: 'ID Rol Colaborador', value: dcForm.collabRoleId },
+                    ].map(field => (
+                      <div key={field.key}>
+                        <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">{field.label}</label>
+                        <AdminInput
+                          value={field.value}
+                          onChange={e => setDcForm(prev => ({ ...prev, [field.key]: e.target.value }))}
+                          placeholder="123456789012345678"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#5865F2]/[0.04] border border-[#5865F2]/10 mt-4">
+                    <Info size={14} className="text-[#5865F2]/70 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-white/35 leading-relaxed">Los roles se sincronizan bidireccionalmente. Los admins obtienen automaticamente los roles de mod y colab.</p>
+                  </div>
+                </AdminCard>
+
+                {/* OAuth2 Configuration */}
+                <AdminCard>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center">
+                      <Globe size={18} className="text-[#5865F2]" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-semibold text-white/90">OAuth2 (Vinculacion de cuentas)</h3>
+                      <p className="text-[11px] text-white/30">Discord Developer Portal</p>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">Client ID</label>
+                      <AdminInput
+                        value={dcForm.discordClientId}
+                        onChange={e => setDcForm(prev => ({ ...prev, discordClientId: e.target.value }))}
+                        placeholder="123456789012345678"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">Client Secret</label>
+                      <div className="relative">
+                        <AdminInput
+                          type={showClientSecret ? 'text' : 'password'}
+                          value={dcForm.discordClientSecret}
+                          onChange={e => setDcForm(prev => ({ ...prev, discordClientSecret: e.target.value }))}
+                          placeholder={discordConfig?.hasClientSecret ? 'Secret configurado (dejar vacio para mantener)' : 'Client Secret de Discord'}
+                          className="pr-10"
+                        />
+                        <button onClick={() => setShowClientSecret(!showClientSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors">
+                          {showClientSecret ? <EyeOff size={15} /> : <Eye size={15} />}
                         </button>
                       </div>
                     </div>
-                  ) : (
-                    <p className="text-sm text-white/30 text-center py-4">No se pudo obtener el estado</p>
-                  )}
-                </div>
-
-                {/* Configuration Card */}
-                <div className="glass-card p-6">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-10 h-10 rounded-xl bg-[#5865F2]/10 flex items-center justify-center"><Settings size={20} className="text-[#5865F2]" /></div>
                     <div>
-                      <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Configuracion</h3>
-                      <p className="text-xs text-white/40">Webhook de notificaciones, roles y OAuth2</p>
+                      <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">URL del Sitio</label>
+                      <AdminInput
+                        value={dcForm.siteUrl}
+                        onChange={e => setDcForm(prev => ({ ...prev, siteUrl: e.target.value }))}
+                        placeholder="https://tu-sitio.pages.dev"
+                      />
+                    </div>
+                    <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#5865F2]/[0.04] border border-[#5865F2]/10">
+                      <Info size={14} className="text-[#5865F2]/70 shrink-0 mt-0.5" />
+                      <p className="text-[11px] text-white/35 leading-relaxed">
+                        Crea una aplicacion en el <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer" className="text-[#5865F2] underline underline-offset-2">Portal de Desarrolladores de Discord</a>. En OAuth2, agrega el redirect URI: <code className="text-white/50 bg-white/5 px-1.5 py-0.5 rounded text-[10px]">TU_SITIO/api/auth/discord/callback</code>
+                      </p>
                     </div>
                   </div>
-                  <div className="space-y-5">
-                    {/* Webhook de Notificaciones */}
-                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                      <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">Webhook de Notificaciones</h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="text-xs text-white/40 block mb-1.5 flex items-center gap-1.5"><Zap size={12} /> Discord Webhook URL</label>
-                          <input type="text" value={dcForm.webhookUrl} onChange={e => setDcForm(prev => ({ ...prev, webhookUrl: e.target.value }))} placeholder="https://discord.com/api/webhooks/xxx/xxx" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
-                        </div>
-                        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-[#5865F2]/5 border border-[#5865F2]/10">
-                          <Info size={14} className="text-[#5865F2] shrink-0 mt-0.5" />
-                          <p className="text-[11px] text-white/40">Crea un webhook en tu servidor de Discord: Editar Canal &gt; Integraciones &gt; Webhooks &gt; Nuevo Webhook. Copia la URL y pegala aqui. Las notificaciones de nuevos comentarios se enviaran a este canal.</p>
-                        </div>
-                      </div>
-                    </div>
+                </AdminCard>
 
-                    {/* Role Mapping */}
-                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                      <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">Mapeo de Roles</h4>
-                      <div className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                          <div>
-                            <label className="text-xs text-white/40 block mb-1.5">ID Rol Admin</label>
-                            <input type="text" value={dcForm.adminRoleId} onChange={e => setDcForm(prev => ({ ...prev, adminRoleId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
-                          </div>
-                          <div>
-                            <label className="text-xs text-white/40 block mb-1.5">ID Rol Moderador</label>
-                            <input type="text" value={dcForm.modRoleId} onChange={e => setDcForm(prev => ({ ...prev, modRoleId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
-                          </div>
-                          <div>
-                            <label className="text-xs text-white/40 block mb-1.5">ID Rol Colaborador</label>
-                            <input type="text" value={dcForm.collabRoleId} onChange={e => setDcForm(prev => ({ ...prev, collabRoleId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
-                          </div>
-                        </div>
-                        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-[#5865F2]/5 border border-[#5865F2]/10">
-                          <Info size={14} className="text-[#5865F2] shrink-0 mt-0.5" />
-                          <p className="text-[11px] text-white/40">Los roles se sincronizan bidireccionalmente. Los roles de Discord se reflejan en la web y viceversa. Los admins obtienen automaticamente los roles de mod y colab tambien.</p>
-                        </div>
-                      </div>
+                {/* Notification Toggle */}
+                <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl p-5 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center">
+                      <Bell size={16} className="text-white/30" />
                     </div>
-
-                    {/* OAuth2 Configuration */}
-                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5">
-                      <h4 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-3">OAuth2 (Vinculacion de cuentas)</h4>
-                      <div className="space-y-4">
-                        <div>
-                          <label className="text-xs text-white/40 block mb-1.5">Client ID de la Aplicacion</label>
-                          <input type="text" value={dcForm.discordClientId} onChange={e => setDcForm(prev => ({ ...prev, discordClientId: e.target.value }))} placeholder="123456789012345678" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
-                        </div>
-                        <div>
-                          <label className="text-xs text-white/40 block mb-1.5">Client Secret</label>
-                          <div className="relative">
-                            <input type={showClientSecret ? 'text' : 'password'} value={dcForm.discordClientSecret} onChange={e => setDcForm(prev => ({ ...prev, discordClientSecret: e.target.value }))} placeholder={discordConfig?.hasClientSecret ? 'Secret configurado (dejar vacio para mantener)' : 'Client Secret de Discord'} className="w-full px-4 py-2.5 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
-                            <button onClick={() => setShowClientSecret(!showClientSecret)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">{showClientSecret ? <EyeOff size={16} /> : <Eye size={16} />}</button>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="text-xs text-white/40 block mb-1.5">URL del Sitio (para redirect OAuth2)</label>
-                          <input type="text" value={dcForm.siteUrl} onChange={e => setDcForm(prev => ({ ...prev, siteUrl: e.target.value }))} placeholder="https://tu-sitio.pages.dev" className="w-full px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#5865F2]/50 placeholder:text-white/25" />
-                        </div>
-                        <div className="flex items-start gap-2 p-2.5 rounded-lg bg-[#5865F2]/5 border border-[#5865F2]/10">
-                          <Info size={14} className="text-[#5865F2] shrink-0 mt-0.5" />
-                          <p className="text-[11px] text-white/40">Crea una aplicacion en el <a href="https://discord.com/developers/applications" target="_blank" rel="noopener noreferrer" className="text-[#5865F2] underline">Portal de Desarrolladores de Discord</a>. En OAuth2, agrega el redirect URI: <code className="text-white/60 bg-white/5 px-1 rounded">TU_SITIO/api/auth/discord/callback</code></p>
-                        </div>
-                      </div>
+                    <div>
+                      <p className="text-sm font-medium text-white/70">Notificaciones de comentarios</p>
+                      <p className="text-[11px] text-white/25">Enviar avisos a Discord cuando alguien comente</p>
                     </div>
+                  </div>
+                  <button
+                    onClick={() => setDcForm(prev => ({ ...prev, notificationEnabled: !prev.notificationEnabled }))}
+                    className={`relative w-11 h-6 rounded-full transition-colors ${dcForm.notificationEnabled ? 'bg-[#5865F2]' : 'bg-white/10'}`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-md transition-transform ${dcForm.notificationEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
+                  </button>
+                </div>
 
-                    <div className="flex gap-3">
-                      <button onClick={handleDiscordSave} disabled={discordLoading} className="flex-1 py-3 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-                        {discordLoading ? <><div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full" /> Guardando...</> : <><Save size={16} /> Guardar Configuracion</>}
-                      </button>
-                      <button onClick={async () => {
-                        try {
-                          const res = await fetch('/api/admin/discord/test', { method: 'POST' });
-                          const data = await res.json();
-                          if (data.success) {
-                            alert('Notificacion de prueba enviada correctamente! Revisa tu canal de Discord.');
-                          } else {
-                            alert('Error: ' + (data.message || 'No se pudo enviar la prueba. Verifica que el Webhook URL este configurado.'));
-                          }
-                        } catch (e) {
-                          alert('Error de conexion al enviar la prueba.');
+                {/* Save & Test Buttons */}
+                <div className="flex gap-3">
+                  <button onClick={handleDiscordSave} disabled={discordLoading} className="flex-1 py-3 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-[#5865F2]/10">
+                    {discordLoading ? <><Loader2 size={15} className="animate-spin" /> Guardando...</> : <><Save size={15} /> Guardar Configuracion</>}
+                  </button>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const res = await fetch('/api/admin/discord/test', { method: 'POST' });
+                        const data = await res.json();
+                        if (data.success) {
+                          toast.success('Notificacion de prueba enviada! Revisa tu canal de Discord.');
+                        } else {
+                          toast.error(data.message || 'No se pudo enviar la prueba.');
                         }
-                      }} className="py-3 px-5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white/70 hover:text-white font-medium text-sm transition-all flex items-center gap-2">
-                        <Zap size={16} /> Probar Webhook
-                      </button>
-                    </div>
+                      } catch {
+                        toast.error('Error de conexion al enviar la prueba.');
+                      }
+                    }}
+                    className="py-3 px-5 rounded-xl bg-white/5 hover:bg-white/[0.08] border border-white/[0.08] text-white/50 hover:text-white/70 font-medium text-sm transition-all flex items-center gap-2"
+                  >
+                    <Zap size={15} /> Probar Webhook
+                  </button>
+                </div>
+              </motion.div>
+            )}
 
-                    {/* Notification Toggle */}
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-white/[0.02] border border-white/5">
+            {/* ═══════════════ LOGS ═══════════════ */}
+            {activeTab === 'logs' && (
+              <motion.div key="logs" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
+                {/* Section Header */}
+                <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#4D9FFF]/[0.06] to-[#4D9FFF]/[0.02] border border-white/[0.07] p-5">
+                  <div className="flex items-center justify-between relative">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#4D9FFF] to-[#00D4FF] flex items-center justify-center shadow-lg shadow-[#4D9FFF]/15">
+                        <FileText size={18} className="text-white" />
+                      </div>
                       <div>
-                        <p className="text-sm font-medium text-white/70">Notificaciones de comentarios</p>
-                        <p className="text-[11px] text-white/30">Enviar avisos a Discord cuando alguien comente en un proyecto</p>
+                        <h2 className="text-base font-bold text-white">Registro de Actividad</h2>
+                        <p className="text-[11px] text-white/40">Historial de eventos de la plataforma</p>
                       </div>
-                      <button
-                        onClick={() => setDcForm(prev => ({ ...prev, notificationEnabled: !prev.notificationEnabled }))}
-                        className={`relative w-11 h-6 rounded-full transition-colors ${dcForm.notificationEnabled ? 'bg-[#5865F2]' : 'bg-white/10'}`}
-                      >
-                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${dcForm.notificationEnabled ? 'translate-x-5' : 'translate-x-0'}`} />
-                      </button>
                     </div>
+                    <span className="text-[10px] text-white/20 uppercase tracking-widest bg-white/[0.03] px-2.5 py-1 rounded-full">{logs?.length || 0} registros</span>
                   </div>
                 </div>
-              </TabsContent>
 
-              {/* ==================== LOGS ==================== */}
-              <TabsContent value="logs" className="space-y-6">
-                <div className="glass-card p-6">
-                  <h3 className="font-bold text-white mb-4 text-base" style={{ fontFamily: "'Space Grotesk', sans-serif" }}><Clock size={18} className="inline mr-2 text-[#22c55e]" /> Registro de Actividad</h3>
-                  <div className="space-y-3 max-h-[600px] overflow-y-auto">
-                    {(logs || []).map(log => (
-                      <div key={log.id} className="flex items-start gap-3 p-3 rounded-xl bg-white/5 border border-white/5">
-                        <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0"><Activity size={14} className="text-white/30" /></div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm text-white/70"><span className="font-medium text-white/90">{log.user?.nickname || 'Sistema'}</span> — {actionLabels[log.action] || log.action}</p>
-                          {log.details && <p className="text-xs text-white/40 mt-1">{log.details}</p>}
-                          <p className="text-xs text-white/30 mt-1">{formatTimeAgo(log.createdAt)}</p>
-                        </div>
+                <div className="space-y-1 max-h-[calc(100vh-280px)] overflow-y-auto pr-1">
+                  {(!logs || logs.length === 0) ? (
+                    <div className="flex flex-col items-center justify-center py-24 text-white/15">
+                      <FileText size={44} strokeWidth={1} />
+                      <p className="text-sm mt-3 text-white/25">Sin registros de actividad</p>
+                      <p className="text-xs text-white/15 mt-1">Los eventos apareceran aqui</p>
+                    </div>
+                  ) : logs.map((log, idx) => (
+                    <div
+                      key={log.id}
+                      className={`flex items-start gap-3 p-3.5 rounded-xl transition-all hover:bg-white/[0.03] ${
+                        idx < logs.length - 1 ? 'border-b border-white/[0.03]' : ''
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg ${getActionBgColor(log.action)} flex items-center justify-center shrink-0 ${getActionColor(log.action)}`}>
+                        {getActionIcon(log.action)}
                       </div>
-                    ))}
-                    {(!logs || logs.length === 0) && <p className="text-sm text-white/30 text-center py-8">Sin registros de actividad</p>}
-                  </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-sm font-medium text-white/85">{log.user?.nickname || 'Sistema'}</span>
+                          <span className="text-white/10">·</span>
+                          <span className={`text-xs font-medium ${getActionColor(log.action)}`}>{actionLabels[log.action] || log.action}</span>
+                        </div>
+                        {log.details && <p className="text-[11px] text-white/30 mt-1">{log.details}</p>}
+                      </div>
+                      <span className="text-[10px] text-white/20 shrink-0 mt-0.5 bg-white/[0.02] px-2 py-0.5 rounded-full">{formatTimeAgo(log.createdAt)}</span>
+                    </div>
+                  ))}
                 </div>
-              </TabsContent>
-            </Tabs>
-          </motion.div>
-        </div>
-      </main>
-      <Footer />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </main>
+      </div>
 
-      {/* Ban Dialog */}
+      {/* ─── Ban Dialog ─── */}
       <Dialog open={showBanDialog} onOpenChange={setShowBanDialog}>
-        <DialogContent className="bg-[#0d0d24] border-white/10">
+        <DialogContent className="bg-[#0d0d24] border-white/[0.08] max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white">Banear Usuario</DialogTitle>
-            <DialogDescription className="text-white/50">Estas a punto de banear a <strong className="text-white">{selectedUser?.nickname}</strong></DialogDescription>
+            <DialogTitle className="text-white flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
+                <Ban size={16} className="text-red-400" />
+              </div>
+              Banear Usuario
+            </DialogTitle>
+            <DialogDescription className="text-white/40 ml-10">
+              Estas a punto de banear a <strong className="text-white/70">{selectedUser?.nickname}</strong>
+            </DialogDescription>
           </DialogHeader>
-          <Input placeholder="Razon del ban (opcional)" value={banReason} onChange={e => setBanReason(e.target.value)} className="bg-white/5 border-white/10 text-white placeholder:text-white/25" />
-          <DialogFooter>
-            <button onClick={() => setShowBanDialog(false)} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all">Cancelar</button>
+          <div className="ml-10">
+            <Input placeholder="Razon del ban (opcional)" value={banReason} onChange={e => setBanReason(e.target.value)} className="bg-white/5 border-white/[0.08] text-white placeholder:text-white/20 focus:border-red-500/30" />
+          </div>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <button onClick={() => setShowBanDialog(false)} className="px-4 py-2 rounded-lg bg-white/5 border border-white/[0.08] text-white/60 text-sm hover:bg-white/[0.08] transition-all">Cancelar</button>
             <button onClick={confirmBan} className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-semibold transition-all flex items-center gap-2"><Ban size={14} /> Banear</button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {/* Sync Dialog */}
+      {/* ─── Sync Dialog ─── */}
       <Dialog open={showSyncDialog} onOpenChange={setShowSyncDialog}>
-        <DialogContent className="bg-[#0d0d24] border-white/10">
+        <DialogContent className="bg-[#0d0d24] border-white/[0.08] max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-white">Sincronizar Roles a Discord</DialogTitle>
-            <DialogDescription className="text-white/50">
-              Empuja los roles locales de los usuarios a Discord. Los roles Admin/Moderador/Colaborador se asignaran como roles de Discord.
+            <DialogTitle className="text-white flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-[#5865F2]/10 flex items-center justify-center">
+                <ArrowUpDown size={16} className="text-[#5865F2]" />
+              </div>
+              Sincronizar Roles
+            </DialogTitle>
+            <DialogDescription className="text-white/40 ml-10">
+              Empuja los roles locales a Discord. Admin/Mod/Colab se asignaran como roles de Discord.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-3 mt-2">
-            <div className="flex items-center gap-3">
-              <label className="text-sm text-white/60 flex items-center gap-2">
-                <input type="radio" name="syncTarget" checked={syncTarget === 'special'} onChange={() => setSyncTarget('special')} className="accent-[#5865F2]" />
-                Solo roles especiales (Admin, Mod, Colab)
-              </label>
-            </div>
-            <div className="flex items-center gap-3">
-              <label className="text-sm text-white/60 flex items-center gap-2">
-                <input type="radio" name="syncTarget" checked={syncTarget === 'all'} onChange={() => setSyncTarget('all')} className="accent-[#5865F2]" />
-                Todas las cuentas vinculadas
-              </label>
-            </div>
+          <div className="ml-10 space-y-2.5">
+            <label className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-white/[0.03] transition-all border border-white/[0.04]">
+              <input type="radio" name="syncTarget" checked={syncTarget === 'special'} onChange={() => setSyncTarget('special')} className="accent-[#5865F2]" />
+              <div>
+                <p className="text-sm text-white/70">Roles especiales</p>
+                <p className="text-[11px] text-white/25">Solo Admin, Mod, Colab</p>
+              </div>
+            </label>
+            <label className="flex items-center gap-3 p-3 rounded-lg cursor-pointer hover:bg-white/[0.03] transition-all border border-white/[0.04]">
+              <input type="radio" name="syncTarget" checked={syncTarget === 'all'} onChange={() => setSyncTarget('all')} className="accent-[#5865F2]" />
+              <div>
+                <p className="text-sm text-white/70">Todas las cuentas</p>
+                <p className="text-[11px] text-white/25">Cuentas vinculadas a Discord</p>
+              </div>
+            </label>
           </div>
-          <DialogFooter>
-            <button onClick={() => setShowSyncDialog(false)} className="px-4 py-2 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all">Cancelar</button>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <button onClick={() => setShowSyncDialog(false)} className="px-4 py-2 rounded-lg bg-white/5 border border-white/[0.08] text-white/60 text-sm hover:bg-white/[0.08] transition-all">Cancelar</button>
             <button onClick={handleSyncRoles} disabled={syncLoading} className="px-4 py-2 rounded-lg bg-[#5865F2] hover:bg-[#4752C4] text-white text-sm font-semibold transition-all flex items-center gap-2 disabled:opacity-50">
               {syncLoading ? <><Loader2 size={14} className="animate-spin" /> Sincronizando...</> : <><ArrowUpDown size={14} /> Sincronizar</>}
             </button>
