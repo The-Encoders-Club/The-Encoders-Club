@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getDB, nowISO, toBool } from '@/lib/db';
 import { getSession, destroySession } from '@/lib/session';
 import { verifyPassword } from '@/lib/auth';
-import { notifyUserDeleteAccount } from '@/lib/discord-notification';
 
 // GET: Get current user's full profile with comment count
 export async function GET() {
@@ -219,28 +218,13 @@ export async function DELETE(request: NextRequest) {
       .bind(session.id)
       .run();
 
-    // 4) Send Discord notification (await, before deleting user)
-    try {
-      const discordConfig = await db.prepare('SELECT webhookUrl, siteUrl FROM DiscordConfig LIMIT 1').first();
-      const webhookUrl = discordConfig?.webhookUrl as string | null;
-      const siteUrl = (discordConfig?.siteUrl as string) || undefined;
-      await notifyUserDeleteAccount({
-        nickname: session.nickname,
-        avatar: session.avatar,
-        role: session.role,
-        siteUrl,
-      }, webhookUrl || undefined);
-    } catch (notifErr) {
-      console.error('[Delete Account] Discord notification error:', notifErr);
-    }
-
-    // 5) Delete the user account
+    // 4) Delete the user account
     await db
       .prepare('DELETE FROM User WHERE id = ?')
       .bind(session.id)
       .run();
 
-    // 6) Destroy the session
+    // 5) Destroy the session
     await destroySession();
 
     return NextResponse.json({
