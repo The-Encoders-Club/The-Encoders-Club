@@ -1,16 +1,15 @@
 'use client';
 
 import { useState, useEffect, useRef, Suspense } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   User, Mail, Calendar, Camera, Crown, Lock, Save,
-  Edit3, X, Shield, Star, Loader2, Trash2, AlertTriangle,
-  MessageSquare, Eye, EyeOff, Clock, ChevronRight
+  Edit3, X, Check, Shield, Star, Loader2, Trash2, AlertTriangle,
+  Clock, MessageSquare, Award, Settings, ChevronRight, Eye, EyeOff
 } from 'lucide-react';
 import { toast } from 'sonner';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import BackgroundParticles from '@/components/BackgroundParticles';
 import { useRouter } from 'next/navigation';
 import {
   Dialog,
@@ -65,6 +64,7 @@ function PerfilContent() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/auth/session')
@@ -219,15 +219,26 @@ function PerfilContent() {
     );
   }
 
-  const roleData: Record<string, { color: string; label: string; icon: React.ReactNode }> = {
-    owner: { color: '#eab308', label: 'Owner', icon: <Crown size={14} /> },
-    admin: { color: '#ef4444', label: 'Administrador', icon: <Shield size={14} /> },
-    moderator: { color: '#4D9FFF', label: 'Moderador', icon: <Shield size={14} /> },
-    collaborator: { color: '#22c55e', label: 'Colaborador', icon: <Star size={14} /> },
-    user: { color: '#94a3b8', label: 'Usuario', icon: <User size={14} /> },
+  const roleColors: Record<string, string> = {
+    owner: 'from-yellow-500/20 to-amber-600/20 text-yellow-300 border-yellow-500/30',
+    admin: 'from-red-500/20 to-rose-600/20 text-red-300 border-red-500/30',
+    moderator: 'from-[#4D9FFF]/20 to-blue-600/20 text-[#4D9FFF] border-[#4D9FFF]/30',
+    collaborator: 'from-green-500/20 to-emerald-600/20 text-green-300 border-green-500/30',
   };
-
-  const role = roleData[user.role] || roleData.user;
+  const roleLabels: Record<string, string> = {
+    owner: 'Owner',
+    admin: 'Administrador',
+    moderator: 'Moderador',
+    collaborator: 'Colaborador',
+    user: 'Usuario',
+  };
+  const roleIcons: Record<string, React.ReactNode> = {
+    owner: <Crown size={14} />,
+    admin: <Shield size={14} />,
+    moderator: <Shield size={14} />,
+    collaborator: <Star size={14} />,
+    user: <User size={14} />,
+  };
 
   const memberSince = user.createdAt
     ? new Date(user.createdAt).toLocaleDateString('es-ES', {
@@ -235,427 +246,429 @@ function PerfilContent() {
         month: 'long',
         day: 'numeric',
       })
-    : '';
+    : 'Desconocido';
 
   const memberDays = user.createdAt
     ? Math.floor((Date.now() - new Date(user.createdAt).getTime()) / (1000 * 60 * 60 * 24))
     : 0;
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: { staggerChildren: 0.1, delayChildren: 0.15 },
+    },
+  };
+  const itemVariants = {
+    hidden: { opacity: 0, y: 24 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 1, 0.36, 1] } },
+  };
+
   return (
-    <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#080818] text-white flex flex-col">
       <Navbar />
-      <BackgroundParticles />
-
-      {/* PAGE HEADER — same pattern as proyectos/noticias */}
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-16 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="text-[#FF2D78] text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3 block">
-              Mi cuenta
-            </span>
-            <h1
-              className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
-              Perfil de{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2D78] to-[#a855f7]">
-                Usuario
-              </span>
-            </h1>
-            <p className="text-white/60 text-base sm:text-lg max-w-2xl">
-              Administra tu informacion personal, preferencias y configuracion de seguridad.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* PROFILE CARD — glass-card pattern like home/about */}
-      <section className="pb-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="flex-1 pt-24 pb-20 px-4">
+        <div className="max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="glass-card p-8 sm:p-10 relative overflow-hidden"
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-6"
           >
-            {/* top gradient bar */}
-            <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
+            {/* === PROFILE HERO HEADER === */}
+            <motion.div
+              variants={itemVariants}
+              className="relative overflow-hidden rounded-2xl"
+            >
+              {/* Gradient background banner */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FF2D78]/10 via-[#7C3AED]/10 to-[#4D9FFF]/10" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24] via-transparent to-transparent" />
+              {/* Decorative circles */}
+              <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#FF2D78]/8 rounded-full blur-3xl" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#4D9FFF]/8 rounded-full blur-3xl" />
 
-            {/* avatar + info row */}
-            <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-8">
-              {/* avatar — same style as team member cards on home */}
-              <div
-                className="relative group cursor-pointer shrink-0"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <div
-                  className="w-28 h-28 sm:w-32 sm:h-32 rounded-2xl mb-0 flex items-center justify-center relative overflow-hidden"
-                  style={{
-                    background: user.avatar
-                      ? undefined
-                      : 'linear-gradient(145deg, #FF2D7818 0%, #0d0d24 40%, #a855f710 100%)',
-                    border: user.avatar
-                      ? '2px solid rgba(255,255,255,0.1)'
-                      : '2px solid #FF2D7840',
-                  }}
-                >
-                  {user.avatar ? (
-                    <img
-                      src={user.avatar}
-                      alt={user.nickname}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              <div className="relative p-6 sm:p-8 md:p-10">
+                <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
+                  {/* Avatar */}
+                  <div
+                    className="relative group cursor-pointer shrink-0"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    {/* Avatar glow ring */}
+                    <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] opacity-60 group-hover:opacity-100 blur-sm transition-opacity duration-500" />
+                    <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-white/10 bg-[#0d0d24]">
+                      {user.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={user.nickname}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center">
+                          <User size={48} className="text-white/80" />
+                        </div>
+                      )}
+                    </div>
+                    {/* Hover overlay */}
+                    <div className="absolute inset-1 rounded-xl bg-black/60 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center backdrop-blur-sm">
+                      {uploadingAvatar ? (
+                        <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1">
+                          <Camera size={20} className="text-white" />
+                          <span className="text-[10px] text-white/70">Cambiar</span>
+                        </div>
+                      )}
+                    </div>
+                    {/* Online status dot */}
+                    <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-[#0d0d24] flex items-center justify-center">
+                      <div className="w-3.5 h-3.5 rounded-full bg-green-500 border-2 border-[#0d0d24]" />
+                    </div>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleAvatarUpload}
+                      className="hidden"
                     />
-                  ) : (
-                    <User size={48} className="text-[#FF2D78]/60" />
-                  )}
-                  {/* hover overlay — same as project images */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20">
-                    {uploadingAvatar ? (
-                      <div className="animate-spin w-6 h-6 border-2 border-white border-t-transparent rounded-full" />
+                  </div>
+
+                  {/* User Info */}
+                  <div className="text-center md:text-left flex-1">
+                    <div className="flex flex-col sm:flex-row items-center gap-3 mb-3">
+                      <h2
+                        className="text-3xl sm:text-4xl font-bold text-white tracking-tight"
+                        style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                      >
+                        {user.nickname}
+                      </h2>
+                      {user.isPremium && (
+                        <motion.span
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="flex items-center gap-1.5 bg-gradient-to-r from-yellow-500/20 to-amber-500/20 border border-yellow-500/30 text-yellow-300 text-xs font-bold px-3 py-1.5 rounded-full"
+                        >
+                          <Crown size={14} className="fill-yellow-300" />
+                          PREMIUM
+                        </motion.span>
+                      )}
+                    </div>
+
+                    {/* Role badge */}
+                    <div className="flex items-center gap-2 justify-center md:justify-start mb-4">
+                      <span
+                        className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full border bg-gradient-to-r ${
+                          roleColors[user.role] || 'bg-white/10 text-white/50 border-white/20'
+                        }`}
+                      >
+                        {roleIcons[user.role]}
+                        {roleLabels[user.role] || user.role}
+                      </span>
+                    </div>
+
+                    {/* Meta info */}
+                    <div className="flex flex-wrap items-center gap-4 text-sm text-white/50 justify-center md:justify-start">
+                      <span className="flex items-center gap-1.5">
+                        <Calendar size={14} className="text-[#FF2D78]/60" />
+                        {memberSince}
+                      </span>
+                      {memberDays > 0 && (
+                        <span className="flex items-center gap-1.5">
+                          <Clock size={14} className="text-[#4D9FFF]/60" />
+                          {memberDays} dias como miembro
+                        </span>
+                      )}
+                      {user.email && (
+                        <span className="flex items-center gap-1.5">
+                          <Mail size={14} className="text-[#a855f7]/60" />
+                          {user.email}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Action button - desktop */}
+                  <div className="hidden md:flex shrink-0">
+                    {!editing ? (
+                      <motion.button
+                        whileHover={{ scale: 1.03 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => {
+                          setEditing(true);
+                          setEditNickname(user.nickname);
+                          setEditEmail(user.email || '');
+                        }}
+                        className="btn-outline text-sm px-6 py-3"
+                      >
+                        <Edit3 size={16} />
+                        Editar Perfil
+                      </motion.button>
                     ) : (
-                      <div className="bg-white/10 border border-white/20 px-4 py-2 rounded-full flex items-center gap-2 text-xs font-bold backdrop-blur-sm">
-                        <Camera size={14} className="text-white" />
-                        Cambiar
+                      <div className="flex gap-2">
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={handleSaveProfile}
+                          disabled={loading}
+                          className="btn-primary text-sm px-5 py-3 disabled:opacity-50"
+                        >
+                          <Save size={16} />
+                          {loading ? 'Guardando...' : 'Guardar'}
+                        </motion.button>
+                        <motion.button
+                          whileHover={{ scale: 1.03 }}
+                          whileTap={{ scale: 0.97 }}
+                          onClick={() => setEditing(false)}
+                          className="px-5 py-3 rounded-full bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-all"
+                        >
+                          <X size={16} />
+                        </motion.button>
                       </div>
                     )}
                   </div>
                 </div>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept="image/*"
-                  onChange={handleAvatarUpload}
-                  className="hidden"
-                />
-              </div>
 
-              {/* info */}
-              <div className="text-center sm:text-left flex-1">
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 mb-2">
-                  <h2
-                    className="text-2xl sm:text-3xl font-bold text-white"
+                {/* Edit Form - inline below header (mobile friendly) */}
+                <AnimatePresence>
+                  {editing && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="mt-6 pt-6 border-t border-white/10 grid sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                            Nickname
+                          </label>
+                          <div className="relative">
+                            <User
+                              size={16}
+                              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25"
+                            />
+                            <input
+                              type="text"
+                              value={editNickname}
+                              onChange={e => setEditNickname(e.target.value)}
+                              className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 focus:bg-white/8 transition-all placeholder:text-white/20"
+                              placeholder="Tu nickname"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                            Correo electronico
+                          </label>
+                          <div className="relative">
+                            <Mail
+                              size={16}
+                              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/25"
+                            />
+                            <input
+                              type="email"
+                              value={editEmail}
+                              onChange={e => setEditEmail(e.target.value)}
+                              className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 focus:bg-white/8 transition-all placeholder:text-white/20"
+                              placeholder="correo@ejemplo.com"
+                            />
+                          </div>
+                        </div>
+                        {/* Mobile save buttons */}
+                        <div className="flex gap-2 sm:hidden">
+                          <button
+                            onClick={handleSaveProfile}
+                            disabled={loading}
+                            className="btn-primary text-sm px-5 py-2.5 disabled:opacity-50 flex-1"
+                          >
+                            <Save size={16} />
+                            {loading ? 'Guardando...' : 'Guardar'}
+                          </button>
+                          <button
+                            onClick={() => setEditing(false)}
+                            className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-all"
+                          >
+                            <X size={16} />
+                          </button>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </motion.div>
+
+            {/* === STATS ROW === */}
+            <motion.div
+              variants={itemVariants}
+              className="grid grid-cols-2 sm:grid-cols-4 gap-4"
+            >
+              {[
+                {
+                  icon: <MessageSquare size={18} />,
+                  value: user.commentCount || 0,
+                  label: 'Comentarios',
+                  color: 'text-[#FF2D78]',
+                  bg: 'from-[#FF2D78]/10 to-[#FF2D78]/5',
+                  border: 'border-[#FF2D78]/15',
+                },
+                {
+                  icon: <Award size={18} />,
+                  value: user.role !== 'user' ? 'Si' : 'No',
+                  label: 'Verificado',
+                  color: user.role !== 'user' ? 'text-green-400' : 'text-white/30',
+                  bg: user.role !== 'user' ? 'from-green-500/10 to-green-500/5' : 'from-white/5 to-white/3',
+                  border: user.role !== 'user' ? 'border-green-500/15' : 'border-white/10',
+                },
+                {
+                  icon: <Crown size={18} />,
+                  value: user.isPremium ? 'Si' : 'No',
+                  label: 'Premium',
+                  color: user.isPremium ? 'text-yellow-400' : 'text-white/30',
+                  bg: user.isPremium ? 'from-yellow-500/10 to-yellow-500/5' : 'from-white/5 to-white/3',
+                  border: user.isPremium ? 'border-yellow-500/15' : 'border-white/10',
+                },
+                {
+                  icon: <Calendar size={18} />,
+                  value: memberDays,
+                  label: 'Dias activo',
+                  color: 'text-[#4D9FFF]',
+                  bg: 'from-[#4D9FFF]/10 to-[#4D9FFF]/5',
+                  border: 'border-[#4D9FFF]/15',
+                },
+              ].map((stat, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${stat.bg} border ${stat.border} p-4 sm:p-5 text-center`}
+                >
+                  <div className={`${stat.color} mb-2 flex justify-center`}>{stat.icon}</div>
+                  <p
+                    className={`text-2xl sm:text-3xl font-bold ${stat.color}`}
                     style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                   >
-                    {user.nickname}
-                  </h2>
-                  {user.isPremium && (
-                    <span className="flex items-center gap-1 text-yellow-400 text-sm font-medium">
-                      <Crown size={16} /> Premium
-                    </span>
-                  )}
-                </div>
+                    {stat.value}
+                  </p>
+                  <p className="text-[11px] sm:text-xs text-white/40 mt-1 font-medium uppercase tracking-wider">
+                    {stat.label}
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
 
-                {/* role badge — same tag style as news tags */}
-                <span
-                  className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full mb-3"
-                  style={{
-                    background: `${role.color}25`,
-                    border: `1px solid ${role.color}50`,
-                    color: role.color,
-                  }}
+            {/* === SETTINGS SECTION === */}
+            <motion.div variants={itemVariants}>
+              <h3
+                className="text-lg font-bold text-white/80 mb-4 flex items-center gap-2"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                <Settings size={18} className="text-white/40" />
+                Configuracion
+              </h3>
+              <div className="grid sm:grid-cols-2 gap-4">
+                {/* Change Password Card */}
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => setShowPasswordModal(true)}
+                  className="group relative overflow-hidden rounded-xl bg-white/3 border border-white/8 p-5 text-left transition-all hover:bg-white/6 hover:border-white/15"
                 >
-                  {role.icon}
-                  {role.label}
-                </span>
-
-                {/* meta info — same style as news item meta */}
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-3 text-white/40 text-xs">
-                  {memberSince && (
-                    <span className="flex items-center gap-1">
-                      <Calendar size={12} />{memberSince}
-                    </span>
-                  )}
-                  {memberDays > 0 && (
-                    <span className="flex items-center gap-1">
-                      <Clock size={12} />{memberDays} dias como miembro
-                    </span>
-                  )}
-                  {user.email && (
-                    <span className="flex items-center gap-1">
-                      <Mail size={12} />{user.email}
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              {/* edit button — right side, desktop */}
-              <div className="hidden sm:block shrink-0">
-                {!editing ? (
-                  <button
-                    onClick={() => {
-                      setEditing(true);
-                      setEditNickname(user.nickname);
-                      setEditEmail(user.email || '');
-                    }}
-                    className="btn-outline text-sm px-6 py-2.5"
-                  >
-                    <Edit3 size={16} /> Editar Perfil
-                  </button>
-                ) : (
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleSaveProfile}
-                      disabled={loading}
-                      className="btn-primary text-sm px-5 py-2.5 disabled:opacity-50"
-                    >
-                      <Save size={16} />
-                      {loading ? 'Guardando...' : 'Guardar'}
-                    </button>
-                    <button
-                      onClick={() => setEditing(false)}
-                      className="px-5 py-2.5 rounded-full bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-all"
-                    >
-                      <X size={16} />
-                    </button>
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-[#FF2D78]/10 border border-[#FF2D78]/15 flex items-center justify-center shrink-0 group-hover:bg-[#FF2D78]/15 transition-colors">
+                      <Lock size={20} className="text-[#FF2D78]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white text-sm mb-1">Cambiar Contrasena</p>
+                      <p className="text-xs text-white/40 leading-relaxed">
+                        Actualiza tu contrasena para mantener tu cuenta segura
+                      </p>
+                    </div>
+                    <ChevronRight size={16} className="text-white/20 mt-1 group-hover:text-white/40 transition-colors shrink-0" />
                   </div>
-                )}
-              </div>
-            </div>
+                </motion.button>
 
-            {/* EDIT FORM — inline, same input style as search bar on proyectos */}
-            {editing && (
-              <motion.div
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="mt-8 pt-8 border-t border-white/10 grid sm:grid-cols-2 gap-4"
+                {/* Edit Profile Card */}
+                <motion.button
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  onClick={() => {
+                    setEditing(true);
+                    setEditNickname(user.nickname);
+                    setEditEmail(user.email || '');
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="group relative overflow-hidden rounded-xl bg-white/3 border border-white/8 p-5 text-left transition-all hover:bg-white/6 hover:border-white/15"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="w-11 h-11 rounded-xl bg-[#4D9FFF]/10 border border-[#4D9FFF]/15 flex items-center justify-center shrink-0 group-hover:bg-[#4D9FFF]/15 transition-colors">
+                      <Edit3 size={20} className="text-[#4D9FFF]" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-semibold text-white text-sm mb-1">Editar Informacion</p>
+                      <p className="text-xs text-white/40 leading-relaxed">
+                        Modifica tu nickname, correo y foto de perfil
+                      </p>
+                    </div>
+                    <ChevronRight size={16} className="text-white/20 mt-1 group-hover:text-white/40 transition-colors shrink-0" />
+                  </div>
+                </motion.button>
+              </div>
+            </motion.div>
+
+            {/* === DANGER ZONE === */}
+            <motion.div variants={itemVariants}>
+              <h3
+                className="text-lg font-bold text-red-400/80 mb-4 flex items-center gap-2"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                <div>
-                  <label className="text-xs text-white/40 block mb-1.5">Nickname</label>
-                  <div className="relative">
-                    <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
-                    <input
-                      type="text"
-                      value={editNickname}
-                      onChange={e => setEditNickname(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/35 outline-none focus:border-[#FF2D78]/50 focus:ring-1 focus:ring-[#FF2D78]/30 transition-all duration-200"
-                      placeholder="Tu nickname"
-                    />
+                <AlertTriangle size={18} />
+                Zona de Peligro
+              </h3>
+              <div className="relative overflow-hidden rounded-xl border border-red-500/15 bg-red-500/[0.03] p-6">
+                {/* Subtle red gradient */}
+                <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-500/5 rounded-full blur-3xl pointer-events-none" />
+
+                <div className="relative">
+                  <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-red-500/10 border border-red-500/20 flex items-center justify-center shrink-0">
+                      <Trash2 size={22} className="text-red-400" />
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="font-bold text-white text-sm mb-1">Eliminar mi cuenta</h4>
+                      <p className="text-xs text-white/40 leading-relaxed mb-4">
+                        Esta accion no se puede deshacer. Se eliminaran permanentemente tu perfil,
+                        tus comentarios (se marcaran como eliminados), tus notificaciones y tu historial de actividad.
+                        {user.role === 'owner' && (
+                          <span className="text-red-400 font-medium block mt-1">
+                            Como owner, no puedes eliminar tu cuenta.
+                          </span>
+                        )}
+                      </p>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => {
+                          setDeletePassword('');
+                          setDeleteConfirmText('');
+                          setShowDeleteDialog(true);
+                        }}
+                        disabled={user.role === 'owner'}
+                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm font-semibold hover:bg-red-500/20 hover:border-red-500/30 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                      >
+                        <Trash2 size={14} />
+                        Eliminar cuenta
+                      </motion.button>
+                    </div>
                   </div>
                 </div>
-                <div>
-                  <label className="text-xs text-white/40 block mb-1.5">Correo electronico</label>
-                  <div className="relative">
-                    <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-white/30" />
-                    <input
-                      type="email"
-                      value={editEmail}
-                      onChange={e => setEditEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/35 outline-none focus:border-[#FF2D78]/50 focus:ring-1 focus:ring-[#FF2D78]/30 transition-all duration-200"
-                      placeholder="correo@ejemplo.com"
-                    />
-                  </div>
-                </div>
-                {/* mobile save */}
-                <div className="flex gap-2 sm:hidden">
-                  <button
-                    onClick={handleSaveProfile}
-                    disabled={loading}
-                    className="btn-primary text-sm px-5 py-2.5 disabled:opacity-50 flex-1"
-                  >
-                    <Save size={16} />
-                    {loading ? 'Guardando...' : 'Guardar'}
-                  </button>
-                  <button
-                    onClick={() => setEditing(false)}
-                    className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-white/60 text-sm hover:bg-white/10 transition-all"
-                  >
-                    <X size={16} />
-                  </button>
-                </div>
-              </motion.div>
-            )}
+              </div>
+            </motion.div>
           </motion.div>
         </div>
-      </section>
+      </main>
 
-      {/* STATS — same divide grid pattern as home stats section */}
-      <section className="pb-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden divide-y sm:divide-y-0 sm:divide-x divide-white/8">
-            {/* stat 1: comments */}
-            <div className="flex flex-col items-center text-center p-6">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
-                style={{ background: '#FF2D7820', border: '1px solid #FF2D7840' }}>
-                <MessageSquare size={22} style={{ color: '#FF2D78' }} />
-              </div>
-              <span className="text-2xl md:text-3xl font-bold mb-1"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#FF2D78' }}>
-                {user.commentCount || 0}
-              </span>
-              <span className="text-sm text-white/50">Comentarios</span>
-            </div>
-            {/* stat 2: verified */}
-            <div className="flex flex-col items-center text-center p-6">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
-                style={{
-                  background: user.role !== 'user' ? '#22c55e20' : '#ffffff10',
-                  border: user.role !== 'user' ? '1px solid #22c55e40' : '1px solid #ffffff15',
-                }}>
-                <Shield size={22} style={{ color: user.role !== 'user' ? '#22c55e' : '#ffffff30' }} />
-              </div>
-              <span className="text-2xl md:text-3xl font-bold mb-1"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", color: user.role !== 'user' ? '#22c55e' : '#ffffff30' }}>
-                {user.role !== 'user' ? 'Si' : 'No'}
-              </span>
-              <span className="text-sm text-white/50">Verificado</span>
-            </div>
-            {/* stat 3: premium */}
-            <div className="flex flex-col items-center text-center p-6">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
-                style={{
-                  background: user.isPremium ? '#eab30820' : '#ffffff10',
-                  border: user.isPremium ? '1px solid #eab30840' : '1px solid #ffffff15',
-                }}>
-                <Crown size={22} style={{ color: user.isPremium ? '#eab308' : '#ffffff30' }} />
-              </div>
-              <span className="text-2xl md:text-3xl font-bold mb-1"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", color: user.isPremium ? '#eab308' : '#ffffff30' }}>
-                {user.isPremium ? 'Si' : 'No'}
-              </span>
-              <span className="text-sm text-white/50">Premium</span>
-            </div>
-            {/* stat 4: days active */}
-            <div className="flex flex-col items-center text-center p-6">
-              <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3"
-                style={{ background: '#4D9FFF20', border: '1px solid #4D9FFF40' }}>
-                <Calendar size={22} style={{ color: '#4D9FFF' }} />
-              </div>
-              <span className="text-2xl md:text-3xl font-bold mb-1"
-                style={{ fontFamily: "'Space Grotesk', sans-serif", color: '#4D9FFF' }}>
-                {memberDays}
-              </span>
-              <span className="text-sm text-white/50">Dias activo</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* SETTINGS — glass-card rows like about section on home */}
-      <section className="pb-12 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="text-[#4D9FFF] text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3 block">
-              Configuracion
-            </span>
-            <div className="space-y-4">
-              {/* Change Password */}
-              <div
-                onClick={() => setShowPasswordModal(true)}
-                className="glass-card p-6 sm:p-8 cursor-pointer group relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#a855f7]" />
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center shrink-0">
-                    <Lock size={24} className="text-[#FF2D78]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                      Cambiar Contrasena
-                    </h3>
-                    <p className="text-sm text-white/50">
-                      Actualiza tu contrasena para mantener tu cuenta segura.
-                    </p>
-                  </div>
-                  <ChevronRight size={20} className="text-white/20 group-hover:text-white/50 group-hover:translate-x-1 transition-all shrink-0" />
-                </div>
-              </div>
-
-              {/* Edit Profile (shortcut) */}
-              <div
-                onClick={() => {
-                  setEditing(true);
-                  setEditNickname(user.nickname);
-                  setEditEmail(user.email || '');
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
-                }}
-                className="glass-card p-6 sm:p-8 cursor-pointer group relative overflow-hidden"
-              >
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#4D9FFF] to-[#a855f7]" />
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#4D9FFF]/15 border border-[#4D9FFF]/30 flex items-center justify-center shrink-0">
-                    <Edit3 size={24} className="text-[#4D9FFF]" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                      Editar Informacion
-                    </h3>
-                    <p className="text-sm text-white/50">
-                      Modifica tu nickname, correo electronico y foto de perfil.
-                    </p>
-                  </div>
-                  <ChevronRight size={20} className="text-white/20 group-hover:text-white/50 group-hover:translate-x-1 transition-all shrink-0" />
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* DANGER ZONE — same glass-card + gradient style as CTA on home */}
-      <section className="pb-24 relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-          >
-            <span className="text-red-400 text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3 block">
-              Zona de Peligro
-            </span>
-            <div className="glass-card p-8 sm:p-10 relative overflow-hidden border-red-500/20">
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-red-700" />
-              <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-red-500/8 blur-3xl pointer-events-none" />
-              <div className="relative">
-                <div className="flex flex-col sm:flex-row items-start gap-5">
-                  <div className="w-12 h-12 rounded-2xl bg-red-500/15 border border-red-500/30 flex items-center justify-center shrink-0">
-                    <Trash2 size={24} className="text-red-400" />
-                  </div>
-                  <div className="flex-1">
-                    <h3
-                      className="font-bold text-white text-lg mb-2"
-                      style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-                    >
-                      Eliminar mi cuenta
-                    </h3>
-                    <p className="text-sm text-white/50 leading-relaxed mb-5">
-                      Esta accion no se puede deshacer. Se eliminaran permanentemente tu perfil,
-                      tus comentarios (se marcaran como eliminados), tus notificaciones y tu historial
-                      de actividad.
-                      {user.role === 'owner' && (
-                        <span className="text-red-400 font-medium block mt-2">
-                          Como owner, no puedes eliminar tu cuenta.
-                        </span>
-                      )}
-                    </p>
-                    <button
-                      onClick={() => {
-                        setDeletePassword('');
-                        setDeleteConfirmText('');
-                        setShowDeleteDialog(true);
-                      }}
-                      disabled={user.role === 'owner'}
-                      className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-semibold hover:bg-red-500/20 hover:border-red-500/50 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-                    >
-                      <Trash2 size={14} />
-                      Eliminar cuenta
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      <Footer />
-
-      {/* PASSWORD MODAL */}
+      {/* === PASSWORD MODAL === */}
       <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
         <DialogContent className="bg-[#0d0d24] border border-white/10 text-white sm:max-w-md">
           <DialogHeader>
@@ -669,14 +682,16 @@ function PerfilContent() {
           </DialogHeader>
           <div className="space-y-4 mt-2">
             <div>
-              <label className="text-xs text-white/40 block mb-1.5">Contrasena actual</label>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                Contrasena actual
+              </label>
               <div className="relative">
                 <input
                   type={showCurrentPassword ? 'text' : 'password'}
                   placeholder="Tu contrasena actual"
                   value={currentPassword}
                   onChange={e => setCurrentPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-10 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/25 outline-none focus:border-[#FF2D78]/50 transition-all duration-200"
+                  className="w-full px-4 py-3 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/20 transition-all"
                 />
                 <button
                   type="button"
@@ -688,14 +703,16 @@ function PerfilContent() {
               </div>
             </div>
             <div>
-              <label className="text-xs text-white/40 block mb-1.5">Nueva contrasena</label>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                Nueva contrasena
+              </label>
               <div className="relative">
                 <input
                   type={showNewPassword ? 'text' : 'password'}
                   placeholder="Minimo 6 caracteres"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-10 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/25 outline-none focus:border-[#FF2D78]/50 transition-all duration-200"
+                  className="w-full px-4 py-3 pr-10 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/20 transition-all"
                 />
                 <button
                   type="button"
@@ -707,13 +724,15 @@ function PerfilContent() {
               </div>
             </div>
             <div>
-              <label className="text-xs text-white/40 block mb-1.5">Confirmar nueva contrasena</label>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                Confirmar nueva contrasena
+              </label>
               <input
                 type="password"
                 placeholder="Repite la nueva contrasena"
                 value={confirmNewPassword}
                 onChange={e => setConfirmNewPassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/25 outline-none focus:border-[#FF2D78]/50 transition-all duration-200"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-[#FF2D78]/50 placeholder:text-white/20 transition-all"
               />
             </div>
             <button
@@ -722,16 +741,22 @@ function PerfilContent() {
               className="w-full btn-primary text-sm py-3 disabled:opacity-50 mt-1"
             >
               {loading ? (
-                <><Loader2 size={16} className="animate-spin" /> Cambiando...</>
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  Cambiando...
+                </>
               ) : (
-                <><Lock size={16} /> Cambiar Contrasena</>
+                <>
+                  <Lock size={16} />
+                  Cambiar Contrasena
+                </>
               )}
             </button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* DELETE ACCOUNT CONFIRMATION */}
+      {/* === DELETE ACCOUNT CONFIRMATION === */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent className="bg-[#0d0d24] border border-red-500/20 text-white sm:max-w-md">
           <DialogHeader>
@@ -751,17 +776,19 @@ function PerfilContent() {
               </p>
             </div>
             <div>
-              <label className="text-xs text-white/40 block mb-1.5">Tu contrasena</label>
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
+                Tu contrasena
+              </label>
               <input
                 type="password"
                 placeholder="Ingresa tu contrasena"
                 value={deletePassword}
                 onChange={e => setDeletePassword(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/25 outline-none focus:border-red-500/50 transition-all duration-200"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-red-500/50 placeholder:text-white/20 transition-all"
               />
             </div>
             <div>
-              <label className="text-xs text-white/40 block mb-1.5">
+              <label className="text-xs font-semibold text-white/50 uppercase tracking-wider block mb-2">
                 Escribe <span className="text-red-400 font-bold">BORRAR</span> para confirmar
               </label>
               <input
@@ -769,21 +796,21 @@ function PerfilContent() {
                 value={deleteConfirmText}
                 onChange={e => setDeleteConfirmText(e.target.value)}
                 placeholder="BORRAR"
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/25 outline-none focus:border-red-500/50 transition-all duration-200"
+                className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:border-red-500/50 placeholder:text-white/20 transition-all"
               />
             </div>
           </div>
           <DialogFooter className="gap-2 mt-4">
             <button
               onClick={() => setShowDeleteDialog(false)}
-              className="flex-1 px-4 py-3 rounded-full bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all font-medium"
+              className="flex-1 px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition-all font-medium"
             >
               Cancelar
             </button>
             <button
               onClick={handleDeleteAccount}
               disabled={deletingAccount || !deletePassword || deleteConfirmText !== 'BORRAR'}
-              className="flex-1 px-4 py-3 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+              className="flex-1 px-4 py-3 rounded-xl bg-red-500 hover:bg-red-600 text-white text-sm font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-50"
             >
               {deletingAccount ? (
                 <><Loader2 size={14} className="animate-spin" /> Eliminando...</>
@@ -794,6 +821,8 @@ function PerfilContent() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Footer />
     </div>
   );
 }
