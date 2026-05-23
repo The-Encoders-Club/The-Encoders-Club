@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Flag, Trash2, Send, User } from 'lucide-react';
+import { Heart, MessageCircle, Flag, Trash2, Send, User, ThumbsUp, ThumbsDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface CommentAuthor {
@@ -10,10 +10,10 @@ interface CommentAuthor {
 }
 interface CommentReply {
   id: string; content: string; createdAt: string; isDeleted: boolean;
-  author: CommentAuthor; likes: number;
+  author: CommentAuthor; likes: number; dislikes: number;
 }
 interface Comment {
-  id: string; content: string; createdAt: string; likes: number; isDeleted: boolean;
+  id: string; content: string; createdAt: string; likes: number; dislikes: number; isDeleted: boolean;
   author: CommentAuthor; replies: CommentReply[];
   _count: { reactions: number };
 }
@@ -47,7 +47,8 @@ export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
 
   const submitComment = async (content: string, parentId?: string) => {
     if (!user) { toast.error('Inicia sesión para comentar'); return; }
-    setSubmitting(true);    try {
+    setSubmitting(true);
+    try {
       const res = await fetch('/api/comments', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, targetId, targetType, parentId }),
@@ -59,10 +60,17 @@ export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
     } catch { toast.error('Error al enviar'); } finally { setSubmitting(false); }
   };
 
-  const toggleLike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`, { method: 'POST' }); fetchComments(); } catch {} };
+  const toggleLike    = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`,    { method: 'POST' }); fetchComments(); } catch {} };
+  const toggleDislike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/dislike`, { method: 'POST' }); fetchComments(); } catch {} };
   const reportComment = async (id: string) => { try { await fetch(`/api/comments/${id}/report`, { method: 'POST' }); toast.success('Comentario reportado'); } catch {} };
   const deleteComment = async (id: string) => { try { await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId: id }) }); fetchComments(); toast.success('Comentario eliminado'); } catch {} };
   const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
+
+  // Responder a una reply: abre el input del comentario padre y precarga @mención
+  const replyToReply = (parentCommentId: string, authorNickname: string) => {
+    setReplyTo(parentCommentId);
+    setReplyText(`@${authorNickname} `);
+  };
 
   return (
     <div className="mt-4 space-y-4" style={{ fontFamily: "'m1_fixed', monospace" }}>
@@ -96,7 +104,8 @@ export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
           <motion.div key={comment.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-[#FFE6EA]/50 border border-[#FFB6C8]/30 hover:bg-[#FFE6EA]/70 transition-all">
             <div className="flex items-start gap-3">
               <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#FF2D78]">
-                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}              </div>
+                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                   <span className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.author.nickname}</span>
@@ -106,12 +115,25 @@ export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
                 </div>
                 {comment.isDeleted ? <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p> :
                   <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.content}</p>}
+
                 <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
-                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#FF2D78] transition-colors"><Heart size={14} />{comment.likes > 0 && <span>{comment.likes}</span>}</button>
+                  {/* ❤ likes — siempre visible */}
+                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#FF2D78] transition-colors">
+                    <Heart size={14} /><span>{comment.likes}</span>
+                  </button>
+                  {/* 👍 thumbs up */}
+                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#FF2D78] transition-colors">
+                    <ThumbsUp size={13} /><span>{comment.likes}</span>
+                  </button>
+                  {/* 👎 thumbs down */}
+                  <button onClick={() => toggleDislike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-500 transition-colors">
+                    <ThumbsDown size={13} /><span>{comment.dislikes}</span>
+                  </button>
                   <button onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors"><MessageCircle size={14} />Responder</button>
                   <button onClick={() => reportComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors"><Flag size={14} />Reportar</button>
                   {canModerate && !comment.isDeleted && <button onClick={() => deleteComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>}
                 </div>
+
                 {replyTo === comment.id && (
                   <div className="flex gap-2 mt-2">
                     <input type="text" placeholder="Escribe una respuesta..." value={replyText} onChange={e => setReplyText(e.target.value)}
@@ -121,6 +143,7 @@ export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
                     <button onClick={() => { setReplyTo(null); setReplyText(''); }} className="px-2.5 py-1.5 rounded-lg text-xs bg-[#FFE6EA] text-gray-500">Cancelar</button>
                   </div>
                 )}
+
                 {comment.replies && comment.replies.length > 0 && (
                   <div className="mt-3 space-y-2 pl-3 border-l border-[#FFB6C8]/40">
                     {comment.replies.map(reply => (
@@ -129,8 +152,23 @@ export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
                           {reply.author.avatar ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={13} className="text-white" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2"><span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span><span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span></div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span>
+                            <span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span>
+                          </div>
                           <p className="text-xs break-words text-gray-500" style={{ fontFamily: "'Aller', sans-serif" }}>{reply.content}</p>
+                          {/* Acciones de la reply */}
+                          <div className="flex items-center gap-3 mt-1">
+                            <button onClick={() => toggleLike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#FF2D78] transition-colors">
+                              <ThumbsUp size={11} /><span>{reply.likes}</span>
+                            </button>
+                            <button onClick={() => toggleDislike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-500 transition-colors">
+                              <ThumbsDown size={11} /><span>{reply.dislikes}</span>
+                            </button>
+                            <button onClick={() => replyToReply(comment.id, reply.author.nickname)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#4D9FFF] transition-colors">
+                              <MessageCircle size={11} />Responder
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -145,6 +183,7 @@ export function MonikaComments({ targetId, targetType }: CommentSectionProps) {
     </div>
   );
 }
+
 /* ──────────────────────────────────────────────────────────────
    2. NATSUKI COMMENTS (Strong Pink)
    ────────────────────────────────────────────────────────────── */
@@ -182,10 +221,16 @@ export function NatsukiComments({ targetId, targetType }: CommentSectionProps) {
     } catch { toast.error('Error al enviar'); } finally { setSubmitting(false); }
   };
 
-  const toggleLike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`, { method: 'POST' }); fetchComments(); } catch {} };
+  const toggleLike    = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`,    { method: 'POST' }); fetchComments(); } catch {} };
+  const toggleDislike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/dislike`, { method: 'POST' }); fetchComments(); } catch {} };
   const reportComment = async (id: string) => { try { await fetch(`/api/comments/${id}/report`, { method: 'POST' }); toast.success('Comentario reportado'); } catch {} };
   const deleteComment = async (id: string) => { try { await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId: id }) }); fetchComments(); toast.success('Comentario eliminado'); } catch {} };
   const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
+
+  const replyToReply = (parentCommentId: string, authorNickname: string) => {
+    setReplyTo(parentCommentId);
+    setReplyText(`@${authorNickname} `);
+  };
 
   return (
     <div className="mt-4 space-y-4" style={{ fontFamily: "'m1_fixed', monospace" }}>
@@ -229,12 +274,22 @@ export function NatsukiComments({ targetId, targetType }: CommentSectionProps) {
                 </div>
                 {comment.isDeleted ? <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p> :
                   <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.content}</p>}
+
                 <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
-                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#E84393] transition-colors"><Heart size={14} />{comment.likes > 0 && <span>{comment.likes}</span>}</button>
+                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#E84393] transition-colors">
+                    <Heart size={14} /><span>{comment.likes}</span>
+                  </button>
+                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#E84393] transition-colors">
+                    <ThumbsUp size={13} /><span>{comment.likes}</span>
+                  </button>
+                  <button onClick={() => toggleDislike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-500 transition-colors">
+                    <ThumbsDown size={13} /><span>{comment.dislikes}</span>
+                  </button>
                   <button onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors"><MessageCircle size={14} />Responder</button>
                   <button onClick={() => reportComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors"><Flag size={14} />Reportar</button>
                   {canModerate && !comment.isDeleted && <button onClick={() => deleteComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>}
                 </div>
+
                 {replyTo === comment.id && (
                   <div className="flex gap-2 mt-2">
                     <input type="text" placeholder="Escribe una respuesta..." value={replyText} onChange={e => setReplyText(e.target.value)}
@@ -243,7 +298,9 @@ export function NatsukiComments({ targetId, targetType }: CommentSectionProps) {
                     <button onClick={() => { if (replyText.trim()) submitComment(replyText.trim(), comment.id); }} disabled={submitting} className="px-2.5 py-1.5 rounded-lg bg-[#E84393] text-white disabled:opacity-50 flex items-center"><Send size={11} /></button>
                     <button onClick={() => { setReplyTo(null); setReplyText(''); }} className="px-2.5 py-1.5 rounded-lg text-xs bg-[#FFE6EE] text-gray-500">Cancelar</button>
                   </div>
-                )}                {comment.replies && comment.replies.length > 0 && (
+                )}
+
+                {comment.replies && comment.replies.length > 0 && (
                   <div className="mt-3 space-y-2 pl-3 border-l border-[#FF7EB3]/40">
                     {comment.replies.map(reply => (
                       <div key={reply.id} className="flex items-start gap-2">
@@ -251,8 +308,22 @@ export function NatsukiComments({ targetId, targetType }: CommentSectionProps) {
                           {reply.author.avatar ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={13} className="text-white" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2"><span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span><span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span></div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span>
+                            <span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span>
+                          </div>
                           <p className="text-xs break-words text-gray-500" style={{ fontFamily: "'Aller', sans-serif" }}>{reply.content}</p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <button onClick={() => toggleLike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#E84393] transition-colors">
+                              <ThumbsUp size={11} /><span>{reply.likes}</span>
+                            </button>
+                            <button onClick={() => toggleDislike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-500 transition-colors">
+                              <ThumbsDown size={11} /><span>{reply.dislikes}</span>
+                            </button>
+                            <button onClick={() => replyToReply(comment.id, reply.author.nickname)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#4D9FFF] transition-colors">
+                              <MessageCircle size={11} />Responder
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -292,7 +363,8 @@ export function YuriComments({ targetId, targetType }: CommentSectionProps) {
 
   const submitComment = async (content: string, parentId?: string) => {
     if (!user) { toast.error('Inicia sesión para comentar'); return; }
-    setSubmitting(true);    try {
+    setSubmitting(true);
+    try {
       const res = await fetch('/api/comments', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content, targetId, targetType, parentId }),
@@ -304,10 +376,16 @@ export function YuriComments({ targetId, targetType }: CommentSectionProps) {
     } catch { toast.error('Error al enviar'); } finally { setSubmitting(false); }
   };
 
-  const toggleLike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`, { method: 'POST' }); fetchComments(); } catch {} };
+  const toggleLike    = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/like`,    { method: 'POST' }); fetchComments(); } catch {} };
+  const toggleDislike = async (id: string) => { if (!user) return; try { await fetch(`/api/comments/${id}/dislike`, { method: 'POST' }); fetchComments(); } catch {} };
   const reportComment = async (id: string) => { try { await fetch(`/api/comments/${id}/report`, { method: 'POST' }); toast.success('Comentario reportado'); } catch {} };
   const deleteComment = async (id: string) => { try { await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId: id }) }); fetchComments(); toast.success('Comentario eliminado'); } catch {} };
   const canModerate = user && ['moderator', 'admin', 'owner'].includes(user.role);
+
+  const replyToReply = (parentCommentId: string, authorNickname: string) => {
+    setReplyTo(parentCommentId);
+    setReplyText(`@${authorNickname} `);
+  };
 
   return (
     <div className="mt-4 space-y-4" style={{ fontFamily: "'m1_fixed', monospace" }}>
@@ -341,7 +419,8 @@ export function YuriComments({ targetId, targetType }: CommentSectionProps) {
           <motion.div key={comment.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-[#F3E5F5]/60 border border-[#9B59B6]/40 hover:bg-[#F3E5F5]/80 transition-all">
             <div className="flex items-start gap-3">
               <div className="w-11 h-11 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden bg-[#8A2BE2]">
-                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}              </div>
+                {comment.author.avatar ? <img src={comment.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={20} className="text-white" />}
+              </div>
               <div className="flex-1 min-w-0">
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5">
                   <span className="text-sm font-semibold text-gray-800" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.author.nickname}</span>
@@ -351,12 +430,22 @@ export function YuriComments({ targetId, targetType }: CommentSectionProps) {
                 </div>
                 {comment.isDeleted ? <p className="text-sm italic mt-1 text-gray-400">Este comentario fue eliminado</p> :
                   <p className="text-sm mt-1 break-words text-gray-700" style={{ fontFamily: "'Aller', sans-serif" }}>{comment.content}</p>}
+
                 <div className="flex items-center gap-3 mt-2" style={{ fontFamily: "'Aller', sans-serif" }}>
-                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#8A2BE2] transition-colors"><Heart size={14} />{comment.likes > 0 && <span>{comment.likes}</span>}</button>
+                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#8A2BE2] transition-colors">
+                    <Heart size={14} /><span>{comment.likes}</span>
+                  </button>
+                  <button onClick={() => toggleLike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#8A2BE2] transition-colors">
+                    <ThumbsUp size={13} /><span>{comment.likes}</span>
+                  </button>
+                  <button onClick={() => toggleDislike(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-gray-500 transition-colors">
+                    <ThumbsDown size={13} /><span>{comment.dislikes}</span>
+                  </button>
                   <button onClick={() => setReplyTo(replyTo === comment.id ? null : comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-[#4D9FFF] transition-colors"><MessageCircle size={14} />Responder</button>
                   <button onClick={() => reportComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-yellow-500 transition-colors"><Flag size={14} />Reportar</button>
                   {canModerate && !comment.isDeleted && <button onClick={() => deleteComment(comment.id)} className="flex items-center gap-1 text-xs text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={14} /></button>}
                 </div>
+
                 {replyTo === comment.id && (
                   <div className="flex gap-2 mt-2">
                     <input type="text" placeholder="Escribe una respuesta..." value={replyText} onChange={e => setReplyText(e.target.value)}
@@ -366,6 +455,7 @@ export function YuriComments({ targetId, targetType }: CommentSectionProps) {
                     <button onClick={() => { setReplyTo(null); setReplyText(''); }} className="px-2.5 py-1.5 rounded-lg text-xs bg-[#F3E5F5] text-gray-500">Cancelar</button>
                   </div>
                 )}
+
                 {comment.replies && comment.replies.length > 0 && (
                   <div className="mt-3 space-y-2 pl-3 border-l border-[#9B59B6]/40">
                     {comment.replies.map(reply => (
@@ -374,8 +464,22 @@ export function YuriComments({ targetId, targetType }: CommentSectionProps) {
                           {reply.author.avatar ? <img src={reply.author.avatar} alt="" className="w-full h-full object-cover" /> : <User size={13} className="text-white" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2"><span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span><span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span></div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-gray-700">{reply.author.nickname}</span>
+                            <span className="text-[10px] text-gray-400">{new Date(reply.createdAt).toLocaleDateString()}</span>
+                          </div>
                           <p className="text-xs break-words text-gray-500" style={{ fontFamily: "'Aller', sans-serif" }}>{reply.content}</p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <button onClick={() => toggleLike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#8A2BE2] transition-colors">
+                              <ThumbsUp size={11} /><span>{reply.likes}</span>
+                            </button>
+                            <button onClick={() => toggleDislike(reply.id)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-500 transition-colors">
+                              <ThumbsDown size={11} /><span>{reply.dislikes}</span>
+                            </button>
+                            <button onClick={() => replyToReply(comment.id, reply.author.nickname)} className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-[#4D9FFF] transition-colors">
+                              <MessageCircle size={11} />Responder
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
