@@ -167,6 +167,13 @@ export default function WikiPage() {
 
   const currentContent = wikiContentMap[activeSection] || '';
 
+  // Group wikiSections by group field
+  const groupedSections = wikiSections.reduce<Record<string, typeof wikiSections>>((acc, item) => {
+    if (!acc[item.group]) acc[item.group] = [];
+    acc[item.group].push(item);
+    return acc;
+  }, {});
+
   // ─── Markdown Custom Components ────────────────────────────────────────────
   const markdownComponents = {
     h1: ({ children, ...props }: React.HTMLAttributes<HTMLHeadingElement>) => (
@@ -509,22 +516,22 @@ export default function WikiPage() {
             </div>
 
             {/* Menu Sections */}
-            {wikiSections.map((section) => (
-              <div key={section.title}>
+            {Object.entries(groupedSections).map(([groupTitle, items]) => (
+              <div key={groupTitle}>
                 <div
                   className="uppercase tracking-wider text-[0.75rem] mb-2 mt-4 first:mt-0 pl-3.5"
                   style={{ color: '#71717a', letterSpacing: '0.05em' }}
                 >
-                  {section.title}
+                  {groupTitle}
                 </div>
                 <ul className="list-none space-y-1">
-                  {section.items.map((item) => {
+                  {items.map((item) => {
                     const Icon = getIcon(item.icon);
-                    const isActive = activeSection === item.key;
+                    const isActive = activeSection === item.id;
                     return (
-                      <li key={item.key}>
+                      <li key={item.id}>
                         <button
-                          onClick={() => handleSectionClick(item.key)}
+                          onClick={() => handleSectionClick(item.id)}
                           className="flex items-center gap-2.5 w-full text-left px-3.5 py-2.5 rounded-[10px] text-[0.9rem] transition-all min-h-[44px]"
                           style={{
                             color: isActive ? '#c084fc' : '#d4d4d8',
@@ -648,4 +655,3 @@ export default function WikiPage() {
     </div>
   );
 }
-
