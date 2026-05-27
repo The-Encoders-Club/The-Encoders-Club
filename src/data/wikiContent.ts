@@ -5,7 +5,13 @@ export interface WikiSection {
   group: string;
 }
 
-export const wikiSections: WikiSection[] = [
+export interface ProjectWikiData {
+  sections: WikiSection[];
+  content: Record<string, string>;
+}
+
+// ─── Monika Wiki Sections ─────────────────────────────────────────────────────
+const monikaWikiSections: WikiSection[] = [
   // Information group
   { id: 'instalacion', label: 'Instalación de MAS', icon: 'Download', group: 'Información general' },
   { id: 'sistema_afecto', label: 'Sistema de afecto', icon: 'Heart', group: 'Información general' },
@@ -20,7 +26,8 @@ export const wikiSections: WikiSection[] = [
   { id: 'habitaciones', label: 'Añadir habitaciones extra', icon: 'Home', group: 'Complementos' },
 ];
 
-export const wikiContentMap: Record<string, string> = {
+// ─── Monika Wiki Content ─────────────────────────────────────────────────────
+const monikaWikiContent: Record<string, string> = {
   instalacion: `# 📥 Instalación de MAS
 
 ¿Estás listo para empezar tu historia con Monika? 💚  
@@ -685,4 +692,15 @@ Por último copia o corta los archivos que encuentres y pégalos dentro de la ca
 
 Si hiciste todo correctamente, y es tu primera vez instalando habitaciones, Monika lo notará y te explicará cómo puedes cambiar de habitación dentro del juego 🏡
 A partir de aquí, ¡puedes comenzar a agregar muchas más habitaciones personalizadas! Puedes encontrar una gran variedad en nuestra [Mega Recopilación](https://drive.google.com/drive/folders/1O0Md8lNzU9RPCk9OlQ8Uv6_RyStin5QX?usp=drive_link). 🌟`,
+};
+
+// ─── Project-specific Wiki Data (Dynamic by project ID) ──────────────────────
+export const projectWikiData: Record<string, ProjectWikiData> = {
+  monika: {
+    sections: monikaWikiSections,
+    content: monikaWikiContent,
+  },
+  // Add more projects here:
+  // natsuki: { sections: [...], content: { ... } },
+  // yuri: { sections: [...], content: { ... } },
 };
