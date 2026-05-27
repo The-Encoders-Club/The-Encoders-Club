@@ -464,30 +464,58 @@ export default function WikiPage() {
           -webkit-overflow-scrolling: touch;
           margin: 1.5rem 0;
           border-radius: 12px;
+          border: 1px solid #2a2a30;
         }
 
         .wiki-table {
           width: 100%;
-          border-collapse: collapse;
+          border-collapse: separate;
+          border-spacing: 0;
           background: #111114;
           border-radius: 12px;
           overflow: hidden;
         }
 
+        .wiki-table thead {
+          background: #1f1f24;
+        }
+
         .wiki-th {
-          border: 1px solid #27272a;
-          padding: 12px 16px;
+          border-bottom: 2px solid #3f3f46 !important;
+          border-right: 1px solid #2a2a30 !important;
+          border-top: none !important;
+          border-left: none !important;
+          padding: 12px 16px !important;
           text-align: left;
           background: #1f1f24;
           font-weight: 600;
           color: #e4e4e7;
         }
 
+        .wiki-th:last-child {
+          border-right: none !important;
+        }
+
         .wiki-td {
-          border: 1px solid #27272a;
-          padding: 12px 16px;
+          border-bottom: 1px solid #1f1f24 !important;
+          border-right: 1px solid #1f1f24 !important;
+          border-top: none !important;
+          border-left: none !important;
+          padding: 12px 16px !important;
           text-align: left;
           color: #d4d4d8;
+        }
+
+        .wiki-td:last-child {
+          border-right: none !important;
+        }
+
+        .wiki-table tbody tr:last-child .wiki-td {
+          border-bottom: none !important;
+        }
+
+        .wiki-table tbody tr:hover {
+          background: #1a1a20;
         }
 
         /* ─── Code blocks ─────────────────────────────────────────────── */
