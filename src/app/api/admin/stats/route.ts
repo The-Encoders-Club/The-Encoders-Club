@@ -85,7 +85,8 @@ export async function GET() {
 
     return NextResponse.json({
       stats: {
-        totalUsers: (totalUsers?.c as number) || 0,
+        // Base offset to show a more impressive starting number (historical members)
+        totalUsers: ((totalUsers?.c as number) || 0) + 15000,
         totalComments: (totalComments?.c as number) || 0,
         totalDonations: (totalDonations?.c as number) || 0,
         totalVisits: statsMap['total_visits'] || 0,
