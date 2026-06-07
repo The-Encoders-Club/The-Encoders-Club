@@ -356,10 +356,10 @@ Uno de los juegos que podrás disfrutar con Monika es el NOU, lo desbloquearás 
 
 Los tipos de cartas del NOU se subdividen en 3 tipos: las numéricas, las de acción y los comodines. Asimismo las cartas numéricas y las de acción estarán disponibles en 4 colores, los cuales son:
 
-- Rojo 🔴
-- Celeste 🔵
-- Verde 🟢
-- Amarillo 🟡
+- <span class="wiki-emoji emoji-red"></span> Rojo
+- <span class="wiki-emoji emoji-blue"></span> Celeste
+- <span class="wiki-emoji emoji-green"></span> Verde
+- <span class="wiki-emoji emoji-yellow"></span> Amarillo
 
 
 ## 🎲 Cartas numéricas:
@@ -686,6 +686,19 @@ function parseMarkdown(md: string): string {
   let tableRows: string[] = [];
   let inList = false;
   let listType: 'ul' | 'ol' | null = null;
+  let pendingImages: string[] = [];
+
+  const flushImages = () => {
+    if (pendingImages.length === 0) return;
+    if (pendingImages.length === 1) {
+      html.push(pendingImages[0]);
+    } else {
+      html.push(`<div class="wiki-card-row">${pendingImages.join('')}</div>`);
+    }
+    pendingImages = [];
+  };
+
+  const isImageOnly = (line: string) => /^!\[([^\]]*)\]\(([^)]+)\)$/.test(line.trim());
 
   const escapeHtml = (text: string) =>
     text
@@ -741,6 +754,7 @@ function parseMarkdown(md: string): string {
 
     // Code blocks
     if (trimmed.startsWith('```')) {
+      flushImages();
       if (inCodeBlock) {
         html.push(`<pre><code>${escapeHtml(codeContent.join('\n'))}</code></pre>`);
         codeContent = [];
@@ -758,13 +772,22 @@ function parseMarkdown(md: string): string {
       continue;
     }
 
-    // Empty line
+    // Empty line — flush pending images
     if (trimmed === '') {
+      flushImages();
       closeList();
       if (inTable && (i + 1 >= lines.length || !isTableRow(lines[i + 1]))) {
         closeTable();
       }
       continue;
+    }
+
+    // Standalone image — accumulate for grouping
+    if (isImageOnly(trimmed)) {
+      pendingImages.push(inlineFormat(trimmed));
+      continue;
+    } else if (pendingImages.length > 0) {
+      flushImages();
     }
 
     // Horizontal rule
@@ -841,8 +864,10 @@ function parseMarkdown(md: string): string {
     html.push(`<p>${inlineFormat(trimmed)}</p>`);
   }
 
+  flushImages();
   closeList();
   closeTable();
+
   return html.join('\n');
 }
 
@@ -1007,6 +1032,23 @@ export default function WikiPage() {
 
         /* Images */
         .wiki-article img { max-width: 100%; height: auto; border-radius: 10px; margin: 0.8rem 0; display: block; cursor: zoom-in; }
+
+        /* Card row (horizontal scroll for NOU cards) */
+        .wiki-card-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 0.8rem; padding: 0.8rem 0; margin: 1rem 0; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
+        .wiki-card-row::-webkit-scrollbar { height: 6px; }
+        .wiki-card-row::-webkit-scrollbar-track { background: transparent; }
+        .wiki-card-row::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+        .wiki-card-row::-webkit-scrollbar-thumb:hover { background: #52525b; }
+        .wiki-card-row img { min-width: 90px; max-width: 120px; height: auto; flex-shrink: 0; margin: 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+        .wiki-card-row img:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
+
+        /* Custom color emojis (UNO-style chips) */
+        .wiki-emoji { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; vertical-align: middle; margin-right: 5px; position: relative; top: -1px; border: 2px solid rgba(255,255,255,0.15); box-shadow: 0 2px 6px rgba(0,0,0,0.35); flex-shrink: 0; }
+        .wiki-emoji::after { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.35); position: absolute; top: 3px; left: 3px; }
+        .wiki-emoji.emoji-red { background: linear-gradient(135deg, #f87171 0%, #dc2626 100%); }
+        .wiki-emoji.emoji-blue { background: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%); }
+        .wiki-emoji.emoji-green { background: linear-gradient(135deg, #4ade80 0%, #16a34a 100%); }
+        .wiki-emoji.emoji-yellow { background: linear-gradient(135deg, #fde047 0%, #ca8a04 100%); }
 
         /* Table wrap */
         .wiki-article .table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 1.5rem 0; border-radius: 12px; }
