@@ -84,10 +84,30 @@ const fadeUp = {
   }),
 };
 
+// Fallback stat values (used while API loads or if it fails)
+const FALLBACK_STATS = { downloads: 15000, visits: 50000 };
+
 export default function Home() {
   const { t, locale } = useI18n();
   const isEs = locale === 'es';
   const newsItems = isEs ? newsItemsEs : newsItemsEn;
+
+  // Fetch live stats from API (visits & downloads)
+  const [liveStats, setLiveStats] = useState<{ downloads: number; visits: number } | null>(null);
+
+  useEffect(() => {
+    fetch('/api/stats')
+      .then(r => r.json())
+      .then(data => {
+        if (data.visits !== undefined && data.downloads !== undefined) {
+          setLiveStats({ downloads: data.downloads, visits: data.visits });
+        }
+      })
+      .catch(() => {}); // silently fail — fallback values will be used
+  }, []);
+
+  // Use live data if available, otherwise fallback
+  const stats = liveStats || FALLBACK_STATS;
 
   return (
     <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
@@ -329,9 +349,9 @@ export default function Home() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
             <StatCounter value={3} label={t('home.projectsLabel')} icon={BookOpen} color="#FF2D78" suffix="+" />
-            <StatCounter value={15000} label={t('home.downloadsLabel')} icon={Download} color="#4D9FFF" suffix="+" />
+            <StatCounter value={stats.downloads} label={t('home.downloadsLabel')} icon={Download} color="#4D9FFF" suffix="+" />
             <StatCounter value={7} label={t('home.coursesLabel')} icon={Users} color="#a855f7" suffix="+" />
-            <StatCounter value={50000} label={t('home.visitsLabel')} icon={Eye} color="#22c55e" suffix="+" />
+            <StatCounter value={stats.visits} label={t('home.visitsLabel')} icon={Eye} color="#22c55e" suffix="+" />
           </div>
         </div>
       </section>
