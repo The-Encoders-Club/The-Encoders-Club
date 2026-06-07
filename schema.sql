@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS DiscordConfig (
   discordClientId    TEXT,
   discordClientSecret TEXT,
   siteUrl            TEXT,
+  notificationEnabled INTEGER NOT NULL DEFAULT 1,
   createdAt          TEXT NOT NULL DEFAULT (datetime('now')),
   updatedAt          TEXT NOT NULL DEFAULT (datetime('now'))
 );
