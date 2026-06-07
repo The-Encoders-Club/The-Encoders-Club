@@ -90,7 +90,7 @@ export default function Navbar() {
                 title={locale === 'es' ? 'Switch to English' : 'Cambiar a Español'}
               >
                 <Globe size={16} />
-                <span className="hidden lg:inline">{locale === 'es' ? 'EN' : 'ES'}</span>
+                <span className="hidden lg:inline">{locale.toUpperCase()}</span>
               </button>
 
               <div className="flex items-center gap-1 mr-1">
@@ -156,9 +156,10 @@ export default function Navbar() {
             <div className="flex items-center gap-2 md:hidden">
               <button
                 onClick={toggleLocale}
-                className="p-2 rounded-full text-white/60 hover:text-white hover:bg-white/8 transition-all"
+                className="p-2 rounded-full text-white/60 hover:text-white hover:bg-white/8 transition-all flex items-center gap-1 text-xs font-bold uppercase"
               >
                 <Globe size={18} />
+                <span>{locale.toUpperCase()}</span>
               </button>
               <button onClick={() => setMenuOpen(!menuOpen)} className="p-2 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all" aria-label="Menu">
                 {menuOpen ? <X size={28} /> : <Menu size={28} />}
