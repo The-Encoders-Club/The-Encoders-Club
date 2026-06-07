@@ -105,11 +105,8 @@ export default function Home() {
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="grid lg:grid-cols-2 gap-12 items-center min-h-[80vh]">
-            <div className="hidden lg:flex flex-col items-center justify-center relative order-1 lg:order-1">
-              <div className="absolute w-72 h-72 lg:w-96 lg:h-96 rounded-full bg-[#FF2D78]/10 blur-3xl" />
-            </div>
-            <div className="flex flex-col justify-center lg:pl-8 order-2 lg:order-2">
+          <div className="flex items-center justify-center min-h-[80vh]">
+            <div className="flex flex-col justify-center w-full max-w-2xl">
               {/* Hero animations: these are one-shot (no infinite loop) so they're fine */}
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
