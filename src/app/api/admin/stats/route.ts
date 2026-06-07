@@ -19,8 +19,15 @@ export async function GET() {
     const [totalUsers, totalComments, totalDonations] = await Promise.all([
       db.prepare('SELECT COUNT(*) as c FROM User').first(),
       db.prepare('SELECT COUNT(*) as c FROM Comment WHERE isDeleted = 0').first(),
-      db.prepare('SELECT COUNT(*) as c FROM Donation').first(),
+      db.prepare('SELECT COALESCE(SUM(amount), 0) as c FROM Donation').first(),
     ]);
+
+    // Site stats (visits & downloads from SiteStats table)
+    const { results: siteStats } = await db.prepare('SELECT key, value FROM SiteStats').all();
+    const statsMap: Record<string, number> = {};
+    for (const row of (siteStats || [])) {
+      statsMap[(row as { key: string; value: number }).key] = (row as { key: string; value: number }).value || 0;
+    }
 
     // Recent users (last 10)
     const { results: recentUsers } = await db
@@ -81,6 +88,8 @@ export async function GET() {
         totalUsers: (totalUsers?.c as number) || 0,
         totalComments: (totalComments?.c as number) || 0,
         totalDonations: (totalDonations?.c as number) || 0,
+        totalVisits: statsMap['total_visits'] || 0,
+        totalDownloads: statsMap['total_downloads'] || 0,
       },
       recentUsers: (recentUsers || []).map((u: any) => ({
         id: u.id,
