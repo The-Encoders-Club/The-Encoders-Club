@@ -47,6 +47,10 @@ interface StatsData {
     totalDonations: number;
     totalVisits: number;
     totalDownloads: number;
+    realVisits: number;
+    realDownloads: number;
+    visitsBase: number;
+    downloadsBase: number;
   };
   recentUsers: { id: string; nickname: string; avatar?: string; role: string; createdAt: string }[];
   recentComments: RecentComment[]; recentLogs: ActivityLog[]; donations: Donation[];
@@ -93,6 +97,7 @@ const actionLabels: Record<string, string> = {
   comment_self_deleted: 'Comentario auto-eliminado',
   donation_received: 'Donación recibida',
   password_change: 'Contraseña cambiada',
+  stats_config_updated: 'Config. de estadísticas actualizada',
 };
 
 const getActionColor = (action: string) => {
@@ -207,6 +212,8 @@ export default function AdminPanel() {
   });
   const [syncTarget, setSyncTarget] = useState<'special' | 'all'>('special');
   const rolePopoverRef = useRef<HTMLDivElement>(null);
+  const [statsConfig, setStatsConfig] = useState({ visits_base: 0, downloads_base: 0 });
+  const [statsConfigSaving, setStatsConfigSaving] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -249,6 +256,12 @@ export default function AdminPanel() {
       if (res.ok) { const data = await res.json(); setBotStatus(data); }
     } catch {} finally { setStatusLoading(false); }
   }, []);
+  const fetchStatsConfig = useCallback(async () => {
+    try {
+      const res = await fetch('/api/admin/stats/config');
+      if (res.ok) { const data = await res.json(); setStatsConfig({ visits_base: data.visits_base || 0, downloads_base: data.downloads_base || 0 }); }
+    } catch {}
+  }, []);
 
   useEffect(() => {
     if (!mounted) return;
@@ -260,8 +273,8 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([fetchStats(), fetchUsers(), fetchDiscordConfig(), fetchBotStatus()]).finally(() => { setLoading(false); });
-  }, [user, fetchStats, fetchUsers, fetchDiscordConfig, fetchBotStatus]);
+    Promise.all([fetchStats(), fetchUsers(), fetchDiscordConfig(), fetchBotStatus(), fetchStatsConfig()]).finally(() => { setLoading(false); });
+  }, [user, fetchStats, fetchUsers, fetchDiscordConfig, fetchBotStatus, fetchStatsConfig]);
 
   // Auto-refresh stats every 60 seconds
   useEffect(() => {
@@ -269,9 +282,10 @@ export default function AdminPanel() {
     const interval = setInterval(() => {
       fetchStats();
       fetchBotStatus();
+      fetchStatsConfig();
     }, 60000);
     return () => clearInterval(interval);
-  }, [user, fetchStats, fetchBotStatus]);
+  }, [user, fetchStats, fetchBotStatus, fetchStatsConfig]);
 
   const handleRoleChange = async (userId: string, newRole: string) => {
     try { const res = await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, role: newRole }) }); if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; } setUsers(prev => prev.map(u => (u.id === userId ? { ...u, role: newRole } : u))); toast.success('Rol actualizado'); } catch { toast.error('Error de conexión'); }
@@ -305,6 +319,15 @@ export default function AdminPanel() {
   };
   const handleDeleteComment = async (commentId: string) => {
     try { const res = await fetch('/api/comments', { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ commentId }) }); if (!res.ok) { toast.error('Error'); return; } setAllComments(prev => prev.filter(c => c.id !== commentId)); toast.success('Comentario eliminado'); } catch { toast.error('Error'); }
+  };
+  const handleStatsConfigSave = async () => {
+    setStatsConfigSaving(true);
+    try {
+      const res = await fetch('/api/admin/stats/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ visits_base: statsConfig.visits_base, downloads_base: statsConfig.downloads_base }) });
+      if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; }
+      toast.success('Configuración de estadísticas guardada');
+      fetchStats();
+    } catch { toast.error('Error de conexión'); } finally { setStatsConfigSaving(false); }
   };
   const handleSyncRoles = async () => {
     setSyncLoading(true);
@@ -590,6 +613,105 @@ export default function AdminPanel() {
                     </motion.div>
                   ))}
                 </div>
+
+                {/* Stats Configuration */}
+                <AdminCard>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-[#22C55E]/10 flex items-center justify-center">
+                        <TrendingUp size={16} className="text-[#22C55E]" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-semibold text-white/90">Configuración de Estadísticas</h3>
+                        <p className="text-[10px] text-white/30">Define números base que se suman a los conteos reales en tiempo real</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Breakdown Display */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+                    {/* Visits Breakdown */}
+                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Eye size={14} className="text-[#22c55e]" />
+                        <span className="text-xs font-medium text-white/60">Visitas del Sitio</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-white/30">Base configurada</span>
+                          <span className="text-white/70 font-semibold">{(statsConfig.visits_base || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-white/30">Visitas reales (tiempo real)</span>
+                          <span className="text-green-400/80 font-semibold">{(stats?.stats.realVisits || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="border-t border-white/[0.06] pt-2 flex items-center justify-between">
+                          <span className="text-xs font-medium text-white/50">Total mostrado</span>
+                          <span className="text-lg font-bold text-[#22c55e]">{(stats?.stats.totalVisits || 0).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Downloads Breakdown */}
+                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Download size={14} className="text-[#FF2D78]" />
+                        <span className="text-xs font-medium text-white/60">Descargas de Proyectos</span>
+                      </div>
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-white/30">Base configurada</span>
+                          <span className="text-white/70 font-semibold">{(statsConfig.downloads_base || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-white/30">Descargas reales (tiempo real)</span>
+                          <span className="text-[#FF2D78]/80 font-semibold">{(stats?.stats.realDownloads || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="border-t border-white/[0.06] pt-2 flex items-center justify-between">
+                          <span className="text-xs font-medium text-white/50">Total mostrado</span>
+                          <span className="text-lg font-bold text-[#FF2D78]">{(stats?.stats.totalDownloads || 0).toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Input Fields */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">Base de Visitas</label>
+                      <AdminInput
+                        type="number"
+                        min="0"
+                        value={statsConfig.visits_base}
+                        onChange={e => setStatsConfig(prev => ({ ...prev, visits_base: Math.max(0, parseInt(e.target.value) || 0) }))}
+                        placeholder="Ej: 50000"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">Base de Descargas</label>
+                      <AdminInput
+                        type="number"
+                        min="0"
+                        value={statsConfig.downloads_base}
+                        onChange={e => setStatsConfig(prev => ({ ...prev, downloads_base: Math.max(0, parseInt(e.target.value) || 0) }))}
+                        placeholder="Ej: 15000"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#22C55E]/[0.04] border border-[#22C55E]/10 mb-4">
+                    <Info size={14} className="text-[#22C55E]/70 shrink-0 mt-0.5" />
+                    <p className="text-[11px] text-white/35 leading-relaxed">Estos números se suman a los conteos reales. Si pones 50,000 en visitas y un usuario visita la web, se mostrará 50,001. Los valores se reflejan tanto en el inicio público como aquí en el panel.</p>
+                  </div>
+
+                  <button
+                    onClick={handleStatsConfigSave}
+                    disabled={statsConfigSaving}
+                    className="w-full py-2.5 rounded-xl bg-[#22C55E] hover:bg-[#16a34a] text-white font-semibold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-[#22C55E]/10"
+                  >
+                    {statsConfigSaving ? <><Loader2 size={15} className="animate-spin" /> Guardando...</> : <><Save size={15} /> Guardar Configuración</>}
+                  </button>
+                </AdminCard>
 
                 {/* Two Column Layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
