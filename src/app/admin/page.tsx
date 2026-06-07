@@ -84,15 +84,15 @@ const actionLabels: Record<string, string> = {
   discord_linked: 'Discord vinculado',
   discord_unlinked: 'Discord desvinculado',
   discord_role_push: 'Roles empujados a Discord',
-  user_login: 'Inicio de sesion',
+  user_login: 'Inicio de sesión',
   user_register: 'Registro',
-  user_logout: 'Cierre de sesion',
+  user_logout: 'Cierre de sesión',
   comment_create: 'Comentario creado',
   comment_deleted: 'Comentario eliminado',
   comment_delete: 'Comentario eliminado',
   comment_self_deleted: 'Comentario auto-eliminado',
-  donation_received: 'Donacion recibida',
-  password_change: 'Contrasena cambiada',
+  donation_received: 'Donación recibida',
+  password_change: 'Contraseña cambiada',
 };
 
 const getActionColor = (action: string) => {
@@ -137,11 +137,11 @@ const Skeleton = ({ className = '' }: { className?: string }) => (
 
 // ─── Nav Items ───
 const navItems = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { id: 'dashboard', label: 'Inicio', icon: LayoutDashboard },
   { id: 'users', label: 'Usuarios', icon: Users },
   { id: 'comments', label: 'Comentarios', icon: MessageSquare },
   { id: 'discord', label: 'Discord', icon: MessageCircle },
-  { id: 'logs', label: 'Logs', icon: FileText },
+  { id: 'logs', label: 'Actividad', icon: FileText },
 ];
 
 // ─── Input Component ───
@@ -263,8 +263,18 @@ export default function AdminPanel() {
     Promise.all([fetchStats(), fetchUsers(), fetchDiscordConfig(), fetchBotStatus()]).finally(() => { setLoading(false); });
   }, [user, fetchStats, fetchUsers, fetchDiscordConfig, fetchBotStatus]);
 
+  // Auto-refresh stats every 60 seconds
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(() => {
+      fetchStats();
+      fetchBotStatus();
+    }, 60000);
+    return () => clearInterval(interval);
+  }, [user, fetchStats, fetchBotStatus]);
+
   const handleRoleChange = async (userId: string, newRole: string) => {
-    try { const res = await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, role: newRole }) }); if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; } setUsers(prev => prev.map(u => (u.id === userId ? { ...u, role: newRole } : u))); toast.success('Rol actualizado'); } catch { toast.error('Error de conexion'); }
+    try { const res = await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId, role: newRole }) }); if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; } setUsers(prev => prev.map(u => (u.id === userId ? { ...u, role: newRole } : u))); toast.success('Rol actualizado'); } catch { toast.error('Error de conexión'); }
   };
   const handleBanToggle = async (targetUser: AdminUser, shouldBan: boolean) => {
     if (shouldBan) { setSelectedUser(targetUser); setBanReason(''); setShowBanDialog(true); return; }
@@ -272,7 +282,7 @@ export default function AdminPanel() {
   };
   const confirmBan = async () => {
     if (!selectedUser) return;
-    try { const res = await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: selectedUser.id, isBanned: true, banReason: banReason || 'Sin razon' }) }); if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; } setUsers(prev => prev.map(u => (u.id === selectedUser.id ? { ...u, isBanned: true, banReason } : u))); toast.success(`${selectedUser.nickname} baneado`); setShowBanDialog(false); } catch { toast.error('Error'); }
+    try { const res = await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: selectedUser.id, isBanned: true, banReason: banReason || 'Sin razón' }) }); if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; } setUsers(prev => prev.map(u => (u.id === selectedUser.id ? { ...u, isBanned: true, banReason } : u))); toast.success(`${selectedUser.nickname} baneado`); setShowBanDialog(false); } catch { toast.error('Error'); }
   };
   const handleDiscordSave = async () => {
     setDiscordLoading(true);
@@ -288,7 +298,7 @@ export default function AdminPanel() {
       payload.notificationEnabled = dcForm.notificationEnabled;
       const res = await fetch('/api/admin/discord', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
       if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; }
-      toast.success('Configuracion Discord guardada');
+      toast.success('Configuración de Discord guardada');
       fetchDiscordConfig();
       fetchBotStatus();
     } catch { toast.error('Error'); } finally { setDiscordLoading(false); }
@@ -308,11 +318,11 @@ export default function AdminPanel() {
       });
       if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; }
       const data = await res.json();
-      toast.success(`Sincronizacion completada: ${data.synced} actualizados, ${data.errors} errores`);
+      toast.success(`Sincronización completada: ${data.synced} actualizados, ${data.errors} errores`);
       setShowSyncDialog(false);
       fetchStats();
       fetchUsers();
-    } catch { toast.error('Error de conexion'); } finally { setSyncLoading(false); }
+    } catch { toast.error('Error de conexión'); } finally { setSyncLoading(false); }
   };
 
   const filteredUsers = users.filter(u => u.nickname.toLowerCase().includes(searchQuery.toLowerCase()) || (u.email && u.email.toLowerCase().includes(searchQuery.toLowerCase())));
@@ -354,15 +364,15 @@ export default function AdminPanel() {
   };
 
   const primaryStatCards = [
-    { icon: Users, label: 'Usuarios Totales', value: stats?.stats.totalUsers || 0, gradient: 'from-[#FF2D78] to-[#a855f7]', shadowColor: 'shadow-[#FF2D78]/15', bgGlow: 'from-[#FF2D78]/[0.06] to-transparent', trend: 'total' },
+    { icon: Users, label: 'Miembros Totales', value: stats?.stats.totalUsers || 0, gradient: 'from-[#FF2D78] to-[#a855f7]', shadowColor: 'shadow-[#FF2D78]/15', bgGlow: 'from-[#FF2D78]/[0.06] to-transparent', trend: 'total' },
     { icon: MessageSquare, label: 'Comentarios Totales', value: stats?.stats.totalComments || 0, gradient: 'from-[#4D9FFF] to-[#00D4FF]', shadowColor: 'shadow-[#4D9FFF]/15', bgGlow: 'from-[#4D9FFF]/[0.06] to-transparent', trend: 'up' },
-    { icon: DollarSign, label: 'Donaciones Totales ($)', value: `$${(stats?.stats.totalDonations || 0).toFixed(2)}`, gradient: 'from-[#22C55E] to-[#4ADE80]', shadowColor: 'shadow-[#22C55E]/15', bgGlow: 'from-[#22C55E]/[0.06] to-transparent', trend: 'up' },
-    { icon: TrendingUp, label: 'Activos Hoy', value: stats?.recentUsers?.length || 0, gradient: 'from-purple-500 to-pink-500', shadowColor: 'shadow-purple-500/15', bgGlow: 'from-purple-500/[0.06] to-transparent', trend: 'neutral' },
+    { icon: DollarSign, label: 'Donaciones ($)', value: `$${(stats?.stats.totalDonations || 0).toFixed(2)}`, gradient: 'from-[#22C55E] to-[#4ADE80]', shadowColor: 'shadow-[#22C55E]/15', bgGlow: 'from-[#22C55E]/[0.06] to-transparent', trend: 'up' },
+    { icon: TrendingUp, label: 'Registros Hoy', value: stats?.recentUsers?.length || 0, gradient: 'from-purple-500 to-pink-500', shadowColor: 'shadow-purple-500/15', bgGlow: 'from-purple-500/[0.06] to-transparent', trend: 'neutral' },
   ];
 
   const secondaryStatCards = [
-    { icon: Eye, label: 'Visitas Totales', value: stats?.stats.totalVisits || 0, gradient: 'from-[#22c55e] to-[#4ADE80]', shadowColor: 'shadow-[#22c55e]/15', bgGlow: 'from-[#22c55e]/[0.06] to-transparent' },
-    { icon: Download, label: 'Descargas Totales', value: stats?.stats.totalDownloads || 0, gradient: 'from-[#FF2D78] to-[#ff6b9d]', shadowColor: 'shadow-[#FF2D78]/15', bgGlow: 'from-[#FF2D78]/[0.06] to-transparent' },
+    { icon: Eye, label: 'Visitas del Sitio', value: stats?.stats.totalVisits || 0, gradient: 'from-[#22c55e] to-[#4ADE80]', shadowColor: 'shadow-[#22c55e]/15', bgGlow: 'from-[#22c55e]/[0.06] to-transparent' },
+    { icon: Download, label: 'Descargas de Proyectos', value: stats?.stats.totalDownloads || 0, gradient: 'from-[#FF2D78] to-[#ff6b9d]', shadowColor: 'shadow-[#FF2D78]/15', bgGlow: 'from-[#FF2D78]/[0.06] to-transparent' },
   ];
 
   return (
@@ -390,7 +400,7 @@ export default function AdminPanel() {
                 <Shield size={19} className="text-white" />
               </div>
               <div>
-                <h2 className="text-sm font-bold text-white tracking-tight">Admin Panel</h2>
+                <h2 className="text-sm font-bold text-white tracking-tight">Administración</h2>
                 <p className="text-[10px] text-white/30 uppercase tracking-widest">The Encoders Club</p>
               </div>
             </div>
@@ -466,7 +476,7 @@ export default function AdminPanel() {
                   <Shield size={13} className="text-white" />
                 </div>
                 <div className="hidden sm:block">
-                  <p className="text-xs font-medium text-white/80">Administrador</p>
+                  <p className="text-xs font-medium text-white/80">{user.role === 'owner' ? 'Creador' : 'Admin'}</p>
                 </div>
                 <Badge className={`text-[10px] px-2 py-0 rounded-full border font-semibold uppercase tracking-wider ${
                   user.role === 'owner'
@@ -496,13 +506,20 @@ export default function AdminPanel() {
                         <Shield size={22} className="text-white" />
                       </div>
                       <div>
-                        <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Panel de Administracion</h2>
-                        <p className="text-xs text-white/40">The Encoders Club</p>
+                        <h2 className="text-xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Panel de Administración</h2>
+                        <p className="text-xs text-white/40">The Encoders Club — {user.role === 'owner' ? 'Creador del sitio' : 'Administrador'}</p>
                       </div>
                     </div>
                     <p className="text-sm text-white/50 max-w-lg">
-                      Resumen general de la plataforma. Gestiona usuarios, comentarios, integraciones de Discord y monitorea la actividad reciente.
+                      Vista general de la plataforma. Monitoriza estadísticas, gestiona usuarios, moderación de comentarios, integraciones de Discord y actividad reciente del sistema.
                     </p>
+                    <div className="flex items-center gap-2 mt-3">
+                      <motion.div animate={{ opacity: [0.3, 0.8, 0.3] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }} className="w-1.5 h-1.5 rounded-full bg-green-400" />
+                      <span className="text-[11px] text-green-400/60">Estadísticas en vivo</span>
+                      <button onClick={() => { fetchStats(); fetchBotStatus(); fetchUsers(); }} className="ml-auto text-[11px] text-white/25 hover:text-white/50 transition-colors flex items-center gap-1">
+                        <RefreshCw size={11} /> Actualizar
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -592,7 +609,7 @@ export default function AdminPanel() {
                     </div>
                     <div className="space-y-0 max-h-[400px] overflow-y-auto pr-1">
                       {(!logs || logs.length === 0) ? (
-                        <EmptyState icon={FileText} message="Sin actividad reciente" submessage="Los eventos apareceran aqui" />
+                        <EmptyState icon={FileText} message="Sin actividad reciente" submessage="Los eventos aparecerán aquí" />
                       ) : logs.map((log, idx) => (
                         <div key={log.id} className="relative flex items-start gap-3 pb-4">
                           {/* Timeline line */}
@@ -623,7 +640,7 @@ export default function AdminPanel() {
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-white/90">Usuarios por Rol</h3>
-                        <p className="text-[10px] text-white/30">Distribucion de roles</p>
+                        <p className="text-[10px] text-white/30">Distribución de roles</p>
                       </div>
                     </div>
                     <div className="space-y-4">
@@ -669,7 +686,7 @@ export default function AdminPanel() {
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-white/90">Usuarios Recientes</h3>
-                        <p className="text-[10px] text-white/30">Ultimos registros en la plataforma</p>
+                        <p className="text-[10px] text-white/30">Últimos registros en la plataforma</p>
                       </div>
                     </div>
                     <span className="text-[10px] text-white/20 uppercase tracking-widest bg-white/[0.03] px-2.5 py-1 rounded-full">
@@ -770,7 +787,7 @@ export default function AdminPanel() {
 
                 {/* Users Table */}
                 <AdminCard padding={false}>
-                  <div className="overflow-x-auto">
+                  <div className="overflow-x-auto" style={{ overflowY: 'visible' }}>
                     <Table>
                       <TableHeader>
                         <TableRow className="border-white/[0.06] hover:bg-transparent bg-white/[0.02]">
@@ -824,7 +841,7 @@ export default function AdminPanel() {
                                       initial={{ opacity: 0, scale: 0.95, y: -4 }}
                                       animate={{ opacity: 1, scale: 1, y: 0 }}
                                       exit={{ opacity: 0, scale: 0.95, y: -4 }}
-                                      className="absolute top-full mt-1 left-0 z-20 bg-[#12122a] border border-white/[0.08] rounded-xl p-1.5 shadow-xl shadow-black/30 min-w-[120px]"
+                                      className="absolute top-full mt-1 left-0 z-[9999] bg-[#12122a] border border-white/[0.08] rounded-xl p-1.5 shadow-xl shadow-black/30 min-w-[120px]"
                                     >
                                       {['user', 'collaborator', 'moderator', 'admin'].map(role => (
                                         <button
@@ -909,7 +926,7 @@ export default function AdminPanel() {
                         <MessageSquare size={18} className="text-white" />
                       </div>
                       <div>
-                        <h2 className="text-base font-bold text-white">Moderacion de Comentarios</h2>
+                        <h2 className="text-base font-bold text-white">Moderación de Comentarios</h2>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="text-xs text-white/40">{allComments.length} comentarios recientes</span>
                           {allComments.some(c => c.reports > 0) && (
@@ -961,7 +978,7 @@ export default function AdminPanel() {
                     <div className="flex flex-col items-center justify-center py-20 text-white/20">
                       <MessageSquare size={44} strokeWidth={1} />
                       <p className="text-sm mt-3 text-white/25">No hay comentarios aun</p>
-                      <p className="text-xs text-white/15 mt-1">Los comentarios nuevos apareceran aqui</p>
+                      <p className="text-xs text-white/15 mt-1">Los comentarios nuevos aparecerán aquí</p>
                     </div>
                   )}
                 </div>
@@ -978,7 +995,7 @@ export default function AdminPanel() {
                       <MessageCircle size={18} className="text-white" />
                     </div>
                     <div>
-                      <h2 className="text-base font-bold text-white">Integracion con Discord</h2>
+                      <h2 className="text-base font-bold text-white">Integración con Discord</h2>
                       <p className="text-[11px] text-white/40">Bot, webhook, roles y OAuth2</p>
                     </div>
                   </div>
@@ -993,7 +1010,7 @@ export default function AdminPanel() {
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-white/90">Estado del Bot</h3>
-                        <p className="text-[11px] text-white/30">Conectividad y estadisticas</p>
+                        <p className="text-[11px] text-white/30">Conectividad y estadísticas</p>
                       </div>
                     </div>
                     <button onClick={fetchBotStatus} disabled={statusLoading} className="px-3 py-1.5 rounded-lg bg-white/5 border border-white/[0.08] text-white/40 text-[11px] hover:bg-white/[0.08] transition-all flex items-center gap-1.5 disabled:opacity-50">
@@ -1045,7 +1062,7 @@ export default function AdminPanel() {
 
                       {/* Role Sync Button */}
                       <button onClick={() => setShowSyncDialog(true)} className="w-full py-2.5 rounded-xl bg-[#5865F2]/10 border border-[#5865F2]/20 text-[#5865F2]/90 text-sm font-medium hover:bg-[#5865F2]/15 transition-all flex items-center justify-center gap-2">
-                        <ArrowUpDown size={15} /> Sincronizar Roles a Discord
+                        <ArrowUpDown size={15} /> Sincronizar roles con Discord
                       </button>
                     </div>
                   ) : (
@@ -1060,8 +1077,8 @@ export default function AdminPanel() {
                       <Zap size={18} className="text-[#5865F2]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-white/90">Webhook de Notificaciones</h3>
-                      <p className="text-[11px] text-white/30">Canal de destino para alertas</p>
+                      <h3 className="text-sm font-semibold text-white/90">Notificaciones por Webhook</h3>
+                      <p className="text-[11px] text-white/30">Canal de Discord para alertas automáticas</p>
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -1075,7 +1092,7 @@ export default function AdminPanel() {
                     </div>
                     <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#5865F2]/[0.04] border border-[#5865F2]/10">
                       <Info size={14} className="text-[#5865F2]/70 shrink-0 mt-0.5" />
-                      <p className="text-[11px] text-white/35 leading-relaxed">Crea un webhook en tu servidor de Discord: Editar Canal &gt; Integraciones &gt; Webhooks &gt; Nuevo Webhook. Copia la URL y pegala aqui.</p>
+                      <p className="text-[11px] text-white/35 leading-relaxed">Crea un webhook en tu servidor de Discord: Editar Canal &gt; Integraciones &gt; Webhooks &gt; Nuevo Webhook. Copia la URL y pégala aquí.</p>
                     </div>
                   </div>
                 </AdminCard>
@@ -1088,7 +1105,7 @@ export default function AdminPanel() {
                     </div>
                     <div>
                       <h3 className="text-sm font-semibold text-white/90">Mapeo de Roles</h3>
-                      <p className="text-[11px] text-white/30">Sincronizacion bidireccional</p>
+                      <p className="text-[11px] text-white/30">Sincronización bidireccional</p>
                     </div>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1120,7 +1137,7 @@ export default function AdminPanel() {
                       <Globe size={18} className="text-[#5865F2]" />
                     </div>
                     <div>
-                      <h3 className="text-sm font-semibold text-white/90">OAuth2 (Vinculacion de cuentas)</h3>
+                      <h3 className="text-sm font-semibold text-white/90">OAuth2 (Vinculación de cuentas)</h3>
                       <p className="text-[11px] text-white/30">Discord Developer Portal</p>
                     </div>
                   </div>
@@ -1173,7 +1190,7 @@ export default function AdminPanel() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-white/70">Notificaciones de comentarios</p>
-                      <p className="text-[11px] text-white/25">Enviar avisos a Discord cuando alguien comente</p>
+                      <p className="text-[11px] text-white/25">Enviar notificaciones a Discord cuando se publique un comentario</p>
                     </div>
                   </div>
                   <button
@@ -1187,7 +1204,7 @@ export default function AdminPanel() {
                 {/* Save & Test Buttons */}
                 <div className="flex gap-3">
                   <button onClick={handleDiscordSave} disabled={discordLoading} className="flex-1 py-3 rounded-xl bg-[#5865F2] hover:bg-[#4752C4] text-white font-semibold text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg shadow-[#5865F2]/10">
-                    {discordLoading ? <><Loader2 size={15} className="animate-spin" /> Guardando...</> : <><Save size={15} /> Guardar Configuracion</>}
+                    {discordLoading ? <><Loader2 size={15} className="animate-spin" /> Guardando...</> : <><Save size={15} /> Guardar Configuración</>}
                   </button>
                   <button
                     onClick={async () => {
@@ -1200,7 +1217,7 @@ export default function AdminPanel() {
                           toast.error(data.message || 'No se pudo enviar la prueba.');
                         }
                       } catch {
-                        toast.error('Error de conexion al enviar la prueba.');
+                        toast.error('Error de conexión al enviar la prueba.');
                       }
                     }}
                     className="py-3 px-5 rounded-xl bg-white/5 hover:bg-white/[0.08] border border-white/[0.08] text-white/50 hover:text-white/70 font-medium text-sm transition-all flex items-center gap-2"
@@ -1235,7 +1252,7 @@ export default function AdminPanel() {
                     <div className="flex flex-col items-center justify-center py-24 text-white/20">
                       <FileText size={44} strokeWidth={1} />
                       <p className="text-sm mt-3 text-white/25">Sin registros de actividad</p>
-                      <p className="text-xs text-white/15 mt-1">Los eventos apareceran aqui</p>
+                      <p className="text-xs text-white/15 mt-1">Los eventos aparecerán aquí</p>
                     </div>
                   ) : logs.map((log, idx) => (
                     <div
@@ -1280,7 +1297,7 @@ export default function AdminPanel() {
             </DialogDescription>
           </DialogHeader>
           <div className="ml-10">
-            <Input placeholder="Razon del ban (opcional)" value={banReason} onChange={e => setBanReason(e.target.value)} className="bg-white/5 border-white/[0.08] text-white placeholder:text-white/20 focus:border-red-500/30" />
+            <Input placeholder="Razón del ban (opcional)" value={banReason} onChange={e => setBanReason(e.target.value)} className="bg-white/5 border-white/[0.08] text-white placeholder:text-white/20 focus:border-red-500/30" />
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
             <button onClick={() => setShowBanDialog(false)} className="px-4 py-2 rounded-lg bg-white/5 border border-white/[0.08] text-white/60 text-sm hover:bg-white/[0.08] transition-all">Cancelar</button>
