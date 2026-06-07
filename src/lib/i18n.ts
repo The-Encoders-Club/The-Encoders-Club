@@ -154,6 +154,20 @@ const translations = {
     'home.about.python': 'Python-based',
     'home.about.crossPlatform': 'Multiplataforma',
     'home.about.activeCommunity': 'Comunidad activa',
+    // Footer
+    'footer.description': 'Comunidad dedicada a crear y compartir novelas visuales con Ren\'Py en español.',
+    'footer.navigation': 'Navegación',
+    'footer.community': 'Comunidad',
+    'footer.tools': 'Herramientas',
+    'footer.renpyEngine': "Ren'Py Engine",
+    'footer.documentation': 'Documentación',
+    'footer.tutorials': 'Tutoriales',
+    'footer.copyright': '© 2026 The Encoders Club. Todos los derechos reservados.',
+    'footer.madeWith': 'Hecho con ❤️ para la comunidad hispanohablante de Ren\'Py',
+    // Loading Screen
+    'loading.resources': 'Cargando recursos...',
+    'loading.preparing': 'Preparando experiencia...',
+    'loading.almostReady': '¡Casi listo!',
   },
   en: {
     // Nav
@@ -308,6 +322,20 @@ const translations = {
     'home.about.python': 'Python-based',
     'home.about.crossPlatform': 'Cross-platform',
     'home.about.activeCommunity': 'Active community',
+    // Footer
+    'footer.description': 'Community dedicated to creating and sharing visual novels with Ren\'Py in Spanish.',
+    'footer.navigation': 'Navigation',
+    'footer.community': 'Community',
+    'footer.tools': 'Tools',
+    'footer.renpyEngine': "Ren'Py Engine",
+    'footer.documentation': 'Documentation',
+    'footer.tutorials': 'Tutorials',
+    'footer.copyright': '© 2026 The Encoders Club. All rights reserved.',
+    'footer.madeWith': 'Made with ❤️ for the Spanish-speaking Ren\'Py community',
+    // Loading Screen
+    'loading.resources': 'Loading resources...',
+    'loading.preparing': 'Preparing experience...',
+    'loading.almostReady': 'Almost ready!',
   }
 } as const;
 
