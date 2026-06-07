@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Users, MessageSquare, DollarSign, Activity, Shield, Search,
   Ban, CheckCircle, UserCog, Trash2, Save, AlertTriangle, RefreshCw,
-  Settings, Clock, Bot, Crown, Eye, EyeOff, TrendingUp, Zap, Globe,
-  Unlink, ArrowUpDown, Wifi, WifiOff, Loader2, Info,
+  Bot, Crown, Eye, EyeOff, TrendingUp, Zap, Globe,
+  ArrowUpDown, Wifi, WifiOff, Loader2, Info,
   LayoutDashboard, FileText, ChevronLeft, Menu, X, Heart,
-  UserPlus, LogIn, LogOut, ShieldCheck, MessageCircle, Bell,
+  UserPlus, LogIn, LogOut, ShieldCheck, MessageCircle, Bell, Download,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -28,7 +28,7 @@ import { Badge } from '@/components/ui/badge';
 interface AdminUser {
   id: string; nickname: string; email?: string; avatar?: string;
   role: string; isPremium: boolean; isBanned: boolean; banReason?: string;
-  discordLinked: boolean; discordId?: string; createdAt: string; _count?: { comments: number };
+  discordLinked: boolean; discordId?: string; createdAt: string; commentCount?: number;
 }
 interface RecentComment {
   id: string; content: string; createdAt: string; isDeleted: boolean;
@@ -41,7 +41,13 @@ interface Donation {
   id: string; amount: number; currency: string; message?: string; createdAt: string;
 }
 interface StatsData {
-  stats: { totalUsers: number; totalComments: number; totalDonations: number };
+  stats: {
+    totalUsers: number;
+    totalComments: number;
+    totalDonations: number;
+    totalVisits: number;
+    totalDownloads: number;
+  };
   recentUsers: { id: string; nickname: string; avatar?: string; role: string; createdAt: string }[];
   recentComments: RecentComment[]; recentLogs: ActivityLog[]; donations: Donation[];
   usersByRole: { role: string; _count: number }[];
@@ -70,12 +76,23 @@ const roleColors: Record<string, string> = {
 };
 const roleLabels: Record<string, string> = { owner: 'Owner', admin: 'Admin', moderator: 'Mod', collaborator: 'Colab', user: 'User' };
 const actionLabels: Record<string, string> = {
-  admin_user_update: 'Usuario modificado', discord_config_update: 'Config Discord actualizada',
-  discord_role_sync: 'Rol sincronizado (Discord)', discord_linked: 'Discord vinculado',
-  discord_unlinked: 'Discord desvinculado', discord_role_push: 'Roles empujados a Discord',
-  user_login: 'Inicio de sesion', user_register: 'Registro', user_logout: 'Cierre de sesion',
-  comment_create: 'Comentario creado', comment_delete: 'Comentario eliminado',
-  donation_received: 'Donacion recibida', password_change: 'Contrasena cambiada',
+  admin_user_updated: 'Usuario modificado',
+  admin_user_update: 'Usuario modificado',
+  discord_config_updated: 'Config Discord actualizada',
+  discord_config_update: 'Config Discord actualizada',
+  discord_role_sync: 'Rol sincronizado (Discord)',
+  discord_linked: 'Discord vinculado',
+  discord_unlinked: 'Discord desvinculado',
+  discord_role_push: 'Roles empujados a Discord',
+  user_login: 'Inicio de sesion',
+  user_register: 'Registro',
+  user_logout: 'Cierre de sesion',
+  comment_create: 'Comentario creado',
+  comment_deleted: 'Comentario eliminado',
+  comment_delete: 'Comentario eliminado',
+  comment_self_deleted: 'Comentario auto-eliminado',
+  donation_received: 'Donacion recibida',
+  password_change: 'Contrasena cambiada',
 };
 
 const getActionColor = (action: string) => {
@@ -148,6 +165,15 @@ const AdminCard = ({ children, className = '', padding = true }: { children: Rea
   </div>
 );
 
+// ─── Empty State Component ───
+const EmptyState = ({ icon: Icon, message, submessage }: { icon: React.ElementType; message: string; submessage?: string }) => (
+  <div className="flex flex-col items-center justify-center py-12 text-white/20">
+    <Icon size={36} strokeWidth={1} />
+    <p className="text-sm mt-3">{message}</p>
+    {submessage && <p className="text-xs mt-1 text-white/15">{submessage}</p>}
+  </div>
+);
+
 // ─── Main Component ───
 export default function AdminPanel() {
   const router = useRouter();
@@ -180,8 +206,20 @@ export default function AdminPanel() {
     notificationEnabled: true,
   });
   const [syncTarget, setSyncTarget] = useState<'special' | 'all'>('special');
+  const rolePopoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setMounted(true); }, []);
+
+  // Close role popover on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (rolePopoverRef.current && !rolePopoverRef.current.contains(e.target as Node)) {
+        setRoleChangeUser(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   const fetchStats = useCallback(async () => {
     try { const res = await fetch('/api/admin/stats'); if (!res.ok) return; const data = await res.json(); setStats(data); setAllComments(data.recentComments || []); setLogs(data.recentLogs || []); } catch {}
@@ -239,7 +277,7 @@ export default function AdminPanel() {
   const handleDiscordSave = async () => {
     setDiscordLoading(true);
     try {
-      const payload: Record<string, string> = {};
+      const payload: Record<string, string | boolean> = {};
       if (dcForm.webhookUrl) payload.webhookUrl = dcForm.webhookUrl;
       if (dcForm.modRoleId) payload.modRoleId = dcForm.modRoleId;
       if (dcForm.adminRoleId) payload.adminRoleId = dcForm.adminRoleId;
@@ -278,6 +316,8 @@ export default function AdminPanel() {
   };
 
   const filteredUsers = users.filter(u => u.nickname.toLowerCase().includes(searchQuery.toLowerCase()) || (u.email && u.email.toLowerCase().includes(searchQuery.toLowerCase())));
+  const hasSearchQuery = searchQuery.trim().length > 0;
+  const hasNoSearchResults = hasSearchQuery && filteredUsers.length === 0;
 
   if (!mounted || !user || loading) {
     return (
@@ -312,6 +352,18 @@ export default function AdminPanel() {
     setActiveTab(id);
     setSidebarOpen(false);
   };
+
+  const primaryStatCards = [
+    { icon: Users, label: 'Usuarios Totales', value: stats?.stats.totalUsers || 0, gradient: 'from-[#FF2D78] to-[#a855f7]', shadowColor: 'shadow-[#FF2D78]/15', bgGlow: 'from-[#FF2D78]/[0.06] to-transparent', trend: 'total' },
+    { icon: MessageSquare, label: 'Comentarios Totales', value: stats?.stats.totalComments || 0, gradient: 'from-[#4D9FFF] to-[#00D4FF]', shadowColor: 'shadow-[#4D9FFF]/15', bgGlow: 'from-[#4D9FFF]/[0.06] to-transparent', trend: 'up' },
+    { icon: DollarSign, label: 'Donaciones Totales ($)', value: `$${(stats?.stats.totalDonations || 0).toFixed(2)}`, gradient: 'from-[#22C55E] to-[#4ADE80]', shadowColor: 'shadow-[#22C55E]/15', bgGlow: 'from-[#22C55E]/[0.06] to-transparent', trend: 'up' },
+    { icon: TrendingUp, label: 'Activos Hoy', value: stats?.recentUsers?.length || 0, gradient: 'from-purple-500 to-pink-500', shadowColor: 'shadow-purple-500/15', bgGlow: 'from-purple-500/[0.06] to-transparent', trend: 'neutral' },
+  ];
+
+  const secondaryStatCards = [
+    { icon: Eye, label: 'Visitas Totales', value: stats?.stats.totalVisits || 0, gradient: 'from-[#22c55e] to-[#4ADE80]', shadowColor: 'shadow-[#22c55e]/15', bgGlow: 'from-[#22c55e]/[0.06] to-transparent' },
+    { icon: Download, label: 'Descargas Totales', value: stats?.stats.totalDownloads || 0, gradient: 'from-[#FF2D78] to-[#ff6b9d]', shadowColor: 'shadow-[#FF2D78]/15', bgGlow: 'from-[#FF2D78]/[0.06] to-transparent' },
+  ];
 
   return (
     <div className="min-h-screen bg-[#080818] text-white">
@@ -454,14 +506,9 @@ export default function AdminPanel() {
                   </div>
                 </div>
 
-                {/* Stat Cards */}
+                {/* Primary Stat Cards (4 cards in a row) */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                  {[
-                    { icon: Users, label: 'Total Users', value: stats?.stats.totalUsers || 0, gradient: 'from-[#FF2D78] to-[#a855f7]', shadowColor: 'shadow-[#FF2D78]/15', bgGlow: 'from-[#FF2D78]/[0.06] to-transparent' },
-                    { icon: MessageSquare, label: 'Total Comments', value: stats?.stats.totalComments || 0, gradient: 'from-[#4D9FFF] to-[#00D4FF]', shadowColor: 'shadow-[#4D9FFF]/15', bgGlow: 'from-[#4D9FFF]/[0.06] to-transparent' },
-                    { icon: DollarSign, label: 'Total Donations', value: `$${(stats?.stats.totalDonations || 0).toFixed(2)}`, gradient: 'from-[#22C55E] to-[#4ADE80]', shadowColor: 'shadow-[#22C55E]/15', bgGlow: 'from-[#22C55E]/[0.06] to-transparent' },
-                    { icon: TrendingUp, label: 'Active Today', value: stats?.recentUsers?.length || 0, gradient: 'from-purple-500 to-pink-500', shadowColor: 'shadow-purple-500/15', bgGlow: 'from-purple-500/[0.06] to-transparent' },
-                  ].map((stat, i) => (
+                  {primaryStatCards.map((stat, i) => (
                     <motion.div
                       key={i}
                       initial={{ opacity: 0, y: 20 }}
@@ -474,6 +521,50 @@ export default function AdminPanel() {
                         <div>
                           <p className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-2">{stat.label}</p>
                           <p className="text-3xl font-bold text-white tracking-tight">{stat.value}</p>
+                          {stat.trend === 'up' && (
+                            <div className="flex items-center gap-1 mt-1.5">
+                              <TrendingUp size={11} className="text-green-400/60" />
+                              <span className="text-[10px] text-green-400/50">Activo</span>
+                            </div>
+                          )}
+                          {stat.trend === 'total' && (
+                            <div className="flex items-center gap-1 mt-1.5">
+                              <Users size={11} className="text-white/20" />
+                              <span className="text-[10px] text-white/20">Creciendo</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg ${stat.shadowColor}`}>
+                          <stat.icon size={18} className="text-white" />
+                        </div>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Secondary Stat Cards (Visits & Downloads - wider) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {secondaryStatCards.map((stat, i) => (
+                    <motion.div
+                      key={`secondary-${i}`}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.35 + i * 0.08, duration: 0.4 }}
+                      className={`relative overflow-hidden rounded-2xl bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/[0.07] p-5 shadow-lg ${stat.shadowColor} hover:border-white/[0.12] transition-all duration-300 group`}
+                    >
+                      <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${stat.bgGlow} rounded-full -translate-y-1/2 translate-x-1/3 opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                      <div className="flex items-start justify-between relative">
+                        <div>
+                          <p className="text-[11px] font-medium text-white/35 uppercase tracking-wider mb-2">{stat.label}</p>
+                          <p className="text-3xl font-bold text-white tracking-tight">{stat.value.toLocaleString()}</p>
+                          <div className="flex items-center gap-1 mt-1.5">
+                            <motion.div
+                              animate={{ opacity: [0.3, 0.8, 0.3] }}
+                              transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                              className="w-1.5 h-1.5 rounded-full bg-green-400"
+                            />
+                            <span className="text-[10px] text-white/25">En tiempo real</span>
+                          </div>
                         </div>
                         <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center shadow-lg ${stat.shadowColor}`}>
                           <stat.icon size={18} className="text-white" />
@@ -501,10 +592,7 @@ export default function AdminPanel() {
                     </div>
                     <div className="space-y-0 max-h-[400px] overflow-y-auto pr-1">
                       {(!logs || logs.length === 0) ? (
-                        <div className="flex flex-col items-center justify-center py-12 text-white/20">
-                          <FileText size={36} strokeWidth={1} />
-                          <p className="text-sm mt-3">Sin actividad reciente</p>
-                        </div>
+                        <EmptyState icon={FileText} message="Sin actividad reciente" submessage="Los eventos apareceran aqui" />
                       ) : logs.map((log, idx) => (
                         <div key={log.id} className="relative flex items-start gap-3 pb-4">
                           {/* Timeline line */}
@@ -540,10 +628,7 @@ export default function AdminPanel() {
                     </div>
                     <div className="space-y-4">
                       {(!stats?.usersByRole || stats.usersByRole.length === 0) ? (
-                        <div className="flex flex-col items-center justify-center py-12 text-white/20">
-                          <Users size={36} strokeWidth={1} />
-                          <p className="text-sm mt-3">Sin datos</p>
-                        </div>
+                        <EmptyState icon={Users} message="Sin datos" />
                       ) : (stats.usersByRole || []).map(r => {
                         const total = stats?.stats.totalUsers || 1;
                         const pct = Math.round((r._count / total) * 100);
@@ -604,10 +689,7 @@ export default function AdminPanel() {
                       </div>
                     ))}
                     {(!stats?.recentUsers || stats.recentUsers.length === 0) && (
-                      <div className="col-span-full flex flex-col items-center justify-center py-8 text-white/20">
-                        <Users size={32} strokeWidth={1} />
-                        <p className="text-sm mt-2">Sin usuarios</p>
-                      </div>
+                      <EmptyState icon={Users} message="Sin usuarios" />
                     )}
                   </div>
                 </AdminCard>
@@ -639,10 +721,7 @@ export default function AdminPanel() {
                       </div>
                     ))}
                     {(!stats?.donations || stats.donations.length === 0) && (
-                      <div className="flex flex-col items-center justify-center py-8 text-white/20">
-                        <Heart size={32} strokeWidth={1} />
-                        <p className="text-sm mt-2">Sin donaciones</p>
-                      </div>
+                      <EmptyState icon={Heart} message="Sin donaciones" />
                     )}
                   </div>
                 </AdminCard>
@@ -722,7 +801,7 @@ export default function AdminPanel() {
                               </div>
                             </TableCell>
                             <TableCell>
-                              <div className="relative">
+                              <div className="relative" ref={roleChangeUser?.id === u.id ? rolePopoverRef : undefined}>
                                 <button
                                   onClick={() => setRoleChangeUser(roleChangeUser?.id === u.id ? null : u)}
                                   disabled={u.role === 'owner' || (user.role === 'admin' && u.role === 'admin')}
@@ -781,7 +860,7 @@ export default function AdminPanel() {
                                 </span>
                               </div>
                             </TableCell>
-                            <TableCell className="hidden lg:table-cell"><span className="text-xs text-white/30">{u._count?.comments || 0}</span></TableCell>
+                            <TableCell className="hidden lg:table-cell"><span className="text-xs text-white/30">{u.commentCount || 0}</span></TableCell>
                             <TableCell className="hidden lg:table-cell"><span className="text-[11px] text-white/20">{new Date(u.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: '2-digit' })}</span></TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-1">
@@ -794,13 +873,21 @@ export default function AdminPanel() {
                             </TableCell>
                           </TableRow>
                         ))}
-                        {filteredUsers.length === 0 && (
+                        {hasNoSearchResults && (
                           <TableRow>
                             <TableCell colSpan={7} className="text-center py-12">
                               <div className="flex flex-col items-center text-white/20">
-                                <Users size={32} strokeWidth={1} />
-                                <p className="text-sm mt-2">No se encontraron usuarios</p>
+                                <Search size={32} strokeWidth={1} />
+                                <p className="text-sm mt-2">Sin resultados para &quot;{searchQuery}&quot;</p>
+                                <p className="text-xs text-white/15 mt-1">Intenta con otro termino de busqueda</p>
                               </div>
+                            </TableCell>
+                          </TableRow>
+                        )}
+                        {!hasSearchQuery && filteredUsers.length === 0 && (
+                          <TableRow>
+                            <TableCell colSpan={7} className="text-center py-12">
+                              <EmptyState icon={Users} message="No se encontraron usuarios" />
                             </TableCell>
                           </TableRow>
                         )}
@@ -871,7 +958,7 @@ export default function AdminPanel() {
                     </div>
                   ))}
                   {allComments.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-20 text-white/15">
+                    <div className="flex flex-col items-center justify-center py-20 text-white/20">
                       <MessageSquare size={44} strokeWidth={1} />
                       <p className="text-sm mt-3 text-white/25">No hay comentarios aun</p>
                       <p className="text-xs text-white/15 mt-1">Los comentarios nuevos apareceran aqui</p>
@@ -950,7 +1037,7 @@ export default function AdminPanel() {
                           { label: 'OAuth2', value: null, check: botStatus.hasClientId },
                         ].map((s, i) => (
                           <div key={i} className="text-center p-3 rounded-xl bg-white/[0.02] border border-white/[0.04]">
-                            <p className="text-lg font-bold text-white/80">{s.check !== null ? (s.check ? '✓' : '—') : s.value}</p>
+                            <p className="text-lg font-bold text-white/80">{s.check !== null ? (s.check ? '\u2713' : '\u2014') : s.value}</p>
                             <p className="text-[10px] text-white/25 mt-0.5">{s.label}</p>
                           </div>
                         ))}
@@ -1145,7 +1232,7 @@ export default function AdminPanel() {
 
                 <div className="space-y-1 max-h-[calc(100vh-280px)] overflow-y-auto pr-1">
                   {(!logs || logs.length === 0) ? (
-                    <div className="flex flex-col items-center justify-center py-24 text-white/15">
+                    <div className="flex flex-col items-center justify-center py-24 text-white/20">
                       <FileText size={44} strokeWidth={1} />
                       <p className="text-sm mt-3 text-white/25">Sin registros de actividad</p>
                       <p className="text-xs text-white/15 mt-1">Los eventos apareceran aqui</p>
@@ -1163,7 +1250,7 @@ export default function AdminPanel() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="text-sm font-medium text-white/85">{log.user?.nickname || 'Sistema'}</span>
-                          <span className="text-white/10">·</span>
+                          <span className="text-white/10">&middot;</span>
                           <span className={`text-xs font-medium ${getActionColor(log.action)}`}>{actionLabels[log.action] || log.action}</span>
                         </div>
                         {log.details && <p className="text-[11px] text-white/30 mt-1">{log.details}</p>}
