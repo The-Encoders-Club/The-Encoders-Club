@@ -1206,4 +1206,3 @@ export default function WikiPage() {
     </>
   );
 }
-
