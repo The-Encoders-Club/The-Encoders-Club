@@ -1,62 +1,144 @@
-// ============================================================
-// GET /api/stats
-// Returns site stats and tracks visits (deduped by IP per day)
-// ============================================================
+import { NextResponse } from 'next/server';
+import { getDB, toBool } from '@/lib/db';
+import { getSession } from '@/lib/session';
 
-import { NextRequest } from 'next/server';
-import { getDB, getEnv } from '@/lib/db';
-
-export async function GET(request: NextRequest) {
+// GET: Dashboard stats (admin+ only)
+export async function GET() {
   try {
+    const session = await getSession();
+    if (!session) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+    }
+    if (!['admin', 'owner'].includes(session.role)) {
+      return NextResponse.json({ error: 'Insufficient permissions' }, { status: 403 });
+    }
+
     const db = await getDB();
-    const env = await getEnv();
 
-    // Get client IP (Cloudflare Workers provides this header)
-    const ip = request.headers.get('CF-Connecting-IP') ||
-               request.headers.get('X-Forwarded-For')?.split(',')[0]?.trim() ||
-               'unknown';
+    // Total counts
+    const [totalUsers, totalComments, totalDonations] = await Promise.all([
+      db.prepare('SELECT COUNT(*) as c FROM User').first(),
+      db.prepare('SELECT COUNT(*) as c FROM Comment WHERE isDeleted = 0').first(),
+      db.prepare('SELECT COALESCE(SUM(amount), 0) as c FROM Donation').first(),
+    ]);
 
-    // Deduplicate visits: same IP counted once per day via KV (24h TTL)
-    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
-    const visitKey = `visit:${ip}:${today}`;
-
-    try {
-      const alreadyVisited = await env.RATE_LIMITER.get(visitKey);
-      if (!alreadyVisited) {
-        // First visit today — increment counter
-        await db.prepare('UPDATE SiteStats SET value = value + 1 WHERE key = ?')
-          .bind('total_visits')
-          .run();
-        // Store in KV with 24h TTL to prevent re-counting
-        await env.RATE_LIMITER.put(visitKey, '1', { expirationTtl: 86400 });
-      }
-    } catch {
-      // If KV fails, we still allow the request (fail-open)
+    // Site stats (visits & downloads from SiteStats table)
+    const { results: siteStats } = await db.prepare('SELECT key, value FROM SiteStats').all();
+    const statsMap: Record<string, number> = {};
+    for (const row of (siteStats || [])) {
+      statsMap[(row as { key: string; value: number }).key] = (row as { key: string; value: number }).value || 0;
     }
 
-    // Fetch all stats
-    const { results } = await db.prepare('SELECT key, value FROM SiteStats').all();
+    // Recent users (last 10)
+    const { results: recentUsers } = await db
+      .prepare(
+        'SELECT id, nickname, email, avatar, role, isPremium, isBanned, createdAt FROM User ORDER BY createdAt DESC LIMIT 10'
+      )
+      .all();
 
-    const stats: Record<string, number> = {};
-    for (const row of results) {
-      stats[row.key as string] = (row.value as number) || 0;
-    }
+    // Recent comments (last 10) - format to match frontend expectations
+    const { results: recentComments } = await db
+      .prepare(
+        `SELECT c.id, c.content, c.authorId, c.targetId, c.targetType, c.likes, c.isReported, c.reportCount as reports, c.createdAt,
+                u.nickname, u.avatar, u.role
+         FROM Comment c
+         LEFT JOIN User u ON c.authorId = u.id
+         WHERE c.isDeleted = 0
+         ORDER BY c.createdAt DESC
+         LIMIT 10`
+      )
+      .all();
 
-    // Add configurable base offsets (set from admin panel)
-    const visitsBase = stats['visits_base'] || 0;
-    const downloadsBase = stats['downloads_base'] || 0;
+    // Recent activity logs (last 20)
+    const { results: recentLogs } = await db
+      .prepare(
+        `SELECT a.id, a.userId, a.action, a.details, a.ipAddress, a.createdAt,
+                u.nickname
+         FROM ActivityLog a
+         LEFT JOIN User u ON a.userId = u.id
+         ORDER BY a.createdAt DESC
+         LIMIT 20`
+      )
+      .all();
 
-    return Response.json({
-      visits: (stats['total_visits'] || 0) + visitsBase,
-      downloads: (stats['total_downloads'] || 0) + downloadsBase,
-      // Also return breakdown for admin use
-      _real: {
-        visits: stats['total_visits'] || 0,
-        downloads: stats['total_downloads'] || 0,
+    // Recent donations (last 20)
+    const { results: donations } = await db
+      .prepare(
+        `SELECT d.id, d.userId, d.nickname, d.amount, d.currency, d.platform, d.message, d.createdAt,
+                u.nickname as userNickname, u.avatar as userAvatar
+         FROM Donation d
+         LEFT JOIN User u ON d.userId = u.id
+         ORDER BY d.createdAt DESC
+         LIMIT 20`
+      )
+      .all();
+
+    // Users by role - format to match frontend { role, _count: N }
+    const { results: roleGroups } = await db
+      .prepare('SELECT role, COUNT(*) as cnt FROM User GROUP BY role')
+      .all();
+
+    const usersByRole = (roleGroups || []).map((r: any) => ({
+      role: r.role,
+      _count: r.cnt,
+    }));
+
+    // Base offsets (configurable from admin panel)
+    const visitsBase = statsMap['visits_base'] || 0;
+    const downloadsBase = statsMap['downloads_base'] || 0;
+
+    return NextResponse.json({
+      stats: {
+        totalUsers: (totalUsers?.c as number) || 0,
+        totalComments: (totalComments?.c as number) || 0,
+        totalDonations: (totalDonations?.c as number) || 0,
+        totalVisits: (statsMap['total_visits'] || 0) + visitsBase,
+        totalDownloads: (statsMap['total_downloads'] || 0) + downloadsBase,
+        // Breakdown: real vs base
+        realVisits: statsMap['total_visits'] || 0,
+        realDownloads: statsMap['total_downloads'] || 0,
+        visitsBase,
+        downloadsBase,
       },
+      recentUsers: (recentUsers || []).map((u: any) => ({
+        id: u.id,
+        nickname: u.nickname,
+        email: u.email,
+        avatar: u.avatar,
+        role: u.role,
+        isPremium: toBool(u.isPremium),
+        isBanned: toBool(u.isBanned),
+        createdAt: u.createdAt,
+      })),
+      recentComments: (recentComments || []).map((c: any) => ({
+        id: c.id,
+        content: c.content,
+        createdAt: c.createdAt,
+        isDeleted: false,
+        reports: c.reports || 0,
+        author: {
+          nickname: c.nickname,
+          avatar: c.avatar,
+        },
+      })),
+      recentLogs: (recentLogs || []).map((a: any) => ({
+        id: a.id,
+        action: a.action,
+        details: a.details,
+        createdAt: a.createdAt,
+        user: a.nickname ? { nickname: a.nickname } : null,
+      })),
+      donations: (donations || []).map((d: any) => ({
+        id: d.id,
+        amount: d.amount,
+        currency: d.currency,
+        message: d.message,
+        createdAt: d.createdAt,
+      })),
+      usersByRole,
     });
   } catch (error) {
-    // If DB fails, return zeros — site still works
-    return Response.json({ visits: 0, downloads: 0 });
+    console.error('Dashboard stats error:', error);
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
