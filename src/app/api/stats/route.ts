@@ -42,9 +42,18 @@ export async function GET(request: NextRequest) {
       stats[row.key as string] = (row.value as number) || 0;
     }
 
+    // Add configurable base offsets (set from admin panel)
+    const visitsBase = stats['visits_base'] || 0;
+    const downloadsBase = stats['downloads_base'] || 0;
+
     return Response.json({
-      visits: stats['total_visits'] || 0,
-      downloads: stats['total_downloads'] || 0,
+      visits: (stats['total_visits'] || 0) + visitsBase,
+      downloads: (stats['total_downloads'] || 0) + downloadsBase,
+      // Also return breakdown for admin use
+      _real: {
+        visits: stats['total_visits'] || 0,
+        downloads: stats['total_downloads'] || 0,
+      },
     });
   } catch (error) {
     // If DB fails, return zeros — site still works
