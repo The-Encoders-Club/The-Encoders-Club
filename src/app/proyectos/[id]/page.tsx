@@ -15,6 +15,11 @@ import { MonikaComments, NatsukiComments, YuriComments } from '@/components/Comm
 import { useI18n } from '@/hooks/useLocale';
 import { projects, getIcon } from '@/data/projects';
 
+// Track download click — fires API call in background without blocking the download
+function trackDownload() {
+  fetch('/api/stats/download', { method: 'POST' }).catch(() => {});
+}
+
 /* ─── Animated diagonal pink polka dots background (REUSABLE) ─── */
 function PinkDots({ dotColor = '#ffeef8' }) {
   const DOT = 72;
@@ -366,7 +371,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
                 {project.downloads.map((dl, i) => {
                   const Icon = getIcon(dl.icon);
                   return (
-                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
+                    <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
                       <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
                       {isEs ? dl.label : (dl.labelEn || dl.label)}
                     </a>
@@ -491,7 +496,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                 const Icon = getIcon(dl.icon);                const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
                 const stroke = strokeColors[i] || '#333';
                 return (
-                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
+                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
                     <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
                     <span className="font-black uppercase tracking-wide text-[19px]" style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
                   </a>
@@ -668,7 +673,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                 const strokeColors = ['#9B1A3A', '#006B6B', '#5B1890'];
                 const stroke = strokeColors[i] || '#333';
                 return (
-                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
+                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className="w-full py-3 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
                     <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
                     <span className="font-black uppercase tracking-wide text-[14px]" style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
                   </a>
@@ -853,7 +858,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
                 const strokeColors = ['#6A1B9A', '#006B6B', '#5B1890'];
                 const stroke = strokeColors[i] || '#333';
                 return (
-                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" className="w-full py-3 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
+                  <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className="w-full py-3 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${stroke}` }}>
                     <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff', filter: `drop-shadow(0 0 1px ${stroke})` }} />
                     <span className="font-black uppercase tracking-wide text-[19px]" style={{ color: dl.textColor || '#ffffff', WebkitTextStroke: `1.5px ${stroke}`, paintOrder: 'stroke fill' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
                   </a>
