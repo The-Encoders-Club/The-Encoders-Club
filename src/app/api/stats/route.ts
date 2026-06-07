@@ -51,4 +51,3 @@ export async function GET(request: NextRequest) {
     return Response.json({ visits: 0, downloads: 0 });
   }
 }
-
