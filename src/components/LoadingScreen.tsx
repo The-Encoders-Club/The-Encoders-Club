@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useI18n } from '@/hooks/useLocale';
 
 export function LoadingScreen() {
+  const { t } = useI18n();
   const [isVisible, setIsVisible] = useState(true);
   const [progress, setProgress] = useState(0);
   const [stars] = useState(() =>
@@ -131,7 +133,7 @@ export function LoadingScreen() {
           }} />
         </div>
         <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 8, fontFamily: "'Space Grotesk', sans-serif" }}>
-          {progress < 30 ? 'Cargando recursos...' : progress < 70 ? 'Preparando experiencia...' : '¡Casi listo!'}
+          {progress < 30 ? t('loading.resources') : progress < 70 ? t('loading.preparing') : t('loading.almostReady')}
         </p>
       </div>
     </div>
