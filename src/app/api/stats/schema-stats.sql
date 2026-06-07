@@ -14,4 +14,3 @@ CREATE TABLE IF NOT EXISTS SiteStats (
 -- Initialize counters (INSERT OR IGNORE won't overwrite if already exist)
 INSERT OR IGNORE INTO SiteStats (key, value) VALUES ('total_visits', 0);
 INSERT OR IGNORE INTO SiteStats (key, value) VALUES ('total_downloads', 0);
-
