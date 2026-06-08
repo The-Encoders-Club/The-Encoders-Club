@@ -324,7 +324,7 @@ export default function WikiPage() {
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap');
 
-        .wiki-page { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e4e4e7; line-height: 1.6; }
+        .wiki-page { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e4e4e7; line-height: 1.6; overflow-x: hidden; width: 100%; }
 
         /* Menu toggle */
         .wiki-menu-toggle { position: fixed; top: 1.5rem; right: 1.5rem; font-size: 1.8rem; color: #e4e4e7; cursor: pointer; z-index: 1000; transition: color 0.2s; background: none; border: none; padding: 0; }
@@ -351,9 +351,9 @@ export default function WikiPage() {
         .wiki-overlay.active { display: block; }
 
         /* Container */
-        .wiki-container { min-height: 100vh; max-width: 900px; margin: 0 auto; padding: 2rem; }
-        .wiki-content { width: 100%; }
-        .wiki-article { width: 100%; }
+        .wiki-container { min-height: 100vh; max-width: 900px; margin: 0 auto; padding: 2rem; overflow-x: hidden; }
+        .wiki-content { width: 100%; overflow-x: hidden; }
+        .wiki-article { width: 100%; overflow-wrap: break-word; overflow-x: hidden; }
 
         /* Article styles */
         .wiki-article h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; background: ${theme.accentGradient}; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
