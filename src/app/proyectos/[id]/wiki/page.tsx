@@ -26,6 +26,7 @@ const projectTheme: Record<string, { accent: string; accentHover: string; accent
   monika: monikaTheme,
   natsuki: natsukiTheme,
 };
+
 /* ─── Basic Markdown Parser ─── */
 function parseMarkdown(md: string): string {
   const lines = md.split('\n');
@@ -58,7 +59,6 @@ function parseMarkdown(md: string): string {
       .replace(/>/g, '&gt;');
 
   const inlineFormat = (text: string) => {
-    // Protect <span class="wiki-emoji ..."></span> from escaping
     const emojiPlaceholders: string[] = [];
     let safeText = text.replace(/<span class="wiki-emoji[^"]*"><\/span>/g, (match) => {
       emojiPlaceholders.push(match);
@@ -66,20 +66,13 @@ function parseMarkdown(md: string): string {
     });
 
     let result = escapeHtml(safeText);
-    // Images: ![alt](url)
     result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
-    // Links: [text](url)
     result = result.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2">$1</a>');
-    // Bold+italic: ***text***
     result = result.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
-    // Bold: **text**
     result = result.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-    // Italic: *text*
     result = result.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
-    // Inline code: `code`
     result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
 
-    // Restore emoji spans
     emojiPlaceholders.forEach((span, idx) => {
       result = result.replace(`EMOJI_${idx}`, span);
     });
@@ -116,7 +109,6 @@ function parseMarkdown(md: string): string {
     const line = lines[i];
     const trimmed = line.trim();
 
-    // Code blocks
     if (trimmed.startsWith('```')) {
       flushImages();
       if (inCodeBlock) {
@@ -136,7 +128,6 @@ function parseMarkdown(md: string): string {
       continue;
     }
 
-    // Empty line — flush pending images
     if (trimmed === '') {
       flushImages();
       closeList();
@@ -146,7 +137,6 @@ function parseMarkdown(md: string): string {
       continue;
     }
 
-    // Standalone image — accumulate for grouping
     if (isImageOnly(trimmed)) {
       pendingImages.push(inlineFormat(trimmed));
       continue;
@@ -154,7 +144,6 @@ function parseMarkdown(md: string): string {
       flushImages();
     }
 
-    // Horizontal rule
     if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) {
       closeList();
       closeTable();
@@ -162,7 +151,6 @@ function parseMarkdown(md: string): string {
       continue;
     }
 
-    // Table rows
     if (isTableRow(trimmed)) {
       if (isTableSeparator(trimmed)) continue;
       closeList();
@@ -173,7 +161,6 @@ function parseMarkdown(md: string): string {
       closeTable();
     }
 
-    // Headings
     if (trimmed.startsWith('### ')) {
       closeList();
       html.push(`<h3>${inlineFormat(trimmed.slice(4))}</h3>`);
@@ -190,16 +177,12 @@ function parseMarkdown(md: string): string {
       continue;
     }
 
-    // Blockquote
     if (trimmed.startsWith('> ')) {
       closeList();
       html.push(`<blockquote><p>${inlineFormat(trimmed.slice(2))}</p></blockquote>`);
       continue;
     }
 
-    // Raw HTML pass-through (details, summary, br, p, img, a, etc.)
-    // <details> sets inDetails so its CONTENT flows through normal markdown processing.
-    // Only the structural tags (details, summary, /details) are pushed as-is.
     if (/^<(details|summary|br|p |img |a )/i.test(trimmed) || /^<\/(details|summary|p|a)>/i.test(trimmed)) {
       flushImages();
       closeList();
@@ -214,7 +197,6 @@ function parseMarkdown(md: string): string {
       continue;
     }
 
-    // Unordered list
     if (/^[-*] /.test(trimmed) || /^- ### /.test(trimmed)) {
       const content = trimmed.replace(/^[-*] /, '');
       if (!inList || listType !== 'ul') {
@@ -227,7 +209,6 @@ function parseMarkdown(md: string): string {
       continue;
     }
 
-    // Ordered list
     if (/^\d+\.\s/.test(trimmed)) {
       const content = trimmed.replace(/^\d+\.\s/, '');
       if (!inList || listType !== 'ol') {
@@ -240,7 +221,6 @@ function parseMarkdown(md: string): string {
       continue;
     }
 
-    // Regular paragraph
     closeList();
     html.push(`<p>${inlineFormat(trimmed)}</p>`);
   }
@@ -256,7 +236,6 @@ export default function WikiPage() {
   const params = useParams();
   const projectId = params?.id as string;
 
-  // Resolve project config
   const isSupported = projectId === 'monika' || projectId === 'natsuki';
   const content = wikiContents[projectId] || wikiContents.monika;
   const menus = menuSectionsMap[projectId] || menuSectionsMap.monika;
@@ -267,7 +246,6 @@ export default function WikiPage() {
   const [lightboxSrc, setLightboxSrc] = useState<string | null>(null);
   const articleRef = useRef<HTMLDivElement>(null);
 
-  // Lock body scroll when lightbox is open
   useEffect(() => {
     if (lightboxSrc !== null) {
       document.body.style.overflow = 'hidden';
@@ -277,7 +255,6 @@ export default function WikiPage() {
     return () => { document.body.style.overflow = ''; };
   }, [lightboxSrc]);
 
-  // Escape key to close lightbox
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setLightboxSrc(null);
@@ -307,7 +284,6 @@ export default function WikiPage() {
     return parseMarkdown(raw);
   }, [activeSection, content]);
 
-  // Not a supported project
   if (!isSupported) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: '#0a0a0f' }}>
@@ -338,8 +314,12 @@ export default function WikiPage() {
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap');
 
         .wiki-page { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e4e4e7; line-height: 1.6; width: 100%; }
-        .wiki-container, .wiki-content, .wiki-article { scrollbar-width: none; -ms-overflow-style: none; }
-        .wiki-container::-webkit-scrollbar, .wiki-content::-webkit-scrollbar, .wiki-article::-webkit-scrollbar { display: none; }
+
+        /* ── FIX SCROLL: overflow-x: clip no crea scroll container, a diferencia de hidden ── */
+        .wiki-container { scrollbar-width: none; -ms-overflow-style: none; }
+        .wiki-container::-webkit-scrollbar { display: none; }
+
+        /* card-row mantiene su propio scrollbar horizontal */
         .wiki-card-row { scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
         .wiki-card-row::-webkit-scrollbar { display: block; height: 6px; }
         .wiki-card-row::-webkit-scrollbar-track { background: transparent; }
@@ -369,10 +349,10 @@ export default function WikiPage() {
         .wiki-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background: rgba(0, 0, 0, 0.7); z-index: 998; display: none; }
         .wiki-overlay.active { display: block; }
 
-        /* Container */
-        .wiki-container { min-height: 100vh; max-width: 900px; margin: 0 auto; padding: 2rem; overflow-x: hidden; }
-        .wiki-content { width: 100%; overflow-x: hidden; }
-        .wiki-article { width: 100%; overflow-wrap: break-word; overflow-x: hidden; }
+        /* ── Container: clip en vez de hidden para no crear scroll container ── */
+        .wiki-container { min-height: 100vh; max-width: 900px; margin: 0 auto; padding: 2rem; overflow-x: clip; }
+        .wiki-content { width: 100%; overflow-x: clip; }
+        .wiki-article { width: 100%; overflow-wrap: break-word; overflow-x: clip; }
 
         /* Article styles */
         .wiki-article h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; background: ${theme.accentGradient}; background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
@@ -401,12 +381,12 @@ export default function WikiPage() {
         /* Images */
         .wiki-article img { max-width: 100%; height: auto; border-radius: 10px; margin: 0.8rem 0; display: block; cursor: zoom-in; }
 
-        /* Card row (horizontal scroll for NOU cards) */
+        /* Card row (horizontal scroll) */
         .wiki-card-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 0.8rem; padding: 0.8rem 0; margin: 1rem 0; -webkit-overflow-scrolling: touch; }
         .wiki-card-row img { min-width: 90px; max-width: 120px; height: auto; flex-shrink: 0; margin: 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .wiki-card-row img:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
 
-        /* Custom color emojis (UNO-style chips) */
+        /* Custom color emojis */
         .wiki-emoji { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 6px; vertical-align: middle; margin-right: 5px; position: relative; top: -1px; border: 2px solid rgba(255,255,255,0.15); box-shadow: 0 2px 6px rgba(0,0,0,0.35); flex-shrink: 0; }
         .wiki-emoji::after { content: ''; display: block; width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.35); position: absolute; top: 3px; left: 3px; }
         .wiki-emoji.emoji-red { background: linear-gradient(135deg, #f87171 0%, #dc2626 100%); }
