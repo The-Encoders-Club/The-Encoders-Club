@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, Sparkles, ChevronRight, Star, Heart, ChevronLeft } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import MobileBottomNav from "@/components/MobileBottomNav";
+
 import BackgroundParticles from "@/components/BackgroundParticles";
 import { useI18n } from "@/hooks/useLocale";
 
@@ -584,11 +584,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Spacer for bottom nav on mobile */}
-      <div className="h-20 md:hidden" />
-
       <Footer />
-      <MobileBottomNav />
     </div>
   );
 }
