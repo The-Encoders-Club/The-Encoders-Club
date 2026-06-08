@@ -37,7 +37,7 @@ function parseMarkdown(md: string): string {
   let inList = false;
   let listType: 'ul' | 'ol' | null = null;
   let pendingImages: string[] = [];
-  let inRawHtml = false;
+  let inDetails = false;
 
   const flushImages = () => {
     if (pendingImages.length === 0) return;
@@ -184,24 +184,19 @@ function parseMarkdown(md: string): string {
       continue;
     }
 
-    // Raw HTML pass-through (details, summary, br, p, img, etc.)
-    if (/^<(details|summary|br|p |img )/i.test(trimmed) || /^<\/(details|summary|p|a)>/i.test(trimmed)) {
+    // Raw HTML pass-through (details, summary, br, p, img, a, etc.)
+    // <details> sets inDetails so its CONTENT flows through normal markdown processing.
+    // Only the structural tags (details, summary, /details) are pushed as-is.
+    if (/^<(details|summary|br|p |img |a )/i.test(trimmed) || /^<\/(details|summary|p|a)>/i.test(trimmed)) {
       flushImages();
       closeList();
       closeTable();
       if (trimmed.startsWith('<details')) {
-        inRawHtml = true;
+        inDetails = true;
       }
       html.push(trimmed);
       if (trimmed.includes('</details>')) {
-        inRawHtml = false;
-      }
-      continue;
-    }
-    if (inRawHtml) {
-      html.push(trimmed);
-      if (trimmed.includes('</details>')) {
-        inRawHtml = false;
+        inDetails = false;
       }
       continue;
     }
