@@ -324,7 +324,13 @@ export default function WikiPage() {
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap');
 
-        .wiki-page { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e4e4e7; line-height: 1.6; overflow-x: hidden; width: 100%; }
+        .wiki-page { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e4e4e7; line-height: 1.6; width: 100%; }
+        .wiki-page * { scrollbar-width: none; -ms-overflow-style: none; }
+        .wiki-page *::-webkit-scrollbar { display: none; }
+        .wiki-card-row { scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
+        .wiki-card-row::-webkit-scrollbar { display: block; height: 6px; }
+        .wiki-card-row::-webkit-scrollbar-track { background: transparent; }
+        .wiki-card-row::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
 
         /* Menu toggle */
         .wiki-menu-toggle { position: fixed; top: 1.5rem; right: 1.5rem; font-size: 1.8rem; color: #e4e4e7; cursor: pointer; z-index: 1000; transition: color 0.2s; background: none; border: none; padding: 0; }
@@ -383,11 +389,7 @@ export default function WikiPage() {
         .wiki-article img { max-width: 100%; height: auto; border-radius: 10px; margin: 0.8rem 0; display: block; cursor: zoom-in; }
 
         /* Card row (horizontal scroll for NOU cards) */
-        .wiki-card-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 0.8rem; padding: 0.8rem 0; margin: 1rem 0; -webkit-overflow-scrolling: touch; scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
-        .wiki-card-row::-webkit-scrollbar { height: 6px; }
-        .wiki-card-row::-webkit-scrollbar-track { background: transparent; }
-        .wiki-card-row::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
-        .wiki-card-row::-webkit-scrollbar-thumb:hover { background: #52525b; }
+        .wiki-card-row { display: flex; flex-wrap: nowrap; overflow-x: auto; gap: 0.8rem; padding: 0.8rem 0; margin: 1rem 0; -webkit-overflow-scrolling: touch; }
         .wiki-card-row img { min-width: 90px; max-width: 120px; height: auto; flex-shrink: 0; margin: 0; border-radius: 8px; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3); transition: transform 0.2s ease, box-shadow 0.2s ease; }
         .wiki-card-row img:hover { transform: scale(1.05); box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5); }
 
