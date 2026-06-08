@@ -58,7 +58,14 @@ function parseMarkdown(md: string): string {
       .replace(/>/g, '&gt;');
 
   const inlineFormat = (text: string) => {
-    let result = escapeHtml(text);
+    // Protect <span class="wiki-emoji ..."></span> from escaping
+    const emojiPlaceholders: string[] = [];
+    let safeText = text.replace(/<span class="wiki-emoji[^"]*"><\/span>/g, (match) => {
+      emojiPlaceholders.push(match);
+      return `\x00EMOJI_${emojiPlaceholders.length - 1}\x00`;
+    });
+
+    let result = escapeHtml(safeText);
     // Images: ![alt](url)
     result = result.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" />');
     // Links: [text](url)
@@ -71,6 +78,12 @@ function parseMarkdown(md: string): string {
     result = result.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
     // Inline code: `code`
     result = result.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+    // Restore emoji spans
+    emojiPlaceholders.forEach((span, idx) => {
+      result = result.replace(`EMOJI_${idx}`, span);
+    });
+
     return result;
   };
 
@@ -325,8 +338,8 @@ export default function WikiPage() {
         @import url('https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,600;14..32,700&display=swap');
 
         .wiki-page { font-family: 'Inter', sans-serif; background: #0a0a0f; color: #e4e4e7; line-height: 1.6; width: 100%; }
-        .wiki-page * { scrollbar-width: none; -ms-overflow-style: none; }
-        .wiki-page *::-webkit-scrollbar { display: none; }
+        .wiki-container, .wiki-content, .wiki-article { scrollbar-width: none; -ms-overflow-style: none; }
+        .wiki-container::-webkit-scrollbar, .wiki-content::-webkit-scrollbar, .wiki-article::-webkit-scrollbar { display: none; }
         .wiki-card-row { scrollbar-width: thin; scrollbar-color: #3f3f46 transparent; }
         .wiki-card-row::-webkit-scrollbar { display: block; height: 6px; }
         .wiki-card-row::-webkit-scrollbar-track { background: transparent; }
