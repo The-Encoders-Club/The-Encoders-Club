@@ -691,9 +691,9 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                   <Search className="w-4 h-4 text-[#E84393]" style={{ WebkitTextStroke: 0 } as React.CSSProperties} />
                   Wiki del Mod                </h4>
                 <p className="text-[16px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#E84393] text-[#E84393] bg-white text-[13px] font-black hover:bg-[#E84393] hover:text-white transition-colors">
+                <Link href={`/proyectos/${project.id}/wiki`} className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#E84393] text-[#E84393] bg-white text-[13px] font-black hover:bg-[#E84393] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
-                </button>
+                </Link>
               </div>
               <div className="bg-[#FFE6EE] rounded-2xl border-2 border-[#FF7EB3] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="natsuki-stroke-sm text-[16px] font-black flex items-center gap-1">
@@ -877,9 +877,9 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
                   Wiki del Mod
                 </h4>
                 <p className="text-[24px] text-gray-800 leading-relaxed font-extrabold">{isEs ? 'Toda la información técnica, guías y lore.' : 'All technical info, guides, and lore.'}</p>
-                <button className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#8A2BE2] text-[#8A2BE2] bg-white text-[16px] font-black hover:bg-[#8A2BE2] hover:text-white transition-colors">
+                <Link href={`/proyectos/${project.id}/wiki`} className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 border-[#8A2BE2] text-[#8A2BE2] bg-white text-[16px] font-black hover:bg-[#8A2BE2] hover:text-white transition-colors">
                   <BookOpen className="w-3 h-3" /> {isEs ? 'Ver Wiki' : 'View Wiki'}
-                </button>
+                </Link>
               </div>
               <div className="bg-[#F3E5F5] rounded-2xl border-2 border-[#9B59B6] p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow">
                 <h4 className="yuri-stroke-sm text-[18px] font-black flex items-center gap-1">
