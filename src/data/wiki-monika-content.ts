@@ -697,4 +697,3 @@ export const monikaMenuSections = [
 
 /* ─── Monika Theme ─── */
 export const monikaTheme = { accent: '#c084fc', accentHover: '#e9d5ff', accentGradient: 'linear-gradient(135deg, #e4e4e7 0%, #c084fc 100%)', lightboxGlow: 'rgba(192, 132, 252, 0.15)', title: 'Monika After Story', subtitle: 'Wiki oficial · The Encoders Club', defaultSection: 'instalacion' };
-
