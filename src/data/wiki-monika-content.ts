@@ -696,4 +696,13 @@ export const monikaMenuSections = [
 ];
 
 /* ─── Monika Theme ─── */
-export const monikaTheme = { accent: '#c084fc', accentHover: '#e9d5ff', accentGradient: 'linear-gradient(135deg, #e4e4e7 0%, #c084fc 100%)', lightboxGlow: 'rgba(192, 132, 252, 0.15)', title: 'Monika After Story', subtitle: 'Wiki oficial · The Encoders Club', defaultSection: 'instalacion' };
+// Rosa suave (pink-300) → distinto del rosa fuerte de Natsuki (pink-500 / #ec4899)
+export const monikaTheme = {
+  accent: '#f9a8d4',                                                          // pink-300
+  accentHover: '#fce7f3',                                                     // pink-100 (más claro al hover)
+  accentGradient: 'linear-gradient(135deg, #e4e4e7 0%, #f9a8d4 100%)',        // gris → rosa suave
+  lightboxGlow: 'rgba(249, 168, 212, 0.15)',                                  // brillo rosa suave
+  title: 'Monika After Story',
+  subtitle: 'Wiki oficial · The Encoders Club',
+  defaultSection: 'instalacion',
+};
