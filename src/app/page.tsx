@@ -92,18 +92,27 @@ export default function Home() {
   const isEs = locale === 'es';
   const newsItems = isEs ? newsItemsEs : newsItemsEn;
 
-  // Fetch live stats from API (visits & downloads)
+  // Fetch live stats from API (visits & downloads) and refresh every 60 seconds
   const [liveStats, setLiveStats] = useState<{ downloads: number; visits: number } | null>(null);
 
   useEffect(() => {
-    fetch('/api/stats')
-      .then(r => r.json())
-      .then(data => {
-        if (data.visits !== undefined && data.downloads !== undefined) {
-          setLiveStats({ downloads: data.downloads, visits: data.visits });
-        }
-      })
-      .catch(() => {}); // silently fail — fallback values will be used
+    const fetchStats = () => {
+      fetch('/api/stats')
+        .then(r => r.json())
+        .then(data => {
+          if (data.visits !== undefined && data.downloads !== undefined) {
+            setLiveStats({ downloads: data.downloads, visits: data.visits });
+          }
+        })
+        .catch(() => {}); // silently fail — fallback values will be used
+    };
+
+    // Initial fetch
+    fetchStats();
+
+    // Refresh every 60 seconds to keep stats near real-time
+    const interval = setInterval(fetchStats, 60000);
+    return () => clearInterval(interval);
   }, []);
 
   // Use live data if available, otherwise fallback
