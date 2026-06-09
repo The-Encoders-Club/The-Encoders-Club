@@ -212,7 +212,7 @@ export default function AdminPanel() {
   });
   const [syncTarget, setSyncTarget] = useState<'special' | 'all'>('special');
   const rolePopoverRef = useRef<HTMLDivElement>(null);
-  const [statsConfig, setStatsConfig] = useState({ visits_base: 0, downloads_base: 0 });
+  const [statsConfig, setStatsConfig] = useState({ visits_base: 0, downloads_base: 0, external_downloads_base: 0, github_downloads: 0, github_per_repo: {} as Record<string, number> });
   const [statsConfigSaving, setStatsConfigSaving] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
@@ -259,7 +259,7 @@ export default function AdminPanel() {
   const fetchStatsConfig = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/stats/config');
-      if (res.ok) { const data = await res.json(); setStatsConfig({ visits_base: data.visits_base || 0, downloads_base: data.downloads_base || 0 }); }
+      if (res.ok) { const data = await res.json(); setStatsConfig({ visits_base: data.visits_base || 0, downloads_base: data.downloads_base || 0, external_downloads_base: data.external_downloads_base || 0, github_downloads: data.github_downloads || 0, github_per_repo: data.github_per_repo || {} }); }
     } catch {}
   }, []);
 
@@ -323,7 +323,7 @@ export default function AdminPanel() {
   const handleStatsConfigSave = async () => {
     setStatsConfigSaving(true);
     try {
-      const res = await fetch('/api/admin/stats/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ visits_base: statsConfig.visits_base, downloads_base: statsConfig.downloads_base }) });
+      const res = await fetch('/api/admin/stats/config', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ visits_base: statsConfig.visits_base, downloads_base: statsConfig.downloads_base, external_downloads_base: statsConfig.external_downloads_base }) });
       if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; }
       toast.success('Configuración de estadísticas guardada');
       fetchStats();
@@ -660,12 +660,22 @@ export default function AdminPanel() {
                       </div>
                       <div className="space-y-2">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-white/30">Base configurada</span>
+                          <span className="text-white/30">1. Base fija (manual)</span>
                           <span className="text-white/70 font-semibold">{(statsConfig.downloads_base || 0).toLocaleString()}</span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-white/30">Descargas reales (tiempo real)</span>
-                          <span className="text-[#FF2D78]/80 font-semibold">{(stats?.stats.realDownloads || 0).toLocaleString()}</span>
+                          <span className="text-white/30">2. GitHub (tiempo real)</span>
+                          <span className="text-[#4D9FFF]/80 font-semibold">{(statsConfig.github_downloads || 0).toLocaleString()}</span>
+                        </div>
+                        {Object.entries(statsConfig.github_per_repo || {}).map(([repo, count]) => (
+                          <div key={repo} className="flex items-center justify-between text-xs pl-3">
+                            <span className="text-white/20 truncate">{repo.split('/').pop()}</span>
+                            <span className="text-white/40 font-mono text-[10px]">{count.toLocaleString()}</span>
+                          </div>
+                        ))}
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-white/30">3. Otra plataforma (manual)</span>
+                          <span className="text-[#a855f7]/80 font-semibold">{(statsConfig.external_downloads_base || 0).toLocaleString()}</span>
                         </div>
                         <div className="border-t border-white/[0.06] pt-2 flex items-center justify-between">
                           <span className="text-xs font-medium text-white/50">Total mostrado</span>
@@ -676,7 +686,7 @@ export default function AdminPanel() {
                   </div>
 
                   {/* Input Fields */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
                     <div>
                       <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">Base de Visitas</label>
                       <AdminInput
@@ -688,7 +698,7 @@ export default function AdminPanel() {
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">Base de Descargas</label>
+                      <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">Base de Descargas (Fijo)</label>
                       <AdminInput
                         type="number"
                         min="0"
@@ -697,11 +707,21 @@ export default function AdminPanel() {
                         placeholder="Ej: 15000"
                       />
                     </div>
+                    <div>
+                      <label className="text-[11px] text-white/35 block mb-1.5 uppercase tracking-wider font-medium">Descargas Otra Plataforma</label>
+                      <AdminInput
+                        type="number"
+                        min="0"
+                        value={statsConfig.external_downloads_base}
+                        onChange={e => setStatsConfig(prev => ({ ...prev, external_downloads_base: Math.max(0, parseInt(e.target.value) || 0) }))}
+                        placeholder="Ej: 5000"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#22C55E]/[0.04] border border-[#22C55E]/10 mb-4">
                     <Info size={14} className="text-[#22C55E]/70 shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-white/35 leading-relaxed">Estos números se suman a los conteos reales. Si pones 50,000 en visitas y un usuario visita la web, se mostrará 50,001. Los valores se reflejan tanto en el inicio público como aquí en el panel.</p>
+                    <p className="text-[11px] text-white/35 leading-relaxed">Las descargas se calculan como: <b className='text-white/50'>Base Fija</b> + <b className='text-[#4D9FFF]/70'>GitHub (auto)</b> + <b className='text-[#a855f7]/70'>Otra Plataforma</b>. GitHub se actualiza automáticamente cada 15 min. Los campos manuales se suman a los conteos reales.</p>
                   </div>
 
                   <button
