@@ -12,16 +12,22 @@ export async function GET() {
 
     const db = await getDB();
     const { results } = await db.prepare(
-      "SELECT key, value FROM SiteStats WHERE key IN ('visits_base', 'downloads_base', 'external_downloads_base')"
+      "SELECT key, value FROM SiteStats WHERE key IN ('visits_base', 'downloads_base', 'external_downloads_base', 'total_downloads')"
     ).all();
 
     const config: Record<string, number> = {
       visits_base: 0,
       downloads_base: 0,
       external_downloads_base: 0,
+      website_downloads: 0,
     };
     for (const row of (results || [])) {
-      config[(row as { key: string; value: number }).key] = (row as { key: string; value: number }).value || 0;
+      const key = (row as { key: string; value: number }).key;
+      if (key === 'total_downloads') {
+        config['website_downloads'] = (row as { key: string; value: number }).value || 0;
+      } else {
+        config[key] = (row as { key: string; value: number }).value || 0;
+      }
     }
 
     // Also fetch live GitHub stats for the admin panel
@@ -41,7 +47,7 @@ export async function GET() {
       }
 
       // Calculate total for display
-      const totalDownloads = config.downloads_base + githubDownloads + config.external_downloads_base;
+      const totalDownloads = config.downloads_base + config.website_downloads + githubDownloads + config.external_downloads_base;
 
       return NextResponse.json({
         ...config,
