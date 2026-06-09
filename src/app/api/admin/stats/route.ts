@@ -83,8 +83,9 @@ export async function GET() {
       _count: r.cnt,
     }));
 
-    // Compute downloads with 3-factor formula: Fixed + GitHub + External
+    // Compute downloads with 4-factor formula: Fixed + Website + GitHub + External
     const downloadsBase = statsMap['downloads_base'] || 0;
+    const websiteDownloads = statsMap['total_downloads'] || 0;
     const externalBase = statsMap['external_downloads_base'] || 0;
 
     // Try to get GitHub downloads from KV cache
@@ -100,7 +101,7 @@ export async function GET() {
       if (cached) githubDownloads = cached.totalDownloads;
     } catch {}
 
-    const totalDownloads = downloadsBase + githubDownloads + externalBase;
+    const totalDownloads = downloadsBase + websiteDownloads + githubDownloads + externalBase;
     const visitsBase = statsMap['visits_base'] || 0;
 
     return NextResponse.json({
@@ -112,8 +113,9 @@ export async function GET() {
         totalVisits: (statsMap['total_visits'] || 0) + visitsBase,
         realVisits: statsMap['total_visits'] || 0,
         totalDownloads,
-        realDownloads: statsMap['total_downloads'] || 0,
+        realDownloads: websiteDownloads,
         downloadsBase,
+        websiteDownloads,
         githubDownloads,
         externalBase,
       },
