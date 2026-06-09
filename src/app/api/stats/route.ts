@@ -3,7 +3,7 @@
 // Returns site stats and tracks visits (deduped by IP per day)
 //
 // Downloads formula:
-//   total = downloads_base (fixed) + github_downloads (real-time) + external_downloads_base (future platform)
+//   total = downloads_base (fixed) + website_downloads (real-time) + github_downloads (real-time) + external_downloads_base (future platform)
 //
 // GitHub data is cached in KV for 15 minutes to avoid API rate limits.
 // PUBLIC endpoint — no auth required
@@ -166,9 +166,10 @@ export async function GET(request: NextRequest) {
     }
 
     // ============================================================
-    // DOWNLOADS = Fixed Base + GitHub (real-time) + External (future)
+    // DOWNLOADS = Fixed Base + Website (real-time) + GitHub (real-time) + External (future)
     // ============================================================
     const downloadsBase = stats['downloads_base'] || 0;        // Fixed number (admin panel)
+    const websiteDownloads = stats['total_downloads'] || 0;     // Downloads from website clicks
     const externalBase = stats['external_downloads_base'] || 0; // Other platform (future)
 
     // Fetch GitHub downloads (cached in KV for 15 min)
@@ -182,7 +183,7 @@ export async function GET(request: NextRequest) {
       // If GitHub fetch fails entirely, use 0
     }
 
-    const totalDownloads = downloadsBase + githubDownloads + externalBase;
+    const totalDownloads = downloadsBase + websiteDownloads + githubDownloads + externalBase;
 
     // Visits: base offset + tracked visits
     const visitsBase = stats['visits_base'] || 0;
@@ -193,6 +194,7 @@ export async function GET(request: NextRequest) {
       // Detailed breakdown (useful for admin panel)
       _breakdown: {
         downloads_base: downloadsBase,
+        website_downloads: websiteDownloads,
         github_downloads: githubDownloads,
         external_downloads_base: externalBase,
         github_per_repo: githubPerRepo,
