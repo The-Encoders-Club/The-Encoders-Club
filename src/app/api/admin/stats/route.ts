@@ -83,14 +83,39 @@ export async function GET() {
       _count: r.cnt,
     }));
 
+    // Compute downloads with 3-factor formula: Fixed + GitHub + External
+    const downloadsBase = statsMap['downloads_base'] || 0;
+    const externalBase = statsMap['external_downloads_base'] || 0;
+
+    // Try to get GitHub downloads from KV cache
+    let githubDownloads = 0;
+    try {
+      const { getCloudflareContext } = await import('@opennextjs/cloudflare');
+      const { env } = await getCloudflareContext();
+      const cached = await env.RATE_LIMITER.get('github_downloads_cache', 'json') as {
+        totalDownloads: number;
+        perRepo: Record<string, number>;
+        fetchedAt: string;
+      } | null;
+      if (cached) githubDownloads = cached.totalDownloads;
+    } catch {}
+
+    const totalDownloads = downloadsBase + githubDownloads + externalBase;
+    const visitsBase = statsMap['visits_base'] || 0;
+
     return NextResponse.json({
       stats: {
         // Base offset to show a more impressive starting number (historical members)
         totalUsers: ((totalUsers?.c as number) || 0) + 15000,
         totalComments: (totalComments?.c as number) || 0,
         totalDonations: (totalDonations?.c as number) || 0,
-        totalVisits: statsMap['total_visits'] || 0,
-        totalDownloads: statsMap['total_downloads'] || 0,
+        totalVisits: (statsMap['total_visits'] || 0) + visitsBase,
+        realVisits: statsMap['total_visits'] || 0,
+        totalDownloads,
+        realDownloads: statsMap['total_downloads'] || 0,
+        downloadsBase,
+        githubDownloads,
+        externalBase,
       },
       recentUsers: (recentUsers || []).map((u: any) => ({
         id: u.id,
