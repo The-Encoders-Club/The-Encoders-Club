@@ -51,6 +51,9 @@ interface StatsData {
     realDownloads: number;
     visitsBase: number;
     downloadsBase: number;
+    websiteDownloads: number;
+    githubDownloads: number;
+    externalBase: number;
   };
   recentUsers: { id: string; nickname: string; avatar?: string; role: string; createdAt: string }[];
   recentComments: RecentComment[]; recentLogs: ActivityLog[]; donations: Donation[];
@@ -212,7 +215,7 @@ export default function AdminPanel() {
   });
   const [syncTarget, setSyncTarget] = useState<'special' | 'all'>('special');
   const rolePopoverRef = useRef<HTMLDivElement>(null);
-  const [statsConfig, setStatsConfig] = useState({ visits_base: 0, downloads_base: 0, external_downloads_base: 0, github_downloads: 0, github_per_repo: {} as Record<string, number> });
+  const [statsConfig, setStatsConfig] = useState({ visits_base: 0, downloads_base: 0, external_downloads_base: 0, website_downloads: 0, github_downloads: 0, github_per_repo: {} as Record<string, number> });
   const [statsConfigSaving, setStatsConfigSaving] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
@@ -259,7 +262,7 @@ export default function AdminPanel() {
   const fetchStatsConfig = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/stats/config');
-      if (res.ok) { const data = await res.json(); setStatsConfig({ visits_base: data.visits_base || 0, downloads_base: data.downloads_base || 0, external_downloads_base: data.external_downloads_base || 0, github_downloads: data.github_downloads || 0, github_per_repo: data.github_per_repo || {} }); }
+      if (res.ok) { const data = await res.json(); setStatsConfig({ visits_base: data.visits_base || 0, downloads_base: data.downloads_base || 0, external_downloads_base: data.external_downloads_base || 0, website_downloads: data.website_downloads || 0, github_downloads: data.github_downloads || 0, github_per_repo: data.github_per_repo || {} }); }
     } catch {}
   }, []);
 
@@ -664,7 +667,11 @@ export default function AdminPanel() {
                           <span className="text-white/70 font-semibold">{(statsConfig.downloads_base || 0).toLocaleString()}</span>
                         </div>
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-white/30">2. GitHub (tiempo real)</span>
+                          <span className="text-white/30">2. Web (tiempo real)</span>
+                          <span className="text-[#22c55e]/80 font-semibold">{(statsConfig.website_downloads || 0).toLocaleString()}</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-white/30">3. GitHub (tiempo real)</span>
                           <span className="text-[#4D9FFF]/80 font-semibold">{(statsConfig.github_downloads || 0).toLocaleString()}</span>
                         </div>
                         {Object.entries(statsConfig.github_per_repo || {}).map(([repo, count]) => (
@@ -674,7 +681,7 @@ export default function AdminPanel() {
                           </div>
                         ))}
                         <div className="flex items-center justify-between text-xs">
-                          <span className="text-white/30">3. Otra plataforma (manual)</span>
+                          <span className="text-white/30">4. Otra plataforma (manual)</span>
                           <span className="text-[#a855f7]/80 font-semibold">{(statsConfig.external_downloads_base || 0).toLocaleString()}</span>
                         </div>
                         <div className="border-t border-white/[0.06] pt-2 flex items-center justify-between">
@@ -721,7 +728,7 @@ export default function AdminPanel() {
 
                   <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#22C55E]/[0.04] border border-[#22C55E]/10 mb-4">
                     <Info size={14} className="text-[#22C55E]/70 shrink-0 mt-0.5" />
-                    <p className="text-[11px] text-white/35 leading-relaxed">Las descargas se calculan como: <b className='text-white/50'>Base Fija</b> + <b className='text-[#4D9FFF]/70'>GitHub (auto)</b> + <b className='text-[#a855f7]/70'>Otra Plataforma</b>. GitHub se actualiza automáticamente cada 15 min. Los campos manuales se suman a los conteos reales.</p>
+                    <p className="text-[11px] text-white/35 leading-relaxed">Las descargas se calculan como: <b className='text-white/50'>Base Fija</b> + <b className='text-[#22c55e]/70'>Web (auto)</b> + <b className='text-[#4D9FFF]/70'>GitHub (auto)</b> + <b className='text-[#a855f7]/70'>Otra Plataforma</b>. La Web y GitHub se actualizan en tiempo real. Los campos manuales se suman a los conteos reales.</p>
                   </div>
 
                   <button
