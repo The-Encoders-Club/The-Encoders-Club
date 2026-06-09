@@ -62,7 +62,7 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
     return () => clearInterval(interval);
   }, [triggered, value]);
 
-  const formatted = count >= 1000000 ? `${(count / 1000000).toFixed(1)}M` : count >= 1000 ? `${(count / 1000).toFixed(0)}K` : count.toString();
+  const formatted = count.toLocaleString('en-US');
 
   return (
     <div ref={ref} className="flex flex-col items-center text-center p-6">
