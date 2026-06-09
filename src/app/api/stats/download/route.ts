@@ -1,7 +1,16 @@
 // ============================================================
 // POST /api/stats/download
-// Increments the total downloads counter by 1
-// Called client-side when user clicks a download button
+// Increments the website download counter in the DB.
+//
+// This tracks downloads initiated from the website (clicks on
+// project download buttons). These are counted separately from
+// GitHub release downloads and are included in the total shown
+// on the homepage.
+//
+// The download counter formula is:
+//   Total = downloads_base + website_downloads + github_downloads + external_downloads_base
+//
+// PUBLIC endpoint — no auth required
 // ============================================================
 
 import { getDB } from '@/lib/db';
@@ -13,8 +22,7 @@ export async function POST() {
       .bind('total_downloads')
       .run();
     return Response.json({ success: true });
-  } catch (error) {
-    // Fail silently — don't block the user's download
-    return Response.json({ success: true });
+  } catch {
+    return Response.json({ success: true }); // Fail silently
   }
 }
