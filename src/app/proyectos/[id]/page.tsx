@@ -20,6 +20,43 @@ function trackDownload() {
   fetch('/api/stats/download', { method: 'POST' }).catch(() => {});
 }
 
+// Map project IDs to their GitHub repo keys for per-project download counts
+const PROJECT_REPO_MAP: Record<string, string> = {
+  monika: 'The-Encoders-Club/Monika-After-Story-ES',
+  natsuki: 'The-Encoders-Club/Just-Natsuki-ES',
+  yuri: 'The-Encoders-Club/Just-Yuri-ES',
+};
+
+// Hook to fetch real-time download count for a specific project
+function useProjectDownloads(projectId: string) {
+  const [downloads, setDownloads] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchDownloads = () => {
+      fetch('/api/stats')
+        .then(r => r.json())
+        .then(data => {
+          if (data._breakdown) {
+            const repoKey = PROJECT_REPO_MAP[projectId];
+            const githubCount = repoKey ? (data._breakdown.github_per_repo?.[repoKey] || 0) : 0;
+            const websiteCount = data._breakdown.website_downloads || 0;
+            const downloadsBase = data._breakdown.downloads_base || 0;
+            const externalBase = data._breakdown.external_downloads_base || 0;
+            // Per-project: GitHub downloads for this repo + proportional share of base/website/external
+            // We show GitHub downloads for this specific repo as the primary count
+            setDownloads(githubCount);
+          }
+        })
+        .catch(() => {});
+    };
+    fetchDownloads();
+    const interval = setInterval(fetchDownloads, 60000);
+    return () => clearInterval(interval);
+  }, [projectId]);
+
+  return downloads;
+}
+
 /* ─── Animated diagonal pink polka dots background (REUSABLE) ─── */
 function PinkDots({ dotColor = '#ffeef8' }) {
   const DOT = 72;
@@ -273,6 +310,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
+  const liveDownloads = useProjectDownloads(project.id);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -358,7 +396,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
                   { label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
                   { label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
                   { label: t('projects.engine'), value: project.details.engine },
-                  { label: t('projects.downloads'), value: project.details.downloads },
+                  { label: t('projects.downloads'), value: liveDownloads !== null ? liveDownloads.toLocaleString('en-US') + '+' : project.details.downloads },
                 ].map(item => (
                   <li key={item.label} className="flex justify-between text-sm">
                     <span className="text-gray-400">{item.label}</span>
@@ -390,6 +428,7 @@ function ProjectDetail({ project }: { project: typeof projects[number] }) {
 /* ─── Light/pink theme detail view — MONIKA (ORIGINAL INTACTO) ─── */
 function MonikaDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();  const musicRef = useRef<HTMLIFrameElement>(null);
+  const liveDownloads = useProjectDownloads(project.id);
   const [muted, setMuted] = useState(false);
 
   useEffect(() => {
@@ -479,7 +518,7 @@ function MonikaDetail({ project }: { project: typeof projects[number] }) {
                 { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
                 { icon: Flag, label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
                 { icon: Settings, label: t('projects.engine'), value: project.details.engine },
-                { icon: Download, label: t('projects.downloads'), value: project.details.downloads },
+                { icon: Download, label: t('projects.downloads'), value: liveDownloads !== null ? liveDownloads.toLocaleString('en-US') + '+' : project.details.downloads },
               ].map(item => {
                 const ItemIcon = item.icon;
                 return (
@@ -563,6 +602,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
+  const liveDownloads = useProjectDownloads(project.id);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -654,7 +694,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
                 { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
                 { icon: Flag, label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
                 { icon: Settings, label: t('projects.engine'), value: project.details.engine },
-                { icon: Download, label: t('projects.downloads'), value: project.details.downloads },
+                { icon: Download, label: t('projects.downloads'), value: liveDownloads !== null ? liveDownloads.toLocaleString('en-US') + '+' : project.details.downloads },
               ].map(item => {
                 const ItemIcon = item.icon;
                 return (
@@ -739,6 +779,7 @@ function NatsukiDetail({ project }: { project: typeof projects[number] }) {
 function YuriDetail({ project }: { project: typeof projects[number] }) {
   const { t, locale } = useI18n();
   const musicRef = useRef<HTMLIFrameElement>(null);  const [muted, setMuted] = useState(false);
+  const liveDownloads = useProjectDownloads(project.id);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -839,7 +880,7 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
               {[                { icon: Clock, label: t('projects.playTime'), value: isEs ? project.details.playTime : (project.details.playTimeEn || project.details.playTime) },
                 { icon: Flag, label: t('projects.language'), value: isEs ? project.details.language : (project.details.languageEn || project.details.language) },
                 { icon: Settings, label: t('projects.engine'), value: project.details.engine },
-                { icon: Download, label: t('projects.downloads'), value: project.details.downloads },
+                { icon: Download, label: t('projects.downloads'), value: liveDownloads !== null ? liveDownloads.toLocaleString('en-US') + '+' : project.details.downloads },
               ].map(item => {
                 const ItemIcon = item.icon;
                 return (
@@ -949,4 +990,4 @@ export default function ProjectDetailPage() {  const params = useParams();
       <ProjectDetail project={project} />
     </div>
   );
-}
+    }
