@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, Sparkles, ChevronRight, Star, ChevronLeft, Zap, Heart, Globe } from "lucide-react";
+import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, ChevronRight, Star, ChevronLeft, Zap, Heart, Globe } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundParticles from "@/components/BackgroundParticles";
@@ -86,6 +86,15 @@ const fadeUp = {
 
 // Fallback stat values (used while API loads or if it fails)
 const FALLBACK_STATS = { downloads: 15000, visits: 50000 };
+
+// Compact number formatter for hero mini-stats
+const compact = (n: number) => {
+  if (n >= 1000) {
+    const k = n / 1000;
+    return `${k % 1 === 0 ? k.toFixed(0) : k.toFixed(1)}K`;
+  }
+  return n.toString();
+};
 
 export default function Home() {
   const { t, locale } = useI18n();
@@ -181,17 +190,17 @@ export default function Home() {
               >
                 <div className="text-center">
                   <p className="text-2xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3+</p>
-                  <p className="text-xs text-white/45">{t('home.projectsLabel')}</p>
+                  <p className="text-xs text-white/45">{isEs ? 'Novelas Visuales' : 'Visual Novels'}</p>
                 </div>
                 <div className="w-px h-10 bg-white/15" />
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>7+</p>
-                  <p className="text-xs text-white/45">{t('home.coursesLabel')}</p>
+                  <p className="text-2xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{compact(stats.downloads)}+</p>
+                  <p className="text-xs text-white/45">{isEs ? 'Descargas' : 'Downloads'}</p>
                 </div>
                 <div className="w-px h-10 bg-white/15" />
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>&infin;</p>
-                  <p className="text-xs text-white/45">{t('home.creativityLabel')}</p>
+                  <p className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>7+</p>
+                  <p className="text-xs text-white/45">{isEs ? 'Colaboradores' : 'Collaborators'}</p>
                 </div>
               </motion.div>
             </div>
@@ -208,75 +217,50 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
       {/* ═══════════════════════════════════════════════════════════
           2. SOBRE NOSOTROS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 lg:py-28 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="relative"
-            >
-              <div className="glass-card p-8 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-                <div className="flex items-center gap-4 mb-6">
-                  <div className="w-12 h-12 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center">
-                    <Gamepad2 size={24} className="text-[#FF2D78]" />
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{t('home.about.renpyTitle')}</h3>
-                    <p className="text-sm text-white/50">{t('home.about.renpySub')}</p>
-                  </div>
-                </div>
-                <p className="text-white/65 text-sm leading-relaxed mb-6">
-                  {t('home.about.renpyText')}
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {[t('home.about.easyToLearn'), t('home.about.python'), t('home.about.crossPlatform'), t('home.about.activeCommunity')].map(feat => (
-                    <div key={feat} className="flex items-center gap-2 text-xs text-white/60">
-                      <Star size={12} className="text-[#FF2D78] flex-shrink-0" />{feat}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-            >
-              <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.about.tag')}</span>
-              <h2 className="section-title text-white mb-5">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
-              <p className="text-white/65 leading-relaxed mb-5">
-                {t('home.about.text1')}
-              </p>
-              <p className="text-white/65 leading-relaxed mb-8">
-                {t('home.about.text2')}
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
-                  {t('home.seeCourses')} <ChevronRight size={16} />
-                </Link>
-                <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
-                  {t('home.exploreProjects')}
-                </Link>
-              </div>
-            </motion.div>
-          </div>
+      <section className="py-14 lg:py-20 relative">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.about.tag')}</span>
+            <h2 className="section-title text-white mb-5">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
+            <p className="text-white/65 leading-relaxed mb-5">
+              {t('home.about.text1')}
+            </p>
+            <p className="text-white/65 leading-relaxed mb-8">
+              {t('home.about.text2')}
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
+                {t('home.seeCourses')} <ChevronRight size={16} />
+              </Link>
+              <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
+                {t('home.exploreProjects')}
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
+
+      {/* ── Gradient separator ── */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
           3. EQUIPO
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 lg:py-28 bg-[#06060f]">
+      <section className="py-14 lg:py-20 bg-[#06060f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.team.tag')}</span>
             <h2 className="section-title text-white">{t('home.team.title')} <span className="brand-gradient-text">{t('home.team.accent')}</span></h2>
           </div>
@@ -314,31 +298,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
       {/* ═══════════════════════════════════════════════════════════
           4. NOTICIAS — Carrusel horizontal
       ═══════════════════════════════════════════════════════════ */}
       <NewsCarousel newsItems={newsItems} t={t} isEs={isEs} />
 
+      {/* ── Gradient separator ── */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
       {/* ═══════════════════════════════════════════════════════════
           5. ESTADÍSTICAS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 bg-[#06060f] border-y border-white/6">
+      <section className="py-12 bg-[#06060f]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
-            <StatCounter value={3} label={t('home.projectsLabel')} icon={BookOpen} color="#FF2D78" suffix="+" />
-            <StatCounter value={stats.downloads} label={t('home.downloadsLabel')} icon={Download} color="#4D9FFF" suffix="+" />
-            <StatCounter value={7} label={t('home.coursesLabel')} icon={Users} color="#a855f7" suffix="+" />
-            <StatCounter value={stats.visits} label={t('home.visitsLabel')} icon={Eye} color="#22c55e" suffix="+" />
+            <StatCounter value={3} label={isEs ? 'Novelas Visuales' : 'Visual Novels'} icon={Gamepad2} color="#FF2D78" suffix="+" />
+            <StatCounter value={stats.downloads} label={isEs ? 'Descargas' : 'Downloads'} icon={Download} color="#4D9FFF" suffix="+" />
+            <StatCounter value={7} label={isEs ? 'Colaboradores' : 'Collaborators'} icon={Users} color="#a855f7" suffix="+" />
+            <StatCounter value={stats.visits} label={isEs ? 'Visitas' : 'Visits'} icon={Eye} color="#22c55e" suffix="+" />
           </div>
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
       {/* ═══════════════════════════════════════════════════════════
           6. EXTRAS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 lg:py-28">
+      <section className="py-14 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <span className="text-[#22c55e] text-sm font-semibold uppercase tracking-widest mb-3 block">{isEs ? 'Extras' : 'Extras'}</span>
             <h2 className="section-title text-white">{isEs ? 'Más que proyectos' : 'More than projects'} <span className="brand-gradient-text">{isEs ? 'una comunidad' : 'a community'}</span></h2>
           </div>
@@ -386,10 +379,54 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
       {/* ═══════════════════════════════════════════════════════════
-          7. INFORMACIÓN SECUNDARIA (CTA Discord)
+          7. MOTOR REN'PY / NOVELAS VISUALES
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 lg:py-28 bg-[#06060f]">
+      <section className="py-14 lg:py-20 bg-[#06060f]">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="glass-card p-8 lg:p-10 relative overflow-hidden"
+          >
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] via-[#4D9FFF] to-[#a855f7]" />
+            <div className="flex flex-col sm:flex-row items-start gap-6">
+              <div className="w-14 h-14 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center flex-shrink-0">
+                <Gamepad2 size={28} className="text-[#FF2D78]" />
+              </div>
+              <div>
+                <h3 className="font-bold text-white text-xl mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {t('home.about.renpyTitle')}
+                </h3>
+                <p className="text-sm text-white/50 mb-4">{t('home.about.renpySub')}</p>
+                <p className="text-white/65 text-sm leading-relaxed mb-6">
+                  {t('home.about.renpyText')}
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  {[t('home.about.easyToLearn'), t('home.about.python'), t('home.about.crossPlatform'), t('home.about.activeCommunity')].map(feat => (
+                    <div key={feat} className="flex items-center gap-2 text-xs text-white/60">
+                      <Star size={12} className="text-[#FF2D78] flex-shrink-0" />{feat}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ── Gradient separator ── */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+      {/* ═══════════════════════════════════════════════════════════
+          8. INFORMACIÓN SECUNDARIA (CTA Discord)
+      ═══════════════════════════════════════════════════════════ */}
+      <section className="py-14 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -443,7 +480,7 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
   };
 
   return (
-    <section className="py-20 lg:py-28">
+    <section className="py-14 lg:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <div>
