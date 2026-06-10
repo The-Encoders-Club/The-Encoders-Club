@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, Sparkles, ChevronRight, Star } from "lucide-react";
+import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, Sparkles, ChevronRight, Star, ChevronLeft, Zap, Heart, Globe } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundParticles from "@/components/BackgroundParticles";
@@ -53,7 +53,7 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
   useEffect(() => {
     if (!triggered) return;
     let current = 0;
-    const step = value / 40; // Reduced from 60 to 40 steps (faster, less interval ticks)
+    const step = value / 40;
     const interval = setInterval(() => {
       current += step;
       if (current >= value) { setCount(value); clearInterval(interval); }
@@ -123,7 +123,9 @@ export default function Home() {
       <Navbar />
       <BackgroundParticles />
 
-      {/* HERO */}
+      {/* ═══════════════════════════════════════════════════════════
+          1. HERO — The Encoders Club + Botón Unirse
+      ═══════════════════════════════════════════════════════════ */}
       <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
         <div className="absolute inset-0 z-0">
           <img src={BG_URL} alt="" className="w-full h-full object-cover opacity-30" loading="eager" />
@@ -136,7 +138,6 @@ export default function Home() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex items-center justify-center min-h-[80vh]">
             <div className="flex flex-col justify-center w-full max-w-2xl">
-              {/* Hero animations: these are one-shot (no infinite loop) so they're fine */}
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -160,11 +161,16 @@ export default function Home() {
                 transition={{ duration: 0.6, delay: 0.35 }}
                 className="flex flex-wrap gap-4"
               >
-                <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
-                  {t('home.seeProjects')} <ArrowRight size={18} />
-                </Link>
-                <Link href="/cursos" className="btn-outline text-base px-7 py-3.5">
-                  <BookOpen size={18} /> {t('home.learnMore')}
+                <a
+                  href="https://discord.gg/2DB5k7sb8"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn-primary text-base px-7 py-3.5"
+                >
+                  {isEs ? 'Unirse' : 'Join Us'} <ArrowRight size={18} />
+                </a>
+                <Link href="/proyectos" className="btn-outline text-base px-7 py-3.5">
+                  {t('home.seeProjects')} <BookOpen size={18} />
                 </Link>
               </motion.div>
               <motion.div
@@ -192,7 +198,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator — CSS animation instead of framer-motion infinite */}
+        {/* Scroll indicator */}
         <div
           className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
           style={{ animation: 'scrollBounce 2s ease-in-out infinite' }}
@@ -202,7 +208,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ABOUT */}
+      {/* ═══════════════════════════════════════════════════════════
+          2. SOBRE NOSOTROS
+      ═══════════════════════════════════════════════════════════ */}
       <section className="py-20 lg:py-28 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
@@ -263,57 +271,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* NEWS */}
+      {/* ═══════════════════════════════════════════════════════════
+          3. EQUIPO
+      ═══════════════════════════════════════════════════════════ */}
       <section className="py-20 lg:py-28 bg-[#06060f]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
-            <div>
-              <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.news.tag')}</span>
-              <h2 className="section-title text-white">{t('home.news.title')} <span className="brand-gradient-text">{t('home.news.accent')}</span></h2>
-            </div>
-            <Link href="/noticias" className="btn-outline text-sm px-5 py-2.5 whitespace-nowrap">
-              {t('home.seeAll')} <ArrowRight size={15} />
-            </Link>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            {newsItems.map((item, i) => (
-              <motion.article
-                key={item.id}
-                custom={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="glass-card overflow-hidden group"
-              >
-                <div className="relative overflow-hidden h-40">
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span
-                    className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{ background: `${item.tagColor}25`, border: `1px solid ${item.tagColor}50`, color: item.tagColor }}
-                  >
-                    {item.tag}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <p className="text-xs text-white/40 mb-2">{item.date}</p>
-                  <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
-                  <span className="text-xs text-[#FF2D78] font-semibold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
-                    {t('common.readMore')} <ChevronRight size={13} />
-                  </span>
-                </div>
-              </motion.article>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* TEAM */}
-      <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
             <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.team.tag')}</span>
@@ -353,7 +314,14 @@ export default function Home() {
         </div>
       </section>
 
-      {/* STATS */}
+      {/* ═══════════════════════════════════════════════════════════
+          4. NOTICIAS — Carrusel horizontal
+      ═══════════════════════════════════════════════════════════ */}
+      <NewsCarousel newsItems={newsItems} t={t} isEs={isEs} />
+
+      {/* ═══════════════════════════════════════════════════════════
+          5. ESTADÍSTICAS
+      ═══════════════════════════════════════════════════════════ */}
       <section className="py-16 bg-[#06060f] border-y border-white/6">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
@@ -365,8 +333,63 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA */}
+      {/* ═══════════════════════════════════════════════════════════
+          6. EXTRAS
+      ═══════════════════════════════════════════════════════════ */}
       <section className="py-20 lg:py-28">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-14">
+            <span className="text-[#22c55e] text-sm font-semibold uppercase tracking-widest mb-3 block">{isEs ? 'Extras' : 'Extras'}</span>
+            <h2 className="section-title text-white">{isEs ? 'Más que proyectos' : 'More than projects'} <span className="brand-gradient-text">{isEs ? 'una comunidad' : 'a community'}</span></h2>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="glass-card p-6 group hover:border-[#FF2D78]/30 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center mb-4">
+                <Zap size={24} className="text-[#FF2D78]" />
+              </div>
+              <h3 className="font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Traducciones' : 'Translations'}</h3>
+              <p className="text-white/55 text-sm leading-relaxed">{isEs ? 'Localizamos novelas visuales al español con la máxima calidad, manteniendo la esencia y el tono original de cada obra.' : 'We localize visual novels into Spanish with the highest quality, preserving the essence and original tone of each work.'}</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="glass-card p-6 group hover:border-[#4D9FFF]/30 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-[#4D9FFF]/15 border border-[#4D9FFF]/30 flex items-center justify-center mb-4">
+                <Heart size={24} className="text-[#4D9FFF]" />
+              </div>
+              <h3 className="font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Código Abierto' : 'Open Source'}</h3>
+              <p className="text-white/55 text-sm leading-relaxed">{isEs ? 'Todos nuestros proyectos son de código abierto. Puedes contribuir, aprender y formar parte del desarrollo activamente.' : 'All our projects are open source. You can contribute, learn, and actively be part of the development.'}</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="glass-card p-6 group hover:border-[#a855f7]/30 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-2xl bg-[#a855f7]/15 border border-[#a855f7]/30 flex items-center justify-center mb-4">
+                <Globe size={24} className="text-[#a855f7]" />
+              </div>
+              <h3 className="font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Comunidad Global' : 'Global Community'}</h3>
+              <p className="text-white/55 text-sm leading-relaxed">{isEs ? 'Colaboramos con personas de todo el mundo. Sin importar tu nivel de experiencia, hay un lugar para ti aquí.' : 'We collaborate with people from all over the world. Regardless of your experience level, there is a place for you here.'}</p>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          7. INFORMACIÓN SECUNDARIA (CTA Discord)
+      ═══════════════════════════════════════════════════════════ */}
+      <section className="py-20 lg:py-28 bg-[#06060f]">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -406,5 +429,81 @@ export default function Home() {
 
       <Footer />
     </div>
+  );
+}
+
+/* ─── News Carousel Component (horizontal scroll) ─── */
+function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t: ReturnType<typeof useI18n>['t']; isEs: boolean }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: 'left' | 'right') => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -340 : 340, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <section className="py-20 lg:py-28">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+          <div>
+            <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.news.tag')}</span>
+            <h2 className="section-title text-white">{t('home.news.title')} <span className="brand-gradient-text">{t('home.news.accent')}</span></h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => scroll('left')} className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all">
+              <ChevronLeft size={18} />
+            </button>
+            <button onClick={() => scroll('right')} className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all">
+              <ChevronRight size={18} />
+            </button>
+            <Link href="/noticias" className="btn-outline text-sm px-5 py-2.5 whitespace-nowrap ml-2">
+              {t('home.seeAll')} <ArrowRight size={15} />
+            </Link>
+          </div>
+        </div>
+        <div className="relative group/carousel">
+          <div ref={scrollRef} className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
+            {newsItems.map((item, i) => (
+              <motion.article
+                key={item.id}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="glass-card overflow-hidden group flex-shrink-0 snap-start"
+                style={{ width: 'calc(33.333% - 14px)', minWidth: 280 }}
+              >
+                <div className="relative overflow-hidden h-40">
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <span
+                    className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
+                    style={{ background: `${item.tagColor}25`, border: `1px solid ${item.tagColor}50`, color: item.tagColor }}
+                  >
+                    {item.tag}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <p className="text-xs text-white/40 mb-2">{item.date}</p>
+                  <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                    {item.title}
+                  </h3>
+                  <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
+                  <span className="text-xs text-[#FF2D78] font-semibold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
+                    {t('common.readMore')} <ChevronRight size={13} />
+                  </span>
+                </div>
+              </motion.article>
+            ))}
+          </div>
+        </div>
+      </div>
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+    </section>
   );
 }
