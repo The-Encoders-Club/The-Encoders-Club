@@ -324,10 +324,6 @@ export default function Home() {
       ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20 bg-[#06060f]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
-            <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">{isEs ? 'Estadísticas' : 'Statistics'}</span>
-            <h2 className="section-title text-white">{isEs ? 'Números que' : 'Numbers that'} <span className="brand-gradient-text">{isEs ? 'hablan' : 'speak'}</span></h2>
-          </div>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             <StatCounter value={3} label={isEs ? 'Novelas Visuales' : 'Visual Novels'} icon={Gamepad2} color="#FF2D78" suffix="+" />
             <StatCounter value={stats.downloads} label={isEs ? 'Descargas' : 'Downloads'} icon={Download} color="#4D9FFF" suffix="+" />
