@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, ChevronRight, Star, ChevronLeft, Zap, Heart, Globe } from "lucide-react";
+import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, ChevronRight, ChevronLeft, Zap, Heart, Globe } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundParticles from "@/components/BackgroundParticles";
@@ -65,12 +65,22 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
   const formatted = count.toLocaleString('en-US');
 
   return (
-    <div ref={ref} className="flex flex-col items-center text-center p-6">
-      <div className="w-12 h-12 rounded-2xl flex items-center justify-center mb-3" style={{ background: `${color}20`, border: `1px solid ${color}40` }}>
-        <Icon size={22} style={{ color }} />
+    <div
+      ref={ref}
+      className="glass-card p-5 sm:p-6 flex flex-col items-center text-center group hover:border-opacity-50 transition-all duration-300 relative overflow-hidden"
+      style={{ borderColor: `${color}25` }}
+    >
+      {/* Colored top accent line */}
+      <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
+      {/* Soft glow behind icon */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full pointer-events-none opacity-[0.07]" style={{ background: color, filter: 'blur(30px)' }} />
+      <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 relative" style={{ background: `${color}15`, border: `1px solid ${color}30` }}>
+        <Icon size={20} style={{ color }} />
       </div>
-      <span className="text-3xl md:text-4xl font-bold mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif", color }}>{formatted}{suffix}</span>
-      <span className="text-sm text-white/50">{label}</span>
+      <span className="text-3xl sm:text-4xl font-bold mb-1.5 relative" style={{ fontFamily: "'Space Grotesk', sans-serif", color }}>{formatted}{suffix}</span>
+      <span className="text-xs text-white/45 uppercase tracking-wider font-medium">{label}</span>
+      {/* Bottom gradient line */}
+      <div className="absolute bottom-0 left-[10%] w-[80%] h-[1px] opacity-30" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
     </div>
   );
 }
@@ -312,9 +322,13 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           5. ESTADÍSTICAS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-12 bg-[#06060f]">
+      <section className="py-14 lg:py-20 bg-[#06060f]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-y lg:divide-y-0 divide-white/8">
+          <div className="text-center mb-10">
+            <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">{isEs ? 'Estadísticas' : 'Statistics'}</span>
+            <h2 className="section-title text-white">{isEs ? 'Números que' : 'Numbers that'} <span className="brand-gradient-text">{isEs ? 'hablan' : 'speak'}</span></h2>
+          </div>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
             <StatCounter value={3} label={isEs ? 'Novelas Visuales' : 'Visual Novels'} icon={Gamepad2} color="#FF2D78" suffix="+" />
             <StatCounter value={stats.downloads} label={isEs ? 'Descargas' : 'Downloads'} icon={Download} color="#4D9FFF" suffix="+" />
             <StatCounter value={7} label={isEs ? 'Colaboradores' : 'Collaborators'} icon={Users} color="#a855f7" suffix="+" />
@@ -379,52 +393,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Gradient separator ── */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-
       {/* ═══════════════════════════════════════════════════════════
-          7. MOTOR REN'PY / NOVELAS VISUALES
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20 bg-[#06060f]">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="glass-card p-8 lg:p-10 relative overflow-hidden"
-          >
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] via-[#4D9FFF] to-[#a855f7]" />
-            <div className="flex flex-col sm:flex-row items-start gap-6">
-              <div className="w-14 h-14 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center flex-shrink-0">
-                <Gamepad2 size={28} className="text-[#FF2D78]" />
-              </div>
-              <div>
-                <h3 className="font-bold text-white text-xl mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                  {t('home.about.renpyTitle')}
-                </h3>
-                <p className="text-sm text-white/50 mb-4">{t('home.about.renpySub')}</p>
-                <p className="text-white/65 text-sm leading-relaxed mb-6">
-                  {t('home.about.renpyText')}
-                </p>
-                <div className="grid grid-cols-2 gap-3">
-                  {[t('home.about.easyToLearn'), t('home.about.python'), t('home.about.crossPlatform'), t('home.about.activeCommunity')].map(feat => (
-                    <div key={feat} className="flex items-center gap-2 text-xs text-white/60">
-                      <Star size={12} className="text-[#FF2D78] flex-shrink-0" />{feat}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── Gradient separator ── */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-
-      {/* ═══════════════════════════════════════════════════════════
-          8. INFORMACIÓN SECUNDARIA (CTA Discord)
+          7. INFORMACIÓN SECUNDARIA (CTA Discord)
       ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
