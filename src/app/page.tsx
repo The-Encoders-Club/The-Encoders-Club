@@ -247,14 +247,14 @@ export default function Home() {
             >
               <div className="rounded-[18px] overflow-hidden bg-white/[0.04] border border-white/[0.08] shadow-[0_24px_64px_rgba(0,0,0,0.4)] relative group">
                 <img
-                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/sYvfOcdjjpxwpsYH.jpg"
-                  alt="Visual Novel"
+                  src="/portadas/Monika.png"
+                  alt="Monika After History"
                   className="w-full h-[340px] object-cover transition-transform duration-[8s] ease-out group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#080818]/95 via-transparent to-transparent flex flex-col justify-end p-6">
-                  <div className="text-[0.6rem] font-semibold uppercase tracking-widest text-[#4D9FFF] mb-1">{isEs ? 'Proyecto Destacado' : 'Featured Project'}</div>
-                  <div className="font-semibold text-[1.1rem]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Novela Visual en Español' : 'Visual Novel in Spanish'}</div>
-                  <div className="text-[0.78rem] text-white/40 mt-0.5">{isEs ? "Creado con Ren'Py por The Encoders Club" : "Created with Ren'Py by The Encoders Club"}</div>
+                  <div className="text-[0.6rem] font-semibold uppercase tracking-widest text-[#FF2D78] mb-1">{isEs ? 'Proyecto Destacado' : 'Featured Project'}</div>
+                  <div className="font-semibold text-[1.1rem]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>Monika After History</div>
+                  <div className="text-[0.78rem] text-white/40 mt-0.5">{isEs ? 'Novela Visual Fan-Made — Doki Doki Literature Club' : 'Fan-Made Visual Novel — Doki Doki Literature Club'}</div>
                 </div>
               </div>
             </motion.div>
