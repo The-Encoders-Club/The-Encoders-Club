@@ -52,12 +52,11 @@ export default function Proyectos() {
 
   return (
     <div
-      className="min-h-screen text-white overflow-x-hidden relative bg-[#080818]"
+      className="min-h-screen text-white overflow-x-hidden relative bg-[#030308]"
       style={{
-        backgroundImage: `linear-gradient(135deg, rgba(8, 8, 24, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(8, 8, 24, 0.85) 100%), url("${PROYECTOS_BG}")`,
+        backgroundImage: `linear-gradient(135deg, rgba(3, 3, 8, 0.85) 0%, rgba(26, 10, 26, 0.8) 50%, rgba(3, 3, 8, 0.85) 100%), url("${PROYECTOS_BG}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
-        // backgroundAttachment: 'fixed' eliminado — causa temblor en móviles
       }}
     >
       <BackgroundParticles />
@@ -67,16 +66,13 @@ export default function Proyectos() {
       <section className="pt-24 sm:pt-32 pb-12 sm:pb-16 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="text-[#FF2D78] text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3 block">
-              {isEs ? 'Nuestras creaciones' : 'Our creations'}
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">
+              {'// '}{isEs ? 'Nuestras creaciones' : 'Our creations'}
             </span>
-            <h1
-              className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4"
-              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
-            >
+            <h1 className="font-cyber text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 uppercase tracking-tight">
               {t('projects.title')}
             </h1>
-            <p className="text-white/60 text-base sm:text-lg max-w-2xl">
+            <p className="font-code text-sm text-white/60 max-w-2xl">
               {isEs
                 ? 'Novelas visuales creadas con pasión por nuestra comunidad usando el motor Ren\'Py.'
                 : 'Visual novels created with passion by our community using the Ren\'Py engine.'}
@@ -100,7 +96,7 @@ export default function Proyectos() {
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Buscar proyecto..."
-              className="w-full pl-11 pr-10 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/35 outline-none focus:border-[#4D9FFF]/50 focus:ring-1 focus:ring-[#4D9FFF]/30 transition-all duration-200"
+              className="w-full pl-11 pr-10 py-3 bg-[#0e0e1f] border border-white/10 text-white font-code text-sm placeholder:text-white/35 outline-none focus:border-[#00F2FE]/50 focus:ring-1 focus:ring-[#00F2FE]/30 transition-all duration-200"
             />
             {searchQuery.length > 0 && (
               <button
@@ -119,7 +115,7 @@ export default function Proyectos() {
       <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* ── FEATURED (Monika) — no tocar ── */}
+          {/* ── FEATURED (Monika) ── */}
           {!isSearching && filteredProjects.featured
             .map(project => (
               <Link key={project.id} href={`/proyectos/${project.id}`}>
@@ -127,9 +123,9 @@ export default function Proyectos() {
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.7 }}
-                  className="relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden mb-8 cursor-pointer group hover:border-[#FF2D78]/40 transition-all duration-300"
+                  className="relative clip-card bg-[#0e0e1f] neon-border-cyan overflow-hidden mb-8 cursor-pointer group transition-all duration-300"
                 >
-                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F3FF]" />
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF2D78] to-[#00F2FE]" />
                   <div className="grid lg:grid-cols-2 gap-0">
                     <div
                       className="relative flex items-center justify-center overflow-hidden border-b lg:border-b-0 lg:border-r border-white/5"
@@ -142,38 +138,38 @@ export default function Proyectos() {
                         alt={project.name}
                         className="w-full h-auto object-contain group-hover:scale-105 transition-transform duration-700"
                       />
-                      <span className="absolute top-4 left-4 text-xs font-bold px-3 py-1.5 rounded-full bg-[#FF2D78] text-white z-10">
+                      <span className="absolute top-4 left-4 font-cyber font-bold text-xs px-3 py-1.5 bg-[#FF2D78] text-black z-10">
                         {t('projects.featured')}
                       </span>
                       <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/20 z-10">
-                        <div className="bg-white/10 border border-white/20 px-6 py-3 rounded-full flex items-center gap-2 text-sm font-bold backdrop-blur-sm">
+                        <div className="clip-btn bg-[#080812]/80 border border-white/20 px-6 py-3 flex items-center gap-2 font-code text-sm font-bold backdrop-blur-sm text-[#00F2FE]">
                           <Sparkles size={16} className="text-[#FF2D78]" />{t('projects.explore')}
                         </div>
                       </div>
                     </div>
                     <div className="p-6 sm:p-8 lg:p-10 flex flex-col justify-center">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                        <span className="font-code text-[10px] font-semibold px-2.5 py-1 bg-[#080812] border border-white/10" style={{ borderLeftColor: project.statusColor, borderLeftWidth: '2px', color: project.statusColor }}>
                           {isEs ? project.status : (project.statusEn || project.status)}
                         </span>
                         <div className="flex items-center gap-1 text-yellow-400 text-xs">
                           <Star size={12} fill="currentColor" />
-                          <span>{project.rating}</span>
+                          <span className="font-code text-[10px]">{project.rating}</span>
                         </div>
                       </div>
-                      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                      <h2 className="font-cyber text-2xl sm:text-3xl font-bold text-white mb-2">
                         {project.name}
                       </h2>
-                      <p className="text-[#FF2D78] text-sm font-medium mb-4">{project.subtitle}</p>
+                      <p className="text-[#FF2D78] font-code text-xs font-medium mb-4">{project.subtitle}</p>
                       <p className="text-white/60 text-base leading-relaxed mb-6">
                         {isEs ? project.description : (project.descriptionEn || project.description)}
                       </p>
                       <div className="flex flex-wrap gap-2 mb-6">
                         {project.tags.map(tag => (
-                          <span key={tag} className="text-xs px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/60">{tag}</span>
+                          <span key={tag} className="font-code text-[10px] px-3 py-1 bg-[#080812] border border-white/8 text-white/60">{tag}</span>
                         ))}
                       </div>
-                      <div className="flex items-center gap-2 text-[#FF2D78] font-bold text-sm group-hover:translate-x-2 transition-transform">
+                      <div className="flex items-center gap-2 text-[#00F2FE] font-cyber font-bold text-sm group-hover:translate-x-2 transition-transform">
                         {t('common.viewMore')} <ArrowRight size={16} />
                       </div>
                     </div>
@@ -191,8 +187,8 @@ export default function Proyectos() {
               className="text-center py-16"
             >
               <Search size={40} className="text-white/15 mx-auto mb-4" />
-              <p className="text-white/40 text-lg font-medium">No se encontraron proyectos</p>
-              <p className="text-white/25 text-sm mt-1">Intenta con otro término de búsqueda</p>
+              <p className="font-cyber text-white/40 text-lg font-bold">No se encontraron proyectos</p>
+              <p className="font-code text-white/25 text-sm mt-1">Intenta con otro término de búsqueda</p>
             </motion.div>
           ) : (
             <div className="grid sm:grid-cols-2 gap-6">
@@ -206,7 +202,7 @@ export default function Proyectos() {
                       whileInView={{ opacity: 1, y: 0 }}
                       viewport={{ once: true }}
                       transition={{ duration: 0.6, delay: i * 0.1 }}
-                      className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer group hover:border-[#00F3FF]/40 transition-all duration-300"
+                      className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden cursor-pointer group hover:border-[#00F2FE]/40 transition-all duration-300"
                     >
                       <div
                         className="relative flex items-center justify-center overflow-hidden border-b border-white/5"
@@ -225,24 +221,24 @@ export default function Proyectos() {
                           }`}
                         />
                         <div className="absolute bottom-3 left-4 flex items-center gap-2 z-10">
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full" style={{ background: `${project.statusColor}20`, border: `1px solid ${project.statusColor}40`, color: project.statusColor }}>
+                          <span className="font-code text-[10px] font-semibold px-2.5 py-1 bg-[#080812] border border-white/10" style={{ borderLeftColor: project.statusColor, borderLeftWidth: '2px', color: project.statusColor }}>
                             {isEs ? project.status : (project.statusEn || project.status)}
                           </span>
                           <div className="flex items-center gap-1 text-yellow-400 text-xs">
                             <Star size={11} fill="currentColor" />
-                            <span>{project.rating}</span>
+                            <span className="font-code text-[10px]">{project.rating}</span>
                           </div>
                         </div>
                       </div>
                       <div className="p-6">
-                        <h3 className="text-lg font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                        <h3 className="font-cyber text-lg font-bold text-white mb-1">
                           {project.name}
                         </h3>
-                        <p className="text-[#00F3FF] text-xs font-medium mb-3">{project.subtitle}</p>
+                        <p className="text-[#00F2FE] font-code text-xs font-medium mb-3">{project.subtitle}</p>
                         <p className="text-white/55 text-sm leading-relaxed mb-4 line-clamp-3">
                           {isEs ? project.description : (project.descriptionEn || project.description)}
                         </p>
-                        <div className="flex items-center gap-2 text-[#00F3FF] font-bold text-xs group-hover:translate-x-2 transition-transform">
+                        <div className="flex items-center gap-2 text-[#00F2FE] font-cyber font-bold text-xs group-hover:translate-x-2 transition-transform">
                           {t('common.viewMore')} <ArrowRight size={14} />
                         </div>
                       </div>
@@ -258,14 +254,14 @@ export default function Proyectos() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="mt-10 bg-white/5 border border-white/10 rounded-3xl p-8 text-center relative overflow-hidden"
+              className="mt-10 clip-card bg-[#0e0e1f] border border-white/10 p-8 text-center relative overflow-hidden"
             >
-              <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-[#a855f7]/5 to-[#00F3FF]/5 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/5 via-[#9d4edd]/5 to-[#00F2FE]/5 pointer-events-none" />
               <Gamepad2 size={32} className="text-[#FF2D78] mx-auto mb-3" />
-              <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <h3 className="font-cyber text-xl font-bold text-white mb-2">
                 {isEs ? 'Más proyectos en camino' : 'More projects coming'}
               </h3>
-              <p className="text-white/50 text-sm max-w-md mx-auto">
+              <p className="font-code text-sm text-white/50 max-w-md mx-auto">
                 {isEs
                   ? 'Estamos trabajando en nuevas novelas visuales. Únete a nuestro Discord para ser el primero en enterarte.'
                   : 'We are working on new visual novels. Join our Discord to be the first to know.'}
