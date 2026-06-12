@@ -9,16 +9,16 @@ import BackgroundParticles from '@/components/BackgroundParticles';
 
 const comingSoonCourses = [
   { icon: Code, title: 'Introducción a Ren\'Py', desc: 'Aprende desde cero a crear tu primera novela visual con Ren\'Py.', color: '#FF2D78', lessons: 12, level: 'Principiante' },
-  { icon: Palette, title: 'Diseño de Personajes', desc: 'Técnicas de diseño y sprite creation para tus personajes.', color: '#4D9FFF', lessons: 8, level: 'Intermedio' },
-  { icon: Gamepad2, title: 'Programación Avanzada', desc: 'Sistemas complejos: inventarios, minijuegos y pantallas personalizadas.', color: '#a855f7', lessons: 15, level: 'Avanzado' },
+  { icon: Palette, title: 'Diseño de Personajes', desc: 'Técnicas de diseño y sprite creation para tus personajes.', color: '#00F2FE', lessons: 8, level: 'Intermedio' },
+  { icon: Gamepad2, title: 'Programación Avanzada', desc: 'Sistemas complejos: inventarios, minijuegos y pantallas personalizadas.', color: '#9d4edd', lessons: 15, level: 'Avanzado' },
   { icon: Lightbulb, title: 'Escritura Narrativa', desc: 'Crea historias envolventes con múltiples rutas y finales.', color: '#22c55e', lessons: 10, level: 'Principiante' },
   { icon: BookOpen, title: 'UI/UX en Visual Novels', desc: 'Diseña interfaces atractivas y menús interactivos.', color: '#FF2D78', lessons: 7, level: 'Intermedio' },
-  { icon: GraduationCap, title: 'Publicación y Distribución', desc: 'Todo lo necesario para lanzar tu novela visual al mundo.', color: '#4D9FFF', lessons: 6, level: 'Todos los niveles' },
+  { icon: GraduationCap, title: 'Publicación y Distribución', desc: 'Todo lo necesario para lanzar tu novela visual al mundo.', color: '#00F2FE', lessons: 6, level: 'Todos los niveles' },
 ];
 
 export default function Cursos() {
   return (
-    <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#030308] text-white overflow-x-hidden">
       <Navbar />
       <BackgroundParticles />
 
@@ -26,14 +26,14 @@ export default function Cursos() {
       <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="text-[#4D9FFF] text-xs sm:text-sm font-semibold uppercase tracking-widest mb-3 block">Aprende con nosotros</span>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#00F2FE] mb-3 block">{'// '}Aprende con nosotros</span>
+            <h1 className="font-cyber text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 uppercase">
               Cursos y{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#4D9FFF] to-[#a855f7]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F2FE] to-[#9d4edd]">
                 Tutoriales
               </span>
             </h1>
-            <p className="text-white/60 text-base sm:text-lg max-w-2xl">
+            <p className="font-code text-sm text-white/60 max-w-2xl">
               Domina el arte de crear novelas visuales con nuestros cursos completos. Desde los fundamentos hasta técnicas avanzadas.
             </p>
           </motion.div>
@@ -47,28 +47,26 @@ export default function Cursos() {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative rounded-3xl overflow-hidden"
+            className="relative clip-card neon-border-magenta overflow-hidden bg-[#0e0e1f]"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/20 via-[#a855f7]/20 to-[#4D9FFF]/20" />
-            <div className="absolute inset-0 border border-white/10 rounded-3xl" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/20 via-[#9d4edd]/20 to-[#00F2FE]/20" />
             <div className="relative p-8 sm:p-12 lg:p-16 text-center">
               <motion.div
                 animate={{ y: [0, -10, 0] }}
                 transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6"
+                className="inline-flex items-center justify-center w-20 h-20 bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6"
               >
                 <Construction size={36} className="text-[#FF2D78]" />
               </motion.div>
               <h2
-                className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                className="font-cyber text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 uppercase"
               >
                 Página en{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2D78] to-[#a855f7]">
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2D78] to-[#9d4edd]">
                   Construcción
                 </span>
               </h2>
-              <p className="text-white/60 text-base sm:text-lg max-w-xl mx-auto mb-8 leading-relaxed">
+              <p className="font-code text-sm text-white/60 max-w-xl mx-auto mb-8 leading-relaxed">
                 Estamos trabajando duro para traerte los mejores cursos de novelas visuales. ¡Pronto estarán disponibles! Mientras tanto, explora nuestros proyectos.
               </p>
 
@@ -105,12 +103,12 @@ export default function Cursos() {
       </section>
 
       {/* Coming Soon Courses Preview */}
-      <section className="py-16 lg:py-24 bg-[#06060f]">
+      <section className="py-16 lg:py-24 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">Próximamente</span>
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}Próximamente</span>
             <h2 className="section-title text-white">Cursos en <span className="brand-gradient-text">Desarrollo</span></h2>
-            <p className="text-white/50 mt-4 max-w-lg mx-auto text-sm">Estos cursos están siendo creados con dedicación. ¡Mantente atento a las novedades!</p>
+            <p className="font-code text-sm text-white/50 mt-4 max-w-lg mx-auto">Estos cursos están siendo creados con dedicación. ¡Mantente atento a las novedades!</p>
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {comingSoonCourses.map((course, i) => {
@@ -122,26 +120,26 @@ export default function Cursos() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="glass-card p-6 group relative overflow-hidden"
+                  className="clip-card bg-[#0e0e1f] border border-white/10 p-6 group relative overflow-hidden hover:border-[#00F2FE]/30 transition-all duration-300"
                 >
                   <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r opacity-30" style={{ backgroundImage: `linear-gradient(to right, ${course.color}, transparent)` }} />
                   <div className="flex items-start gap-4 mb-4">
                     <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0"
+                      className="w-12 h-12 flex items-center justify-center flex-shrink-0"
                       style={{ background: `${course.color}15`, border: `1px solid ${course.color}30` }}
                     >
                       <Icon size={22} style={{ color: course.color }} />
                     </div>
                     <div>
-                      <h3 className="font-bold text-white text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                      <h3 className="font-cyber font-bold text-white text-sm">
                         {course.title}
                       </h3>
-                      <p className="text-xs text-white/40 mt-1">{course.lessons} lecciones · {course.level}</p>
+                      <p className="font-code text-[10px] text-white/40 mt-1">{course.lessons} lecciones · {course.level}</p>
                     </div>
                   </div>
-                  <p className="text-sm text-white/55 leading-relaxed">{course.desc}</p>
+                  <p className="font-code text-[11px] text-white/55 leading-relaxed">{course.desc}</p>
                   <div className="mt-4 flex items-center gap-2">
-                    <span className="text-xs px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-white/40">Próximamente</span>
+                    <span className="font-code text-[10px] px-2.5 py-1 bg-[#080812] border border-white/8 text-white/40">Próximamente</span>
                   </div>
                 </motion.div>
               );
@@ -151,20 +149,20 @@ export default function Cursos() {
       </section>
 
       {/* Stats */}
-      <section className="py-16 border-y border-white/6">
+      <section className="py-16 border-y border-[#FF2D78]/10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-3 gap-8 text-center">
             <div>
-              <p className="text-3xl sm:text-4xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>6</p>
-              <p className="text-sm text-white/50 mt-1">Cursos planeados</p>
+              <p className="font-cyber text-3xl sm:text-4xl font-bold text-[#FF2D78]">6</p>
+              <p className="font-code text-[10px] text-white/50 mt-1">Cursos planeados</p>
             </div>
             <div>
-              <p className="text-3xl sm:text-4xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>58</p>
-              <p className="text-sm text-white/50 mt-1">Lecciones totales</p>
+              <p className="font-cyber text-3xl sm:text-4xl font-bold text-[#00F2FE]">58</p>
+              <p className="font-code text-[10px] text-white/50 mt-1">Lecciones totales</p>
             </div>
             <div>
-              <p className="text-3xl sm:text-4xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3</p>
-              <p className="text-sm text-white/50 mt-1">Niveles de dificultad</p>
+              <p className="font-cyber text-3xl sm:text-4xl font-bold text-[#9d4edd]">3</p>
+              <p className="font-code text-[10px] text-white/50 mt-1">Niveles de dificultad</p>
             </div>
           </div>
         </div>
