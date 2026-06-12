@@ -84,6 +84,7 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
   );
 }
 
+// Lightweight fade-up variants (only triggers once via whileInView)
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
@@ -92,8 +93,10 @@ const fadeUp = {
   }),
 };
 
-const FALLBACK_STATS = { downloads: 12500, visits: 50000 };
+// Fallback stat values (used while API loads or if it fails)
+const FALLBACK_STATS = { downloads: 15000, visits: 50000 };
 
+// Compact number formatter for hero mini-stats
 const compact = (n: number) => {
   if (n >= 1000) {
     const k = n / 1000;
@@ -107,6 +110,7 @@ export default function Home() {
   const isEs = locale === 'es';
   const newsItems = isEs ? newsItemsEs : newsItemsEn;
 
+  // Fetch live stats from API (visits & downloads) and refresh every 60 seconds
   const [liveStats, setLiveStats] = useState<{ downloads: number; visits: number } | null>(null);
 
   useEffect(() => {
@@ -118,14 +122,18 @@ export default function Home() {
             setLiveStats({ downloads: data.downloads, visits: data.visits });
           }
         })
-        .catch(() => {});
+        .catch(() => {}); // silently fail — fallback values will be used
     };
 
+    // Initial fetch
     fetchStats();
+
+    // Refresh every 60 seconds to keep stats near real-time
     const interval = setInterval(fetchStats, 60000);
     return () => clearInterval(interval);
   }, []);
 
+  // Use live data if available, otherwise fallback
   const stats = liveStats || FALLBACK_STATS;
 
   return (
@@ -134,9 +142,9 @@ export default function Home() {
       <BackgroundParticles />
 
       {/* ═══════════════════════════════════════════════════════════
-          1. HERO — Ajustado para prevenir cortes de línea negra
+          1. HERO — The Encoders Club + Botón Unirse
       ═══════════════════════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden bg-[#080812] border-b-4 border-[#FF2D78]">
+      <section className="clip-diagonal relative min-h-screen flex items-center pt-16 overflow-hidden bg-[#080812] border-b-4 border-[#FF2D78]">
         <div className="absolute inset-0 z-0">
           <img src={BG_URL} alt="" className="w-full h-full object-cover opacity-15 filter grayscale contrast-200 scale-110" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#030308]/60 via-transparent to-[#030308]" />
@@ -146,14 +154,14 @@ export default function Home() {
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#00F2FE]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 min-h-[75vh]">
-            <div class="flex flex-col justify-center w-full max-w-2xl">
+          <div className="flex items-center justify-center min-h-[80vh]">
+            <div className="flex flex-col justify-center w-full max-w-2xl">
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.05 }}
               >
-                <span class="inline-block bg-[#FF2D78] text-black font-cyber font-extrabold text-xs uppercase tracking-wider px-4 py-1.5 transform -rotate-2 mb-6">
+                <span className="inline-block bg-[#FF2D78] text-black font-cyber font-extrabold text-xs uppercase tracking-wider px-4 py-1.5 transform -rotate-2 mb-6">
                   {isEs ? 'Comunidad de Novelas Visuales' : 'Visual Novel Community'}
                 </span>
               </motion.div>
@@ -191,67 +199,65 @@ export default function Home() {
                   {t('home.seeProjects')} <BookOpen size={18} />
                 </Link>
               </motion.div>
-              
-              {/* Contadores del Hero protegidos de máscaras o recortes negros */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex items-center gap-6 mt-10 pt-8 border-t border-[#FF2D78]/15 relative z-20"
+                className="flex items-center gap-6 mt-10 pt-8 border-t border-[#FF2D78]/15"
               >
-                <div class="text-center">
-                  <p class="font-cyber text-2xl font-bold text-[#FF2D78]">3+</p>
-                  <p class="font-code text-[10px] text-white/45">{isEs ? 'Novelas Visuales' : 'Visual Novels'}</p>
+                <div className="text-center">
+                  <p className="font-cyber text-2xl font-bold text-[#FF2D78]">3+</p>
+                  <p className="font-code text-[10px] text-white/45">{isEs ? 'Novelas Visuales' : 'Visual Novels'}</p>
                 </div>
-                <div class="w-px h-10 bg-[#FF2D78]/20" />
-                <div class="text-center">
-                  <p class="font-cyber text-2xl font-bold text-[#00F2FE]">{compact(stats.downloads)}+</p>
-                  <p class="font-code text-[10px] text-white/45">{isEs ? 'Descargas' : 'Downloads'}</p>
+                <div className="w-px h-10 bg-[#FF2D78]/20" />
+                <div className="text-center">
+                  <p className="font-cyber text-2xl font-bold text-[#00F2FE]">{compact(stats.downloads)}+</p>
+                  <p className="font-code text-[10px] text-white/45">{isEs ? 'Descargas' : 'Downloads'}</p>
                 </div>
-                <div class="w-px h-10 bg-[#FF2D78]/20" />
-                <div class="text-center">
-                  <p class="font-cyber text-2xl font-bold text-[#9d4edd]">7+</p>
-                  <p class="font-code text-[10px] text-white/45">{isEs ? 'Colaboradores' : 'Collaborators'}</p>
+                <div className="w-px h-10 bg-[#FF2D78]/20" />
+                <div className="text-center">
+                  <p className="font-cyber text-2xl font-bold text-[#9d4edd]">7+</p>
+                  <p className="font-code text-[10px] text-white/45">{isEs ? 'Colaboradores' : 'Collaborators'}</p>
                 </div>
               </motion.div>
             </div>
 
-            {/* HUD Panel - Right Side */}
-            <div class="hidden lg:flex flex-col items-end justify-center ml-12">
-              <div class="clip-card neon-border-magenta p-6 w-64 bg-[#0e0e1f]/90 relative z-20">
-                <h4 class="font-cyber text-xs font-bold uppercase tracking-widest text-[#FF2D78] mb-4">{'// '}SYSTEM_STATUS</h4>
-                <div class="space-y-3">
+            {/* HUD Panel - desktop only */}
+            <div className="hidden lg:flex flex-col items-end justify-center ml-12">
+              <div className="clip-card neon-border-magenta p-6 w-64">
+                <h4 className="font-cyber text-xs font-bold uppercase tracking-widest text-[#FF2D78] mb-4">{'// '}SYSTEM_STATUS</h4>
+                <div className="space-y-3">
                   <div>
-                    <div class="flex justify-between mb-1">
-                      <span class="font-code text-[10px] text-neutral-500">PROJECTS</span>
-                      <span class="font-code text-[10px] text-[#00F2FE]">3/5</span>
+                    <div className="flex justify-between mb-1">
+                      <span className="font-code text-[10px] text-neutral-500">PROJECTS</span>
+                      <span className="font-code text-[10px] text-[#00F2FE]">3/5</span>
                     </div>
-                    <div class="w-full h-1.5 bg-[#080812] rounded-full overflow-hidden">
-                      <div class="h-full bg-gradient-to-r from-[#FF2D78] to-[#00F2FE]" style={{ width: '60%' }} />
+                    <div className="w-full h-1.5 bg-[#080812] rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#FF2D78] to-[#00F2FE]" style={{ width: '60%' }} />
                     </div>
                   </div>
                   <div>
-                    <div class="flex justify-between mb-1">
-                      <span class="font-code text-[10px] text-neutral-500">TRANSLATIONS</span>
-                      <span class="font-code text-[10px] text-[#9d4edd]">85%</span>
+                    <div className="flex justify-between mb-1">
+                      <span className="font-code text-[10px] text-neutral-500">TRANSLATIONS</span>
+                      <span className="font-code text-[10px] text-[#9d4edd]">85%</span>
                     </div>
-                    <div class="w-full h-1.5 bg-[#080812] rounded-full overflow-hidden">
-                      <div class="h-full bg-gradient-to-r from-[#9d4edd] to-[#FF2D78]" style={{ width: '85%' }} />
+                    <div className="w-full h-1.5 bg-[#080812] rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-[#9d4edd] to-[#FF2D78]" style={{ width: '85%' }} />
                     </div>
                   </div>
                   <div>
-                    <div class="flex justify-between mb-1">
-                      <span class="font-code text-[10px] text-neutral-500">COMMUNITY</span>
-                      <span class="font-code text-[10px] text-[#22c55e]">ACTIVE</span>
+                    <div className="flex justify-between mb-1">
+                      <span className="font-code text-[10px] text-neutral-500">COMMUNITY</span>
+                      <span className="font-code text-[10px] text-[#22c55e]">ACTIVE</span>
                     </div>
-                    <div class="w-full h-1.5 bg-[#080812] rounded-full overflow-hidden">
-                      <div class="h-full bg-[#22c55e]" style={{ width: '100%' }} />
+                    <div className="w-full h-1.5 bg-[#080812] rounded-full overflow-hidden">
+                      <div className="h-full bg-[#22c55e]" style={{ width: '100%' }} />
                     </div>
                   </div>
                 </div>
-                <div class="mt-4 pt-3 border-t border-[#FF2D78]/20 flex items-center justify-between">
-                  <span class="font-code text-[9px] text-neutral-600">UPTIME</span>
-                  <span class="font-code text-[9px] text-[#00F2FE]">99.9%</span>
+                <div className="mt-4 pt-3 border-t border-[#FF2D78]/20 flex items-center justify-between">
+                  <span className="font-code text-[9px] text-neutral-600">UPTIME</span>
+                  <span className="font-code text-[9px] text-[#00F2FE]">99.9%</span>
                 </div>
               </div>
             </div>
@@ -260,14 +266,15 @@ export default function Home() {
 
         {/* Scroll indicator */}
         <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 z-20"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
           style={{ animation: 'scrollBounce 2s ease-in-out infinite' }}
         >
-          <span class="font-code text-[10px] uppercase">Scroll</span>
-          <div class="w-px h-8 bg-gradient-to-b from-[#00F2FE]/50 to-transparent" />
+          <span className="font-code text-[10px] uppercase">Scroll</span>
+          <div className="w-px h-8 bg-gradient-to-b from-[#00F2FE]/50 to-transparent" />
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
@@ -282,7 +289,7 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="text-center"
           >
-            <span class="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}{t('home.about.tag')}</span>
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}{t('home.about.tag')}</span>
             <h2 className="section-title text-white mb-5">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
             <p className="text-white/65 leading-relaxed mb-5">
               {t('home.about.text1')}
@@ -290,7 +297,7 @@ export default function Home() {
             <p className="text-white/65 leading-relaxed mb-8">
               {t('home.about.text2')}
             </p>
-            <div class="flex flex-wrap gap-3 justify-center">
+            <div className="flex flex-wrap gap-3 justify-center">
               <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
                 {t('home.seeCourses')} <ChevronRight size={16} />
               </Link>
@@ -302,15 +309,16 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          3. INTEGRANTES DEL EQUIPO — Fotos 100% a color por defecto
+          3. EQUIPO
       ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <span class="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}{t('home.team.tag')}</span>
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}{t('home.team.tag')}</span>
             <h2 className="section-title text-white">{t('home.team.title')} <span className="brand-gradient-text">{t('home.team.accent')}</span></h2>
           </div>
           <div className="space-y-3">
@@ -325,22 +333,23 @@ export default function Home() {
                 className="clip-card bg-[#0b0b16] border border-white/8 flex items-center gap-5 p-4 sm:p-5 group transition-all duration-300 hover:border-[#00F2FE]/30"
                 style={{ borderLeftWidth: '4px', borderLeftColor: member.color }}
               >
-                {/* Contenedor de imagen: se eliminó la clase grayscale */}
-                <div class="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center relative overflow-hidden flex-shrink-0 rounded-xl border border-white/5">
-                  <img src={member.image} alt={member.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                <div
+                  className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center relative overflow-hidden flex-shrink-0"
+                >
+                  <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" loading="lazy" />
                 </div>
-                <div class="flex-1 min-w-0">
-                  <h3 class="font-cyber font-bold text-sm lg:text-base" style={{ color: member.color }}>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-cyber font-bold text-sm lg:text-base" style={{ color: member.color }}>
                     {member.name}
                   </h3>
-                  <div class="flex flex-wrap gap-2 mt-1">
+                  <div className="flex flex-wrap gap-2 mt-1">
                     {member.cargo.map((role, idx) => (
-                      <span key={idx} className="font-code text-[10px] text-white/44 px-2 py-0.5 bg-white/5 border border-white/8">{role}</span>
+                      <span key={idx} className="font-code text-[10px] text-white/40 px-2 py-0.5 bg-white/5 border border-white/8">{role}</span>
                     ))}
                   </div>
                 </div>
-                <div class="hidden sm:flex items-center gap-2 text-white/20 group-hover:text-[#00F2FE]/50 transition-colors">
-                  <span class="font-code text-[10px]">◆</span>
+                <div className="hidden sm:flex items-center gap-2 text-white/20 group-hover:text-[#00F2FE]/50 transition-colors">
+                  <span className="font-code text-[10px]">◆</span>
                 </div>
               </motion.div>
             ))}
@@ -348,17 +357,19 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          4. NOTICIAS
+          4. NOTICIAS — Carrusel horizontal
       ═══════════════════════════════════════════════════════════ */}
       <NewsCarousel newsItems={newsItems} t={t} isEs={isEs} />
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          5. ESTADÍSTICAS SECCIÓN INFERIOR
+          5. ESTADÍSTICAS
       ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20 bg-[#05050d]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -371,6 +382,7 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
@@ -379,10 +391,10 @@ export default function Home() {
       <section className="py-14 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
-            <span class="font-cyber font-bold text-sm tracking-widest text-[#22c55e] mb-3 block">{'// '}{isEs ? 'Extras' : 'Extras'}</span>
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#22c55e] mb-3 block">{'// '}{isEs ? 'Extras' : 'Extras'}</span>
             <h2 className="section-title text-white">{isEs ? 'Más que proyectos' : 'More than projects'} <span className="brand-gradient-text">{isEs ? 'una comunidad' : 'a community'}</span></h2>
           </div>
-          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -390,11 +402,11 @@ export default function Home() {
               transition={{ duration: 0.5 }}
               className="clip-card bg-[#0e0e1f] border border-white/10 p-6 group hover:border-[#FF2D78]/30 transition-all duration-300"
             >
-              <div class="w-12 h-12 flex items-center justify-center mb-4 bg-[#FF2D78]/15 border border-[#FF2D78]/30">
+              <div className="w-12 h-12 flex items-center justify-center mb-4 bg-[#FF2D78]/15 border border-[#FF2D78]/30">
                 <Zap size={24} className="text-[#FF2D78]" />
               </div>
-              <h3 class="font-cyber font-bold text-white mb-2">{isEs ? 'Traducciones' : 'Translations'}</h3>
-              <p class="text-white/55 text-sm leading-relaxed">{isEs ? 'Localizamos novelas visuales al español con la máxima calidad, manteniendo la esencia y el tono original de cada obra.' : 'We localize visual novels into Spanish with the highest quality, preserving the essence and original tone of each work.'}</p>
+              <h3 className="font-cyber font-bold text-white mb-2">{isEs ? 'Traducciones' : 'Translations'}</h3>
+              <p className="text-white/55 text-sm leading-relaxed">{isEs ? 'Localizamos novelas visuales al español con la máxima calidad, manteniendo la esencia y el tono original de cada obra.' : 'We localize visual novels into Spanish with the highest quality, preserving the essence and original tone of each work.'}</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -403,11 +415,11 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.1 }}
               className="clip-card bg-[#0e0e1f] border border-white/10 p-6 group hover:border-[#00F2FE]/30 transition-all duration-300"
             >
-              <div class="w-12 h-12 flex items-center justify-center mb-4 bg-[#00F2FE]/15 border border-[#00F2FE]/30">
+              <div className="w-12 h-12 flex items-center justify-center mb-4 bg-[#00F2FE]/15 border border-[#00F2FE]/30">
                 <Heart size={24} className="text-[#00F2FE]" />
               </div>
-              <h3 class="font-cyber font-bold text-white mb-2">{isEs ? 'Código Abierto' : 'Open Source'}</h3>
-              <p class="text-white/55 text-sm leading-relaxed">{isEs ? 'Todos nuestros proyectos son de código abierto. Puedes contribuir, aprender y formar parte del desarrollo activamente.' : 'All our projects are open source. You can contribute, learn, and actively be part of the development.'}</p>
+              <h3 className="font-cyber font-bold text-white mb-2">{isEs ? 'Código Abierto' : 'Open Source'}</h3>
+              <p className="text-white/55 text-sm leading-relaxed">{isEs ? 'Todos nuestros proyectos son de código abierto. Puedes contribuir, aprender y formar parte del desarrollo activamente.' : 'All our projects are open source. You can contribute, learn, and actively be part of the development.'}</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -416,18 +428,18 @@ export default function Home() {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="clip-card bg-[#0e0e1f] border border-white/10 p-6 group hover:border-[#9d4edd]/30 transition-all duration-300"
             >
-              <div class="w-12 h-12 flex items-center justify-center mb-4 bg-[#9d4edd]/15 border border-[#9d4edd]/30">
+              <div className="w-12 h-12 flex items-center justify-center mb-4 bg-[#9d4edd]/15 border border-[#9d4edd]/30">
                 <Globe size={24} className="text-[#9d4edd]" />
               </div>
-              <h3 class="font-cyber font-bold text-white mb-2">{isEs ? 'Comunidad Global' : 'Global Community'}</h3>
-              <p class="text-white/55 text-sm leading-relaxed">{isEs ? 'Colaboramos con personas de todo el mundo. Sin importar tu nivel de experiencia, hay un lugar para ti aquí.' : 'We collaborate with people from all over the world. Regardless of your experience level, there is a place for you here.'}</p>
+              <h3 className="font-cyber font-bold text-white mb-2">{isEs ? 'Comunidad Global' : 'Global Community'}</h3>
+              <p className="text-white/55 text-sm leading-relaxed">{isEs ? 'Colaboramos con personas de todo el mundo. Sin importar tu nivel de experiencia, hay un lugar para ti aquí.' : 'We collaborate with people from all over the world. Regardless of your experience level, there is a place for you here.'}</p>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          7. CALL TO ACTION (Discord)
+          7. INFORMACIÓN SECUNDARIA (CTA Discord)
       ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -438,18 +450,18 @@ export default function Home() {
             transition={{ duration: 0.5 }}
             className="clip-card bg-black border border-[#FF2D78]/20 p-10 lg:p-16 relative overflow-hidden"
           >
-            <div class="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <div class="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
-            <div class="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#00F2FE]/8 blur-3xl pointer-events-none" />
-            <div class="relative z-10">
-              <span class="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-4 block">{'// '}{t('home.cta.tag')}</span>
-              <h2 class="font-cyber text-3xl lg:text-4xl font-bold text-white mb-4 uppercase">
+            <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
+            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#00F2FE]/8 blur-3xl pointer-events-none" />
+            <div className="relative z-10">
+              <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-4 block">{'// '}{t('home.cta.tag')}</span>
+              <h2 className="font-cyber text-3xl lg:text-4xl font-bold text-white mb-4 uppercase">
                 {t('home.cta.title')} <span className="brand-gradient-text">{t('home.cta.accent')}</span>
               </h2>
-              <p class="text-white/60 mb-8 max-w-xl mx-auto leading-relaxed">
+              <p className="text-white/60 mb-8 max-w-xl mx-auto leading-relaxed">
                 {t('home.cta.text')}
               </p>
-              <div class="flex flex-wrap gap-4 justify-center">
+              <div className="flex flex-wrap gap-4 justify-center">
                 <a
                   href="https://discord.gg/2DB5k7sb8"
                   target="_blank"
@@ -472,7 +484,7 @@ export default function Home() {
   );
 }
 
-/* Carrusel Horizontal de Noticias */
+/* ─── News Carousel Component (horizontal scroll) ─── */
 function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t: ReturnType<typeof useI18n>['t']; isEs: boolean }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -487,14 +499,14 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <div>
-            <span class="font-cyber font-bold text-sm tracking-widest text-[#00F2FE] mb-3 block">{'// '}{t('home.news.tag')}</span>
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#00F2FE] mb-3 block">{'// '}{t('home.news.tag')}</span>
             <h2 className="section-title text-white">{t('home.news.title')} <span className="brand-gradient-text">{t('home.news.accent')}</span></h2>
           </div>
-          <div class="flex items-center gap-3">
-            <button onClick={() => scroll('left')} class="w-9 h-9 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
+          <div className="flex items-center gap-3">
+            <button onClick={() => scroll('left')} className="w-9 h-9 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
               <ChevronLeft size={18} />
             </button>
-            <button onClick={() => scroll('right')} class="w-9 h-9 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
+            <button onClick={() => scroll('right')} className="w-9 h-9 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
               <ChevronRight size={18} />
             </button>
             <Link href="/noticias" className="btn-outline text-sm px-5 py-2.5 whitespace-nowrap ml-2">
@@ -502,8 +514,8 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
             </Link>
           </div>
         </div>
-        <div class="relative group/carousel">
-          <div ref={scrollRef} class="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
+        <div className="relative group/carousel">
+          <div ref={scrollRef} className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
             {newsItems.map((item, i) => (
               <motion.article
                 key={item.id}
@@ -515,9 +527,9 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                 className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group flex-shrink-0 snap-start hover:border-[#00F2FE]/30 transition-all duration-300"
                 style={{ width: 'calc(33.333% - 14px)', minWidth: 280 }}
               >
-                <div class="relative overflow-hidden h-40">
-                  <img src={item.image} alt={item.title} class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
-                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                <div className="relative overflow-hidden h-40">
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <span
                     className="absolute top-3 left-3 text-xs font-cyber font-bold px-2.5 py-1 bg-[#080812] border border-white/10"
                     style={{ color: item.tagColor }}
@@ -525,13 +537,13 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                     {item.tag}
                   </span>
                 </div>
-                <div class="p-4">
-                  <p class="font-code text-[10px] text-white/40 mb-2">{item.date}</p>
-                  <h3 class="font-cyber font-bold text-white text-sm mb-2 leading-snug line-clamp-2">
-                    {item.title
+                <div className="p-4">
+                  <p className="font-code text-[10px] text-white/40 mb-2">{item.date}</p>
+                  <h3 className="font-cyber font-bold text-white text-sm mb-2 leading-snug line-clamp-2">
+                    {item.title}
                   </h3>
-                  <p class="font-code text-[11px] text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
-                  <span class="font-code text-[10px] text-[#FF2D78] font-bold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
+                  <p className="font-code text-[11px] text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
+                  <span className="font-code text-[10px] text-[#FF2D78] font-bold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
                     {t('common.readMore')} <ChevronRight size={13} />
                   </span>
                 </div>
