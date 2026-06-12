@@ -27,7 +27,7 @@ const tiers = [
     name: 'Fan',
     price: 5,
     icon: Star,
-    color: '#4D9FFF',
+    color: '#00F2FE',
     description: 'Muestra tu dedicación como fan.',
     perks: [
       'Todos los beneficios de Café',
@@ -35,8 +35,8 @@ const tiers = [
       'Participa en votaciones de proyectos',
       'Badge especial de Fan en Discord',
     ],
-    gradient: 'from-[#4D9FFF]/20 to-[#4D9FFF]/5',
-    borderColor: '#4D9FFF40',
+    gradient: 'from-[#00F2FE]/20 to-[#00F2FE]/5',
+    borderColor: '#00F2FE40',
     buttonText: 'Donar $5',
     popular: true,
   },
@@ -44,7 +44,7 @@ const tiers = [
     name: 'Patrocinador',
     price: 10,
     icon: Crown,
-    color: '#a855f7',
+    color: '#9d4edd',
     description: 'Conviértete en patrocinador oficial.',
     perks: [
       'Todos los beneficios de Fan',
@@ -53,8 +53,8 @@ const tiers = [
       'Rol de Patrocinador en Discord',
       'Acceso al canal VIP',
     ],
-    gradient: 'from-[#a855f7]/20 to-[#a855f7]/5',
-    borderColor: '#a855f740',
+    gradient: 'from-[#9d4edd]/20 to-[#9d4edd]/5',
+    borderColor: '#9d4edd40',
     buttonText: 'Donar $10',
   },
 ];
@@ -88,8 +88,8 @@ const faqItems = [
 
 const impactStats = [
   { icon: Zap, label: 'Servidores mantenidos', value: '12+', color: '#FF2D78' },
-  { icon: Gift, label: 'Premios financiados', value: '6', color: '#4D9FFF' },
-  { icon: Users, label: 'Donantes activos', value: '50+', color: '#a855f7' },
+  { icon: Gift, label: 'Premios financiados', value: '6', color: '#00F2FE' },
+  { icon: Users, label: 'Donantes activos', value: '50+', color: '#9d4edd' },
   { icon: Shield, label: 'Proyectos impulsados', value: '3', color: '#22c55e' },
 ];
 
@@ -111,30 +111,30 @@ export default function Donar() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080818] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#030308] text-white overflow-x-hidden">
       <Navbar />
       <BackgroundParticles />
 
       {/* Hero */}
       <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-16">
         <div className="absolute top-0 left-1/3 w-64 h-64 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
-        <div className="absolute top-20 right-1/4 w-48 h-48 rounded-full bg-[#a855f7]/8 blur-3xl pointer-events-none" />
+        <div className="absolute top-20 right-1/4 w-48 h-48 rounded-full bg-[#9d4edd]/8 blur-3xl pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="text-center max-w-3xl mx-auto">
             <motion.div
               animate={{ scale: [1, 1.1, 1] }}
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-              className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6"
+              className="inline-flex items-center justify-center w-16 h-16 bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6"
             >
               <Heart size={28} className="text-[#FF2D78]" />
             </motion.div>
-            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h1 className="font-cyber text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 uppercase">
               Apoya a{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2D78] to-[#a855f7]">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2D78] to-[#9d4edd]">
                 The Encoders Club
               </span>
             </h1>
-            <p className="text-white/60 text-base sm:text-lg max-w-xl mx-auto leading-relaxed">
+            <p className="font-code text-sm text-white/60 max-w-xl mx-auto leading-relaxed">
               Tu ayuda nos permite seguir creando novelas visuales, tutoriales y contenido para la comunidad hispanohablante. Cada contribución cuenta.
             </p>
           </motion.div>
@@ -153,13 +153,13 @@ export default function Donar() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: i * 0.1 }}
-                  className="glass-card p-5 text-center"
+                  className="clip-card bg-[#0e0e1f] border border-white/10 p-5 text-center"
                 >
                   <Icon size={22} style={{ color: stat.color }} className="mx-auto mb-2" />
-                  <p className="text-xl sm:text-2xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif", color: stat.color }}>
+                  <p className="font-cyber text-xl sm:text-2xl font-bold" style={{ color: stat.color }}>
                     {stat.value}
                   </p>
-                  <p className="text-xs text-white/50 mt-1">{stat.label}</p>
+                  <p className="font-code text-[10px] text-white/50 mt-1">{stat.label}</p>
                 </motion.div>
               );
             })}
@@ -168,12 +168,12 @@ export default function Donar() {
       </section>
 
       {/* Donation Tiers */}
-      <section className="py-16 lg:py-24 bg-[#06060f]">
+      <section className="py-16 lg:py-24 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
-            <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">Elige tu nivel</span>
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}Elige tu nivel</span>
             <h2 className="section-title text-white">Niveles de <span className="brand-gradient-text">Apoyo</span></h2>
-            <p className="text-white/50 mt-4 max-w-lg mx-auto text-sm">
+            <p className="font-code text-sm text-white/50 mt-4 max-w-lg mx-auto">
               Cada nivel incluye beneficios exclusivos. Elige el que mejor se adapte a tu capacidad.
             </p>
           </div>
@@ -187,40 +187,40 @@ export default function Donar() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.5, delay: i * 0.15 }}
-                  className={`relative glass-card overflow-hidden group ${tier.popular ? 'ring-1 ring-[#4D9FFF]/40' : ''}`}
+                  className={`relative clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group transition-all duration-300 ${tier.popular ? 'neon-border-cyan' : ''}`}
                 >
                   {tier.popular && (
-                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#4D9FFF] to-[#a855f7]" />
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#00F2FE] to-[#9d4edd]" />
                   )}
                   {tier.popular && (
-                    <span className="absolute top-4 right-4 text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#4D9FFF]/20 border border-[#4D9FFF]/40 text-[#4D9FFF] uppercase tracking-wider">
+                    <span className="absolute top-4 right-4 font-cyber font-bold text-[10px] px-2.5 py-1 bg-[#00F2FE]/20 border border-[#00F2FE]/40 text-[#00F2FE] uppercase tracking-wider">
                       Popular
                     </span>
                   )}
                   <div className="p-6 sm:p-8">
                     <div className="flex items-center gap-3 mb-4">
                       <div
-                        className="w-12 h-12 rounded-xl flex items-center justify-center"
+                        className="w-12 h-12 flex items-center justify-center"
                         style={{ background: `${tier.color}15`, border: `1px solid ${tier.color}30` }}
                       >
                         <Icon size={22} style={{ color: tier.color }} />
                       </div>
                       <div>
-                        <h3 className="font-bold text-white text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                        <h3 className="font-cyber font-bold text-white text-lg">
                           {tier.name}
                         </h3>
-                        <p className="text-xs text-white/40">{tier.description}</p>
+                        <p className="font-code text-[10px] text-white/40">{tier.description}</p>
                       </div>
                     </div>
                     <div className="mb-6">
-                      <span className="text-3xl font-bold" style={{ fontFamily: "'Space Grotesk', sans-serif", color: tier.color }}>
+                      <span className="font-cyber text-3xl font-bold" style={{ color: tier.color }}>
                         ${tier.price}
                       </span>
-                      <span className="text-white/40 text-sm"> / donación</span>
+                      <span className="font-code text-[11px] text-white/40"> / donación</span>
                     </div>
                     <ul className="space-y-3 mb-8">
                       {tier.perks.map((perk, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm text-white/65">
+                        <li key={idx} className="flex items-start gap-2 font-code text-[11px] text-white/65">
                           <Check size={14} className="mt-0.5 flex-shrink-0" style={{ color: tier.color }} />
                           {perk}
                         </li>
@@ -228,9 +228,9 @@ export default function Donar() {
                     </ul>
                     <button
                       onClick={() => handleDonate(tier.price)}
-                      className={`w-full py-3 rounded-xl font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] ${
+                      className={`w-full py-3 font-cyber font-bold text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-[0.98] clip-btn ${
                         tier.popular
-                          ? 'bg-gradient-to-r from-[#4D9FFF] to-[#a855f7] text-white shadow-lg shadow-[#4D9FFF]/20'
+                          ? 'bg-gradient-to-r from-[#00F2FE] to-[#9d4edd] text-black shadow-lg shadow-[#00F2FE]/20'
                           : 'bg-white/5 border border-white/10 text-white hover:bg-white/10'
                       }`}
                     >
@@ -253,19 +253,19 @@ export default function Donar() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="glass-card p-8 text-center relative overflow-hidden"
+            className="clip-card bg-[#0e0e1f] border border-white/10 p-8 text-center relative overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
             <Heart size={28} className="text-[#FF2D78] mx-auto mb-4" />
-            <h3 className="text-xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h3 className="font-cyber text-xl font-bold text-white mb-2">
               Cantidad Personalizada
             </h3>
-            <p className="text-white/50 text-sm mb-6">
+            <p className="font-code text-sm text-white/50 mb-6">
               ¿Quieres donar una cantidad diferente? Ingresa el monto que desees.
             </p>
             <div className="flex gap-3 max-w-sm mx-auto">
               <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-bold">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-cyber font-bold">$</span>
                 <input
                   type="number"
                   value={customAmount}
@@ -273,7 +273,7 @@ export default function Donar() {
                   placeholder="10"
                   min="1"
                   step="1"
-                  className="w-full pl-8 pr-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-[#FF2D78]/50 focus:ring-1 focus:ring-[#FF2D78]/30 transition-all text-sm"
+                  className="w-full pl-8 pr-4 py-3 bg-[#080812] border border-white/10 text-white font-code text-sm placeholder:text-white/30 focus:outline-none focus:border-[#FF2D78]/50 focus:ring-1 focus:ring-[#FF2D78]/30 transition-all"
                 />
               </div>
               <button
@@ -284,16 +284,16 @@ export default function Donar() {
                 <ExternalLink size={14} /> Donar
               </button>
             </div>
-            <p className="text-xs text-white/30 mt-4">Monto mínimo: $1 USD</p>
+            <p className="font-code text-[10px] text-white/30 mt-4">Monto mínimo: $1 USD</p>
           </motion.div>
         </div>
       </section>
 
       {/* FAQ */}
-      <section className="py-16 lg:py-24 bg-[#06060f]">
+      <section className="py-16 lg:py-24 bg-[#05050d]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">Preguntas frecuentes</span>
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}Preguntas frecuentes</span>
             <h2 className="section-title text-white">¿Tienes <span className="brand-gradient-text">Dudas?</span></h2>
           </div>
           <div className="space-y-3">
@@ -304,16 +304,17 @@ export default function Donar() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: i * 0.05 }}
-                className="glass-card overflow-hidden"
+                className="clip-card bg-[#0b0b16] border border-white/8 overflow-hidden"
+                style={{ borderLeftWidth: '3px', borderLeftColor: '#9d4edd' }}
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
                   className="w-full flex items-center justify-between p-5 text-left hover:bg-white/3 transition-colors"
                 >
-                  <span className="text-sm font-semibold text-white pr-4">{item.question}</span>
+                  <span className="font-code text-sm font-semibold text-white pr-4">{item.question}</span>
                   <ChevronDown
                     size={18}
-                    className={`text-white/40 flex-shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180 text-[#a855f7]' : ''}`}
+                    className={`text-white/40 flex-shrink-0 transition-transform duration-300 ${openFaq === i ? 'rotate-180 text-[#9d4edd]' : ''}`}
                   />
                 </button>
                 <div
@@ -321,7 +322,7 @@ export default function Donar() {
                     openFaq === i ? 'max-h-60 opacity-100' : 'max-h-0 opacity-0'
                   }`}
                 >
-                  <p className="px-5 pb-5 text-sm text-white/55 leading-relaxed">{item.answer}</p>
+                  <p className="px-5 pb-5 font-code text-[11px] text-white/55 leading-relaxed">{item.answer}</p>
                 </div>
               </motion.div>
             ))}
@@ -337,20 +338,20 @@ export default function Donar() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="glass-card-enhanced p-8 sm:p-12 text-center"
+            className="clip-card neon-border-magenta p-8 sm:p-12 text-center bg-[#0e0e1f]"
           >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <h3 className="text-2xl font-bold text-white mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+            <h3 className="font-cyber text-2xl font-bold text-white mb-3 uppercase">
               ¡Gracias por tu apoyo! 💜
             </h3>
-            <p className="text-white/55 mb-6 leading-relaxed">
+            <p className="font-code text-sm text-white/55 mb-6 leading-relaxed">
               Cada donación, por pequeña que sea, tiene un gran impacto en nuestra comunidad. Nos motiva a seguir creando y compartiendo contenido de calidad.
             </p>
             <a
               href={KOFI_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-[#FF5E5B] text-white font-bold text-sm uppercase tracking-wider hover:bg-[#ff7a77] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#FF5E5B]/20"
+              className="clip-btn inline-flex items-center gap-2 px-8 py-3.5 bg-[#FF5E5B] text-white font-cyber font-bold text-sm uppercase tracking-wider hover:bg-[#ff7a77] transition-all hover:scale-[1.02] active:scale-[0.98] shadow-lg shadow-[#FF5E5B]/20"
             >
               <ExternalLink size={16} /> Visitar Ko-fi
             </a>
