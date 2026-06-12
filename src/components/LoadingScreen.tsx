@@ -49,7 +49,7 @@ export function LoadingScreen() {
       id="loading-screen"
       style={{
         position: 'fixed', inset: 0, zIndex: 99999,
-        background: '#080818',
+        background: '#030308',
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         overflow: 'hidden',
         animation: 'loadingFadeOut 0.6s ease-out 2.5s forwards',
@@ -77,7 +77,7 @@ export function LoadingScreen() {
         {/* Glow */}
         <div style={{
           position: 'absolute', inset: -25,
-          background: 'radial-gradient(circle, rgba(255,45,120,0.15) 0%, rgba(77,159,255,0.08) 50%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(255,45,120,0.15) 0%, rgba(0,242,254,0.08) 50%, transparent 70%)',
           borderRadius: '50%', zIndex: 1,
           animation: 'nebula-fade 3s ease-in-out infinite',
         }} />
@@ -85,11 +85,11 @@ export function LoadingScreen() {
         {/* Single ring */}
         <div style={{
           position: 'absolute', inset: -15,
-          border: '1px solid rgba(77,159,255,0.12)',
+          border: '1px solid rgba(0,242,254,0.12)',
           borderRadius: '50%',
           animation: 'ring-rotate 10s linear infinite reverse', zIndex: 2,
         }}>
-          <div style={{ position: 'absolute', top: -3, left: '50%', width: 5, height: 5, borderRadius: '50%', background: '#4D9FFF' }} />
+          <div style={{ position: 'absolute', top: -3, left: '50%', width: 5, height: 5, borderRadius: '50%', background: '#00F2FE' }} />
         </div>
 
         {/* Logo — simple float instead of 3D rotation */}
@@ -108,7 +108,7 @@ export function LoadingScreen() {
       {/* Title */}
       <div style={{ marginTop: 30, textAlign: 'center', zIndex: 5, animation: 'fade-in-up 0.8s ease-out both' }}>
         <h1 style={{
-          color: 'white', fontFamily: "'Space Grotesk', sans-serif",
+          color: 'white', fontFamily: "'Oxanium', sans-serif",
           fontSize: 22, fontWeight: 'bold', letterSpacing: '0.25em',
           textTransform: 'uppercase', margin: 0,
         }}>
@@ -126,13 +126,13 @@ export function LoadingScreen() {
           <div style={{
             position: 'absolute', top: 0, left: 0, height: '100%',
             width: `${progress}%`,
-            background: 'linear-gradient(90deg, #FF2D78, #a855f7, #4D9FFF)',
+            background: 'linear-gradient(90deg, #FF2D78, #9d4edd, #00F2FE)',
             borderRadius: 10,
             boxShadow: '0 0 15px rgba(255, 45, 120, 0.6)',
             transition: 'width 0.3s ease',
           }} />
         </div>
-        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 8, fontFamily: "'Space Grotesk', sans-serif" }}>
+        <p style={{ color: 'rgba(255,255,255,0.4)', fontSize: 11, marginTop: 8, fontFamily: "'JetBrains Mono', monospace" }}>
           {progress < 30 ? t('loading.resources') : progress < 70 ? t('loading.preparing') : t('loading.almostReady')}
         </p>
       </div>
