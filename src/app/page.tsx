@@ -264,9 +264,9 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Scroll indicator */}
+        {/* ── FIX 1: Scroll indicator oculto en móvil (hidden sm:flex) ── */}
         <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 text-white/30"
           style={{ animation: 'scrollBounce 2s ease-in-out infinite' }}
         >
           <span className="font-code text-[10px] uppercase">Scroll</span>
@@ -333,10 +333,14 @@ export default function Home() {
                 className="clip-card bg-[#0b0b16] border border-white/8 flex items-center gap-5 p-4 sm:p-5 group transition-all duration-300 hover:border-[#00F2FE]/30"
                 style={{ borderLeftWidth: '4px', borderLeftColor: member.color }}
               >
-                <div
-                  className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center relative overflow-hidden flex-shrink-0"
-                >
-                  <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" loading="lazy" />
+                <div className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center relative overflow-hidden flex-shrink-0">
+                  {/* ── FIX 2: Sin grayscale — fotos siempre en color ── */}
+                  <img
+                    src={member.image}
+                    alt={member.name}
+                    className="w-full h-full object-cover transition-all duration-500"
+                    loading="lazy"
+                  />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-cyber font-bold text-sm lg:text-base" style={{ color: member.color }}>
