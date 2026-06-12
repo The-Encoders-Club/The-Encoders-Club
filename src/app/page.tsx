@@ -7,7 +7,7 @@ import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, ChevronRight, Che
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundParticles from "@/components/BackgroundParticles";
-import { useLocale } from "@/hooks/useLocale";
+import { useI18n } from "@/hooks/useLocale";
 
 const BG_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/hero_bg-nZF9vsy8Qjc3eRVqRoEgy7.webp";
 
@@ -67,8 +67,7 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
   return (
     <div
       ref={ref}
-      className="bg-[#0e0e1f] border border-white/10 p-5 sm:p-6 flex flex-col items-center text-center group transition-all duration-300 relative overflow-hidden hover:border-[#00F2FE]/50 rounded-lg"
-      style={{ backgroundColor: '#0e0e1f' }}
+      className="clip-card bg-[#0e0e1f] border border-white/10 p-5 sm:p-6 flex flex-col items-center text-center group transition-all duration-300 relative overflow-hidden hover:border-[#00F2FE]/50"
     >
       {/* Colored top accent line */}
       <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
@@ -78,7 +77,7 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
         <Icon size={20} style={{ color }} />
       </div>
       <span className="font-cyber text-3xl sm:text-4xl font-bold mb-1.5 relative" style={{ color }}>{formatted}{suffix}</span>
-      <span className="font-code text-[11px] text-white/70 uppercase tracking-wider">{label}</span>
+      <span className="font-code text-[10px] text-white/45 uppercase tracking-wider">{label}</span>
       {/* Bottom gradient line */}
       <div className="absolute bottom-0 left-[10%] w-[80%] h-[1px] opacity-30" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
     </div>
@@ -107,7 +106,7 @@ const compact = (n: number) => {
 };
 
 export default function Home() {
-  const { t, locale } = useLocale();
+  const { t, locale } = useI18n();
   const isEs = locale === 'es';
   const newsItems = isEs ? newsItemsEs : newsItemsEn;
 
@@ -337,7 +336,7 @@ export default function Home() {
                 <div
                   className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center relative overflow-hidden flex-shrink-0"
                 >
-                  <img src={member.image} alt={member.name} className="w-full h-full object-cover transition-all duration-500" loading="lazy" />
+                  <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" loading="lazy" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-cyber font-bold text-sm lg:text-base" style={{ color: member.color }}>
@@ -482,5 +481,81 @@ export default function Home() {
 
       <Footer />
     </div>
+  );
+}
+
+/* ─── News Carousel Component (horizontal scroll) ─── */
+function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t: ReturnType<typeof useI18n>['t']; isEs: boolean }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const scroll = (dir: 'left' | 'right') => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -340 : 340, behavior: 'smooth' });
+    }
+  };
+
+  return (
+    <section className="py-14 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+          <div>
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#00F2FE] mb-3 block">{'// '}{t('home.news.tag')}</span>
+            <h2 className="section-title text-white">{t('home.news.title')} <span className="brand-gradient-text">{t('home.news.accent')}</span></h2>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={() => scroll('left')} className="w-9 h-9 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
+              <ChevronLeft size={18} />
+            </button>
+            <button onClick={() => scroll('right')} className="w-9 h-9 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
+              <ChevronRight size={18} />
+            </button>
+            <Link href="/noticias" className="btn-outline text-sm px-5 py-2.5 whitespace-nowrap ml-2">
+              {t('home.seeAll')} <ArrowRight size={15} />
+            </Link>
+          </div>
+        </div>
+        <div className="relative group/carousel">
+          <div ref={scrollRef} className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
+            {newsItems.map((item, i) => (
+              <motion.article
+                key={item.id}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group flex-shrink-0 snap-start hover:border-[#00F2FE]/30 transition-all duration-300"
+                style={{ width: 'calc(33.333% - 14px)', minWidth: 280 }}
+              >
+                <div className="relative overflow-hidden h-40">
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <span
+                    className="absolute top-3 left-3 text-xs font-cyber font-bold px-2.5 py-1 bg-[#080812] border border-white/10"
+                    style={{ color: item.tagColor }}
+                  >
+                    {item.tag}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <p className="font-code text-[10px] text-white/40 mb-2">{item.date}</p>
+                  <h3 className="font-cyber font-bold text-white text-sm mb-2 leading-snug line-clamp-2">
+                    {item.title}
+                  </h3>
+                  <p className="font-code text-[11px] text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
+                  <span className="font-code text-[10px] text-[#FF2D78] font-bold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
+                    {t('common.readMore')} <ChevronRight size={13} />
+                  </span>
+                </div>
+              </motion.article>
+            ))}
+          </div>
+        </div>
+      </div>
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+    </section>
   );
 }
