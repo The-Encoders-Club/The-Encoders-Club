@@ -36,7 +36,7 @@ interface UserProfile {
 export default function Perfil() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen bg-[#080818] flex items-center justify-center">
+      <div className="min-h-screen bg-[#030308] flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-2 border-[#FF2D78] border-t-transparent rounded-full" />
       </div>
     }>
@@ -213,7 +213,7 @@ function PerfilContent() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-[#080818] flex items-center justify-center">
+      <div className="min-h-screen bg-[#030308] flex items-center justify-center">
         <div className="animate-spin w-8 h-8 border-2 border-[#FF2D78] border-t-transparent rounded-full" />
       </div>
     );
@@ -222,7 +222,7 @@ function PerfilContent() {
   const roleColors: Record<string, string> = {
     owner: 'from-yellow-500/20 to-amber-600/20 text-yellow-300 border-yellow-500/30',
     admin: 'from-red-500/20 to-rose-600/20 text-red-300 border-red-500/30',
-    moderator: 'from-[#4D9FFF]/20 to-blue-600/20 text-[#4D9FFF] border-[#4D9FFF]/30',
+    moderator: 'from-[#00F2FE]/20 to-blue-600/20 text-[#00F2FE] border-[#00F2FE]/30',
     collaborator: 'from-green-500/20 to-emerald-600/20 text-green-300 border-green-500/30',
   };
   const roleLabels: Record<string, string> = {
@@ -265,7 +265,7 @@ function PerfilContent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#080818] text-white flex flex-col">
+    <div className="min-h-screen bg-[#030308] text-white flex flex-col">
       <Navbar />
       <main className="flex-1 pt-24 pb-20 px-4">
         <div className="max-w-5xl mx-auto">
@@ -281,11 +281,11 @@ function PerfilContent() {
               className="relative overflow-hidden rounded-2xl"
             >
               {/* Gradient background banner */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#FF2D78]/10 via-[#7C3AED]/10 to-[#4D9FFF]/10" />
+              <div className="absolute inset-0 bg-gradient-to-br from-[#FF2D78]/10 via-[#7C3AED]/10 to-[#00F2FE]/10" />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0d0d24] via-transparent to-transparent" />
               {/* Decorative circles */}
               <div className="absolute -top-20 -right-20 w-64 h-64 bg-[#FF2D78]/8 rounded-full blur-3xl" />
-              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#4D9FFF]/8 rounded-full blur-3xl" />
+              <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-[#00F2FE]/8 rounded-full blur-3xl" />
 
               <div className="relative p-6 sm:p-8 md:p-10">
                 <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8">
@@ -295,7 +295,7 @@ function PerfilContent() {
                     onClick={() => fileInputRef.current?.click()}
                   >
                     {/* Avatar glow ring */}
-                    <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] opacity-60 group-hover:opacity-100 blur-sm transition-opacity duration-500" />
+                    <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#FF2D78] via-[#9d4edd] to-[#00F2FE] opacity-60 group-hover:opacity-100 blur-sm transition-opacity duration-500" />
                     <div className="relative w-28 h-28 sm:w-32 sm:h-32 rounded-2xl overflow-hidden border-2 border-white/10 bg-[#0d0d24]">
                       {user.avatar ? (
                         <img
@@ -304,7 +304,7 @@ function PerfilContent() {
                           className="w-full h-full object-cover"
                         />
                       ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-[#FF2D78] to-[#a855f7] flex items-center justify-center">
+                        <div className="w-full h-full bg-gradient-to-br from-[#FF2D78] to-[#9d4edd] flex items-center justify-center">
                           <User size={48} className="text-white/80" />
                         </div>
                       )}
@@ -374,13 +374,13 @@ function PerfilContent() {
                       </span>
                       {memberDays > 0 && (
                         <span className="flex items-center gap-1.5">
-                          <Clock size={14} className="text-[#4D9FFF]/60" />
+                          <Clock size={14} className="text-[#00F2FE]/60" />
                           {memberDays} dias como miembro
                         </span>
                       )}
                       {user.email && (
                         <span className="flex items-center gap-1.5">
-                          <Mail size={14} className="text-[#a855f7]/60" />
+                          <Mail size={14} className="text-[#9d4edd]/60" />
                           {user.email}
                         </span>
                       )}
@@ -533,9 +533,9 @@ function PerfilContent() {
                   icon: <Calendar size={18} />,
                   value: memberDays,
                   label: 'Dias activo',
-                  color: 'text-[#4D9FFF]',
-                  bg: 'from-[#4D9FFF]/10 to-[#4D9FFF]/5',
-                  border: 'border-[#4D9FFF]/15',
+                  color: 'text-[#00F2FE]',
+                  bg: 'from-[#00F2FE]/10 to-[#00F2FE]/5',
+                  border: 'border-[#00F2FE]/15',
                 },
               ].map((stat, i) => (
                 <motion.div
@@ -601,8 +601,8 @@ function PerfilContent() {
                   className="group relative overflow-hidden rounded-xl bg-white/3 border border-white/8 p-5 text-left transition-all hover:bg-white/6 hover:border-white/15"
                 >
                   <div className="flex items-start gap-4">
-                    <div className="w-11 h-11 rounded-xl bg-[#4D9FFF]/10 border border-[#4D9FFF]/15 flex items-center justify-center shrink-0 group-hover:bg-[#4D9FFF]/15 transition-colors">
-                      <Edit3 size={20} className="text-[#4D9FFF]" />
+                    <div className="w-11 h-11 rounded-xl bg-[#00F2FE]/10 border border-[#00F2FE]/15 flex items-center justify-center shrink-0 group-hover:bg-[#00F2FE]/15 transition-colors">
+                      <Edit3 size={20} className="text-[#00F2FE]" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-white text-sm mb-1">Editar Informacion</p>
