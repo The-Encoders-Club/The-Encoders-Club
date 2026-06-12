@@ -64,12 +64,7 @@ export default function BackgroundParticles() {
           } as React.CSSProperties}
         />
       ))}
-      {/* Subtle grid lines */}
-      <div className="absolute inset-0 opacity-[0.02] pointer-events-none" style={{ contain: 'layout' }}>
-        <div className="absolute top-0 left-1/4 w-[1px] h-full bg-gradient-to-b from-transparent via-white to-transparent" />
-        <div className="absolute top-0 left-2/4 w-[1px] h-full bg-gradient-to-b from-transparent via-white to-transparent" />
-        <div className="absolute top-0 left-3/4 w-[1px] h-full bg-gradient-to-b from-transparent via-white to-transparent" />
-      </div>
+      {/* Grid pattern is now handled by globals.css body background */}
     </div>
   );
 }
