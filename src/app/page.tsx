@@ -484,6 +484,3 @@ export default function Home() {
     </div>
   );
 }
-
-/* ─── News Carousel Component (horizontal scroll) ─── */
-function NewsCarousel({ newsItems, t, isEs }: { newsItems:
