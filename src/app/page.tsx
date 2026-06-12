@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, ChevronRight, ChevronLeft, Zap, Heart, Globe, Sparkles, Code2, Layers, Star } from "lucide-react";
+import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, ChevronRight, ChevronLeft, Zap, Heart, Globe, Send } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundParticles from "@/components/BackgroundParticles";
@@ -35,7 +35,7 @@ const teamMembers = [
   { id: 7, name: "Manu", cargo: ["Traductor"], color: "#a855f7", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/bIiIQjvPOSUKgAUl.jpg" },
 ];
 
-/* ─── Stat Counter with animated easing ─── */
+/* ─── Stat Counter with easeOutExpo ─── */
 function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: number; label: string; icon: React.ElementType; color: string; suffix?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [count, setCount] = useState(0);
@@ -46,52 +46,59 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
     if (!el) return;
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting && !triggered) { setTriggered(true); }
-    }, { threshold: 0.5 });
+    }, { threshold: 0.3 });
     observer.observe(el);
     return () => observer.disconnect();
   }, [triggered]);
 
   useEffect(() => {
     if (!triggered) return;
-    const duration = 1500;
+    const duration = 2200;
     const start = performance.now();
     const easeOutExpo = (t: number) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+    const formatNum = (n: number) => {
+      if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+      return n.toString();
+    };
     const step = (now: number) => {
       const elapsed = now - start;
       const progress = Math.min(elapsed / duration, 1);
-      const easedProgress = easeOutExpo(progress);
-      setCount(Math.floor(easedProgress * value));
+      const current = Math.floor(easeOutExpo(progress) * value);
+      setCount(current);
       if (progress < 1) requestAnimationFrame(step);
       else setCount(value);
     };
     requestAnimationFrame(step);
   }, [triggered, value]);
 
-  const formatted = count.toLocaleString('en-US');
+  const formatDisplay = (n: number) => {
+    if (n >= 1000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+    return n.toLocaleString('en-US');
+  };
 
   return (
     <div
       ref={ref}
-      className="glass-card p-6 sm:p-8 flex flex-col items-center text-center group transition-all duration-500 relative overflow-hidden"
-      style={{ borderColor: `${color}25` }}
+      className="p-7 rounded-[14px] bg-white/[0.04] border border-white/[0.08] text-center relative overflow-hidden transition-all duration-300 hover:-translate-y-[3px] hover:border-white/[0.12] hover:bg-white/[0.06]"
     >
-      <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full pointer-events-none opacity-[0.06]" style={{ background: color, filter: 'blur(40px)' }} />
-      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 relative" style={{ background: `${color}12`, border: `1px solid ${color}25` }}>
-        <Icon size={24} style={{ color }} />
+      <div className="absolute top-0 left-0 right-0 h-[2px] opacity-60" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
+      <div className="w-[42px] h-[42px] rounded-xl flex items-center justify-center mx-auto mb-3.5" style={{ background: `${color}15`, border: `1px solid ${color}30` }}>
+        <Icon size={20} style={{ color }} />
       </div>
-      <span className="text-4xl sm:text-5xl font-bold mb-2 relative" style={{ fontFamily: "'Space Grotesk', sans-serif", color }}>{formatted}{suffix}</span>
-      <span className="text-xs text-white/45 uppercase tracking-wider font-medium">{label}</span>
-      <div className="absolute bottom-0 left-[10%] w-[80%] h-[1px] opacity-30" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
+      <div className="font-bold text-3xl leading-none mb-1.5" style={{ fontFamily: "'Space Grotesk', sans-serif", color, textShadow: `0 0 16px ${color}25` }}>
+        {formatDisplay(count)}{suffix}
+      </div>
+      <div className="text-[0.7rem] text-white/40 uppercase tracking-wider font-medium">{label}</div>
+      <div className="absolute bottom-0 left-[10%] w-[80%] h-px opacity-20" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
     </div>
   );
 }
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
+  hidden: { opacity: 0, y: 24 },
   visible: (i: number) => ({
     opacity: 1, y: 0,
-    transition: { duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] },
+    transition: { duration: 0.65, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] },
   }),
 };
 
@@ -104,6 +111,13 @@ const compact = (n: number) => {
   }
   return n.toString();
 };
+
+const approachCards = [
+  { emoji: "📖", title: "Tutoriales", desc: "Desde conceptos básicos hasta técnicas avanzadas, todo en español.", titleEn: "Tutorials", descEn: "From basics to advanced techniques, all in Spanish." },
+  { emoji: "🤝", title: "Colaboración", desc: "Desarrolladores, escritores y artistas trabajando juntos.", titleEn: "Collaboration", descEn: "Developers, writers and artists working together." },
+  { emoji: "🌐", title: "En Español", desc: "Accesible para toda la comunidad de habla hispana.", titleEn: "In Spanish", descEn: "Accessible for the entire Spanish-speaking community." },
+  { emoji: "🎮", title: "Ren'Py", desc: "Motor especializado en novelas visuales interactivas.", titleEn: "Ren'Py", descEn: "Engine specialized in interactive visual novels." },
+];
 
 export default function Home() {
   const { t, locale } = useI18n();
@@ -136,68 +150,68 @@ export default function Home() {
       <BackgroundParticles />
 
       {/* ═══════════════════════════════════════════════════════════
-          1. HERO — The Encoders Club + Botón Unirse
+          1. HERO — Cinematic 2-column layout
       ═══════════════════════════════════════════════════════════ */}
-      <section className="relative min-h-screen flex items-center pt-20 overflow-hidden">
+      <section className="relative min-h-screen flex items-center overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <img src={BG_URL} alt="" className="w-full h-full object-cover opacity-30" loading="eager" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#080818]/60 via-transparent to-[#080818]" />
-          <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" />
+          <img src={BG_URL} alt="" className="w-full h-full object-cover opacity-25" loading="eager" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#080818]/50 via-[#080818]/20 to-[#080818]/85" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#080818]/80 via-transparent to-[#080818]/60" />
         </div>
-        {/* Glow orbs */}
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-[#FF2D78]/8 blur-[100px] pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] rounded-full bg-[#4D9FFF]/6 blur-[120px] pointer-events-none" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#a855f7]/5 blur-[150px] pointer-events-none" />
+        <div className="absolute top-[20%] left-[20%] w-[300px] h-[300px] rounded-full bg-[#FF2D78]/8 blur-[80px] pointer-events-none" />
+        <div className="absolute bottom-[25%] right-[15%] w-[350px] h-[350px] rounded-full bg-[#4D9FFF]/6 blur-[80px] pointer-events-none" />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex items-center justify-center min-h-[80vh]">
-            <div className="flex flex-col justify-center w-full max-w-2xl">
+        <div className="relative z-10 max-w-[1200px] mx-auto px-6 w-full pt-[120px] pb-20">
+          <div className="grid grid-cols-1 lg:grid-cols-[1.2fr_1fr] gap-16 items-center">
+            {/* Left */}
+            <div>
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0 }}
-                className="flex items-center gap-2 mb-6"
+                transition={{ duration: 0.5 }}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FF2D78]/8 border border-[#FF2D78]/12 text-[0.72rem] font-semibold text-[#FF2D78] uppercase tracking-wider mb-6"
               >
-                <div className="px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase border" style={{ background: 'rgba(255,45,120,0.1)', borderColor: 'rgba(255,45,120,0.3)', color: '#FF2D78' }}>
-                  <Sparkles size={12} className="inline mr-1" />Ren'Py Community
-                </div>
+                <span className="w-[5px] h-[5px] rounded-full bg-[#FF2D78] shadow-[0_0_8px_rgba(255,45,120,0.4)] animate-pulse" />
+                {isEs ? "Comunidad Ren'Py en Español" : "Ren'Py Community in Spanish"}
               </motion.div>
+
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.1 }}
-                className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
-                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                className="font-bold leading-none mb-6 tracking-tight"
+                style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(2.8rem, 6vw, 4.5rem)' }}
               >
-                <span className="text-white">{t('home.hero.title1')} </span>
-                <span className="brand-gradient-text">{t('home.hero.title2')}</span>
-                <br />
-                <span className="text-white">{t('home.hero.title3')}</span>
+                The <span className="brand-gradient-text">Encoders</span>
+                <span className="block mt-1">Club</span>
               </motion.h1>
+
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.25 }}
-                className="text-lg sm:text-xl text-white/60 leading-relaxed mb-8 max-w-lg"
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="text-[1.05rem] text-white/65 leading-8 mb-7 max-w-[440px]"
               >
                 {t('home.hero.subtitle')}
               </motion.p>
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.35 }}
-                className="flex flex-wrap gap-4"
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="flex gap-2.5 flex-wrap"
               >
-                <a
-                  href="https://discord.gg/2DB5k7sb8"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary text-base px-7 py-3.5"
+                <a href="https://discord.gg/2DB5k7sb8" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] text-white font-semibold text-[0.88rem] shadow-[0_0_20px_rgba(255,45,120,0.12)] hover:-translate-y-0.5 hover:shadow-[0_0_32px_rgba(255,45,120,0.3)] transition-all duration-300"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  {isEs ? 'Unirse' : 'Join Us'} <ArrowRight size={18} />
+                  {isEs ? 'Unirse' : 'Join Us'} <ArrowRight size={16} />
                 </a>
-                <Link href="/proyectos" className="btn-outline text-base px-7 py-3.5">
-                  {t('home.seeProjects')} <BookOpen size={18} />
+                <Link href="/proyectos"
+                  className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/12 text-white/65 font-semibold text-[0.88rem] hover:border-white/20 hover:text-white hover:bg-white/[0.04] transition-all duration-300"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
+                  {t('home.seeProjects')} <BookOpen size={16} />
                 </Link>
               </motion.div>
 
@@ -205,161 +219,145 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10"
+                transition={{ duration: 0.6, delay: 0.45 }}
+                className="flex items-center gap-6 mt-8 pt-7 border-t border-white/[0.08]"
               >
                 <div className="text-center">
-                  <p className="text-2xl sm:text-3xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3+</p>
-                  <p className="text-xs text-white/45">{isEs ? 'Novelas Visuales' : 'Visual Novels'}</p>
+                  <div className="text-2xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif", textShadow: '0 0 14px rgba(255,45,120,0.12)' }}>3+</div>
+                  <div className="text-[0.68rem] text-white/40 mt-0.5 font-medium tracking-wide">{isEs ? 'Novelas Visuales' : 'Visual Novels'}</div>
                 </div>
-                <div className="w-px h-10 bg-white/15" />
+                <div className="w-px h-8 bg-white/12" />
                 <div className="text-center">
-                  <p className="text-2xl sm:text-3xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{compact(stats.downloads)}+</p>
-                  <p className="text-xs text-white/45">{isEs ? 'Descargas' : 'Downloads'}</p>
+                  <div className="text-2xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif", textShadow: '0 0 14px rgba(77,159,255,0.12)' }}>{compact(stats.downloads)}+</div>
+                  <div className="text-[0.68rem] text-white/40 mt-0.5 font-medium tracking-wide">{isEs ? 'Descargas' : 'Downloads'}</div>
                 </div>
-                <div className="w-px h-10 bg-white/15" />
+                <div className="w-px h-8 bg-white/12" />
                 <div className="text-center">
-                  <p className="text-2xl sm:text-3xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>7+</p>
-                  <p className="text-xs text-white/45">{isEs ? 'Colaboradores' : 'Collaborators'}</p>
+                  <div className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif", textShadow: '0 0 14px rgba(168,85,247,0.12)' }}>7+</div>
+                  <div className="text-[0.68rem] text-white/40 mt-0.5 font-medium tracking-wide">{isEs ? 'Colaboradores' : 'Collaborators'}</div>
                 </div>
               </motion.div>
             </div>
-          </div>
-        </div>
 
-        {/* Scroll indicator */}
-        <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
-          style={{ animation: 'scrollBounce 2s ease-in-out infinite' }}
-        >
-          <span className="text-xs">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-white/30 to-transparent" />
-        </div>
-      </section>
-
-      {/* ── Gradient separator ── */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-
-      {/* ═══════════════════════════════════════════════════════════
-          2. SOBRE NOSOTROS — Enhanced with feature cards
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 lg:py-28 relative">
-        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#FF2D78]/5 blur-[100px] pointer-events-none" />
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
-          >
-            <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.about.tag')}</span>
-            <h2 className="section-title text-white mb-5">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
-            <p className="text-white/60 leading-relaxed mb-5 max-w-2xl mx-auto">
-              {t('home.about.text1')}
-            </p>
-            <p className="text-white/60 leading-relaxed max-w-2xl mx-auto">
-              {t('home.about.text2')}
-            </p>
-          </motion.div>
-
-          {/* Feature highlight cards */}
-          <div className="grid sm:grid-cols-3 gap-5 mb-10">
+            {/* Right — Featured card */}
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0 }}
-              className="glass-card p-6 text-center group hover:border-[#FF2D78]/30 transition-all duration-500"
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.65, delay: 0.3 }}
             >
-              <div className="w-14 h-14 rounded-2xl bg-[#FF2D78]/10 border border-[#FF2D78]/25 flex items-center justify-center mb-4 mx-auto">
-                <Code2 size={24} className="text-[#FF2D78]" />
+              <div className="rounded-[18px] overflow-hidden bg-white/[0.04] border border-white/[0.08] shadow-[0_24px_64px_rgba(0,0,0,0.4)] relative group">
+                <img
+                  src="https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/sYvfOcdjjpxwpsYH.jpg"
+                  alt="Visual Novel"
+                  className="w-full h-[340px] object-cover transition-transform duration-[8s] ease-out group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#080818]/95 via-transparent to-transparent flex flex-col justify-end p-6">
+                  <div className="text-[0.6rem] font-semibold uppercase tracking-widest text-[#4D9FFF] mb-1">{isEs ? 'Proyecto Destacado' : 'Featured Project'}</div>
+                  <div className="font-semibold text-[1.1rem]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Novela Visual en Español' : 'Visual Novel in Spanish'}</div>
+                  <div className="text-[0.78rem] text-white/40 mt-0.5">{isEs ? "Creado con Ren'Py por The Encoders Club" : "Created with Ren'Py by The Encoders Club"}</div>
+                </div>
               </div>
-              <h3 className="font-bold text-white mb-2 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Motor Ren\'Py' : 'Ren\'Py Engine'}</h3>
-              <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'El motor de referencia para crear novelas visuales con Python.' : 'The reference engine for creating visual novels with Python.'}</p>
             </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="glass-card p-6 text-center group hover:border-[#4D9FFF]/30 transition-all duration-500"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-[#4D9FFF]/10 border border-[#4D9FFF]/25 flex items-center justify-center mb-4 mx-auto">
-                <Layers size={24} className="text-[#4D9FFF]" />
-              </div>
-              <h3 className="font-bold text-white mb-2 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Multiplataforma' : 'Cross-platform'}</h3>
-              <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'Publica en PC, Mac, Linux y Android desde un mismo proyecto.' : 'Publish on PC, Mac, Linux and Android from a single project.'}</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="glass-card p-6 text-center group hover:border-[#a855f7]/30 transition-all duration-500"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-[#a855f7]/10 border border-[#a855f7]/25 flex items-center justify-center mb-4 mx-auto">
-                <Star size={24} className="text-[#a855f7]" />
-              </div>
-              <h3 className="font-bold text-white mb-2 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Fácil de aprender' : 'Easy to learn'}</h3>
-              <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'Desde principiantes hasta expertos, Ren\'Py es accesible para todos.' : 'From beginners to experts, Ren\'Py is accessible to everyone.'}</p>
-            </motion.div>
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.3 }}
-            className="flex flex-wrap gap-3 justify-center"
-          >
-            <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
-              {t('home.seeCourses')} <ChevronRight size={16} />
-            </Link>
-            <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
-              {t('home.exploreProjects')}
-            </Link>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ── Gradient separator ── */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-
-      {/* ═══════════════════════════════════════════════════════════
-          3. ESTADÍSTICAS — Animated counters
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 lg:py-20 bg-[#06060f]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
-            <StatCounter value={3} label={isEs ? 'Novelas Visuales' : 'Visual Novels'} icon={Gamepad2} color="#FF2D78" suffix="+" />
-            <StatCounter value={stats.downloads} label={isEs ? 'Descargas' : 'Downloads'} icon={Download} color="#4D9FFF" suffix="+" />
-            <StatCounter value={7} label={isEs ? 'Colaboradores' : 'Collaborators'} icon={Users} color="#a855f7" suffix="+" />
-            <StatCounter value={stats.visits} label={isEs ? 'Visitas' : 'Visits'} icon={Eye} color="#22c55e" suffix="+" />
           </div>
         </div>
       </section>
 
-      {/* ── Gradient separator ── */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+      {/* ── Divider ── */}
+      <div className="h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          4. EQUIPO — Horizontal scroll
+          2. APPROACH — 2-column with cards grid
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 lg:py-28">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 lg:py-28">
+        <div className="max-w-[1200px] mx-auto px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.65 }}
+            >
+              <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.7rem] font-semibold uppercase tracking-wider mb-4 text-[#FF2D78] bg-[#FF2D78]/8 border border-[#FF2D78]/10">
+                ◆ {isEs ? 'Nuestra Misión' : 'Our Mission'}
+              </div>
+              <h2 className="font-bold text-[clamp(1.8rem,3.5vw,2.4rem)] leading-[1.15] tracking-tight mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                {isEs ? 'Donde las historias' : 'Where stories'} <span className="brand-gradient-text">{isEs ? 'cobran vida' : 'come alive'}</span>
+              </h2>
+              <p className="text-white/65 leading-8 text-[0.95rem] mb-3">
+                {t('home.about.text1')}
+              </p>
+              <p className="text-white/65 leading-8 text-[0.95rem]">
+                {t('home.about.text2')}
+              </p>
+              <div className="flex gap-2.5 flex-wrap mt-5">
+                <Link href="/cursos" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] text-white font-semibold text-[0.88rem] shadow-[0_0_20px_rgba(255,45,120,0.12)] hover:-translate-y-0.5 hover:shadow-[0_0_32px_rgba(255,45,120,0.3)] transition-all duration-300" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {t('home.seeCourses')} <ChevronRight size={14} />
+                </Link>
+                <Link href="/proyectos" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-white/12 text-white/65 font-semibold text-[0.88rem] hover:border-white/20 hover:text-white hover:bg-white/[0.04] transition-all duration-300" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {t('home.exploreProjects')}
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Approach cards grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {approachCards.map((card, i) => (
+                <motion.div
+                  key={i}
+                  custom={i}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  className="p-6 rounded-[14px] bg-white/[0.04] border border-white/[0.08] relative overflow-hidden transition-all duration-300 hover:-translate-y-0.5 hover:border-white/12 hover:bg-white/[0.06] group"
+                >
+                  <div className="absolute top-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `linear-gradient(90deg, transparent, ${['#FF2D78', '#4D9FFF', '#a855f7', '#22c55e'][i]}, transparent)` }} />
+                  <span className="text-[1.4rem] block mb-2.5">{card.emoji}</span>
+                  <h4 className="font-semibold text-[0.9rem] mb-1.5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? card.title : card.titleEn}</h4>
+                  <p className="text-[0.78rem] text-white/40 leading-snug">{isEs ? card.desc : card.descEn}</p>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════════════
+          3. STATS
+      ═══════════════════════════════════════════════════════════ */}
+      <section className="py-20 bg-[#06060f]">
+        <div className="max-w-[1200px] mx-auto px-6 grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCounter value={3} label={isEs ? 'Novelas Visuales' : 'Visual Novels'} icon={Gamepad2} color="#FF2D78" suffix="+" />
+          <StatCounter value={stats.downloads} label={isEs ? 'Descargas' : 'Downloads'} icon={Download} color="#4D9FFF" suffix="+" />
+          <StatCounter value={7} label={isEs ? 'Colaboradores' : 'Collaborators'} icon={Users} color="#a855f7" suffix="+" />
+          <StatCounter value={stats.visits} label={isEs ? 'Visitas' : 'Visits'} icon={Eye} color="#22c55e" suffix="+" />
+        </div>
+      </section>
+
+      {/* ── Divider ── */}
+      <div className="h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
+
+      {/* ═══════════════════════════════════════════════════════════
+          4. TEAM
+      ═══════════════════════════════════════════════════════════ */}
+      <section className="py-24 lg:py-28">
+        <div className="max-w-[1200px] mx-auto px-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
+            transition={{ duration: 0.65 }}
+            className="mb-8"
           >
-            <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.team.tag')}</span>
-            <h2 className="section-title text-white">{t('home.team.title')} <span className="brand-gradient-text">{t('home.team.accent')}</span></h2>
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.7rem] font-semibold uppercase tracking-wider mb-3.5 text-[#a855f7] bg-[#a855f7]/8 border border-[#a855f7]/10">
+              ◆ {t('home.team.tag')}
+            </div>
+            <h2 className="font-bold text-[1.8rem] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              {t('home.team.title')} <span className="brand-gradient-text">{t('home.team.accent')}</span>
+            </h2>
           </motion.div>
-          <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 scrollbar-hide">
-            <div className="flex gap-6 lg:gap-8 w-max">
+          <div className="overflow-x-auto pb-4 scrollbar-hide">
+            <div className="flex gap-5 w-max">
               {teamMembers.map((member, i) => (
                 <motion.div
                   key={member.id}
@@ -368,21 +366,18 @@ export default function Home() {
                   initial="hidden"
                   whileInView="visible"
                   viewport={{ once: true }}
-                  className="glass-card p-8 flex flex-col items-center text-center group flex-shrink-0 w-56 sm:w-64 lg:w-72"
+                  className="flex-shrink-0 w-[220px] p-7 rounded-[14px] bg-white/[0.04] border border-white/[0.08] text-center transition-all duration-300 hover:-translate-y-1 hover:border-white/12 hover:bg-white/[0.06]"
                 >
                   <div
-                    className="w-32 h-32 lg:w-36 lg:h-36 rounded-2xl mb-6 flex items-center justify-center relative overflow-hidden"
-                    style={{ background: `linear-gradient(135deg, ${member.color}20, ${member.color}10)`, border: `2px solid ${member.color}40` }}
+                    className="w-20 h-20 rounded-[20px] mx-auto mb-3.5 overflow-hidden"
+                    style={{ border: `2px solid ${member.color}40`, boxShadow: `0 0 20px ${member.color}12` }}
                   >
-                    <img src={member.image} alt={member.name} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" loading="lazy" />
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity" style={{ background: member.color }} />
+                    <img src={member.image} alt={member.name} className="w-full h-full object-cover transition-transform duration-500 hover:scale-110" loading="lazy" />
                   </div>
-                  <h3 className="font-bold text-base lg:text-lg mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}>
-                    {member.name}
-                  </h3>
-                  <div className="flex flex-wrap gap-1.5 justify-center">
+                  <div className="font-bold text-[0.92rem] mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}>{member.name}</div>
+                  <div className="text-[0.68rem] text-white/40 leading-relaxed">
                     {member.cargo.map((role, idx) => (
-                      <span key={idx} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: `${member.color}12`, color: `${member.color}`, border: `1px solid ${member.color}25` }}>{role}</span>
+                      <span key={idx}>{role}{idx < member.cargo.length - 1 ? ' • ' : ''}</span>
                     ))}
                   </div>
                 </motion.div>
@@ -392,110 +387,91 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── Gradient separator ── */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-
       {/* ═══════════════════════════════════════════════════════════
-          5. NOTICIAS — Carrusel horizontal
+          5. NEWS
       ═══════════════════════════════════════════════════════════ */}
       <NewsCarousel newsItems={newsItems} t={t} isEs={isEs} />
 
-      {/* ── Gradient separator ── */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+      {/* ── Divider ── */}
+      <div className="h-px bg-gradient-to-r from-transparent via-white/12 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          6. EXTRAS — Feature cards
+          6. FEATURES (Extras)
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 lg:py-28 bg-[#06060f]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-24 lg:py-28 bg-[#06060f]">
+        <div className="max-w-[1200px] mx-auto px-6">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center mb-12"
+            transition={{ duration: 0.65 }}
+            className="text-center mb-8"
           >
-            <span className="text-[#22c55e] text-sm font-semibold uppercase tracking-widest mb-3 block">{isEs ? 'Extras' : 'Extras'}</span>
-            <h2 className="section-title text-white">{isEs ? 'Más que proyectos' : 'More than projects'} <span className="brand-gradient-text">{isEs ? 'una comunidad' : 'a community'}</span></h2>
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.7rem] font-semibold uppercase tracking-wider mb-3.5 text-[#22c55e] bg-[#22c55e]/8 border border-[#22c55e]/10">
+              ◆ {isEs ? 'Extras' : 'Extras'}
+            </div>
+            <h2 className="font-bold text-[1.8rem] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              {isEs ? 'Más que proyectos' : 'More than projects'} <span className="brand-gradient-text">{isEs ? 'una comunidad' : 'a community'}</span>
+            </h2>
           </motion.div>
-          <div className="grid sm:grid-cols-3 gap-6">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="glass-card p-8 group hover:border-[#FF2D78]/30 transition-all duration-500"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-[#FF2D78]/10 border border-[#FF2D78]/25 flex items-center justify-center mb-5">
-                <Zap size={26} className="text-[#FF2D78]" />
-              </div>
-              <h3 className="font-bold text-white mb-3 text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Traducciones' : 'Translations'}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{isEs ? 'Localizamos novelas visuales al español con la máxima calidad, manteniendo la esencia y el tono original de cada obra.' : 'We localize visual novels into Spanish with the highest quality, preserving the essence and original tone of each work.'}</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="glass-card p-8 group hover:border-[#4D9FFF]/30 transition-all duration-500"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-[#4D9FFF]/10 border border-[#4D9FFF]/25 flex items-center justify-center mb-5">
-                <Heart size={26} className="text-[#4D9FFF]" />
-              </div>
-              <h3 className="font-bold text-white mb-3 text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Código Abierto' : 'Open Source'}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{isEs ? 'Todos nuestros proyectos son de código abierto. Puedes contribuir, aprender y formar parte del desarrollo activamente.' : 'All our projects are open source. You can contribute, learn, and actively be part of the development.'}</p>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="glass-card p-8 group hover:border-[#a855f7]/30 transition-all duration-500"
-            >
-              <div className="w-14 h-14 rounded-2xl bg-[#a855f7]/10 border border-[#a855f7]/25 flex items-center justify-center mb-5">
-                <Globe size={26} className="text-[#a855f7]" />
-              </div>
-              <h3 className="font-bold text-white mb-3 text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Comunidad Global' : 'Global Community'}</h3>
-              <p className="text-white/50 text-sm leading-relaxed">{isEs ? 'Colaboramos con personas de todo el mundo. Sin importar tu nivel de experiencia, hay un lugar para ti aquí.' : 'We collaborate with people from all over the world. Regardless of your experience level, there is a place for you here.'}</p>
-            </motion.div>
+          <div className="grid sm:grid-cols-3 gap-4">
+            {[
+              { icon: Zap, color: '#FF2D78', title: isEs ? 'Traducciones' : 'Translations', desc: isEs ? 'Localizamos novelas visuales al español con la más alta calidad, preservando la esencia y el tono original de cada obra.' : 'We localize visual novels into Spanish with the highest quality, preserving the essence and original tone of each work.' },
+              { icon: Heart, color: '#4D9FFF', title: isEs ? 'Código Abierto' : 'Open Source', desc: isEs ? 'Todos nuestros proyectos son open source. Puedes contribuir, aprender y ser parte activa del desarrollo.' : 'All our projects are open source. You can contribute, learn, and actively be part of the development.' },
+              { icon: Globe, color: '#a855f7', title: isEs ? 'Comunidad Global' : 'Global Community', desc: isEs ? 'Colaboramos con personas de todo el mundo. Sin importar tu nivel de experiencia, hay un lugar para ti aquí.' : 'We collaborate with people from all over the world. Regardless of your experience level, there is a place for you here.' },
+            ].map((feat, i) => (
+              <motion.div
+                key={i}
+                custom={i}
+                variants={fadeUp}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                className="p-7 rounded-[14px] bg-white/[0.04] border border-white/[0.08] relative overflow-hidden transition-all duration-300 hover:-translate-y-[3px] hover:border-white/12 hover:bg-white/[0.06] group"
+              >
+                <div className="absolute top-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: `linear-gradient(90deg, transparent, ${feat.color}, transparent)` }} />
+                <div className="w-11 h-11 rounded-[14px] flex items-center justify-center mb-3.5" style={{ background: `${feat.color}15`, border: `1px solid ${feat.color}25` }}>
+                  <feat.icon size={22} style={{ color: feat.color }} />
+                </div>
+                <h4 className="font-semibold text-[0.95rem] mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{feat.title}</h4>
+                <p className="text-[0.82rem] text-white/40 leading-relaxed">{feat.desc}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          7. CTA — Discord
+          7. CTA
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-20 lg:py-28">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <section className="py-24 lg:py-28">
+        <div className="max-w-[700px] mx-auto px-6 text-center">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="glass-card p-10 lg:p-16 relative overflow-hidden"
+            transition={{ duration: 0.65 }}
+            className="p-14 rounded-[20px] bg-white/[0.04] border border-white/[0.08] relative overflow-hidden"
           >
-            <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#a855f7]/5 blur-[80px] pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF]" />
+            <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-[#FF2D78]/6 blur-[50px] pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-[#4D9FFF]/4 blur-[50px] pointer-events-none" />
             <div className="relative z-10">
-              <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">{t('home.cta.tag')}</span>
-              <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <h2 className="font-bold mb-3.5 leading-tight" style={{ fontFamily: "'Space Grotesk', sans-serif", fontSize: 'clamp(1.5rem, 3vw, 2rem)' }}>
                 {t('home.cta.title')} <span className="brand-gradient-text">{t('home.cta.accent')}</span>
               </h2>
-              <p className="text-white/55 mb-8 max-w-xl mx-auto leading-relaxed">
-                {t('home.cta.text')}
-              </p>
-              <div className="flex flex-wrap gap-4 justify-center">
-                <a
-                  href="https://discord.gg/2DB5k7sb8"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-primary text-base px-8 py-3.5"
+              <p className="text-white/65 mb-7 text-[0.95rem] leading-7">{t('home.cta.text')}</p>
+              <div className="flex justify-center gap-3 flex-wrap">
+                <a href="https://discord.gg/2DB5k7sb8" target="_blank" rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-7 py-3 rounded-xl bg-gradient-to-r from-[#FF2D78] via-[#a855f7] to-[#4D9FFF] text-white font-semibold text-[0.88rem] shadow-[0_0_20px_rgba(255,45,120,0.12)] hover:-translate-y-0.5 hover:shadow-[0_0_32px_rgba(255,45,120,0.3)] transition-all duration-300"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                 >
-                  {t('home.cta.discord')} <ArrowRight size={18} />
+                  {t('home.cta.discord')} <ArrowRight size={16} />
                 </a>
-                <Link href="/cursos" className="btn-outline text-base px-8 py-3.5">
+                <Link href="/cursos"
+                  className="inline-flex items-center gap-2 px-7 py-3 rounded-xl border border-white/12 text-white/65 font-semibold text-[0.88rem] hover:border-white/20 hover:text-white hover:bg-white/[0.04] transition-all duration-300"
+                  style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+                >
                   {t('home.cta.learn')}
                 </Link>
               </div>
@@ -509,72 +485,76 @@ export default function Home() {
   );
 }
 
-/* ─── News Carousel Component ─── */
+/* ─── News Carousel ─── */
 function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t: ReturnType<typeof useI18n>['t']; isEs: boolean }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const scroll = (dir: 'left' | 'right') => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === 'left' ? -340 : 340, behavior: 'smooth' });
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -320 : 320, behavior: 'smooth' });
     }
   };
 
   return (
-    <section className="py-20 lg:py-28">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
-          <div>
-            <span className="text-[#4D9FFF] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.news.tag')}</span>
-            <h2 className="section-title text-white">{t('home.news.title')} <span className="brand-gradient-text">{t('home.news.accent')}</span></h2>
-          </div>
-          <div className="flex items-center gap-3">
-            <button onClick={() => scroll('left')} className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all">
-              <ChevronLeft size={18} />
+    <section className="py-24 lg:py-28">
+      <div className="max-w-[1200px] mx-auto px-6">
+        <div className="flex items-end justify-between gap-4 mb-7 flex-wrap">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.65 }}
+          >
+            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-[0.7rem] font-semibold uppercase tracking-wider mb-3.5 text-[#4D9FFF] bg-[#4D9FFF]/8 border border-[#4D9FFF]/10">
+              ◆ {t('home.news.tag')}
+            </div>
+            <h2 className="font-bold text-[1.8rem] tracking-tight" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              {t('home.news.title')} <span className="brand-gradient-text">{t('home.news.accent')}</span>
+            </h2>
+          </motion.div>
+          <div className="flex gap-2">
+            <button onClick={() => scroll('left')} className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/40 hover:bg-white/[0.06] hover:text-white hover:border-white/12 transition-all">
+              <ChevronLeft size={16} />
             </button>
-            <button onClick={() => scroll('right')} className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all">
-              <ChevronRight size={18} />
+            <button onClick={() => scroll('right')} className="w-9 h-9 rounded-full bg-white/[0.04] border border-white/[0.08] flex items-center justify-center text-white/40 hover:bg-white/[0.06] hover:text-white hover:border-white/12 transition-all">
+              <ChevronRight size={16} />
             </button>
-            <Link href="/noticias" className="btn-outline text-sm px-5 py-2.5 whitespace-nowrap ml-2">
-              {t('home.seeAll')} <ArrowRight size={15} />
-            </Link>
           </div>
         </div>
-        <div className="relative group/carousel">
-          <div ref={scrollRef} className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
-            {newsItems.map((item, i) => (
-              <motion.article
-                key={item.id}
-                custom={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="glass-card overflow-hidden group flex-shrink-0 snap-start"
-                style={{ width: 'calc(33.333% - 14px)', minWidth: 280 }}
-              >
-                <div className="relative overflow-hidden h-44">
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span
-                    className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{ background: `${item.tagColor}20`, border: `1px solid ${item.tagColor}40`, color: item.tagColor }}
-                  >
-                    {item.tag}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <p className="text-xs text-white/40 mb-2">{item.date}</p>
-                  <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
-                    {item.title}
-                  </h3>
-                  <p className="text-xs text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
-                  <span className="text-xs text-[#FF2D78] font-semibold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
-                    {t('common.readMore')} <ChevronRight size={13} />
-                  </span>
-                </div>
-              </motion.article>
-            ))}
-          </div>
+        <div ref={scrollRef} className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-3">
+          {newsItems.map((item, i) => (
+            <motion.article
+              key={item.id}
+              custom={i}
+              variants={fadeUp}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="flex-shrink-0 snap-start rounded-[14px] overflow-hidden bg-white/[0.04] border border-white/[0.08] transition-all duration-300 hover:-translate-y-1 hover:border-white/12 hover:shadow-[0_12px_32px_rgba(0,0,0,0.3)]"
+              style={{ width: 'calc(33.333% - 11px)', minWidth: 280 }}
+            >
+              <div className="relative overflow-hidden h-40">
+                <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 hover:scale-105" loading="lazy" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#080818]/50 to-transparent" />
+                <span
+                  className="absolute top-2.5 left-2.5 text-[0.6rem] font-semibold px-2.5 py-1 rounded-full"
+                  style={{ background: `${item.tagColor}15`, border: `1px solid ${item.tagColor}30`, color: item.tagColor }}
+                >
+                  {item.tag}
+                </span>
+              </div>
+              <div className="p-4 pb-5">
+                <div className="text-[0.66rem] text-white/40 mb-1.5">{item.date}</div>
+                <h3 className="font-semibold text-white text-[0.88rem] leading-snug mb-1.5" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  {item.title}
+                </h3>
+                <p className="text-[0.74rem] text-white/40 leading-relaxed line-clamp-2 mb-3">{item.description}</p>
+                <span className="text-[0.74rem] text-[#FF2D78] font-semibold inline-flex items-center gap-1 hover:gap-2 transition-all">
+                  {t('common.readMore')} <ChevronRight size={12} />
+                </span>
+              </div>
+            </motion.article>
+          ))}
         </div>
       </div>
       <style>{`
