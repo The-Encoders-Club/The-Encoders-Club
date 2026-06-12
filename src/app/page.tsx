@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, ChevronRight, ChevronLeft, Zap, Heart, Globe } from "lucide-react";
+import { ArrowRight, BookOpen, Download, Users, Eye, Gamepad2, ChevronRight, ChevronLeft, Zap, Heart, Globe, Sparkles, Code2, Layers, Star } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundParticles from "@/components/BackgroundParticles";
@@ -35,6 +35,7 @@ const teamMembers = [
   { id: 7, name: "Manu", cargo: ["Traductor"], color: "#a855f7", image: "https://files.manuscdn.com/user_upload_by_module/session_file/310519663510027341/bIiIQjvPOSUKgAUl.jpg" },
 ];
 
+/* ─── Stat Counter with animated easing ─── */
 function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: number; label: string; icon: React.ElementType; color: string; suffix?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [count, setCount] = useState(0);
@@ -52,14 +53,18 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
 
   useEffect(() => {
     if (!triggered) return;
-    let current = 0;
-    const step = value / 40;
-    const interval = setInterval(() => {
-      current += step;
-      if (current >= value) { setCount(value); clearInterval(interval); }
-      else setCount(Math.floor(current));
-    }, 30);
-    return () => clearInterval(interval);
+    const duration = 1500;
+    const start = performance.now();
+    const easeOutExpo = (t: number) => t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
+    const step = (now: number) => {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const easedProgress = easeOutExpo(progress);
+      setCount(Math.floor(easedProgress * value));
+      if (progress < 1) requestAnimationFrame(step);
+      else setCount(value);
+    };
+    requestAnimationFrame(step);
   }, [triggered, value]);
 
   const formatted = count.toLocaleString('en-US');
@@ -67,37 +72,31 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
   return (
     <div
       ref={ref}
-      className="glass-card p-5 sm:p-6 flex flex-col items-center text-center group hover:border-opacity-50 transition-all duration-300 relative overflow-hidden"
+      className="glass-card p-6 sm:p-8 flex flex-col items-center text-center group transition-all duration-500 relative overflow-hidden"
       style={{ borderColor: `${color}25` }}
     >
-      {/* Colored top accent line */}
       <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
-      {/* Soft glow behind icon */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full pointer-events-none opacity-[0.07]" style={{ background: color, filter: 'blur(30px)' }} />
-      <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 relative" style={{ background: `${color}15`, border: `1px solid ${color}30` }}>
-        <Icon size={20} style={{ color }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full pointer-events-none opacity-[0.06]" style={{ background: color, filter: 'blur(40px)' }} />
+      <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-5 relative" style={{ background: `${color}12`, border: `1px solid ${color}25` }}>
+        <Icon size={24} style={{ color }} />
       </div>
-      <span className="text-3xl sm:text-4xl font-bold mb-1.5 relative" style={{ fontFamily: "'Space Grotesk', sans-serif", color }}>{formatted}{suffix}</span>
+      <span className="text-4xl sm:text-5xl font-bold mb-2 relative" style={{ fontFamily: "'Space Grotesk', sans-serif", color }}>{formatted}{suffix}</span>
       <span className="text-xs text-white/45 uppercase tracking-wider font-medium">{label}</span>
-      {/* Bottom gradient line */}
       <div className="absolute bottom-0 left-[10%] w-[80%] h-[1px] opacity-30" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
     </div>
   );
 }
 
-// Lightweight fade-up variants (only triggers once via whileInView)
 const fadeUp = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 30 },
   visible: (i: number) => ({
     opacity: 1, y: 0,
-    transition: { duration: 0.5, delay: i * 0.08 },
+    transition: { duration: 0.6, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] },
   }),
 };
 
-// Fallback stat values (used while API loads or if it fails)
 const FALLBACK_STATS = { downloads: 15000, visits: 50000 };
 
-// Compact number formatter for hero mini-stats
 const compact = (n: number) => {
   if (n >= 1000) {
     const k = n / 1000;
@@ -111,7 +110,6 @@ export default function Home() {
   const isEs = locale === 'es';
   const newsItems = isEs ? newsItemsEs : newsItemsEn;
 
-  // Fetch live stats from API (visits & downloads) and refresh every 60 seconds
   const [liveStats, setLiveStats] = useState<{ downloads: number; visits: number } | null>(null);
 
   useEffect(() => {
@@ -123,18 +121,13 @@ export default function Home() {
             setLiveStats({ downloads: data.downloads, visits: data.visits });
           }
         })
-        .catch(() => {}); // silently fail — fallback values will be used
+        .catch(() => {});
     };
-
-    // Initial fetch
     fetchStats();
-
-    // Refresh every 60 seconds to keep stats near real-time
     const interval = setInterval(fetchStats, 60000);
     return () => clearInterval(interval);
   }, []);
 
-  // Use live data if available, otherwise fallback
   const stats = liveStats || FALLBACK_STATS;
 
   return (
@@ -151,12 +144,24 @@ export default function Home() {
           <div className="absolute inset-0 bg-gradient-to-b from-[#080818]/60 via-transparent to-[#080818]" />
           <div className="absolute inset-0 bg-gradient-to-r from-[#080818] via-transparent to-[#080818]/60" />
         </div>
-        <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full bg-[#FF2D78]/10 blur-3xl pointer-events-none" />
-        <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#4D9FFF]/10 blur-3xl pointer-events-none" />
+        {/* Glow orbs */}
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full bg-[#FF2D78]/8 blur-[100px] pointer-events-none" />
+        <div className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] rounded-full bg-[#4D9FFF]/6 blur-[120px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-[#a855f7]/5 blur-[150px] pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="flex items-center justify-center min-h-[80vh]">
             <div className="flex flex-col justify-center w-full max-w-2xl">
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0 }}
+                className="flex items-center gap-2 mb-6"
+              >
+                <div className="px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase border" style={{ background: 'rgba(255,45,120,0.1)', borderColor: 'rgba(255,45,120,0.3)', color: '#FF2D78' }}>
+                  <Sparkles size={12} className="inline mr-1" />Ren'Py Community
+                </div>
+              </motion.div>
               <motion.h1
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -164,13 +169,16 @@ export default function Home() {
                 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-bold leading-tight mb-6"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                <span className="text-white">{t('home.hero.title1')} </span> <span className="brand-gradient-text">{t('home.hero.title2')}</span><br /><span className="text-white">{t('home.hero.title3')}</span>
+                <span className="text-white">{t('home.hero.title1')} </span>
+                <span className="brand-gradient-text">{t('home.hero.title2')}</span>
+                <br />
+                <span className="text-white">{t('home.hero.title3')}</span>
               </motion.h1>
               <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 }}
-                className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg"
+                className="text-lg sm:text-xl text-white/60 leading-relaxed mb-8 max-w-lg"
               >
                 {t('home.hero.subtitle')}
               </motion.p>
@@ -192,6 +200,8 @@ export default function Home() {
                   {t('home.seeProjects')} <BookOpen size={18} />
                 </Link>
               </motion.div>
+
+              {/* Hero mini-stats */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -199,17 +209,17 @@ export default function Home() {
                 className="flex items-center gap-6 mt-10 pt-8 border-t border-white/10"
               >
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3+</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#FF2D78]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>3+</p>
                   <p className="text-xs text-white/45">{isEs ? 'Novelas Visuales' : 'Visual Novels'}</p>
                 </div>
                 <div className="w-px h-10 bg-white/15" />
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{compact(stats.downloads)}+</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#4D9FFF]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{compact(stats.downloads)}+</p>
                   <p className="text-xs text-white/45">{isEs ? 'Descargas' : 'Downloads'}</p>
                 </div>
                 <div className="w-px h-10 bg-white/15" />
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>7+</p>
+                  <p className="text-2xl sm:text-3xl font-bold text-[#a855f7]" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>7+</p>
                   <p className="text-xs text-white/45">{isEs ? 'Colaboradores' : 'Collaborators'}</p>
                 </div>
               </motion.div>
@@ -231,33 +241,84 @@ export default function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          2. SOBRE NOSOTROS
+          2. SOBRE NOSOTROS — Enhanced with feature cards
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20 relative">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <section className="py-20 lg:py-28 relative">
+        <div className="absolute top-0 right-0 w-80 h-80 rounded-full bg-[#FF2D78]/5 blur-[100px] pointer-events-none" />
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="text-center"
+            className="text-center mb-12"
           >
             <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.about.tag')}</span>
             <h2 className="section-title text-white mb-5">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
-            <p className="text-white/65 leading-relaxed mb-5">
+            <p className="text-white/60 leading-relaxed mb-5 max-w-2xl mx-auto">
               {t('home.about.text1')}
             </p>
-            <p className="text-white/65 leading-relaxed mb-8">
+            <p className="text-white/60 leading-relaxed max-w-2xl mx-auto">
               {t('home.about.text2')}
             </p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
-                {t('home.seeCourses')} <ChevronRight size={16} />
-              </Link>
-              <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
-                {t('home.exploreProjects')}
-              </Link>
-            </div>
+          </motion.div>
+
+          {/* Feature highlight cards */}
+          <div className="grid sm:grid-cols-3 gap-5 mb-10">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0 }}
+              className="glass-card p-6 text-center group hover:border-[#FF2D78]/30 transition-all duration-500"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-[#FF2D78]/10 border border-[#FF2D78]/25 flex items-center justify-center mb-4 mx-auto">
+                <Code2 size={24} className="text-[#FF2D78]" />
+              </div>
+              <h3 className="font-bold text-white mb-2 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Motor Ren\'Py' : 'Ren\'Py Engine'}</h3>
+              <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'El motor de referencia para crear novelas visuales con Python.' : 'The reference engine for creating visual novels with Python.'}</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="glass-card p-6 text-center group hover:border-[#4D9FFF]/30 transition-all duration-500"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-[#4D9FFF]/10 border border-[#4D9FFF]/25 flex items-center justify-center mb-4 mx-auto">
+                <Layers size={24} className="text-[#4D9FFF]" />
+              </div>
+              <h3 className="font-bold text-white mb-2 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Multiplataforma' : 'Cross-platform'}</h3>
+              <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'Publica en PC, Mac, Linux y Android desde un mismo proyecto.' : 'Publish on PC, Mac, Linux and Android from a single project.'}</p>
+            </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="glass-card p-6 text-center group hover:border-[#a855f7]/30 transition-all duration-500"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-[#a855f7]/10 border border-[#a855f7]/25 flex items-center justify-center mb-4 mx-auto">
+                <Star size={24} className="text-[#a855f7]" />
+              </div>
+              <h3 className="font-bold text-white mb-2 text-sm" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Fácil de aprender' : 'Easy to learn'}</h3>
+              <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'Desde principiantes hasta expertos, Ren\'Py es accesible para todos.' : 'From beginners to experts, Ren\'Py is accessible to everyone.'}</p>
+            </motion.div>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 15 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="flex flex-wrap gap-3 justify-center"
+          >
+            <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
+              {t('home.seeCourses')} <ChevronRight size={16} />
+            </Link>
+            <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
+              {t('home.exploreProjects')}
+            </Link>
           </motion.div>
         </div>
       </section>
@@ -266,15 +327,38 @@ export default function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          3. EQUIPO
+          3. ESTADÍSTICAS — Animated counters
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20 bg-[#06060f]">
+      <section className="py-16 lg:py-20 bg-[#06060f]">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 sm:gap-6">
+            <StatCounter value={3} label={isEs ? 'Novelas Visuales' : 'Visual Novels'} icon={Gamepad2} color="#FF2D78" suffix="+" />
+            <StatCounter value={stats.downloads} label={isEs ? 'Descargas' : 'Downloads'} icon={Download} color="#4D9FFF" suffix="+" />
+            <StatCounter value={7} label={isEs ? 'Colaboradores' : 'Collaborators'} icon={Users} color="#a855f7" suffix="+" />
+            <StatCounter value={stats.visits} label={isEs ? 'Visitas' : 'Visits'} icon={Eye} color="#22c55e" suffix="+" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Gradient separator ── */}
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+
+      {/* ═══════════════════════════════════════════════════════════
+          4. EQUIPO — Horizontal scroll
+      ═══════════════════════════════════════════════════════════ */}
+      <section className="py-20 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
             <span className="text-[#a855f7] text-sm font-semibold uppercase tracking-widest mb-3 block">{t('home.team.tag')}</span>
             <h2 className="section-title text-white">{t('home.team.title')} <span className="brand-gradient-text">{t('home.team.accent')}</span></h2>
-          </div>
-          <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+          </motion.div>
+          <div className="overflow-x-auto pb-4 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 scrollbar-hide">
             <div className="flex gap-6 lg:gap-8 w-max">
               {teamMembers.map((member, i) => (
                 <motion.div
@@ -296,9 +380,9 @@ export default function Home() {
                   <h3 className="font-bold text-base lg:text-lg mb-3" style={{ fontFamily: "'Space Grotesk', sans-serif", color: member.color }}>
                     {member.name}
                   </h3>
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-wrap gap-1.5 justify-center">
                     {member.cargo.map((role, idx) => (
-                      <p key={idx} className="text-xs text-white/50">{role}</p>
+                      <span key={idx} className="text-[11px] px-2 py-0.5 rounded-full" style={{ background: `${member.color}12`, color: `${member.color}`, border: `1px solid ${member.color}25` }}>{role}</span>
                     ))}
                   </div>
                 </motion.div>
@@ -312,7 +396,7 @@ export default function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          4. NOTICIAS — Carrusel horizontal
+          5. NOTICIAS — Carrusel horizontal
       ═══════════════════════════════════════════════════════════ */}
       <NewsCarousel newsItems={newsItems} t={t} isEs={isEs} />
 
@@ -320,79 +404,68 @@ export default function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          5. ESTADÍSTICAS
+          6. EXTRAS — Feature cards
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20 bg-[#06060f]">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-            <StatCounter value={3} label={isEs ? 'Novelas Visuales' : 'Visual Novels'} icon={Gamepad2} color="#FF2D78" suffix="+" />
-            <StatCounter value={stats.downloads} label={isEs ? 'Descargas' : 'Downloads'} icon={Download} color="#4D9FFF" suffix="+" />
-            <StatCounter value={7} label={isEs ? 'Colaboradores' : 'Collaborators'} icon={Users} color="#a855f7" suffix="+" />
-            <StatCounter value={stats.visits} label={isEs ? 'Visitas' : 'Visits'} icon={Eye} color="#22c55e" suffix="+" />
-          </div>
-        </div>
-      </section>
-
-      {/* ── Gradient separator ── */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/15 to-transparent" />
-
-      {/* ═══════════════════════════════════════════════════════════
-          6. EXTRAS
-      ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20">
+      <section className="py-20 lg:py-28 bg-[#06060f]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-12"
+          >
             <span className="text-[#22c55e] text-sm font-semibold uppercase tracking-widest mb-3 block">{isEs ? 'Extras' : 'Extras'}</span>
             <h2 className="section-title text-white">{isEs ? 'Más que proyectos' : 'More than projects'} <span className="brand-gradient-text">{isEs ? 'una comunidad' : 'a community'}</span></h2>
-          </div>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          </motion.div>
+          <div className="grid sm:grid-cols-3 gap-6">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="glass-card p-6 group hover:border-[#FF2D78]/30 transition-all duration-300"
+              className="glass-card p-8 group hover:border-[#FF2D78]/30 transition-all duration-500"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex items-center justify-center mb-4">
-                <Zap size={24} className="text-[#FF2D78]" />
+              <div className="w-14 h-14 rounded-2xl bg-[#FF2D78]/10 border border-[#FF2D78]/25 flex items-center justify-center mb-5">
+                <Zap size={26} className="text-[#FF2D78]" />
               </div>
-              <h3 className="font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Traducciones' : 'Translations'}</h3>
-              <p className="text-white/55 text-sm leading-relaxed">{isEs ? 'Localizamos novelas visuales al español con la máxima calidad, manteniendo la esencia y el tono original de cada obra.' : 'We localize visual novels into Spanish with the highest quality, preserving the essence and original tone of each work.'}</p>
+              <h3 className="font-bold text-white mb-3 text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Traducciones' : 'Translations'}</h3>
+              <p className="text-white/50 text-sm leading-relaxed">{isEs ? 'Localizamos novelas visuales al español con la máxima calidad, manteniendo la esencia y el tono original de cada obra.' : 'We localize visual novels into Spanish with the highest quality, preserving the essence and original tone of each work.'}</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="glass-card p-6 group hover:border-[#4D9FFF]/30 transition-all duration-300"
+              className="glass-card p-8 group hover:border-[#4D9FFF]/30 transition-all duration-500"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#4D9FFF]/15 border border-[#4D9FFF]/30 flex items-center justify-center mb-4">
-                <Heart size={24} className="text-[#4D9FFF]" />
+              <div className="w-14 h-14 rounded-2xl bg-[#4D9FFF]/10 border border-[#4D9FFF]/25 flex items-center justify-center mb-5">
+                <Heart size={26} className="text-[#4D9FFF]" />
               </div>
-              <h3 className="font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Código Abierto' : 'Open Source'}</h3>
-              <p className="text-white/55 text-sm leading-relaxed">{isEs ? 'Todos nuestros proyectos son de código abierto. Puedes contribuir, aprender y formar parte del desarrollo activamente.' : 'All our projects are open source. You can contribute, learn, and actively be part of the development.'}</p>
+              <h3 className="font-bold text-white mb-3 text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Código Abierto' : 'Open Source'}</h3>
+              <p className="text-white/50 text-sm leading-relaxed">{isEs ? 'Todos nuestros proyectos son de código abierto. Puedes contribuir, aprender y formar parte del desarrollo activamente.' : 'All our projects are open source. You can contribute, learn, and actively be part of the development.'}</p>
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="glass-card p-6 group hover:border-[#a855f7]/30 transition-all duration-300"
+              className="glass-card p-8 group hover:border-[#a855f7]/30 transition-all duration-500"
             >
-              <div className="w-12 h-12 rounded-2xl bg-[#a855f7]/15 border border-[#a855f7]/30 flex items-center justify-center mb-4">
-                <Globe size={24} className="text-[#a855f7]" />
+              <div className="w-14 h-14 rounded-2xl bg-[#a855f7]/10 border border-[#a855f7]/25 flex items-center justify-center mb-5">
+                <Globe size={26} className="text-[#a855f7]" />
               </div>
-              <h3 className="font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Comunidad Global' : 'Global Community'}</h3>
-              <p className="text-white/55 text-sm leading-relaxed">{isEs ? 'Colaboramos con personas de todo el mundo. Sin importar tu nivel de experiencia, hay un lugar para ti aquí.' : 'We collaborate with people from all over the world. Regardless of your experience level, there is a place for you here.'}</p>
+              <h3 className="font-bold text-white mb-3 text-lg" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>{isEs ? 'Comunidad Global' : 'Global Community'}</h3>
+              <p className="text-white/50 text-sm leading-relaxed">{isEs ? 'Colaboramos con personas de todo el mundo. Sin importar tu nivel de experiencia, hay un lugar para ti aquí.' : 'We collaborate with people from all over the world. Regardless of your experience level, there is a place for you here.'}</p>
             </motion.div>
           </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          7. INFORMACIÓN SECUNDARIA (CTA Discord)
+          7. CTA — Discord
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20">
+      <section className="py-20 lg:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -404,12 +477,13 @@ export default function Home() {
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#4D9FFF]/8 blur-3xl pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 rounded-full bg-[#a855f7]/5 blur-[80px] pointer-events-none" />
             <div className="relative z-10">
               <span className="text-[#FF2D78] text-sm font-semibold uppercase tracking-widest mb-4 block">{t('home.cta.tag')}</span>
               <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 {t('home.cta.title')} <span className="brand-gradient-text">{t('home.cta.accent')}</span>
               </h2>
-              <p className="text-white/60 mb-8 max-w-xl mx-auto leading-relaxed">
+              <p className="text-white/55 mb-8 max-w-xl mx-auto leading-relaxed">
                 {t('home.cta.text')}
               </p>
               <div className="flex flex-wrap gap-4 justify-center">
@@ -435,7 +509,7 @@ export default function Home() {
   );
 }
 
-/* ─── News Carousel Component (horizontal scroll) ─── */
+/* ─── News Carousel Component ─── */
 function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t: ReturnType<typeof useI18n>['t']; isEs: boolean }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -446,7 +520,7 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
   };
 
   return (
-    <section className="py-14 lg:py-20">
+    <section className="py-20 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
           <div>
@@ -478,17 +552,17 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                 className="glass-card overflow-hidden group flex-shrink-0 snap-start"
                 style={{ width: 'calc(33.333% - 14px)', minWidth: 280 }}
               >
-                <div className="relative overflow-hidden h-40">
+                <div className="relative overflow-hidden h-44">
                   <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                   <span
                     className="absolute top-3 left-3 text-xs font-semibold px-2.5 py-1 rounded-full"
-                    style={{ background: `${item.tagColor}25`, border: `1px solid ${item.tagColor}50`, color: item.tagColor }}
+                    style={{ background: `${item.tagColor}20`, border: `1px solid ${item.tagColor}40`, color: item.tagColor }}
                   >
                     {item.tag}
                   </span>
                 </div>
-                <div className="p-4">
+                <div className="p-5">
                   <p className="text-xs text-white/40 mb-2">{item.date}</p>
                   <h3 className="font-semibold text-white text-sm mb-2 leading-snug line-clamp-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {item.title}
