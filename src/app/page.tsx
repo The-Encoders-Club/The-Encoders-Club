@@ -69,18 +69,22 @@ function StatCounter({ value, label, icon: Icon, color, suffix = "" }: { value: 
       ref={ref}
       className="clip-card bg-[#0e0e1f] border border-white/10 p-5 sm:p-6 flex flex-col items-center text-center group transition-all duration-300 relative overflow-hidden hover:border-[#00F2FE]/50"
     >
+      {/* Colored top accent line */}
       <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
+      {/* Soft glow behind icon */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full pointer-events-none opacity-[0.07]" style={{ background: color, filter: 'blur(30px)' }} />
       <div className="w-11 h-11 rounded-xl flex items-center justify-center mb-4 relative" style={{ background: `${color}15`, border: `1px solid ${color}30` }}>
         <Icon size={20} style={{ color }} />
       </div>
       <span className="font-cyber text-3xl sm:text-4xl font-bold mb-1.5 relative" style={{ color }}>{formatted}{suffix}</span>
       <span className="font-code text-[10px] text-white/45 uppercase tracking-wider">{label}</span>
+      {/* Bottom gradient line */}
       <div className="absolute bottom-0 left-[10%] w-[80%] h-[1px] opacity-30" style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }} />
     </div>
   );
 }
 
+// Lightweight fade-up variants (only triggers once via whileInView)
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
@@ -89,8 +93,10 @@ const fadeUp = {
   }),
 };
 
-const FALLBACK_STATS = { downloads: 12500, visits: 50000 };
+// Fallback stat values (used while API loads or if it fails)
+const FALLBACK_STATS = { downloads: 15000, visits: 50000 };
 
+// Compact number formatter for hero mini-stats
 const compact = (n: number) => {
   if (n >= 1000) {
     const k = n / 1000;
@@ -104,6 +110,7 @@ export default function Home() {
   const isEs = locale === 'es';
   const newsItems = isEs ? newsItemsEs : newsItemsEn;
 
+  // Fetch live stats from API (visits & downloads) and refresh every 60 seconds
   const [liveStats, setLiveStats] = useState<{ downloads: number; visits: number } | null>(null);
 
   useEffect(() => {
@@ -115,14 +122,18 @@ export default function Home() {
             setLiveStats({ downloads: data.downloads, visits: data.visits });
           }
         })
-        .catch(() => {});
+        .catch(() => {}); // silently fail — fallback values will be used
     };
 
+    // Initial fetch
     fetchStats();
+
+    // Refresh every 60 seconds to keep stats near real-time
     const interval = setInterval(fetchStats, 60000);
     return () => clearInterval(interval);
   }, []);
 
+  // Use live data if available, otherwise fallback
   const stats = liveStats || FALLBACK_STATS;
 
   return (
@@ -130,8 +141,10 @@ export default function Home() {
       <Navbar />
       <BackgroundParticles />
 
-      {/* 1. HERO — Corregido para evitar superposición visual de contenedores */}
-      <section className="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden bg-[#080812] border-b-4 border-[#FF2D78]">
+      {/* ═══════════════════════════════════════════════════════════
+          1. HERO — The Encoders Club + Botón Unirse
+      ═══════════════════════════════════════════════════════════ */}
+      <section className="clip-diagonal relative min-h-screen flex items-center pt-16 overflow-hidden bg-[#080812] border-b-4 border-[#FF2D78]">
         <div className="absolute inset-0 z-0">
           <img src={BG_URL} alt="" className="w-full h-full object-cover opacity-15 filter grayscale contrast-200 scale-110" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#030308]/60 via-transparent to-[#030308]" />
@@ -141,7 +154,7 @@ export default function Home() {
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#00F2FE]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex flex-col lg:flex-row items-center justify-between gap-12 min-h-[75vh]">
+          <div className="flex items-center justify-center min-h-[80vh]">
             <div className="flex flex-col justify-center w-full max-w-2xl">
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -186,13 +199,11 @@ export default function Home() {
                   {t('home.seeProjects')} <BookOpen size={18} />
                 </Link>
               </motion.div>
-              
-              {/* Contadores protegidos para evitar que se oculten bajo franjas */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="flex items-center gap-6 mt-10 pt-8 border-t border-[#FF2D78]/15 relative z-20"
+                className="flex items-center gap-6 mt-10 pt-8 border-t border-[#FF2D78]/15"
               >
                 <div className="text-center">
                   <p className="font-cyber text-2xl font-bold text-[#FF2D78]">3+</p>
@@ -211,9 +222,9 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* HUD Panel - Right Side */}
+            {/* HUD Panel - desktop only */}
             <div className="hidden lg:flex flex-col items-end justify-center ml-12">
-              <div className="clip-card neon-border-magenta p-6 w-64 bg-[#0e0e1f]/90 relative z-20">
+              <div className="clip-card neon-border-magenta p-6 w-64">
                 <h4 className="font-cyber text-xs font-bold uppercase tracking-widest text-[#FF2D78] mb-4">{'// '}SYSTEM_STATUS</h4>
                 <div className="space-y-3">
                   <div>
@@ -255,7 +266,7 @@ export default function Home() {
 
         {/* Scroll indicator */}
         <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30 z-20"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
           style={{ animation: 'scrollBounce 2s ease-in-out infinite' }}
         >
           <span className="font-code text-[10px] uppercase">Scroll</span>
@@ -263,9 +274,12 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
-      {/* 2. SOBRE NOSOTROS */}
+      {/* ═══════════════════════════════════════════════════════════
+          2. SOBRE NOSOTROS
+      ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20 relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
@@ -295,9 +309,12 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
-      {/* 3. INTEGRANTES DEL EQUIPO — Fotos cargando a color directamente sin filtros de escala de grises */}
+      {/* ═══════════════════════════════════════════════════════════
+          3. EQUIPO
+      ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
@@ -316,9 +333,10 @@ export default function Home() {
                 className="clip-card bg-[#0b0b16] border border-white/8 flex items-center gap-5 p-4 sm:p-5 group transition-all duration-300 hover:border-[#00F2FE]/30"
                 style={{ borderLeftWidth: '4px', borderLeftColor: member.color }}
               >
-                {/* Removido el filtro grayscale de la clase de la imagen */}
-                <div className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center relative overflow-hidden flex-shrink-0 rounded-xl border border-white/5">
-                  <img src={member.image} alt={member.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+                <div
+                  className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center relative overflow-hidden flex-shrink-0"
+                >
+                  <img src={member.image} alt={member.name} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" loading="lazy" />
                 </div>
                 <div className="flex-1 min-w-0">
                   <h3 className="font-cyber font-bold text-sm lg:text-base" style={{ color: member.color }}>
@@ -326,7 +344,7 @@ export default function Home() {
                   </h3>
                   <div className="flex flex-wrap gap-2 mt-1">
                     {member.cargo.map((role, idx) => (
-                      <span key={idx} className="font-code text-[10px] text-white/44 px-2 py-0.5 bg-white/5 border border-white/8">{role}</span>
+                      <span key={idx} className="font-code text-[10px] text-white/40 px-2 py-0.5 bg-white/5 border border-white/8">{role}</span>
                     ))}
                   </div>
                 </div>
@@ -339,14 +357,20 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
-      {/* 4. NOTICIAS */}
+      {/* ═══════════════════════════════════════════════════════════
+          4. NOTICIAS — Carrusel horizontal
+      ═══════════════════════════════════════════════════════════ */}
       <NewsCarousel newsItems={newsItems} t={t} isEs={isEs} />
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
-      {/* 5. ESTADÍSTICAS */}
+      {/* ═══════════════════════════════════════════════════════════
+          5. ESTADÍSTICAS
+      ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20 bg-[#05050d]">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
@@ -358,9 +382,12 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
-      {/* 6. EXTRAS */}
+      {/* ═══════════════════════════════════════════════════════════
+          6. EXTRAS
+      ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
@@ -411,7 +438,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* 7. CALL TO ACTION (Discord) */}
+      {/* ═══════════════════════════════════════════════════════════
+          7. INFORMACIÓN SECUNDARIA (CTA Discord)
+      ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
@@ -455,7 +484,7 @@ export default function Home() {
   );
 }
 
-/* Componente Carrusel de Noticias con Llave Corregida */
+/* ─── News Carousel Component (horizontal scroll) ─── */
 function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t: ReturnType<typeof useI18n>['t']; isEs: boolean }) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -496,4 +525,37 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                 whileInView="visible"
                 viewport={{ once: true }}
                 className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group flex-shrink-0 snap-start hover:border-[#00F2FE]/30 transition-all duration-300"
-                style={{ width: 'calc(33.333%
+                style={{ width: 'calc(33.333% - 14px)', minWidth: 280 }}
+              >
+                <div className="relative overflow-hidden h-40">
+                  <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <span
+                    className="absolute top-3 left-3 text-xs font-cyber font-bold px-2.5 py-1 bg-[#080812] border border-white/10"
+                    style={{ color: item.tagColor }}
+                  >
+                    {item.tag}
+                  </span>
+                </div>
+                <div className="p-4">
+                  <p className="font-code text-[10px] text-white/40 mb-2">{item.date}</p>
+                  <h3 className="font-cyber font-bold text-white text-sm mb-2 leading-snug line-clamp-2">
+                    {item.title}
+                  </h3>
+                  <p className="font-code text-[11px] text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
+                  <span className="font-code text-[10px] text-[#FF2D78] font-bold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
+                    {t('common.readMore')} <ChevronRight size={13} />
+                  </span>
+                </div>
+              </motion.article>
+            ))}
+          </div>
+        </div>
+      </div>
+      <style>{`
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+    </section>
+  );
+}
