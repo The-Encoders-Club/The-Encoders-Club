@@ -45,7 +45,7 @@ const compact = (n: number) => {
 };
 
 /* ─── Mini counter for hero stats (animates on mount / value change) ─── */
-function HeroMiniCounter({ value, color, suffix = "" }: { value: number; color: string; suffix?: string }) {
+function HeroMiniCounter({ value, color, suffix = "", className = "font-cyber text-2xl font-bold" }: { value: number; color: string; suffix?: string; className?: string }) {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
@@ -58,10 +58,10 @@ function HeroMiniCounter({ value, color, suffix = "" }: { value: number; color: 
       else setCount(Math.floor(current));
     }, 30);
     return () => clearInterval(interval);
-  }, [value]); // re-runs if live data replaces fallback
+  }, [value]);
 
   return (
-    <span className="font-cyber text-2xl font-bold" style={{ color }}>
+    <span className={className} style={{ color }}>
       {compact(count)}{suffix}
     </span>
   );
@@ -172,35 +172,31 @@ export default function Home() {
                 </Link>
               </motion.div>
 
-              {/* ── Mini-stats móvil (ocultos en desktop) ── */}
+              {/* ── Mini-stats móvil — una sola línea (ocultos en desktop) ── */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="lg:hidden flex flex-wrap items-center gap-x-4 gap-y-3 mt-10 pt-8 border-t border-[#FF2D78]/15"
+                className="lg:hidden flex items-center justify-between w-full mt-10 pt-8 border-t border-[#FF2D78]/15"
               >
-                {/* Novelas Visuales */}
-                <div className="text-center">
-                  <HeroMiniCounter value={3} color="#FF2D78" suffix="+" />
-                  <p className="font-code text-[10px] text-white/45">{isEs ? 'Novelas Visuales' : 'Visual Novels'}</p>
+                <div className="text-center flex-1">
+                  <HeroMiniCounter value={3} color="#FF2D78" suffix="+" className="font-cyber text-lg font-bold" />
+                  <p className="font-code text-[8px] text-white/45 mt-0.5">Nov. Visuales</p>
                 </div>
-                <div className="w-px h-10 bg-[#FF2D78]/20" />
-                {/* Descargas */}
-                <div className="text-center">
-                  <HeroMiniCounter value={stats.downloads} color="#00F2FE" suffix="+" />
-                  <p className="font-code text-[10px] text-white/45">{isEs ? 'Descargas' : 'Downloads'}</p>
+                <div className="w-px h-8 bg-[#FF2D78]/20 flex-shrink-0" />
+                <div className="text-center flex-1">
+                  <HeroMiniCounter value={stats.downloads} color="#00F2FE" suffix="+" className="font-cyber text-lg font-bold" />
+                  <p className="font-code text-[8px] text-white/45 mt-0.5">Descargas</p>
                 </div>
-                <div className="w-px h-10 bg-[#FF2D78]/20" />
-                {/* Colaboradores */}
-                <div className="text-center">
-                  <HeroMiniCounter value={7} color="#9d4edd" suffix="+" />
-                  <p className="font-code text-[10px] text-white/45">{isEs ? 'Colaboradores' : 'Collaborators'}</p>
+                <div className="w-px h-8 bg-[#FF2D78]/20 flex-shrink-0" />
+                <div className="text-center flex-1">
+                  <HeroMiniCounter value={7} color="#9d4edd" suffix="+" className="font-cyber text-lg font-bold" />
+                  <p className="font-code text-[8px] text-white/45 mt-0.5">Colabs.</p>
                 </div>
-                <div className="w-px h-10 bg-[#FF2D78]/20" />
-                {/* Visitas */}
-                <div className="text-center">
-                  <HeroMiniCounter value={stats.visits} color="#22c55e" suffix="+" />
-                  <p className="font-code text-[10px] text-white/45">{isEs ? 'Visitas' : 'Visits'}</p>
+                <div className="w-px h-8 bg-[#FF2D78]/20 flex-shrink-0" />
+                <div className="text-center flex-1">
+                  <HeroMiniCounter value={stats.visits} color="#22c55e" suffix="+" className="font-cyber text-lg font-bold" />
+                  <p className="font-code text-[8px] text-white/45 mt-0.5">Visitas</p>
                 </div>
               </motion.div>
             </div>
