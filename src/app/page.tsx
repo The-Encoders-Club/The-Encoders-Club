@@ -200,47 +200,6 @@ export default function Home() {
                 </div>
               </motion.div>
             </div>
-
-            {/* HUD Panel - desktop only */}
-            <div className="hidden lg:flex flex-col items-end justify-center ml-12">
-              <div className="clip-card neon-border-magenta p-6 w-64">
-                <h4 className="font-cyber text-xs font-bold uppercase tracking-widest text-[#FF2D78] mb-4">{'// '}SYSTEM_STATUS</h4>
-                <div className="space-y-3">
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-code text-[10px] text-neutral-500">PROJECTS</span>
-                      <span className="font-code text-[10px] text-[#00F2FE]">3/5</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-[#080812] rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#FF2D78] to-[#00F2FE]" style={{ width: '60%' }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-code text-[10px] text-neutral-500">TRANSLATIONS</span>
-                      <span className="font-code text-[10px] text-[#9d4edd]">85%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-[#080812] rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#9d4edd] to-[#FF2D78]" style={{ width: '85%' }} />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="font-code text-[10px] text-neutral-500">COMMUNITY</span>
-                      <span className="font-code text-[10px] text-[#22c55e]">ACTIVE</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-[#080812] rounded-full overflow-hidden">
-                      <div className="h-full bg-[#22c55e]" style={{ width: '100%' }} />
-                    </div>
-                  </div>
-                </div>
-                <div className="mt-4 pt-3 border-t border-[#FF2D78]/20 flex items-center justify-between">
-                  <span className="font-code text-[9px] text-neutral-600">UPTIME</span>
-                  <span className="font-code text-[9px] text-[#00F2FE]">99.9%</span>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
           {/* ── Mini-stats desktop — centrados, solo visibles en lg+ ── */}
