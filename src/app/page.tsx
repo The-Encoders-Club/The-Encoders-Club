@@ -200,7 +200,7 @@ export default function Home() {
                 </div>
               </motion.div>
             </div>
-        </div>
+          </div>
 
           {/* ── Mini-stats desktop — centrados, solo visibles en lg+ ── */}
           <motion.div
@@ -229,6 +229,8 @@ export default function Home() {
               <p className="font-code text-[10px] text-white/45 mt-1">Visitas</p>
             </div>
           </motion.div>
+
+        </div>
 
         {/* Scroll indicator — oculto en móvil */}
         <div
