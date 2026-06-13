@@ -232,14 +232,7 @@ export default function Home() {
 
         </div>
 
-        {/* Scroll indicator — oculto en móvil */}
-        <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden sm:flex flex-col items-center gap-2 text-white/30"
-          style={{ animation: 'scrollBounce 2s ease-in-out infinite' }}
-        >
-          <span className="font-code text-[10px] uppercase">Scroll</span>
-          <div className="w-px h-8 bg-gradient-to-b from-[#00F2FE]/50 to-transparent" />
-        </div>
+
       </section>
 
       {/* ── Gradient separator ── */}
