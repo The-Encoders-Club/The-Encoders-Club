@@ -12,17 +12,17 @@ import { useI18n } from "@/hooks/useLocale";
 const BG_URL = "https://d2xsxph8kpxj0f.cloudfront.net/310519663516100892/kzug5rLPLvVJzu5QVE66vY/hero_bg-nZF9vsy8Qjc3eRVqRoEgy7.webp";
 
 const newsItemsEs = [
-  { id: 1, title: "Nuevo Tutorial de Ren'Py", description: "Aprende los conceptos básicos de programación en Ren'Py con nuestro nuevo tutorial interactivo.", image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=220&fit=crop", date: "1 Abr 2026", tag: "Tutorial", tagColor: "#00F2FE" },
-  { id: 2, title: "Concurso de Novelas Visuales", description: "Participa en nuestro concurso anual y gana premios increíbles. ¡Las inscripciones ya están abiertas!", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=220&fit=crop", date: "28 Mar 2026", tag: "Evento", tagColor: "#FF2D78" },
-  { id: 3, title: "Webinar: Diseño de Personajes", description: "Únete a nuestro webinar gratuito sobre técnicas avanzadas de diseño de personajes.", image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=220&fit=crop", date: "25 Mar 2026", tag: "Webinar", tagColor: "#9d4edd" },
-  { id: 4, title: "Actualización de Herramientas", description: "Descubre las nuevas herramientas y mejoras que hemos añadido a nuestra plataforma.", image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=220&fit=crop", date: "20 Mar 2026", tag: "Actualización", tagColor: "#22c55e" },
+  { id: 1, title: "Nuevo Tutorial de Ren'Py", description: "Aprende los conceptos básicos de programación en Ren'Py con nuestro nuevo tutorial interactivo.", image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=220&fit=crop", date: "1 Abr 2026", tag: "Tutorial", tagColor: "#00F2FE", href: "/noticias" },
+  { id: 2, title: "Concurso de Novelas Visuales", description: "Participa en nuestro concurso anual y gana premios increíbles. ¡Las inscripciones ya están abiertas!", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=220&fit=crop", date: "28 Mar 2026", tag: "Evento", tagColor: "#FF2D78", href: "/noticias" },
+  { id: 3, title: "Webinar: Diseño de Personajes", description: "Únete a nuestro webinar gratuito sobre técnicas avanzadas de diseño de personajes.", image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=220&fit=crop", date: "25 Mar 2026", tag: "Webinar", tagColor: "#9d4edd", href: "/noticias" },
+  { id: 4, title: "Actualización de Herramientas", description: "Descubre las nuevas herramientas y mejoras que hemos añadido a nuestra plataforma.", image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=220&fit=crop", date: "20 Mar 2026", tag: "Actualización", tagColor: "#22c55e", href: "/noticias" },
 ];
 
 const newsItemsEn = [
-  { id: 1, title: "New Ren'Py Tutorial", description: "Learn the basics of Ren'Py programming with our new interactive tutorial.", image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=220&fit=crop", date: "Apr 1, 2026", tag: "Tutorial", tagColor: "#00F2FE" },
-  { id: 2, title: "Visual Novel Contest", description: "Join our annual contest and win amazing prizes. Registration is now open!", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=220&fit=crop", date: "Mar 28, 2026", tag: "Event", tagColor: "#FF2D78" },
-  { id: 3, title: "Webinar: Character Design", description: "Join our free webinar on advanced character design techniques.", image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=220&fit=crop", date: "Mar 25, 2026", tag: "Webinar", tagColor: "#9d4edd" },
-  { id: 4, title: "Tools Update", description: "Discover the new tools and improvements we've added to our platform.", image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=220&fit=crop", date: "Mar 20, 2026", tag: "Update", tagColor: "#22c55e" },
+  { id: 1, title: "New Ren'Py Tutorial", description: "Learn the basics of Ren'Py programming with our new interactive tutorial.", image: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?w=400&h=220&fit=crop", date: "Apr 1, 2026", tag: "Tutorial", tagColor: "#00F2FE", href: "/noticias" },
+  { id: 2, title: "Visual Novel Contest", description: "Join our annual contest and win amazing prizes. Registration is now open!", image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=400&h=220&fit=crop", date: "Mar 28, 2026", tag: "Event", tagColor: "#FF2D78", href: "/noticias" },
+  { id: 3, title: "Webinar: Character Design", description: "Join our free webinar on advanced character design techniques.", image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?w=400&h=220&fit=crop", date: "Mar 25, 2026", tag: "Webinar", tagColor: "#9d4edd", href: "/noticias" },
+  { id: 4, title: "Tools Update", description: "Discover the new tools and improvements we've added to our platform.", image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=400&h=220&fit=crop", date: "Mar 20, 2026", tag: "Update", tagColor: "#22c55e", href: "/noticias" },
 ];
 
 const teamMembers = [
@@ -113,7 +113,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           1. HERO
       ═══════════════════════════════════════════════════════════ */}
-      <section className="clip-diagonal relative min-h-screen flex items-center pt-16 overflow-hidden bg-[#080812] border-b-4 border-[#FF2D78]">
+      <section className="clip-diagonal relative min-h-screen flex items-center pt-16 overflow-x-clip bg-[#080812] border-b-4 border-[#FF2D78]">
         <div className="absolute inset-0 z-0">
           <img src={BG_URL} alt="" className="w-full h-full object-cover opacity-15 filter grayscale contrast-200 scale-110" loading="eager" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#030308]/60 via-transparent to-[#030308]" />
@@ -207,7 +207,7 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="hidden lg:flex justify-center items-center gap-x-8 pb-12 pt-6 border-t border-[#FF2D78]/15"
+            className="hidden lg:flex justify-center items-center gap-x-8 pb-24 pt-6 border-t border-[#FF2D78]/15"
           >
             <div className="text-center">
               <HeroMiniCounter value={3} color="#FF2D78" suffix="+" />
@@ -467,27 +467,29 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                 initial="hidden"
                 whileInView="visible"
                 viewport={{ once: true }}
-                className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group flex-shrink-0 snap-start hover:border-[#00F2FE]/30 transition-all duration-300"
+                className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group flex-shrink-0 snap-start hover:border-[#00F2FE]/30 transition-all duration-300 cursor-pointer"
                 style={{ width: 'calc(33.333% - 14px)', minWidth: 280 }}
               >
-                <div className="relative overflow-hidden h-40">
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <span
-                    className="absolute top-3 left-3 text-xs font-cyber font-bold px-2.5 py-1 bg-[#080812] border border-white/10"
-                    style={{ color: item.tagColor }}
-                  >
-                    {item.tag}
-                  </span>
-                </div>
-                <div className="p-4">
-                  <p className="font-code text-[10px] text-white/40 mb-2">{item.date}</p>
-                  <h3 className="font-cyber font-bold text-white text-sm mb-2 leading-snug line-clamp-2">{item.title}</h3>
-                  <p className="font-code text-[11px] text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
-                  <span className="font-code text-[10px] text-[#FF2D78] font-bold hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
-                    {t('common.readMore')} <ChevronRight size={13} />
-                  </span>
-                </div>
+                <Link href={item.href} className="block h-full">
+                  <div className="relative overflow-hidden h-40">
+                    <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                    <span
+                      className="absolute top-3 left-3 text-xs font-cyber font-bold px-2.5 py-1 bg-[#080812] border border-white/10"
+                      style={{ color: item.tagColor }}
+                    >
+                      {item.tag}
+                    </span>
+                  </div>
+                  <div className="p-4">
+                    <p className="font-code text-[10px] text-white/40 mb-2">{item.date}</p>
+                    <h3 className="font-cyber font-bold text-white text-sm mb-2 leading-snug line-clamp-2">{item.title}</h3>
+                    <p className="font-code text-[11px] text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
+                    <span className="font-code text-[10px] text-[#FF2D78] font-bold group-hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
+                      {t('common.readMore')} <ChevronRight size={13} />
+                    </span>
+                  </div>
+                </Link>
               </motion.article>
             ))}
           </div>
