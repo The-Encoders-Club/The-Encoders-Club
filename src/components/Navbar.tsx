@@ -55,13 +55,16 @@ export default function Navbar() {
     <>
       <nav className="fixed top-0 left-0 right-0 z-50 h-11 bg-[#080812]/95 backdrop-blur-md border-b border-[#FF2D78]/20 flex items-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full flex items-center justify-between">
+
+          {/* ── Logo + nombre ── */}
           <Link href="/" className="flex items-center gap-2 group">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF2D78] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#FF2D78]"></span>
-            </span>
+            <img
+              src="/logo.png"
+              alt="The Encoders Club"
+              className="h-6 w-6 object-contain"
+            />
             <span className="font-cyber text-xs font-extrabold tracking-tight uppercase text-white group-hover:text-[#00F2FE] transition-colors duration-300">
-              THE_ENCODERS_<span className="text-[#FF2D78]">CLUB</span>
+              THE ENCODERS <span className="text-[#FF2D78]">CLUB</span>
             </span>
           </Link>
 
@@ -97,12 +100,9 @@ export default function Navbar() {
 
             {user ? (
               <div className="flex items-center gap-2">
-                {/* Notifications */}
                 <button onClick={() => setShowNotifs(!showNotifs)} className="relative p-1.5 text-neutral-500 hover:text-white transition-all">
                   <Bell size={14} />
                 </button>
-                
-                {/* User Menu */}
                 <div className="relative">
                   <button onClick={() => setShowUserMenu(!showUserMenu)} className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 hover:border-[#00F2FE]/40 transition-all">
                     {user.avatar ? (
@@ -122,7 +122,6 @@ export default function Navbar() {
                       }`}>{user.role}</span>
                     )}
                   </button>
-                  
                   <AnimatePresence>
                     {showUserMenu && (
                       <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
