@@ -32,11 +32,9 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
           <div className="col-span-2 lg:col-span-1">
+            {/* ── Logo reemplaza el punto rosa ── */}
             <div className="flex items-center gap-2 mb-4">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#FF2D78] opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-[#FF2D78]"></span>
-              </span>
+              <img src="/logo.png" alt="The Encoders Club" className="h-5 w-5 object-contain" />
               <span className="font-cyber font-bold text-xs uppercase tracking-tight text-white">The Encoders Club</span>
             </div>
             <p className="font-code text-[11px] text-neutral-600 leading-relaxed mb-5">{t('footer.description')}</p>
