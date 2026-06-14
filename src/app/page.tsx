@@ -278,41 +278,40 @@ export default function Home() {
             <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}{t('home.team.tag')}</span>
             <h2 className="section-title text-white">{t('home.team.title')} <span className="brand-gradient-text">{t('home.team.accent')}</span></h2>
           </div>
-          <div className="space-y-3">
-            {teamMembers.map((member, i) => (
-              <motion.div
-                key={member.id}
-                custom={i}
-                variants={fadeUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                className="clip-card bg-[#0b0b16] border border-white/8 flex items-center gap-5 p-4 sm:p-5 group transition-all duration-300 hover:border-[#00F2FE]/30"
-                style={{ borderLeftWidth: '4px', borderLeftColor: member.color }}
-              >
-                <div className="w-14 h-14 lg:w-16 lg:h-16 flex items-center justify-center relative overflow-hidden flex-shrink-0">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover transition-all duration-500"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-cyber font-bold text-sm lg:text-base" style={{ color: member.color }}>
-                    {member.name}
-                  </h3>
-                  <div className="flex flex-wrap gap-2 mt-1">
-                    {member.cargo.map((role, idx) => (
-                      <span key={idx} className="font-code text-[10px] text-white/40 px-2 py-0.5 bg-white/5 border border-white/8">{role}</span>
-                    ))}
+          <div className="relative">
+            <div className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
+              {teamMembers.map((member, i) => (
+                <motion.div
+                  key={member.id}
+                  custom={i}
+                  variants={fadeUp}
+                  initial="hidden"
+                  whileInView="visible"
+                  viewport={{ once: true }}
+                  className="clip-card bg-[#0b0b16] border border-white/8 flex-shrink-0 snap-start group transition-all duration-300 hover:border-[#00F2FE]/30 overflow-hidden"
+                  style={{ width: 160, borderTopWidth: '3px', borderTopColor: member.color }}
+                >
+                  <div className="w-full h-36 overflow-hidden">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
                   </div>
-                </div>
-                <div className="hidden sm:flex items-center gap-2 text-white/20 group-hover:text-[#00F2FE]/50 transition-colors">
-                  <span className="font-code text-[10px]">◆</span>
-                </div>
-              </motion.div>
-            ))}
+                  <div className="p-3">
+                    <h3 className="font-cyber font-bold text-xs mb-2 truncate" style={{ color: member.color }}>
+                      {member.name}
+                    </h3>
+                    <div className="flex flex-wrap gap-1">
+                      {member.cargo.map((role, idx) => (
+                        <span key={idx} className="font-code text-[9px] text-white/40 px-1.5 py-0.5 bg-white/5 border border-white/8">{role}</span>
+                      ))}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
