@@ -31,17 +31,17 @@ export default function Footer() {
       <div className="h-px w-full brand-gradient opacity-60" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-6">
+        <div className="flex flex-col sm:flex-row gap-8">
 
-          {/* ── Columna Logo ── */}
-          <div className="col-span-2 sm:col-span-1">
+          {/* ── Logo + redes ── */}
+          <div className="flex-shrink-0">
             <div className="flex items-center gap-2 mb-3">
               <img src="/logo.png" alt="The Encoders Club" className="h-8 w-8 object-contain" />
               <span className="font-cyber font-bold text-sm uppercase leading-tight text-white">
                 THE ENCODERS<br /><span className="text-[#FF2D78]">CLUB</span>
               </span>
             </div>
-            <div className="flex items-center gap-2 mt-3">
+            <div className="flex items-center gap-2">
               <a href="https://youtube.com/@theencodersclub" target="_blank" rel="noopener noreferrer"
                 className="w-8 h-8 flex items-center justify-center bg-white/5 border border-white/10 text-neutral-500 hover:text-red-500 hover:border-red-500/40 transition-all">
                 <Youtube size={13} />
@@ -57,60 +57,64 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* ── Navegación ── */}
-          <div>
-            <h4 className="font-cyber font-bold text-[11px] text-white mb-1 uppercase tracking-widest pb-1.5 border-b-2 border-[#FF2D78] inline-block">
-              {t('footer.navigation')}
-            </h4>
-            <ul className="space-y-2 mt-3">
-              {navLinks.map(link => (
-                <li key={link.href}>
-                  <Link href={link.href} className="font-code text-[11px] text-neutral-500 hover:text-[#00F2FE] transition-colors">
-                    {link.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {/* ── 3 columnas de links siempre juntas ── */}
+          <div className="grid grid-cols-3 gap-4 flex-1">
 
-          {/* ── Comunidad ── */}
-          <div>
-            <h4 className="font-cyber font-bold text-[11px] text-white mb-1 uppercase tracking-widest pb-1.5 border-b-2 border-[#9d4edd] inline-block">
-              {t('footer.community')}
-            </h4>
-            <ul className="space-y-2 mt-3">
-              {communityLinks.map(link => (
-                <li key={link.label}>
-                  <a href={link.href} target="_blank" rel="noopener noreferrer"
-                    className="font-code text-[11px] text-neutral-500 hover:text-[#00F2FE] transition-colors">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Navegación */}
+            <div>
+              <h4 className="font-cyber font-bold text-[10px] text-white mb-1 uppercase tracking-widest pb-1.5 border-b-2 border-[#FF2D78] inline-block">
+                {t('footer.navigation')}
+              </h4>
+              <ul className="space-y-2 mt-3">
+                {navLinks.map(link => (
+                  <li key={link.href}>
+                    <Link href={link.href} className="font-code text-[10px] text-neutral-500 hover:text-[#00F2FE] transition-colors">
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
-          {/* ── Herramientas ── */}
-          <div>
-            <h4 className="font-cyber font-bold text-[11px] text-white mb-1 uppercase tracking-widest pb-1.5 border-b-2 border-[#00F2FE] inline-block">
-              {t('footer.tools')}
-            </h4>
-            <ul className="space-y-2 mt-3">
-              {toolLinks.map(link => (
-                <li key={link.label}>
-                  <a href={link.href} target={link.href.startsWith('/') ? undefined : '_blank'} rel="noopener noreferrer"
-                    className="font-code text-[11px] text-neutral-500 hover:text-[#00F2FE] transition-colors">
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
+            {/* Comunidad */}
+            <div>
+              <h4 className="font-cyber font-bold text-[10px] text-white mb-1 uppercase tracking-widest pb-1.5 border-b-2 border-[#9d4edd] inline-block">
+                {t('footer.community')}
+              </h4>
+              <ul className="space-y-2 mt-3">
+                {communityLinks.map(link => (
+                  <li key={link.label}>
+                    <a href={link.href} target="_blank" rel="noopener noreferrer"
+                      className="font-code text-[10px] text-neutral-500 hover:text-[#00F2FE] transition-colors">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
 
+            {/* Herramientas */}
+            <div>
+              <h4 className="font-cyber font-bold text-[10px] text-white mb-1 uppercase tracking-widest pb-1.5 border-b-2 border-[#00F2FE] inline-block">
+                {t('footer.tools')}
+              </h4>
+              <ul className="space-y-2 mt-3">
+                {toolLinks.map(link => (
+                  <li key={link.label}>
+                    <a href={link.href} target={link.href.startsWith('/') ? undefined : '_blank'} rel="noopener noreferrer"
+                      className="font-code text-[10px] text-neutral-500 hover:text-[#00F2FE] transition-colors">
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+          </div>
         </div>
       </div>
 
-      {/* ── Copyright bar ── */}
+      {/* ── Copyright ── */}
       <div className="bg-[#05050d] border-t border-white/5">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <p className="font-code text-[10px] text-neutral-600 flex items-center gap-1.5">
