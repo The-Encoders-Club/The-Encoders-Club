@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, BookOpen, ChevronRight, ChevronLeft, Zap, Heart, Globe } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronRight, ChevronLeft, Zap, Heart, Globe, Code2, Languages, Github, GraduationCap } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import BackgroundParticles from "@/components/BackgroundParticles";
@@ -199,6 +199,29 @@ export default function Home() {
                   <p className="font-code text-[8px] text-white/45 mt-0.5">Visitas</p>
                 </div>
               </motion.div>
+
+              {/* ── Visual showcase (mobile only) — rellena el espacio vacío del hero ── */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.7 }}
+                className="lg:hidden mt-10 relative"
+              >
+                <div className="relative overflow-hidden border border-white/10 clip-card bg-[#0b0b16]">
+                  <div className="relative h-36 overflow-hidden">
+                    <img src="/portadas/Monika.png" alt="" className="w-full h-full object-cover opacity-60" loading="lazy" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0b0b16] via-[#0b0b16]/70 to-transparent" />
+                    <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#FF2D78] to-transparent" />
+                    <div className="absolute bottom-0 left-0 right-0 p-4">
+                      <span className="font-code text-[9px] text-[#FF2D78] uppercase tracking-widest mb-1 block">{'// '}{isEs ? 'Proyecto destacado' : 'Featured project'}</span>
+                      <h3 className="font-cyber font-bold text-white text-base mb-2">{isEs ? 'Explora nuestras novelas' : 'Explore our novels'}</h3>
+                      <Link href="/proyectos" className="inline-flex items-center gap-1 font-code text-[10px] text-[#00F2FE] font-bold">
+                        {isEs ? 'Ver proyectos' : 'View projects'} <ChevronRight size={12} />
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
             </div>
           </div>
 
@@ -242,27 +265,89 @@ export default function Home() {
           2. SOBRE NOSOTROS
       ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20 relative">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}{t('home.about.tag')}</span>
-            <h2 className="section-title text-white mb-5">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
-            <p className="text-white/65 leading-relaxed mb-5">{t('home.about.text1')}</p>
-            <p className="text-white/65 leading-relaxed mb-8">{t('home.about.text2')}</p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
-                {t('home.seeCourses')} <ChevronRight size={16} />
-              </Link>
-              <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
-                {t('home.exploreProjects')}
-              </Link>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+            {/* ── Left: Text content ── */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="text-center lg:text-left"
+            >
+              <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}{t('home.about.tag')}</span>
+              <h2 className="section-title text-white mb-5">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
+              <p className="text-white/65 leading-relaxed mb-5">{t('home.about.text1')}</p>
+              <p className="text-white/65 leading-relaxed mb-8">{t('home.about.text2')}</p>
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
+                  {t('home.seeCourses')} <ChevronRight size={16} />
+                </Link>
+                <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
+                  {t('home.exploreProjects')}
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* ── Right: Feature cards ── */}
+            <div className="grid grid-cols-2 gap-4 sm:gap-5">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                className="clip-card bg-[#0e0e1f] border border-white/10 p-5 group hover:border-[#9d4edd]/40 transition-all duration-300"
+              >
+                <div className="w-10 h-10 flex items-center justify-center mb-3 bg-[#9d4edd]/15 border border-[#9d4edd]/30">
+                  <Code2 size={20} className="text-[#9d4edd]" />
+                </div>
+                <h3 className="font-cyber font-bold text-white text-sm mb-1.5">Ren'Py</h3>
+                <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'Motor especializado en novelas visuales interactivas.' : 'Engine specialized in interactive visual novels.'}</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.15 }}
+                className="clip-card bg-[#0e0e1f] border border-white/10 p-5 group hover:border-[#FF2D78]/40 transition-all duration-300"
+              >
+                <div className="w-10 h-10 flex items-center justify-center mb-3 bg-[#FF2D78]/15 border border-[#FF2D78]/30">
+                  <Languages size={20} className="text-[#FF2D78]" />
+                </div>
+                <h3 className="font-cyber font-bold text-white text-sm mb-1.5">{isEs ? 'Traducciones ES' : 'ES Translations'}</h3>
+                <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'Localizamos novelas visuales al español con máxima calidad.' : 'We localize visual novels into Spanish with top quality.'}</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="clip-card bg-[#0e0e1f] border border-white/10 p-5 group hover:border-[#00F2FE]/40 transition-all duration-300"
+              >
+                <div className="w-10 h-10 flex items-center justify-center mb-3 bg-[#00F2FE]/15 border border-[#00F2FE]/30">
+                  <Github size={20} className="text-[#00F2FE]" />
+                </div>
+                <h3 className="font-cyber font-bold text-white text-sm mb-1.5">Open Source</h3>
+                <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'Código abierto y colaborativo en todos nuestros proyectos.' : 'Open source and collaborative across all our projects.'}</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.25 }}
+                className="clip-card bg-[#0e0e1f] border border-white/10 p-5 group hover:border-[#22c55e]/40 transition-all duration-300"
+              >
+                <div className="w-10 h-10 flex items-center justify-center mb-3 bg-[#22c55e]/15 border border-[#22c55e]/30">
+                  <GraduationCap size={20} className="text-[#22c55e]" />
+                </div>
+                <h3 className="font-cyber font-bold text-white text-sm mb-1.5">{isEs ? 'Tutoriales' : 'Tutorials'}</h3>
+                <p className="text-white/50 text-xs leading-relaxed">{isEs ? 'Guías y cursos para nuevos creadores de novelas visuales.' : 'Guides and courses for new visual novel creators.'}</p>
+              </motion.div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
 
