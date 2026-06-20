@@ -202,31 +202,31 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ── Mini-stats desktop — centrados, solo visibles en lg+ ── */}
+          {/* ── Mini-stats desktop — justify-between, grandes, ocupan todo el ancho ── */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="hidden lg:flex justify-center items-center gap-x-8 pb-24 pt-6 border-t border-[#FF2D78]/15"
+            className="hidden lg:flex justify-between items-center w-full pb-24 pt-12 border-t border-[#FF2D78]/15"
           >
-            <div className="text-center">
-              <HeroMiniCounter value={3} color="#FF2D78" suffix="+" />
-              <p className="font-code text-[10px] text-white/45 mt-1">Novelas Visuales</p>
+            <div className="text-center flex-1">
+              <HeroMiniCounter value={3} color="#FF2D78" suffix="+" className="font-cyber text-4xl xl:text-5xl font-bold" />
+              <p className="font-code text-xs text-white/55 mt-2">Novelas Visuales</p>
             </div>
-            <div className="w-px h-10 bg-[#FF2D78]/20" />
-            <div className="text-center">
-              <HeroMiniCounter value={stats.downloads} color="#00F2FE" suffix="+" />
-              <p className="font-code text-[10px] text-white/45 mt-1">Descargas</p>
+            <div className="w-px h-16 bg-[#FF2D78]/20" />
+            <div className="text-center flex-1">
+              <HeroMiniCounter value={stats.downloads} color="#00F2FE" suffix="+" className="font-cyber text-4xl xl:text-5xl font-bold" />
+              <p className="font-code text-xs text-white/55 mt-2">Descargas</p>
             </div>
-            <div className="w-px h-10 bg-[#FF2D78]/20" />
-            <div className="text-center">
-              <HeroMiniCounter value={7} color="#9d4edd" suffix="+" />
-              <p className="font-code text-[10px] text-white/45 mt-1">Colaboradores</p>
+            <div className="w-px h-16 bg-[#FF2D78]/20" />
+            <div className="text-center flex-1">
+              <HeroMiniCounter value={7} color="#9d4edd" suffix="+" className="font-cyber text-4xl xl:text-5xl font-bold" />
+              <p className="font-code text-xs text-white/55 mt-2">Colaboradores</p>
             </div>
-            <div className="w-px h-10 bg-[#FF2D78]/20" />
-            <div className="text-center">
-              <HeroMiniCounter value={stats.visits} color="#22c55e" suffix="+" />
-              <p className="font-code text-[10px] text-white/45 mt-1">Visitas</p>
+            <div className="w-px h-16 bg-[#FF2D78]/20" />
+            <div className="text-center flex-1">
+              <HeroMiniCounter value={stats.visits} color="#22c55e" suffix="+" className="font-cyber text-4xl xl:text-5xl font-bold" />
+              <p className="font-code text-xs text-white/55 mt-2">Visitas</p>
             </div>
           </motion.div>
 
@@ -239,30 +239,77 @@ export default function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          2. SOBRE NOSOTROS
+          2. SOBRE NOSOTROS — Layout de 2 columnas en desktop
       ═══════════════════════════════════════════════════════════ */}
       <section className="py-14 lg:py-20 relative">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5 }}
-            className="text-center"
-          >
-            <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}{t('home.about.tag')}</span>
-            <h2 className="section-title text-white mb-5">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
-            <p className="text-white/65 leading-relaxed mb-5">{t('home.about.text1')}</p>
-            <p className="text-white/65 leading-relaxed mb-8">{t('home.about.text2')}</p>
-            <div className="flex flex-wrap gap-3 justify-center">
-              <Link href="/cursos" className="btn-primary text-sm px-5 py-2.5">
-                {t('home.seeCourses')} <ChevronRight size={16} />
-              </Link>
-              <Link href="/proyectos" className="btn-outline text-sm px-5 py-2.5">
-                {t('home.exploreProjects')}
-              </Link>
-            </div>
-          </motion.div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
+
+            {/* ── Columna izquierda: tag + título + botones ── */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5 }}
+              className="text-center lg:text-left"
+            >
+              <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}{t('home.about.tag')}</span>
+              <h2 className="section-title text-white mb-6 lg:mb-8">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
+              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
+                <Link href="/cursos" className="btn-primary text-sm px-6 py-3">
+                  {t('home.seeCourses')} <ChevronRight size={16} />
+                </Link>
+                <Link href="/proyectos" className="btn-outline text-sm px-6 py-3">
+                  {t('home.exploreProjects')}
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* ── Columna derecha: párrafos + mini-features ── */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+            >
+              <div className="border-l-4 border-[#00F2FE] pl-6 mb-6">
+                <p className="text-white/70 leading-relaxed mb-4 text-base">{t('home.about.text1')}</p>
+                <p className="text-white/70 leading-relaxed text-base">{t('home.about.text2')}</p>
+              </div>
+
+              {/* Mini-features: 3 highlights con íconos */}
+              <div className="grid sm:grid-cols-3 gap-4 mt-6">
+                <div className="flex items-center gap-3 bg-white/[0.03] border border-white/10 px-4 py-3 hover:border-[#FF2D78]/40 transition-colors">
+                  <div className="w-9 h-9 flex items-center justify-center bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex-shrink-0">
+                    <BookOpen size={18} className="text-[#FF2D78]" />
+                  </div>
+                  <div>
+                    <p className="font-cyber text-xs font-bold text-white">{isEs ? 'Ren\'Py' : 'Ren\'Py'}</p>
+                    <p className="font-code text-[10px] text-white/45">{isEs ? 'Motor principal' : 'Main engine'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-white/[0.03] border border-white/10 px-4 py-3 hover:border-[#00F2FE]/40 transition-colors">
+                  <div className="w-9 h-9 flex items-center justify-center bg-[#00F2FE]/15 border border-[#00F2FE]/30 flex-shrink-0">
+                    <Globe size={18} className="text-[#00F2FE]" />
+                  </div>
+                  <div>
+                    <p className="font-cyber text-xs font-bold text-white">{isEs ? 'Español' : 'Spanish'}</p>
+                    <p className="font-code text-[10px] text-white/45">{isEs ? 'Localización' : 'Localization'}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 bg-white/[0.03] border border-white/10 px-4 py-3 hover:border-[#9d4edd]/40 transition-colors">
+                  <div className="w-9 h-9 flex items-center justify-center bg-[#9d4edd]/15 border border-[#9d4edd]/30 flex-shrink-0">
+                    <Heart size={18} className="text-[#9d4edd]" />
+                  </div>
+                  <div>
+                    <p className="font-cyber text-xs font-bold text-white">{isEs ? 'Open Source' : 'Open Source'}</p>
+                    <p className="font-code text-[10px] text-white/45">{isEs ? 'Código abierto' : 'Code open'}</p>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
