@@ -111,7 +111,7 @@ export default function Home() {
       <BackgroundParticles />
 
       {/* ═══════════════════════════════════════════════════════════
-          1. HERO
+          1. HERO (OPTIMIZED)
       ═══════════════════════════════════════════════════════════ */}
       <section className="clip-diagonal relative min-h-screen flex items-center pt-16 overflow-x-clip bg-[#080812] border-b-4 border-[#FF2D78]">
         <div className="absolute inset-0 z-0">
@@ -123,8 +123,8 @@ export default function Home() {
         <div className="absolute bottom-1/3 right-1/4 w-80 h-80 rounded-full bg-[#00F2FE]/10 blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-          <div className="flex items-center justify-center min-h-[80vh]">
-            <div className="flex flex-col justify-center w-full max-w-2xl pb-20 lg:pb-0">
+          <div className="flex items-center justify-center min-h-[70vh] lg:min-h-[80vh]">
+            <div className="flex flex-col justify-center w-full max-w-2xl pb-16 lg:pb-0">
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -149,35 +149,37 @@ export default function Home() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.25 }}
-                className="text-lg text-white/65 leading-relaxed mb-8 max-w-lg border-l-4 border-[#00F2FE] pl-4"
+                className="text-base sm:text-lg lg:text-xl text-white/65 leading-relaxed mb-10 max-w-lg border-l-4 border-[#00F2FE] pl-4"
               >
                 {t('home.hero.subtitle')}
               </motion.p>
+              
+              {/* BUTTONS - OPTIMIZED FOR DESKTOP */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.35 }}
-                className="flex flex-wrap gap-4"
+                className="flex flex-col sm:flex-row flex-wrap gap-4 sm:gap-5 lg:gap-6"
               >
                 <a
                   href="https://discord.gg/2DB5k7sb8"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="clip-btn text-base px-7 py-3.5 bg-[#FF2D78] text-black font-cyber font-bold hover:shadow-[0_0_20px_rgba(255,45,120,0.5)] transition-all duration-300 flex items-center gap-2"
+                  className="clip-btn text-base sm:text-lg lg:text-xl px-7 sm:px-9 lg:px-12 py-3.5 sm:py-4 lg:py-5 bg-[#FF2D78] text-black font-cyber font-bold hover:shadow-[0_0_30px_rgba(255,45,120,0.6)] transition-all duration-300 flex items-center justify-center sm:justify-start gap-2 w-full sm:w-auto"
                 >
-                  {isEs ? 'Unirse' : 'Join Us'} <ArrowRight size={18} />
+                  {isEs ? 'Unirse' : 'Join Us'} <ArrowRight size={22} className="hidden sm:block" />
                 </a>
-                <Link href="/proyectos" className="clip-btn text-base px-7 py-3.5 border-2 border-[#00F2FE] text-[#00F2FE] font-cyber font-bold hover:bg-[#00F2FE]/10 transition-all duration-300 flex items-center gap-2">
-                  {t('home.seeProjects')} <BookOpen size={18} />
+                <Link href="/proyectos" className="clip-btn text-base sm:text-lg lg:text-xl px-7 sm:px-9 lg:px-12 py-3.5 sm:py-4 lg:py-5 border-2 border-[#00F2FE] text-[#00F2FE] font-cyber font-bold hover:bg-[#00F2FE]/10 transition-all duration-300 flex items-center justify-center sm:justify-start gap-2 w-full sm:w-auto">
+                  {t('home.seeProjects')} <BookOpen size={22} className="hidden sm:block" />
                 </Link>
               </motion.div>
 
-              {/* ── Mini-stats móvil — una sola línea (ocultos en desktop) ── */}
+              {/* Mini-stats móvil — UNA SOLA LÍNEA (ocultos en lg+) */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
-                className="lg:hidden flex items-center justify-between w-full mt-10 pt-8 border-t border-[#FF2D78]/15"
+                className="lg:hidden flex items-center justify-between w-full mt-12 pt-8 border-t border-[#FF2D78]/15"
               >
                 <div className="text-center flex-1">
                   <HeroMiniCounter value={3} color="#FF2D78" suffix="+" className="font-cyber text-lg font-bold" />
@@ -202,114 +204,62 @@ export default function Home() {
             </div>
           </div>
 
-          {/* ── Mini-stats desktop — justify-between, grandes, ocupan todo el ancho ── */}
+          {/* Mini-stats desktop — MEJORA DE ESPACIADO */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="hidden lg:flex justify-between items-center w-full pb-24 pt-12 border-t border-[#FF2D78]/15"
+            className="hidden lg:grid grid-cols-4 gap-8 pb-16 pt-12 border-t border-[#FF2D78]/15"
           >
-            <div className="text-center flex-1">
-              <HeroMiniCounter value={3} color="#FF2D78" suffix="+" className="font-cyber text-4xl xl:text-5xl font-bold" />
-              <p className="font-code text-xs text-white/55 mt-2">Novelas Visuales</p>
+            <div className="text-center">
+              <HeroMiniCounter value={3} color="#FF2D78" suffix="+" className="font-cyber text-4xl font-bold" />
+              <p className="font-code text-xs text-white/45 mt-2">Novelas Visuales</p>
             </div>
-            <div className="w-px h-16 bg-[#FF2D78]/20" />
-            <div className="text-center flex-1">
-              <HeroMiniCounter value={stats.downloads} color="#00F2FE" suffix="+" className="font-cyber text-4xl xl:text-5xl font-bold" />
-              <p className="font-code text-xs text-white/55 mt-2">Descargas</p>
+            <div className="text-center">
+              <HeroMiniCounter value={stats.downloads} color="#00F2FE" suffix="+" className="font-cyber text-4xl font-bold" />
+              <p className="font-code text-xs text-white/45 mt-2">Descargas</p>
             </div>
-            <div className="w-px h-16 bg-[#FF2D78]/20" />
-            <div className="text-center flex-1">
-              <HeroMiniCounter value={7} color="#9d4edd" suffix="+" className="font-cyber text-4xl xl:text-5xl font-bold" />
-              <p className="font-code text-xs text-white/55 mt-2">Colaboradores</p>
+            <div className="text-center">
+              <HeroMiniCounter value={7} color="#9d4edd" suffix="+" className="font-cyber text-4xl font-bold" />
+              <p className="font-code text-xs text-white/45 mt-2">Colaboradores</p>
             </div>
-            <div className="w-px h-16 bg-[#FF2D78]/20" />
-            <div className="text-center flex-1">
-              <HeroMiniCounter value={stats.visits} color="#22c55e" suffix="+" className="font-cyber text-4xl xl:text-5xl font-bold" />
-              <p className="font-code text-xs text-white/55 mt-2">Visitas</p>
+            <div className="text-center">
+              <HeroMiniCounter value={stats.visits} color="#22c55e" suffix="+" className="font-cyber text-4xl font-bold" />
+              <p className="font-code text-xs text-white/45 mt-2">Visitas</p>
             </div>
           </motion.div>
 
         </div>
-
-
       </section>
 
       {/* ── Gradient separator ── */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[#FF2D78]/30 to-transparent" />
 
       {/* ═══════════════════════════════════════════════════════════
-          2. SOBRE NOSOTROS — Layout de 2 columnas en desktop
+          2. SOBRE NOSOTROS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20 relative">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-
-            {/* ── Columna izquierda: tag + título + botones ── */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5 }}
-              className="text-center lg:text-left"
-            >
-              <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}{t('home.about.tag')}</span>
-              <h2 className="section-title text-white mb-6 lg:mb-8">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
-              <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                <Link href="/cursos" className="btn-primary text-sm px-6 py-3">
-                  {t('home.seeCourses')} <ChevronRight size={16} />
-                </Link>
-                <Link href="/proyectos" className="btn-outline text-sm px-6 py-3">
-                  {t('home.exploreProjects')}
-                </Link>
-              </div>
-            </motion.div>
-
-            {/* ── Columna derecha: párrafos + mini-features ── */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: 0.1 }}
-            >
-              <div className="border-l-4 border-[#00F2FE] pl-6 mb-6">
-                <p className="text-white/70 leading-relaxed mb-4 text-base">{t('home.about.text1')}</p>
-                <p className="text-white/70 leading-relaxed text-base">{t('home.about.text2')}</p>
-              </div>
-
-              {/* Mini-features: 3 highlights con íconos */}
-              <div className="grid sm:grid-cols-3 gap-4 mt-6">
-                <div className="flex items-center gap-3 bg-white/[0.03] border border-white/10 px-4 py-3 hover:border-[#FF2D78]/40 transition-colors">
-                  <div className="w-9 h-9 flex items-center justify-center bg-[#FF2D78]/15 border border-[#FF2D78]/30 flex-shrink-0">
-                    <BookOpen size={18} className="text-[#FF2D78]" />
-                  </div>
-                  <div>
-                    <p className="font-cyber text-xs font-bold text-white">{isEs ? 'Ren\'Py' : 'Ren\'Py'}</p>
-                    <p className="font-code text-[10px] text-white/45">{isEs ? 'Motor principal' : 'Main engine'}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 bg-white/[0.03] border border-white/10 px-4 py-3 hover:border-[#00F2FE]/40 transition-colors">
-                  <div className="w-9 h-9 flex items-center justify-center bg-[#00F2FE]/15 border border-[#00F2FE]/30 flex-shrink-0">
-                    <Globe size={18} className="text-[#00F2FE]" />
-                  </div>
-                  <div>
-                    <p className="font-cyber text-xs font-bold text-white">{isEs ? 'Español' : 'Spanish'}</p>
-                    <p className="font-code text-[10px] text-white/45">{isEs ? 'Localización' : 'Localization'}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 bg-white/[0.03] border border-white/10 px-4 py-3 hover:border-[#9d4edd]/40 transition-colors">
-                  <div className="w-9 h-9 flex items-center justify-center bg-[#9d4edd]/15 border border-[#9d4edd]/30 flex-shrink-0">
-                    <Heart size={18} className="text-[#9d4edd]" />
-                  </div>
-                  <div>
-                    <p className="font-cyber text-xs font-bold text-white">{isEs ? 'Open Source' : 'Open Source'}</p>
-                    <p className="font-code text-[10px] text-white/45">{isEs ? 'Código abierto' : 'Code open'}</p>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-          </div>
+      <section className="py-16 lg:py-28 relative">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center"
+          >
+            <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}{t('home.about.tag')}</span>
+            <h2 className="section-title text-white mb-5">{t('home.about.title')} <span className="brand-gradient-text">{t('home.about.accent')}</span></h2>
+            <p className="text-white/65 leading-relaxed mb-5 text-lg">{t('home.about.text1')}</p>
+            <p className="text-white/65 leading-relaxed mb-8 text-lg">{t('home.about.text2')}</p>
+            <div className="flex flex-wrap gap-4 justify-center">
+              <Link href="/cursos" className="btn-primary text-base px-7 py-3">
+                {t('home.seeCourses')} <ChevronRight size={18} />
+              </Link>
+              <Link href="/proyectos" className="btn-outline text-base px-7 py-3">
+                {t('home.exploreProjects')}
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
 
@@ -319,9 +269,9 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           3. EQUIPO
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20 bg-[#05050d]">
+      <section className="py-16 lg:py-28 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <div className="text-center mb-14">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}{t('home.team.tag')}</span>
             <h2 className="section-title text-white">{t('home.team.title')} <span className="brand-gradient-text">{t('home.team.accent')}</span></h2>
           </div>
@@ -377,9 +327,9 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           5. EXTRAS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20">
+      <section className="py-16 lg:py-28">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-10">
+          <div className="text-center mb-14">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#22c55e] mb-3 block">{'// '}{isEs ? 'Extras' : 'Extras'}</span>
             <h2 className="section-title text-white">{isEs ? 'Más que proyectos' : 'More than projects'} <span className="brand-gradient-text">{isEs ? 'una comunidad' : 'a community'}</span></h2>
           </div>
@@ -430,36 +380,36 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           6. CTA Discord
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-14 lg:py-20">
+      <section className="py-16 lg:py-28">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
-            className="clip-card bg-black border border-[#FF2D78]/20 p-10 lg:p-16 relative overflow-hidden"
+            className="clip-card bg-black border border-[#FF2D78]/20 p-8 sm:p-12 lg:p-20 relative overflow-hidden"
           >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
             <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#00F2FE]/8 blur-3xl pointer-events-none" />
             <div className="relative z-10">
               <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-4 block">{'// '}{t('home.cta.tag')}</span>
-              <h2 className="font-cyber text-3xl lg:text-4xl font-bold text-white mb-4 uppercase">
+              <h2 className="font-cyber text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 uppercase">
                 {t('home.cta.title')} <span className="brand-gradient-text">{t('home.cta.accent')}</span>
               </h2>
-              <p className="text-white/60 mb-8 max-w-xl mx-auto leading-relaxed">
+              <p className="text-white/60 mb-10 max-w-xl mx-auto leading-relaxed text-lg">
                 {t('home.cta.text')}
               </p>
-              <div className="flex flex-wrap gap-4 justify-center">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-5 justify-center">
                 <a
                   href="https://discord.gg/2DB5k7sb8"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="clip-btn text-base px-8 py-3.5 bg-[#00F2FE] text-black font-cyber font-black uppercase hover:shadow-[0_0_20px_rgba(0,242,254,0.5)] transition-all duration-300 flex items-center gap-2"
+                  className="clip-btn text-lg px-10 py-4 bg-[#00F2FE] text-black font-cyber font-black uppercase hover:shadow-[0_0_30px_rgba(0,242,254,0.6)] transition-all duration-300 flex items-center justify-center gap-2 w-full sm:w-auto"
                 >
-                  {t('home.cta.discord')} <ArrowRight size={18} />
+                  {t('home.cta.discord')} <ArrowRight size={20} />
                 </a>
-                <Link href="/cursos" className="clip-btn text-base px-8 py-3.5 border-2 border-[#FF2D78] text-[#FF2D78] font-cyber font-bold hover:bg-[#FF2D78]/10 transition-all duration-300 flex items-center gap-2">
+                <Link href="/cursos" className="clip-btn text-lg px-10 py-4 border-2 border-[#FF2D78] text-[#FF2D78] font-cyber font-bold hover:bg-[#FF2D78]/10 transition-all duration-300 flex items-center justify-center gap-2 w-full sm:w-auto">
                   {t('home.cta.learn')}
                 </Link>
               </div>
@@ -484,22 +434,22 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
   };
 
   return (
-    <section className="py-14 lg:py-20">
+    <section className="py-16 lg:py-28">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-10">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
           <div>
             <span className="font-cyber font-bold text-sm tracking-widest text-[#00F2FE] mb-3 block">{'// '}{t('home.news.tag')}</span>
             <h2 className="section-title text-white">{t('home.news.title')} <span className="brand-gradient-text">{t('home.news.accent')}</span></h2>
           </div>
           <div className="flex items-center gap-3">
-            <button onClick={() => scroll('left')} className="w-9 h-9 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
-              <ChevronLeft size={18} />
+            <button onClick={() => scroll('left')} className="w-10 h-10 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
+              <ChevronLeft size={20} />
             </button>
-            <button onClick={() => scroll('right')} className="w-9 h-9 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
-              <ChevronRight size={18} />
+            <button onClick={() => scroll('right')} className="w-10 h-10 flex items-center justify-center bg-white/5 border border-white/10 text-white/50 hover:text-[#00F2FE] hover:border-[#00F2FE]/30 transition-all">
+              <ChevronRight size={20} />
             </button>
-            <Link href="/noticias" className="btn-outline text-sm px-5 py-2.5 whitespace-nowrap ml-2">
-              {t('home.seeAll')} <ArrowRight size={15} />
+            <Link href="/noticias" className="btn-outline text-base px-6 py-2.5 whitespace-nowrap ml-2">
+              {t('home.seeAll')} <ArrowRight size={16} />
             </Link>
           </div>
         </div>
@@ -514,10 +464,10 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                 whileInView="visible"
                 viewport={{ once: true }}
                 className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group flex-shrink-0 snap-start hover:border-[#00F2FE]/30 transition-all duration-300 cursor-pointer"
-                style={{ width: 'calc(33.333% - 14px)', minWidth: 280 }}
+                style={{ width: 'calc(33.333% - 14px)', minWidth: 300 }}
               >
                 <Link href={item.href} className="block h-full">
-                  <div className="relative overflow-hidden h-40">
+                  <div className="relative overflow-hidden h-44">
                     <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <span
