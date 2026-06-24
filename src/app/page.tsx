@@ -238,7 +238,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           2. SOBRE NOSOTROS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 lg:py-28 relative">
+      <section className="py-10 lg:py-20 relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -269,9 +269,9 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           3. EQUIPO
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 lg:py-28 bg-[#05050d]">
+      <section className="py-10 lg:py-20 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}{t('home.team.tag')}</span>
             <h2 className="section-title text-white">{t('home.team.title')} <span className="brand-gradient-text">{t('home.team.accent')}</span></h2>
           </div>
@@ -327,9 +327,9 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           5. EXTRAS
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 lg:py-28">
+      <section className="py-10 lg:py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#22c55e] mb-3 block">{'// '}{isEs ? 'Extras' : 'Extras'}</span>
             <h2 className="section-title text-white">{isEs ? 'Más que proyectos' : 'More than projects'} <span className="brand-gradient-text">{isEs ? 'una comunidad' : 'a community'}</span></h2>
           </div>
@@ -380,7 +380,7 @@ export default function Home() {
       {/* ═══════════════════════════════════════════════════════════
           6. CTA Discord
       ═══════════════════════════════════════════════════════════ */}
-      <section className="py-16 lg:py-28">
+      <section className="py-10 lg:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -434,9 +434,9 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
   };
 
   return (
-    <section className="py-16 lg:py-28">
+    <section className="py-10 lg:py-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-12">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-9">
           <div>
             <span className="font-cyber font-bold text-sm tracking-widest text-[#00F2FE] mb-3 block">{'// '}{t('home.news.tag')}</span>
             <h2 className="section-title text-white">{t('home.news.title')} <span className="brand-gradient-text">{t('home.news.accent')}</span></h2>
