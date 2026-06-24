@@ -276,7 +276,7 @@ export default function Home() {
             <h2 className="section-title text-white">{t('home.team.title')} <span className="brand-gradient-text">{t('home.team.accent')}</span></h2>
           </div>
           <div className="relative">
-            <div className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
+            <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
               {teamMembers.map((member, i) => (
                 <motion.div
                   key={member.id}
@@ -464,7 +464,7 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                 whileInView="visible"
                 viewport={{ once: true }}
                 className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group flex-shrink-0 snap-start hover:border-[#00F2FE]/30 transition-all duration-300 cursor-pointer"
-                style={{ width: 'calc(33.333% - 14px)', minWidth: 300 }}
+                style={{ width: 'calc(33.333% - 14px)', minWidth: 270 }}
               >
                 <Link href={item.href} className="block h-full">
                   <div className="relative overflow-hidden h-44">
