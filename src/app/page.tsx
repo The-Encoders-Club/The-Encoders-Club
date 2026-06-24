@@ -286,7 +286,7 @@ export default function Home() {
                   whileInView="visible"
                   viewport={{ once: true }}
                   className="clip-card bg-[#0b0b16] border border-white/8 flex-shrink-0 snap-start group transition-all duration-300 hover:border-[#00F2FE]/30 overflow-hidden"
-                  style={{ width: 160, borderTopWidth: '3px', borderTopColor: member.color }}
+                  style={{ width: 140, borderTopWidth: '3px', borderTopColor: member.color }}
                 >
                   <div className="w-full h-36 overflow-hidden">
                     <img
@@ -464,7 +464,7 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                 whileInView="visible"
                 viewport={{ once: true }}
                 className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group flex-shrink-0 snap-start hover:border-[#00F2FE]/30 transition-all duration-300 cursor-pointer"
-                style={{ width: 'calc(33.333% - 14px)', minWidth: 270 }}
+                style={{ width: 'calc(33.333% - 14px)', minWidth: 200 }}
               >
                 <Link href={item.href} className="block h-full">
                   <div className="relative overflow-hidden h-44">
