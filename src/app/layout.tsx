@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
-import { LoadingScreen } from "@/components/LoadingScreen";
 import { I18nProvider } from "@/hooks/useLocale";
 
 export const metadata: Metadata = {
@@ -35,7 +34,6 @@ export default function RootLayout({
       </head>
       <body className="antialiased" style={{ fontFamily: "'DM Sans', sans-serif", backgroundColor: '#030308', color: '#F0F0FF' }}>
         <I18nProvider>
-          <LoadingScreen />
           {children}
           <Toaster richColors position="top-right" />
         </I18nProvider>
