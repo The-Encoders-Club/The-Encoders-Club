@@ -134,7 +134,7 @@ export default function Donar() {
       </section>
 
       {/* Impact Stats */}
-      <section className="pb-12 sm:pb-16">
+      <section className="pb-8 sm:pb-10">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {impactStats.map((stat, i) => {
@@ -160,7 +160,7 @@ export default function Donar() {
       </section>
 
       {/* Donation Tiers */}
-      <section className="py-12 lg:py-20 bg-[#05050d]">
+      <section className="py-10 lg:py-14 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}Elige tu nivel</span>
@@ -238,7 +238,7 @@ export default function Donar() {
       </section>
 
       {/* FAQ */}
-      <section className="py-12 lg:py-20 bg-[#05050d]">
+      <section className="py-10 lg:py-14 bg-[#05050d]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-10">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}Preguntas frecuentes</span>
@@ -279,7 +279,7 @@ export default function Donar() {
       </section>
 
       {/* Ko-fi Direct Link */}
-      <section className="py-12 lg:py-16">
+      <section className="py-10 lg:py-12">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
