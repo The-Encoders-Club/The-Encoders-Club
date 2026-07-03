@@ -1,8 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Construction, BookOpen, GraduationCap, Code, Palette, Gamepad2, Lightbulb, ArrowRight } from 'lucide-react';
+import { BookOpen, GraduationCap, Code, Palette, Gamepad2, Lightbulb } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackgroundParticles from '@/components/BackgroundParticles';
@@ -23,7 +22,7 @@ export default function Cursos() {
       <BackgroundParticles />
 
       {/* Hero */}
-      <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-16">
+      <section className="relative pt-16 sm:pt-20 pb-12 sm:pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="font-cyber font-bold text-sm tracking-widest text-[#00F2FE] mb-3 block">{'// '}Aprende con nosotros</span>
@@ -40,70 +39,8 @@ export default function Cursos() {
         </div>
       </section>
 
-      {/* Under Construction Banner */}
-      <section className="py-8 sm:py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative clip-card neon-border-magenta overflow-hidden bg-[#0e0e1f]"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[#FF2D78]/20 via-[#9d4edd]/20 to-[#00F2FE]/20" />
-            <div className="relative p-8 sm:p-12 lg:p-16 text-center">
-              <motion.div
-                animate={{ y: [0, -10, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="inline-flex items-center justify-center w-20 h-20 bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6"
-              >
-                <Construction size={36} className="text-[#FF2D78]" />
-              </motion.div>
-              <h2
-                className="font-cyber text-3xl sm:text-4xl lg:text-5xl font-bold text-white mb-4 uppercase"
-              >
-                Página en{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2D78] to-[#9d4edd]">
-                  Construcción
-                </span>
-              </h2>
-              <p className="font-code text-sm text-white/60 max-w-xl mx-auto mb-8 leading-relaxed">
-                Estamos trabajando duro para traerte los mejores cursos de novelas visuales. ¡Pronto estarán disponibles! Mientras tanto, explora nuestros proyectos.
-              </p>
-
-              {/* Animated construction elements */}
-              <div className="flex justify-center gap-4 mb-8">
-                {['🎨', '📝', '💻', '🎮'].map((emoji, i) => (
-                  <motion.span
-                    key={i}
-                    animate={{ opacity: [0.3, 1, 0.3], scale: [0.8, 1.1, 0.8] }}
-                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.4 }}
-                    className="text-2xl"
-                  >
-                    {emoji}
-                  </motion.span>
-                ))}
-              </div>
-
-              <div className="flex flex-wrap gap-4 justify-center">
-                <Link href="/proyectos" className="btn-primary text-base px-7 py-3.5">
-                  Ver Proyectos <ArrowRight size={18} />
-                </Link>
-                <a
-                  href="https://discord.gg/2DB5k7sb8"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn-outline text-base px-7 py-3.5"
-                >
-                  Unirse al Discord
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Coming Soon Courses Preview */}
-      <section className="py-16 lg:py-24 bg-[#05050d]">
+      <section className="py-12 lg:py-20 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}Próximamente</span>
@@ -144,26 +81,6 @@ export default function Cursos() {
                 </motion.div>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* Stats */}
-      <section className="py-16 border-y border-[#FF2D78]/10">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-3 gap-8 text-center">
-            <div>
-              <p className="font-cyber text-3xl sm:text-4xl font-bold text-[#FF2D78]">6</p>
-              <p className="font-code text-[10px] text-white/50 mt-1">Cursos planeados</p>
-            </div>
-            <div>
-              <p className="font-cyber text-3xl sm:text-4xl font-bold text-[#00F2FE]">58</p>
-              <p className="font-code text-[10px] text-white/50 mt-1">Lecciones totales</p>
-            </div>
-            <div>
-              <p className="font-cyber text-3xl sm:text-4xl font-bold text-[#9d4edd]">3</p>
-              <p className="font-code text-[10px] text-white/50 mt-1">Niveles de dificultad</p>
-            </div>
           </div>
         </div>
       </section>
