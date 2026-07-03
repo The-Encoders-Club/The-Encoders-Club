@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, X, Share2, Clock, Eye, ChevronRight, Sparkles } from 'lucide-react';
 import Navbar from '@/components/Navbar';
@@ -141,8 +141,8 @@ const fadeUp = {
 function NewsDetail({ item, onClose, t, isEs }: { item: NewsItem; onClose: () => void; t: ReturnType<typeof useI18n>['t']; isEs: boolean }) {
   const content = isEs ? item.contentEs : item.contentEn;
   return (
-    <div className="relative z-10 min-h-screen">
-      <nav className="sticky top-0 z-50 bg-[#080812]/90 backdrop-blur-md border-b border-[#FF2D78]/20 px-4 sm:px-6 py-4 flex justify-between items-center">
+    <div className="relative min-h-screen">
+      <nav className="sticky top-0 z-50 bg-[#080812] border-b border-[#FF2D78]/20 px-4 sm:px-6 py-3 flex justify-between items-center">
         <button onClick={onClose} className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group">
           <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
           <span className="font-cyber font-bold tracking-wider uppercase text-sm">{t('news.backToNews')}</span>
@@ -152,7 +152,7 @@ function NewsDetail({ item, onClose, t, isEs }: { item: NewsItem; onClose: () =>
         </button>
       </nav>
 
-      <article className="max-w-4xl mx-auto px-4 sm:px-6 py-12">
+      <article className="max-w-4xl mx-auto px-4 sm:px-6 pt-6 sm:pt-8 pb-16">
         <motion.header initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <div className="flex flex-wrap items-center gap-3 mb-4">
             <span
@@ -220,6 +220,19 @@ export default function Noticias() {
   const [activeItem, setActiveItem] = useState<NewsItem | null>(null);
   const featuredItem = newsItems.find(n => n.featured);
   const regularItems = newsItems.filter(n => !n.featured);
+
+  // Bloquear scroll del body cuando el modal está abierto
+  // para evitar el parpadeo del fondo durante el scroll
+  useEffect(() => {
+    if (activeItem) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [activeItem]);
 
   return (
     <div className="min-h-screen bg-[#030308] text-white overflow-x-hidden">
@@ -343,7 +356,7 @@ export default function Noticias() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[100] bg-[#030308] text-white overflow-y-auto"
+            className="fixed inset-0 z-[100] h-screen bg-[#030308] text-white overflow-y-auto"
           >
             <NewsDetail item={activeItem} onClose={() => setActiveItem(null)} t={t} isEs={isEs} />
           </motion.div>
