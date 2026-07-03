@@ -63,7 +63,7 @@ export default function Proyectos() {
       <Navbar />
 
       {/* PAGE HEADER */}
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-16 relative z-10">
+      <section className="pt-16 sm:pt-20 pb-12 sm:pb-16 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">
