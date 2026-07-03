@@ -188,7 +188,7 @@ export default function Noticias() {
       <BackgroundParticles />
 
       {/* Page Header */}
-      <section className="pt-24 sm:pt-32 pb-12 sm:pb-16">
+      <section className="pt-16 sm:pt-20 pb-12 sm:pb-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
             <span className="font-cyber font-bold text-sm tracking-widest text-[#00F2FE] mb-3 block">{'// '}COMPILE_LOGS</span>
