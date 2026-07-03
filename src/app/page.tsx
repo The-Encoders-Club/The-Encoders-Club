@@ -429,7 +429,7 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
 
   const scroll = (dir: 'left' | 'right') => {
     if (scrollRef.current) {
-      scrollRef.current.scrollBy({ left: dir === 'left' ? -340 : 340, behavior: 'smooth' });
+      scrollRef.current.scrollBy({ left: dir === 'left' ? -320 : 320, behavior: 'smooth' });
     }
   };
 
@@ -454,7 +454,7 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
           </div>
         </div>
         <div className="relative group/carousel">
-          <div ref={scrollRef} className="flex gap-5 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
+          <div ref={scrollRef} className="flex gap-4 overflow-x-auto scrollbar-hide snap-x snap-mandatory scroll-smooth pb-4">
             {newsItems.map((item, i) => (
               <motion.article
                 key={item.id}
@@ -464,10 +464,10 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                 whileInView="visible"
                 viewport={{ once: true }}
                 className="clip-card bg-[#0e0e1f] border border-white/10 overflow-hidden group flex-shrink-0 snap-start hover:border-[#00F2FE]/30 transition-all duration-300 cursor-pointer"
-                style={{ width: 'calc(33.333% - 14px)', minWidth: 200 }}
+                style={{ width: 'calc((100% - 32px) / 3)', minWidth: 220 }}
               >
                 <Link href={item.href} className="block h-full">
-                  <div className="relative overflow-hidden h-44">
+                  <div className="relative overflow-hidden h-36">
                     <img src={item.image} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                     <span
@@ -480,7 +480,7 @@ function NewsCarousel({ newsItems, t, isEs }: { newsItems: typeof newsItemsEs; t
                   <div className="p-4">
                     <p className="font-code text-[10px] text-white/40 mb-2">{item.date}</p>
                     <h3 className="font-cyber font-bold text-white text-sm mb-2 leading-snug line-clamp-2">{item.title}</h3>
-                    <p className="font-code text-[11px] text-white/50 leading-relaxed line-clamp-3 mb-4">{item.description}</p>
+                    <p className="font-code text-[11px] text-white/50 leading-relaxed line-clamp-2 mb-3">{item.description}</p>
                     <span className="font-code text-[10px] text-[#FF2D78] font-bold group-hover:text-[#ff4d8d] transition-colors flex items-center gap-1">
                       {t('common.readMore')} <ChevronRight size={13} />
                     </span>
