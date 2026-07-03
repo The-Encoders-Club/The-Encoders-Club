@@ -21,26 +21,8 @@ export default function Cursos() {
       <Navbar />
       <BackgroundParticles />
 
-      {/* Hero */}
-      <section className="relative pt-16 sm:pt-20 pb-12 sm:pb-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-            <span className="font-cyber font-bold text-sm tracking-widest text-[#00F2FE] mb-3 block">{'// '}Aprende con nosotros</span>
-            <h1 className="font-cyber text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 uppercase">
-              Cursos y{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#00F2FE] to-[#9d4edd]">
-                Tutoriales
-              </span>
-            </h1>
-            <p className="font-code text-sm text-white/60 max-w-2xl">
-              Domina el arte de crear novelas visuales con nuestros cursos completos. Desde los fundamentos hasta técnicas avanzadas.
-            </p>
-          </motion.div>
-        </div>
-      </section>
-
       {/* Coming Soon Courses Preview */}
-      <section className="py-12 lg:py-20 bg-[#05050d]">
+      <section className="pt-16 sm:pt-20 pb-12 lg:pb-20 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}Próximamente</span>
