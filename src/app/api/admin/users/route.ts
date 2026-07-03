@@ -10,7 +10,7 @@ export async function GET() {
       return NextResponse.json({ error: 'Authentication required.' }, { status: 401 });
     }
 
-    if (session.role !== 'owner' && session.role !== 'admin') {
+    if (!['owner', 'admin', 'moderator'].includes(session.role)) {
       return NextResponse.json({ error: 'Insufficient permissions.' }, { status: 403 });
     }
 
