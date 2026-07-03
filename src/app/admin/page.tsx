@@ -9,7 +9,7 @@ import {
   ArrowUpDown, Wifi, WifiOff, Loader2, Info,
   LayoutDashboard, FileText, ChevronLeft, Menu, X, Heart,
   UserPlus, LogIn, LogOut, ShieldCheck, MessageCircle, Bell, Download,
-  Terminal, Code2,
+  Terminal, Code2, Key, ShieldQuestion, Copy, Check,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -208,6 +208,30 @@ export default function AdminPanel() {
   const [showSyncDialog, setShowSyncDialog] = useState(false);
   const [showClientSecret, setShowClientSecret] = useState(false);
   const [roleChangeUser, setRoleChangeUser] = useState<AdminUser | null>(null);
+  // ─── Security Dialog state ───
+  const [securityUser, setSecurityUser] = useState<AdminUser | null>(null);
+  const [showSecurityDialog, setShowSecurityDialog] = useState(false);
+  const [securityData, setSecurityData] = useState<{
+    securityQuestion: string | null;
+    hasPassword: boolean;
+    hasSecurityAnswer: boolean;
+    hasRecoveryCode: boolean;
+    passwordHash?: string | null;
+    securityAnswerHash?: string | null;
+    recoveryCodeHash?: string | null;
+  } | null>(null);
+  const [securityLoading, setSecurityLoading] = useState(false);
+  const [securityMode, setSecurityMode] = useState<'view' | 'form_security' | 'form_password' | 'result'>('view');
+  const [securityAction, setSecurityAction] = useState<'reset_password' | 'reset_security' | 'regen_recovery' | null>(null);
+  const [securityResult, setSecurityResult] = useState<string>('');
+  const [securityResultLabel, setSecurityResultLabel] = useState<string>('');
+  const [securityBusy, setSecurityBusy] = useState(false);
+  const [showHashes, setShowHashes] = useState(false);
+  const [copiedField, setCopiedField] = useState<string>('');
+  // form fields
+  const [newPasswordInput, setNewPasswordInput] = useState('');
+  const [newSecurityQuestion, setNewSecurityQuestion] = useState('');
+  const [newSecurityAnswer, setNewSecurityAnswer] = useState('');
   const [dcForm, setDcForm] = useState({
     webhookUrl: '',
     modRoleId: '', adminRoleId: '', collabRoleId: '',
@@ -271,7 +295,7 @@ export default function AdminPanel() {
     if (!mounted) return;
     fetch('/api/auth/session')
       .then(r => { if (!r.ok) throw new Error('fail'); return r.json(); })
-      .then(d => { if (!d.user || !['admin', 'owner'].includes(d.user.role)) { router.push('/'); return; } setUser({ id: d.user.id, role: d.user.role }); })
+      .then(d => { if (!d.user || !['admin', 'owner', 'moderator'].includes(d.user.role)) { router.push('/'); return; } setUser({ id: d.user.id, role: d.user.role }); if (d.user.role === 'moderator') setActiveTab('users'); })
       .catch(() => { router.push('/'); });
   }, [router, mounted]);
 
@@ -302,6 +326,117 @@ export default function AdminPanel() {
     if (!selectedUser) return;
     try { const res = await fetch('/api/admin/users', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ userId: selectedUser.id, isBanned: true, banReason: banReason || 'Sin razon' }) }); if (!res.ok) { const d = await res.json(); toast.error(d.error || 'Error'); return; } setUsers(prev => prev.map(u => (u.id === selectedUser.id ? { ...u, isBanned: true, banReason } : u))); toast.success(`${selectedUser.nickname} baneado`); setShowBanDialog(false); } catch { toast.error('Error'); }
   };
+
+  // ─── Security dialog handlers ───
+  const openSecurityDialog = async (targetUser: AdminUser) => {
+    setSecurityUser(targetUser);
+    setShowSecurityDialog(true);
+    setSecurityData(null);
+    setSecurityMode('view');
+    setSecurityAction(null);
+    setSecurityResult('');
+    setSecurityResultLabel('');
+    setShowHashes(false);
+    setNewPasswordInput('');
+    setNewSecurityQuestion('');
+    setNewSecurityAnswer('');
+    setSecurityLoading(true);
+    try {
+      const res = await fetch(`/api/admin/user-security?userId=${targetUser.id}`);
+      if (!res.ok) {
+        const d = await res.json();
+        toast.error(d.error || 'Error al cargar info de seguridad');
+        setShowSecurityDialog(false);
+        return;
+      }
+      const data = await res.json();
+      setSecurityData(data);
+    } catch {
+      toast.error('Error de conexion');
+      setShowSecurityDialog(false);
+    } finally {
+      setSecurityLoading(false);
+    }
+  };
+
+  const closeSecurityDialog = () => {
+    setShowSecurityDialog(false);
+    setSecurityUser(null);
+    setSecurityData(null);
+    setSecurityMode('view');
+    setSecurityAction(null);
+    setSecurityResult('');
+    setSecurityResultLabel('');
+    setShowHashes(false);
+    setNewPasswordInput('');
+    setNewSecurityQuestion('');
+    setNewSecurityAnswer('');
+  };
+
+  const copyToClipboard = async (text: string, field: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(field);
+      setTimeout(() => setCopiedField(''), 2000);
+    } catch {
+      toast.error('No se pudo copiar');
+    }
+  };
+
+  const executeSecurityAction = async () => {
+    if (!securityUser || !securityAction) return;
+    setSecurityBusy(true);
+    try {
+      const body: Record<string, unknown> = { userId: securityUser.id, action: securityAction };
+      if (securityAction === 'reset_password' && newPasswordInput.trim()) {
+        body.newPassword = newPasswordInput;
+      }
+      if (securityAction === 'reset_security') {
+        body.securityQuestion = newSecurityQuestion;
+        body.securityAnswer = newSecurityAnswer;
+      }
+      const res = await fetch('/api/admin/user-security', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error || 'Error');
+        return;
+      }
+      if (securityAction === 'reset_password') {
+        setSecurityResult(data.newPassword);
+        setSecurityResultLabel('Nueva contraseña');
+      } else if (securityAction === 'regen_recovery') {
+        setSecurityResult(data.recoveryCode);
+        setSecurityResultLabel('Nuevo código de recuperación');
+      } else if (securityAction === 'reset_security') {
+        toast.success('Pregunta y respuesta actualizadas');
+        closeSecurityDialog();
+        return;
+      }
+      setSecurityMode('result');
+      toast.success('Acción completada');
+    } catch {
+      toast.error('Error de conexion');
+    } finally {
+      setSecurityBusy(false);
+    }
+  };
+
+  const startSecurityAction = (action: 'reset_password' | 'reset_security' | 'regen_recovery') => {
+    setSecurityAction(action);
+    setSecurityResult('');
+    setSecurityResultLabel('');
+    if (action === 'reset_security') {
+      setSecurityMode('form_security');
+    } else {
+      // reset_password and regen_recovery both go through a confirm step (form_password mode)
+      setSecurityMode('form_password');
+    }
+  };
+
   const handleDiscordSave = async () => {
     setDiscordLoading(true);
     try {
@@ -357,6 +492,13 @@ export default function AdminPanel() {
   const hasNoSearchResults = hasSearchQuery && filteredUsers.length === 0;
 
   const isEs = true; // Admin panel is Spanish-only based on existing code
+
+  // Role helpers for permissions
+  const isMod = user?.role === 'moderator';
+  const isAdmin = user?.role === 'admin';
+  const isOwner = user?.role === 'owner';
+  const canSeeAllTabs = isAdmin || isOwner; // moderators only see users tab
+  const visibleNavItems = canSeeAllTabs ? navItems : navItems.filter(i => i.id === 'users');
 
   if (!mounted || !user || loading) {
     return (
@@ -450,7 +592,7 @@ export default function AdminPanel() {
 
         {/* Nav Items — Cyberpunk hover + Anime dot */}
         <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto scrollbar-hide">
-          {navItems.map(item => {
+          {visibleNavItems.map(item => {
             const isActive = activeTab === item.id;
             const Icon = item.icon;
             return (
@@ -507,18 +649,20 @@ export default function AdminPanel() {
                 <span className="text-white/10">/</span>
                 <span className="text-white/50 uppercase">{activeTab}</span>
               </div>
-              <h1 className="sm:hidden font-code text-[11px] text-white/50 uppercase">{navItems.find(n => n.id === activeTab)?.label}</h1>
+              <h1 className="sm:hidden font-code text-[11px] text-white/50 uppercase">{visibleNavItems.find(n => n.id === activeTab)?.label}</h1>
             </div>
             <div className="flex items-center gap-2">
               <div className="flex items-center gap-2 px-3 py-1.5 clip-card bg-[#0b0b16] border border-white/[0.06]">
                 <div className="w-6 h-6 clip-card bg-gradient-to-br from-[#FF2D78] to-[#9d4edd] flex items-center justify-center">
                   <Shield size={11} className="text-white" />
                 </div>
-                <span className="hidden sm:block font-code text-[10px] text-white/50">{user.role === 'owner' ? 'Creador' : 'Admin'}</span>
+                <span className="hidden sm:block font-code text-[10px] text-white/50">{user.role === 'owner' ? 'Creador' : user.role === 'admin' ? 'Admin' : 'Mod'}</span>
                 <Badge className={`font-code text-[9px] px-1.5 py-0 border uppercase tracking-wider font-bold ${
                   user.role === 'owner'
                     ? 'bg-yellow-500/10 text-yellow-400 border-yellow-500/20'
-                    : 'bg-red-500/10 text-red-400 border-red-500/20'
+                    : user.role === 'admin'
+                    ? 'bg-red-500/10 text-red-400 border-red-500/20'
+                    : 'bg-[#00F2FE]/10 text-[#00F2FE] border-[#00F2FE]/20'
                 }`}>
                   {user.role}
                 </Badge>
@@ -532,7 +676,7 @@ export default function AdminPanel() {
           <AnimatePresence mode="wait">
 
             {/* ═══════════════ DASHBOARD ═══════════════ */}
-            {activeTab === 'dashboard' && (
+            {activeTab === 'dashboard' && canSeeAllTabs && (
               <motion.div key="dashboard" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 {/* Welcome Banner — Cyberpunk card + IDE label + Anime glow */}
                 <div className="clip-card relative overflow-hidden bg-[#0b0b16] border border-[#FF2D78]/10 p-6">
@@ -977,12 +1121,13 @@ export default function AdminPanel() {
                             <TableCell>
                               <div className="relative" ref={roleChangeUser?.id === u.id ? rolePopoverRef : undefined}>
                                 <button
-                                  onClick={() => setRoleChangeUser(roleChangeUser?.id === u.id ? null : u)}
-                                  className={`font-code text-[9px] px-2 py-1 border uppercase tracking-wider font-bold transition-all hover:opacity-80 ${roleColors[u.role] || roleColors.user}`}
+                                  onClick={() => canSeeAllTabs && setRoleChangeUser(roleChangeUser?.id === u.id ? null : u)}
+                                  className={`font-code text-[9px] px-2 py-1 border uppercase tracking-wider font-bold transition-all ${canSeeAllTabs ? 'hover:opacity-80' : 'cursor-default'} ${roleColors[u.role] || roleColors.user}`}
+                                  title={canSeeAllTabs ? 'Cambiar rol' : 'Solo lectura'}
                                 >
                                   {roleLabels[u.role] || u.role}
                                 </button>
-                                {roleChangeUser?.id === u.id && u.role !== 'owner' && (
+                                {canSeeAllTabs && roleChangeUser?.id === u.id && u.role !== 'owner' && (
                                   <div className="absolute top-full mt-1 left-0 z-50 bg-[#0b0b16] border border-white/[0.08] shadow-xl shadow-black/30 p-1 min-w-[120px]">
                                     {['user', 'collaborator', 'moderator', 'admin'].map(role => (
                                       <button
@@ -1023,7 +1168,16 @@ export default function AdminPanel() {
                             <TableCell className="hidden lg:table-cell font-code text-[10px] text-white/25">{new Date(u.createdAt).toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: '2-digit' })}</TableCell>
                             <TableCell className="text-right">
                               <div className="flex items-center justify-end gap-1">
-                                {u.role !== 'owner' && (
+                                {/* Security & Credentials — available to mod/admin/owner */}
+                                <button
+                                  onClick={() => openSecurityDialog(u)}
+                                  className="p-1.5 text-white/15 hover:text-[#00F2FE] hover:bg-[#00F2FE]/10 transition-all"
+                                  title="Seguridad y credenciales"
+                                >
+                                  <Key size={14} />
+                                </button>
+                                {/* Role change + ban — admin/owner only */}
+                                {canSeeAllTabs && u.role !== 'owner' && (
                                   <button
                                     onClick={() => handleBanToggle(u, !u.isBanned)}
                                     className={`p-1.5 transition-all ${u.isBanned ? 'text-green-400/50 hover:text-green-400 hover:bg-green-500/10' : 'text-white/15 hover:text-red-400 hover:bg-red-500/10'}`}
@@ -1051,7 +1205,7 @@ export default function AdminPanel() {
             )}
 
             {/* ═══════════════ COMMENTS ═══════════════ */}
-            {activeTab === 'comments' && (
+            {activeTab === 'comments' && canSeeAllTabs && (
               <motion.div key="comments" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 <div className="clip-card relative overflow-hidden bg-[#0b0b16] border border-[#9d4edd]/10 p-5">
                   <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#9d4edd] to-[#00F2FE]" />
@@ -1108,7 +1262,7 @@ export default function AdminPanel() {
             )}
 
             {/* ═══════════════ DISCORD ═══════════════ */}
-            {activeTab === 'discord' && (
+            {activeTab === 'discord' && canSeeAllTabs && (
               <motion.div key="discord" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 {/* Section Header */}
                 <div className="clip-card relative overflow-hidden bg-[#0b0b16] border border-[#5865F2]/15 p-5">
@@ -1332,7 +1486,7 @@ export default function AdminPanel() {
             )}
 
             {/* ═══════════════ LOGS ═══════════════ */}
-            {activeTab === 'logs' && (
+            {activeTab === 'logs' && canSeeAllTabs && (
               <motion.div key="logs" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
                 {/* Section Header */}
                 <div className="clip-card relative overflow-hidden bg-[#0b0b16] border border-[#00F2FE]/10 p-5">
@@ -1448,6 +1602,279 @@ export default function AdminPanel() {
             <button onClick={handleSyncRoles} disabled={syncLoading} className="flex-1 clip-btn px-4 py-3 bg-[#5865F2] hover:bg-[#4752C4] text-white font-cyber font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_15px_rgba(88,101,242,0.3)] transition-all flex items-center justify-center gap-2 disabled:opacity-50">
               {syncLoading ? <><Loader2 size={12} className="animate-spin" /> Sincronizando...</> : <><ArrowUpDown size={12} /> Sincronizar</>}
             </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══════════════ Security & Credentials Dialog — Cyberpunk/IDE ═══════════════ */}
+      <Dialog open={showSecurityDialog} onOpenChange={(open) => { if (!open) closeSecurityDialog(); }}>
+        <DialogContent className="bg-[#0d0d24] border border-[#00F2FE]/20 text-white sm:max-w-lg clip-card max-h-[90vh] overflow-y-auto">
+          <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#00F2FE] to-[#9d4edd]" />
+          <DialogHeader>
+            <DialogTitle className="text-[#00F2FE] flex items-center gap-2 font-cyber text-lg uppercase">
+              <Shield size={18} />
+              Seguridad y Credenciales
+            </DialogTitle>
+            <DialogDescription className="font-code text-[11px] text-white/40">
+              {securityUser ? `Usuario: ${securityUser.nickname} (${roleLabels[securityUser.role] || securityUser.role})` : ''}
+              <br />
+              Las contraseñas y respuestas se almacenan hasheadas (PBKDF2). No se pueden descifrar.
+            </DialogDescription>
+          </DialogHeader>
+
+          {/* Loading */}
+          {securityLoading && (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 size={20} className="animate-spin text-[#00F2FE]" />
+            </div>
+          )}
+
+          {/* VIEW MODE */}
+          {!securityLoading && securityData && securityMode === 'view' && (
+            <div className="space-y-4 mt-2">
+              {/* Security Question */}
+              <div className="p-3 clip-card bg-[#080812] border border-white/[0.06]">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <ShieldQuestion size={12} className="text-[#9d4edd]" />
+                  <span className="font-code text-[10px] text-white/40 uppercase tracking-wider">Pregunta de seguridad</span>
+                </div>
+                <p className="font-code text-xs text-white/85 leading-relaxed">
+                  {securityData.securityQuestion || '—'}
+                </p>
+                <p className="font-code text-[10px] text-white/25 mt-1.5">
+                  La respuesta está hasheada (no se puede ver).
+                </p>
+              </div>
+
+              {/* Hashes — admin/owner only */}
+              {canSeeAllTabs && (
+                <div className="p-3 clip-card bg-[#080812] border border-white/[0.06]">
+                  <button
+                    onClick={() => setShowHashes(!showHashes)}
+                    className="w-full flex items-center justify-between text-left"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Key size={12} className="text-[#FF2D78]" />
+                      <span className="font-code text-[10px] text-white/40 uppercase tracking-wider">Hashes (solo lectura)</span>
+                    </div>
+                    {showHashes ? <EyeOff size={12} className="text-white/30" /> : <Eye size={12} className="text-white/30" />}
+                  </button>
+                  {showHashes && (
+                    <div className="space-y-2 mt-3">
+                      <div>
+                        <p className="font-code text-[9px] text-white/30 uppercase tracking-wider mb-1">passwordHash</p>
+                        <p className="font-code text-[10px] text-white/40 break-all bg-black/30 p-2 border border-white/[0.04]">
+                          {securityData.passwordHash || '—'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-code text-[9px] text-white/30 uppercase tracking-wider mb-1">securityAnswerHash</p>
+                        <p className="font-code text-[10px] text-white/40 break-all bg-black/30 p-2 border border-white/[0.04]">
+                          {securityData.securityAnswerHash || '—'}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="font-code text-[9px] text-white/30 uppercase tracking-wider mb-1">recoveryCodeHash</p>
+                        <p className="font-code text-[10px] text-white/40 break-all bg-black/30 p-2 border border-white/[0.04]">
+                          {securityData.recoveryCodeHash || '—'}
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Actions */}
+              <div className="space-y-2">
+                <p className="font-code text-[9px] text-white/30 uppercase tracking-wider">{'// '}acciones</p>
+
+                {/* Reset password — admin/owner only */}
+                {canSeeAllTabs && securityUser?.role !== 'owner' && !(isAdmin && securityUser?.role === 'admin') && (
+                  <button
+                    onClick={() => startSecurityAction('reset_password')}
+                    className="w-full flex items-start gap-3 p-3 clip-card bg-[#080812] border border-[#FF2D78]/15 hover:border-[#FF2D78]/40 hover:bg-[#FF2D78]/5 transition-all text-left"
+                  >
+                    <Key size={14} className="text-[#FF2D78] mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-cyber text-xs font-bold text-white uppercase tracking-wider">Resetear contraseña</p>
+                      <p className="font-code text-[10px] text-white/40 mt-0.5">Genera nueva contraseña aleatoria o personalizada</p>
+                    </div>
+                  </button>
+                )}
+
+                {/* Reset security Q&A — admin/owner only */}
+                {canSeeAllTabs && securityUser?.role !== 'owner' && !(isAdmin && securityUser?.role === 'admin') && (
+                  <button
+                    onClick={() => startSecurityAction('reset_security')}
+                    className="w-full flex items-start gap-3 p-3 clip-card bg-[#080812] border border-[#9d4edd]/15 hover:border-[#9d4edd]/40 hover:bg-[#9d4edd]/5 transition-all text-left"
+                  >
+                    <ShieldQuestion size={14} className="text-[#9d4edd] mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-cyber text-xs font-bold text-white uppercase tracking-wider">Resetear pregunta + respuesta</p>
+                      <p className="font-code text-[10px] text-white/40 mt-0.5">Establece nueva pregunta y respuesta de seguridad</p>
+                    </div>
+                  </button>
+                )}
+
+                {/* Regenerate recovery code — mod/admin/owner (with target restrictions) */}
+                {securityUser?.role !== 'owner' && !(isAdmin && securityUser?.role === 'admin') && !(isMod && (securityUser?.role === 'admin' || securityUser?.role === 'owner')) && (
+                  <button
+                    onClick={() => startSecurityAction('regen_recovery')}
+                    className="w-full flex items-start gap-3 p-3 clip-card bg-[#080812] border border-[#00F2FE]/15 hover:border-[#00F2FE]/40 hover:bg-[#00F2FE]/5 transition-all text-left"
+                  >
+                    <RefreshCw size={14} className="text-[#00F2FE] mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-cyber text-xs font-bold text-white uppercase tracking-wider">Regenerar código de recuperación</p>
+                      <p className="font-code text-[10px] text-white/40 mt-0.5">Genera nuevo código XXXX-XXXX-XXXX-XXXX</p>
+                    </div>
+                  </button>
+                )}
+
+                {/* No actions available */}
+                {securityUser?.role === 'owner' && (
+                  <p className="font-code text-[10px] text-white/30 text-center py-2">
+                    No se pueden realizar acciones sobre la cuenta owner.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* FORM_PASSWORD MODE (reset_password or regen_recovery confirmation) */}
+          {!securityLoading && securityData && securityMode === 'form_password' && (
+            <div className="space-y-4 mt-2">
+              <div className="p-3 clip-card bg-[#FF2D78]/5 border border-[#FF2D78]/20">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle size={14} className="text-[#FF2D78] mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-cyber text-xs font-bold text-white uppercase tracking-wider mb-1">
+                      {securityAction === 'reset_password' ? 'Confirmar reseteo de contraseña' : 'Confirmar regeneración de código'}
+                    </p>
+                    <p className="font-code text-[10px] text-white/50 leading-relaxed">
+                      {securityAction === 'reset_password'
+                        ? `Se generará una nueva contraseña para ${securityUser?.nickname}. La contraseña actual dejará de funcionar inmediatamente.`
+                        : `Se generará un nuevo código de recuperación para ${securityUser?.nickname}. El código anterior dejará de funcionar.`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {securityAction === 'reset_password' && (
+                <div>
+                  <label className="font-code text-[10px] text-white/40 uppercase tracking-wider mb-1.5 block">
+                    Nueva contraseña <span className="text-white/25">(vacío = generar aleatoria de 12 chars)</span>
+                  </label>
+                  <Input
+                    type="text"
+                    value={newPasswordInput}
+                    onChange={(e) => setNewPasswordInput(e.target.value)}
+                    placeholder="Dejar vacío para autogenerar"
+                    className="bg-[#080812] border-white/[0.08] text-white font-code text-sm placeholder:text-white/20 focus:border-[#FF2D78]/40"
+                  />
+                  <p className="font-code text-[9px] text-white/25 mt-1">Mínimo 6 caracteres si se especifica.</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* FORM_SECURITY MODE (reset Q&A) */}
+          {!securityLoading && securityData && securityMode === 'form_security' && (
+            <div className="space-y-3 mt-2">
+              <div className="p-3 clip-card bg-[#9d4edd]/5 border border-[#9d4edd]/20">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle size={14} className="text-[#9d4edd] mt-0.5 shrink-0" />
+                  <p className="font-code text-[10px] text-white/50 leading-relaxed">
+                    Establece una nueva pregunta y respuesta de seguridad para <strong className="text-white/70">{securityUser?.nickname}</strong>. La respuesta se hasheará antes de guardarla.
+                  </p>
+                </div>
+              </div>
+              <div>
+                <label className="font-code text-[10px] text-white/40 uppercase tracking-wider mb-1.5 block">Nueva pregunta</label>
+                <Input
+                  type="text"
+                  value={newSecurityQuestion}
+                  onChange={(e) => setNewSecurityQuestion(e.target.value)}
+                  placeholder="Ej: ¿Nombre de tu primera mascota?"
+                  className="bg-[#080812] border-white/[0.08] text-white font-code text-sm placeholder:text-white/20 focus:border-[#9d4edd]/40"
+                />
+              </div>
+              <div>
+                <label className="font-code text-[10px] text-white/40 uppercase tracking-wider mb-1.5 block">Nueva respuesta</label>
+                <Input
+                  type="text"
+                  value={newSecurityAnswer}
+                  onChange={(e) => setNewSecurityAnswer(e.target.value)}
+                  placeholder="Respuesta (mínimo 2 caracteres)"
+                  className="bg-[#080812] border-white/[0.08] text-white font-code text-sm placeholder:text-white/20 focus:border-[#9d4edd]/40"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* RESULT MODE (one-time secret display) */}
+          {!securityLoading && securityData && securityMode === 'result' && (
+            <div className="space-y-4 mt-2">
+              <div className="p-3 clip-card bg-[#00F2FE]/5 border border-[#00F2FE]/30">
+                <div className="flex items-start gap-2 mb-3">
+                  <CheckCircle size={14} className="text-[#00F2FE] mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-cyber text-xs font-bold text-white uppercase tracking-wider mb-1">Acción completada</p>
+                    <p className="font-code text-[10px] text-white/50">
+                      {securityAction === 'reset_password'
+                        ? `Nueva contraseña para ${securityUser?.nickname}. Muéstrala al usuario una sola vez.`
+                        : `Nuevo código de recuperación para ${securityUser?.nickname}. Muéstralo al usuario una sola vez.`}
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-black/40 border border-white/[0.06] p-3">
+                  <p className="font-code text-[9px] text-white/30 uppercase tracking-wider mb-1.5">{securityResultLabel}</p>
+                  <div className="flex items-center gap-2">
+                    <code className="flex-1 font-code text-sm text-[#00F2FE] font-bold break-all">{securityResult}</code>
+                    <button
+                      onClick={() => copyToClipboard(securityResult, 'result')}
+                      className="p-2 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all shrink-0"
+                      title="Copiar"
+                    >
+                      {copiedField === 'result' ? <Check size={14} className="text-green-400" /> : <Copy size={14} />}
+                    </button>
+                  </div>
+                </div>
+                <p className="font-code text-[9px] text-white/30 mt-2 flex items-center gap-1">
+                  <AlertTriangle size={10} className="text-yellow-400/60" />
+                  Este valor no se volverá a mostrar. Cópialo ahora.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter className="gap-2 mt-4">
+            {securityMode === 'view' && (
+              <button onClick={closeSecurityDialog} className="flex-1 clip-btn px-4 py-3 bg-white/3 border border-white/[0.06] text-white/50 font-cyber text-xs uppercase tracking-wider hover:bg-white/5 transition-all">
+                Cerrar
+              </button>
+            )}
+            {(securityMode === 'form_password' || securityMode === 'form_security') && (
+              <>
+                <button
+                  onClick={() => { setSecurityMode('view'); setSecurityAction(null); }}
+                  className="flex-1 clip-btn px-4 py-3 bg-white/3 border border-white/[0.06] text-white/50 font-cyber text-xs uppercase tracking-wider hover:bg-white/5 transition-all"
+                >
+                  Atrás
+                </button>
+                <button
+                  onClick={executeSecurityAction}
+                  disabled={securityBusy || (securityMode === 'form_security' && (!newSecurityQuestion.trim() || !newSecurityAnswer.trim()))}
+                  className="flex-1 clip-btn px-4 py-3 bg-[#FF2D78] hover:bg-[#ff4d8d] text-black font-cyber font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_15px_rgba(255,45,120,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {securityBusy ? <><Loader2 size={12} className="animate-spin" /> Procesando...</> : <><Save size={12} /> Confirmar</>}
+                </button>
+              </>
+            )}
+            {securityMode === 'result' && (
+              <button onClick={closeSecurityDialog} className="flex-1 clip-btn px-4 py-3 bg-[#00F2FE] hover:bg-[#33f5fe] text-black font-cyber font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_15px_rgba(0,242,254,0.4)] transition-all">
+                Listo
+              </button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
