@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Coffee, Star, Crown, ChevronDown, ExternalLink, Shield, Zap, Gift, Users, Check } from 'lucide-react';
+import { Sparkles, Coffee, Star, Crown, ChevronDown, ExternalLink, Shield, Zap, Gift, Users, Check } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackgroundParticles from '@/components/BackgroundParticles';
@@ -96,18 +96,10 @@ const impactStats = [
 const KOFI_URL = 'https://ko-fi.com/theencodersclub';
 
 export default function Donar() {
-  const [customAmount, setCustomAmount] = useState('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
   const handleDonate = (amount: number) => {
     window.open(`${KOFI_URL}?amount=${amount}`, '_blank');
-  };
-
-  const handleCustomDonate = () => {
-    const amount = parseFloat(customAmount);
-    if (amount && amount >= 1) {
-      handleDonate(amount);
-    }
   };
 
   return (
@@ -116,7 +108,7 @@ export default function Donar() {
       <BackgroundParticles />
 
       {/* Hero */}
-      <section className="relative pt-24 sm:pt-32 pb-12 sm:pb-16">
+      <section className="relative pt-16 sm:pt-20 pb-10 sm:pb-12">
         <div className="absolute top-0 left-1/3 w-64 h-64 rounded-full bg-[#FF2D78]/8 blur-3xl pointer-events-none" />
         <div className="absolute top-20 right-1/4 w-48 h-48 rounded-full bg-[#9d4edd]/8 blur-3xl pointer-events-none" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -126,7 +118,7 @@ export default function Donar() {
               transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
               className="inline-flex items-center justify-center w-16 h-16 bg-[#FF2D78]/15 border border-[#FF2D78]/30 mb-6"
             >
-              <Heart size={28} className="text-[#FF2D78]" />
+              <Sparkles size={28} className="text-[#FF2D78]" />
             </motion.div>
             <h1 className="font-cyber text-3xl sm:text-5xl lg:text-6xl font-bold text-white mb-4 uppercase">
               Apoya a{' '}
@@ -142,7 +134,7 @@ export default function Donar() {
       </section>
 
       {/* Impact Stats */}
-      <section className="pb-16">
+      <section className="pb-12 sm:pb-16">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             {impactStats.map((stat, i) => {
@@ -168,9 +160,9 @@ export default function Donar() {
       </section>
 
       {/* Donation Tiers */}
-      <section className="py-16 lg:py-24 bg-[#05050d]">
+      <section className="py-12 lg:py-20 bg-[#05050d]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-14">
+          <div className="text-center mb-10">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#FF2D78] mb-3 block">{'// '}Elige tu nivel</span>
             <h2 className="section-title text-white">Niveles de <span className="brand-gradient-text">Apoyo</span></h2>
             <p className="font-code text-sm text-white/50 mt-4 max-w-lg mx-auto">
@@ -245,54 +237,10 @@ export default function Donar() {
         </div>
       </section>
 
-      {/* Custom Amount */}
-      <section className="py-16 lg:py-24">
-        <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="clip-card bg-[#0e0e1f] border border-white/10 p-8 text-center relative overflow-hidden"
-          >
-            <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
-            <Heart size={28} className="text-[#FF2D78] mx-auto mb-4" />
-            <h3 className="font-cyber text-xl font-bold text-white mb-2">
-              Cantidad Personalizada
-            </h3>
-            <p className="font-code text-sm text-white/50 mb-6">
-              ¿Quieres donar una cantidad diferente? Ingresa el monto que desees.
-            </p>
-            <div className="flex gap-3 max-w-sm mx-auto">
-              <div className="relative flex-1">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 font-cyber font-bold">$</span>
-                <input
-                  type="number"
-                  value={customAmount}
-                  onChange={(e) => setCustomAmount(e.target.value)}
-                  placeholder="10"
-                  min="1"
-                  step="1"
-                  className="w-full pl-8 pr-4 py-3 bg-[#080812] border border-white/10 text-white font-code text-sm placeholder:text-white/30 focus:outline-none focus:border-[#FF2D78]/50 focus:ring-1 focus:ring-[#FF2D78]/30 transition-all"
-                />
-              </div>
-              <button
-                onClick={handleCustomDonate}
-                disabled={!customAmount || parseFloat(customAmount) < 1}
-                className="btn-primary px-6 py-3 text-sm disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <ExternalLink size={14} /> Donar
-              </button>
-            </div>
-            <p className="font-code text-[10px] text-white/30 mt-4">Monto mínimo: $1 USD</p>
-          </motion.div>
-        </div>
-      </section>
-
       {/* FAQ */}
-      <section className="py-16 lg:py-24 bg-[#05050d]">
+      <section className="py-12 lg:py-20 bg-[#05050d]">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
+          <div className="text-center mb-10">
             <span className="font-cyber font-bold text-sm tracking-widest text-[#9d4edd] mb-3 block">{'// '}Preguntas frecuentes</span>
             <h2 className="section-title text-white">¿Tienes <span className="brand-gradient-text">Dudas?</span></h2>
           </div>
@@ -331,7 +279,7 @@ export default function Donar() {
       </section>
 
       {/* Ko-fi Direct Link */}
-      <section className="py-16">
+      <section className="py-12 lg:py-16">
         <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -342,7 +290,7 @@ export default function Donar() {
           >
             <div className="absolute top-0 left-0 w-full h-1 brand-gradient" />
             <h3 className="font-cyber text-2xl font-bold text-white mb-3 uppercase">
-              ¡Gracias por tu apoyo! 💜
+              ¡Gracias por tu apoyo!
             </h3>
             <p className="font-code text-sm text-white/55 mb-6 leading-relaxed">
               Cada donación, por pequeña que sea, tiene un gran impacto en nuestra comunidad. Nos motiva a seguir creando y compartiendo contenido de calidad.
