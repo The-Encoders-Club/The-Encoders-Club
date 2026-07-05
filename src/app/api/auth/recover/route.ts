@@ -37,13 +37,21 @@ export async function POST(request: NextRequest) {
       }, { status: 400 });
     }
 
-    const question = SECURITY_QUESTIONS.find(q => q.value === user.securityQuestion);
+    // The securityQuestion field can be either:
+    //  - a predefined enum value (e.g. 'pet_name') for users who registered normally
+    //  - arbitrary text (e.g. '¿Nombre de tu mascota?') for users whose Q&A was reset by an admin
+    const storedQuestion = user.securityQuestion as string;
+    const matched = SECURITY_QUESTIONS.find(q => q.value === storedQuestion);
+    const questionLabel = matched
+      ? matched.label_es
+      : storedQuestion; // custom text from admin reset — return as-is
 
     return NextResponse.json({
       nickname: user.nickname,
-      securityQuestion: question
-        ? { value: question.value, label: question.label_es }
-        : { value: user.securityQuestion as string, label: 'Pregunta de seguridad' },
+      securityQuestion: {
+        value: matched ? matched.value : storedQuestion,
+        label: questionLabel,
+      },
     });
   } catch (error) {
     console.error('[Recover] Start error:', error);
