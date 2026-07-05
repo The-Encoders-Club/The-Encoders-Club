@@ -30,7 +30,11 @@ export async function POST(request: NextRequest) {
     }
 
     if (toBool(user.isBanned as number)) {
-      return NextResponse.json({ error: 'This account has been banned.', banReason: user.banReason }, { status: 403 });
+      return NextResponse.json({
+        error: 'Esta cuenta ha sido baneada.',
+        banned: true,
+        banReason: (user.banReason as string) || 'Sin razón especificada.',
+      }, { status: 403 });
     }
 
     const valid = await verifyPassword(password, user.passwordHash as string);
