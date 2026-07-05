@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Lock, Eye, EyeOff, Sparkles, Shield, Copy, Download, CheckCircle2, KeyRound, Loader2, AlertTriangle, Terminal } from 'lucide-react';
+import { X, User, Lock, Eye, EyeOff, Sparkles, Shield, Copy, Download, CheckCircle2, KeyRound, Loader2, AlertTriangle, Ban, Terminal } from 'lucide-react';
 import { toast } from 'sonner';
 import { useI18n } from '@/hooks/useLocale';
 import { SECURITY_QUESTIONS } from '@/lib/auth';
@@ -36,6 +36,9 @@ export function AuthModal({ mode, onClose, onSwitch, onForgotPassword, onSuccess
   const [recoveryCode, setRecoveryCode] = useState<string | null>(null);
   const [showCode, setShowCode] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
+
+  // Banned account info (login only)
+  const [bannedInfo, setBannedInfo] = useState<{ reason: string } | null>(null);
 
   const isLogin = mode === 'login';
 
@@ -103,6 +106,14 @@ export function AuthModal({ mode, onClose, onSwitch, onForgotPassword, onSuccess
       const data = await res.json();
 
       if (!res.ok) {
+        // Detect banned account and show reason prominently
+        if (res.status === 403 && data.banned) {
+          setBannedInfo({ reason: data.banReason || (isEs ? 'Sin razón especificada.' : 'No reason specified.') });
+          toast.error(isEs ? 'Cuenta baneada' : 'Account banned', {
+            description: data.banReason || '',
+          });
+          return;
+        }
         toast.error(data.error || 'Error');
         return;
       }
@@ -262,6 +273,35 @@ export function AuthModal({ mode, onClose, onSwitch, onForgotPassword, onSuccess
             }
           </p>
 
+          {/* Banned account banner — shows the reason set by the admin */}
+          {isLogin && bannedInfo && (
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-4 p-3.5 clip-card bg-red-500/8 border border-red-500/30"
+            >
+              <div className="flex items-start gap-2.5">
+                <Ban size={16} className="text-red-400 mt-0.5 shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-cyber text-xs font-bold text-red-300 uppercase tracking-wider mb-1">
+                    {isEs ? 'Cuenta baneada' : 'Account banned'}
+                  </p>
+                  <p className="font-code text-[10px] text-white/40 uppercase tracking-wider mb-1.5">
+                    {isEs ? 'Razón:' : 'Reason:'}
+                  </p>
+                  <p className="font-code text-xs text-red-200/90 leading-relaxed break-words">
+                    {bannedInfo.reason}
+                  </p>
+                  <p className="font-code text-[10px] text-white/30 mt-2 leading-relaxed">
+                    {isEs
+                      ? 'Si crees que esto es un error, contacta a un administrador.'
+                      : 'If you believe this is a mistake, contact an administrator.'}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Honeypot - hidden from users */}
             <input type="text" name="website" value={honeypot} onChange={e => setHoneypot(e.target.value)}
@@ -275,7 +315,7 @@ export function AuthModal({ mode, onClose, onSwitch, onForgotPassword, onSuccess
               <div className="relative">
                 <User size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#FF2D78]/40" />
                 <input type="text" placeholder={isEs ? 'Tu nickname' : 'Your nickname'} value={nickname}
-                  onChange={e => setNickname(e.target.value)} required minLength={3}
+                  onChange={e => { setNickname(e.target.value); if (bannedInfo) setBannedInfo(null); }} required minLength={3}
                   className="w-full pl-9 pr-4 py-2.5 bg-[#080812] border border-[#FF2D78]/15 text-white font-code text-sm placeholder:text-white/20 focus:outline-none focus:border-[#FF2D78]/40 focus:shadow-[0_0_10px_rgba(255,45,120,0.1)] transition-all" />
               </div>
             </div>
@@ -288,7 +328,7 @@ export function AuthModal({ mode, onClose, onSwitch, onForgotPassword, onSuccess
               <div className="relative">
                 <Lock size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#9d4edd]/40" />
                 <input type={showPassword ? 'text' : 'password'} placeholder={isEs ? 'Minimo 6 caracteres' : 'Minimum 6 characters'}
-                  value={password} onChange={e => setPassword(e.target.value)} required minLength={6}
+                  value={password} onChange={e => { setPassword(e.target.value); if (bannedInfo) setBannedInfo(null); }} required minLength={6}
                   className="w-full pl-9 pr-10 py-2.5 bg-[#080812] border border-[#9d4edd]/15 text-white font-code text-sm placeholder:text-white/20 focus:outline-none focus:border-[#9d4edd]/40 focus:shadow-[0_0_10px_rgba(157,78,221,0.1)] transition-all" />
                 <button type="button" onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-white/25 hover:text-white/50 transition-colors">
