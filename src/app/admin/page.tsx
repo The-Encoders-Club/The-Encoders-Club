@@ -10,6 +10,7 @@ import {
   LayoutDashboard, FileText, ChevronLeft, Menu, X, Heart,
   UserPlus, LogIn, LogOut, ShieldCheck, MessageCircle, Bell, Download,
   Terminal, Code2, Key, ShieldQuestion, Copy, Check,
+  FolderKanban, Plus, Pencil, ImagePlus, ExternalLink, Star, GripVertical,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
@@ -24,6 +25,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import type { DynamicProject, ProjectDownload, ProjectDetails } from '@/data/dynamic-projects';
+import { validateProjectSlug, isReservedSlug } from '@/data/dynamic-projects';
 
 // ─── Interfaces ───
 interface AdminUser {
@@ -149,6 +152,7 @@ const navItems = [
   { id: 'dashboard', label: 'Inicio', icon: LayoutDashboard },
   { id: 'users', label: 'Usuarios', icon: Users },
   { id: 'comments', label: 'Comentarios', icon: MessageSquare },
+  { id: 'projects', label: 'Proyectos', icon: FolderKanban },
   { id: 'discord', label: 'Discord', icon: MessageCircle },
   { id: 'logs', label: 'Actividad', icon: FileText },
 ];
@@ -182,6 +186,128 @@ const EmptyState = ({ icon: Icon, message, submessage }: { icon: React.ElementTy
     {submessage && <p className="font-code text-[10px] mt-1 text-white/15">{submessage}</p>}
   </div>
 );
+
+// ─── Project form types & helpers ───
+interface AdminProjectForm {
+  id: string;
+  name: string;
+  subtitle: string;
+  subtitleEn: string;
+  description: string;
+  descriptionEn: string;
+  image: string;
+  coverBg: string;
+  coverFit: 'contain' | 'cover';
+  tags: string;
+  status: string;
+  statusEn: string;
+  statusColor: string;
+  rating: string;
+  featured: boolean;
+  previews: string;
+  downloads: ProjectDownload[];
+  music: string;
+  themeColor: string;
+  isPublished: boolean;
+  sortOrder: string;
+  details: ProjectDetails;
+}
+
+function emptyProjectForm(): AdminProjectForm {
+  return {
+    id: '',
+    name: '',
+    subtitle: '',
+    subtitleEn: '',
+    description: '',
+    descriptionEn: '',
+    image: '',
+    coverBg: '',
+    coverFit: 'contain',
+    tags: '',
+    status: 'Disponible',
+    statusEn: '',
+    statusColor: '#22c55e',
+    rating: '0',
+    featured: false,
+    previews: '',
+    downloads: [],
+    music: '',
+    themeColor: '#FF2D78',
+    isPublished: true,
+    sortOrder: '0',
+    details: { playTime: '', playTimeEn: '', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloadsLabel: '' },
+  };
+}
+
+function projectToForm(p: DynamicProject): AdminProjectForm {
+  return {
+    id: p.id,
+    name: p.name,
+    subtitle: p.subtitle || '',
+    subtitleEn: p.subtitleEn || '',
+    description: p.description,
+    descriptionEn: p.descriptionEn || '',
+    image: p.image,
+    coverBg: p.coverBg || '',
+    coverFit: p.coverFit === 'cover' ? 'cover' : 'contain',
+    tags: Array.isArray(p.tags) ? p.tags.join(', ') : '',
+    status: p.status,
+    statusEn: p.statusEn || '',
+    statusColor: p.statusColor,
+    rating: String(p.rating ?? 0),
+    featured: !!p.featured,
+    previews: Array.isArray(p.previews) ? p.previews.join('\n') : '',
+    downloads: Array.isArray(p.downloads) ? p.downloads : [],
+    music: p.music || '',
+    themeColor: p.themeColor,
+    isPublished: !!p.isPublished,
+    sortOrder: String(p.sortOrder ?? 0),
+    details: {
+      playTime: p.details?.playTime || '',
+      playTimeEn: p.details?.playTimeEn || '',
+      language: p.details?.language || '',
+      languageEn: p.details?.languageEn || '',
+      engine: p.details?.engine || "Ren'Py",
+      downloadsLabel: p.details?.downloadsLabel || '',
+    },
+  };
+}
+
+function formToPayload(form: AdminProjectForm, isCreate: boolean): Record<string, unknown> {
+  const tags = form.tags.split(',').map(s => s.trim()).filter(Boolean);
+  const previews = form.previews.split('\n').map(s => s.trim()).filter(Boolean);
+  return {
+    ...(isCreate ? { id: form.id.trim().toLowerCase() } : {}),
+    name: form.name.trim(),
+    subtitle: form.subtitle.trim() || null,
+    subtitleEn: form.subtitleEn.trim() || null,
+    description: form.description.trim(),
+    descriptionEn: form.descriptionEn.trim() || null,
+    image: form.image.trim(),
+    coverBg: form.coverBg.trim() || null,
+    coverFit: form.coverFit,
+    tags,
+    status: form.status.trim() || 'Disponible',
+    statusEn: form.statusEn.trim() || null,
+    statusColor: form.statusColor.trim() || '#22c55e',
+    rating: Number(form.rating) || 0,
+    featured: !!form.featured,
+    previews,
+    downloads: form.downloads,
+    music: form.music.trim() || null,
+    themeColor: form.themeColor.trim() || '#FF2D78',
+    isPublished: !!form.isPublished,
+    sortOrder: Number(form.sortOrder) || 0,
+    details: form.details,
+  };
+}
+
+const PROJECT_DOWNLOAD_ICONS = [
+  { value: 'Smartphone', label: 'Smartphone (móvil)' },
+  { value: 'Monitor', label: 'Monitor (PC)' },
+  { value: 'Download', label: 'Download (genérico)' },
+] as const;
 
 // ─── Main Component ───
 export default function AdminPanel() {
@@ -243,6 +369,18 @@ export default function AdminPanel() {
   const [statsConfig, setStatsConfig] = useState({ visits_base: 0, downloads_base: 0, external_downloads_base: 0, website_downloads: 0, github_downloads: 0, github_per_repo: {} as Record<string, number> });
   const [statsConfigSaving, setStatsConfigSaving] = useState(false);
 
+  // ─── Projects (dynamic, admin-managed) state ───
+  const [adminProjects, setAdminProjects] = useState<DynamicProject[]>([]);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+  const [showProjectDialog, setShowProjectDialog] = useState(false);
+  const [projectDialogMode, setProjectDialogMode] = useState<'create' | 'edit'>('create');
+  const [projectSaving, setProjectSaving] = useState(false);
+  const [projectDeleteTarget, setProjectDeleteTarget] = useState<DynamicProject | null>(null);
+  const [imageUploading, setImageUploading] = useState(false);
+  const coverUploadRef = useRef<HTMLInputElement>(null);
+  const previewUploadRef = useRef<HTMLInputElement>(null);
+  const [projectForm, setProjectForm] = useState<AdminProjectForm>(emptyProjectForm());
+
   useEffect(() => { setMounted(true); }, []);
 
   // Close role popover on outside click
@@ -291,6 +429,138 @@ export default function AdminPanel() {
     } catch {}
   }, []);
 
+  // ─── Projects (dynamic) handlers ───
+  const fetchAdminProjects = useCallback(async () => {
+    setProjectsLoading(true);
+    try {
+      const res = await fetch('/api/admin/projects');
+      if (!res.ok) { setAdminProjects([]); return; }
+      const data = (await res.json()) as { projects?: DynamicProject[] };
+      setAdminProjects(Array.isArray(data.projects) ? data.projects : []);
+    } catch {
+      setAdminProjects([]);
+    } finally {
+      setProjectsLoading(false);
+    }
+  }, []);
+
+  const openCreateProject = () => {
+    setProjectForm(emptyProjectForm());
+    setProjectDialogMode('create');
+    setShowProjectDialog(true);
+  };
+
+  const openEditProject = (p: DynamicProject) => {
+    setProjectForm(projectToForm(p));
+    setProjectDialogMode('edit');
+    setShowProjectDialog(true);
+  };
+
+  const closeProjectDialog = () => {
+    if (projectSaving) return;
+    setShowProjectDialog(false);
+  };
+
+  const saveProject = async () => {
+    const isCreate = projectDialogMode === 'create';
+    // Basic validation
+    if (isCreate) {
+      const slugCheck = validateProjectSlug(projectForm.id.trim().toLowerCase());
+      if (!slugCheck.ok) { toast.error(slugCheck.error!); return; }
+    }
+    if (!projectForm.name.trim()) { toast.error('El nombre es obligatorio.'); return; }
+    if (!projectForm.description.trim()) { toast.error('La descripción es obligatoria.'); return; }
+    if (!projectForm.image.trim()) { toast.error('La imagen de portada es obligatoria.'); return; }
+
+    setProjectSaving(true);
+    try {
+      const payload = formToPayload(projectForm, isCreate);
+      const url = isCreate ? '/api/admin/projects' : `/api/admin/projects/${encodeURIComponent(projectForm.id)}`;
+      const method = isCreate ? 'POST' : 'PUT';
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = (await res.json()) as Record<string, unknown>;
+      if (!res.ok) {
+        toast.error((data.error as string) || 'Error al guardar el proyecto');
+        return;
+      }
+      toast.success(isCreate ? 'Proyecto creado' : 'Proyecto actualizado');
+      setShowProjectDialog(false);
+      await fetchAdminProjects();
+    } catch {
+      toast.error('Error de conexión');
+    } finally {
+      setProjectSaving(false);
+    }
+  };
+
+  const confirmDeleteProject = async () => {
+    if (!projectDeleteTarget) return;
+    try {
+      const res = await fetch(`/api/admin/projects/${encodeURIComponent(projectDeleteTarget.id)}`, { method: 'DELETE' });
+      const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      if (!res.ok) { toast.error((data.error as string) || 'Error al eliminar'); return; }
+      toast.success('Proyecto eliminado');
+      setProjectDeleteTarget(null);
+      await fetchAdminProjects();
+    } catch {
+      toast.error('Error de conexión');
+    }
+  };
+
+  const uploadProjectImage = async (file: File, target: 'cover' | 'preview') => {
+    if (!file) return;
+    setImageUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/admin/projects/upload', { method: 'POST', body: fd });
+      const data = (await res.json().catch(() => ({}))) as Record<string, unknown>;
+      if (!res.ok) { toast.error((data.error as string) || 'Error al subir la imagen'); return; }
+      const url: string = data.url as string;
+      if (target === 'cover') {
+        setProjectForm(prev => ({ ...prev, image: url }));
+      } else {
+        setProjectForm(prev => ({
+          ...prev,
+          previews: (prev.previews ? prev.previews + '\n' : '') + url,
+        }));
+      }
+      toast.success('Imagen subida');
+    } catch {
+      toast.error('Error de conexión al subir imagen');
+    } finally {
+      setImageUploading(false);
+    }
+  };
+
+  const onCoverFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) uploadProjectImage(f, 'cover');
+    e.target.value = '';
+  };
+  const onPreviewFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(f => uploadProjectImage(f, 'preview'));
+    e.target.value = '';
+  };
+
+  const addDownloadRow = () => {
+    setProjectForm(prev => ({
+      ...prev,
+      downloads: [...prev.downloads, { label: '', labelEn: '', icon: 'Download', url: '', color: '#FF2D78', hoverColor: '#FF6B9D', textColor: '#ffffff' }],
+    }));
+  };
+  const updateDownloadRow = (i: number, patch: Partial<ProjectDownload>) => {
+    setProjectForm(prev => ({ ...prev, downloads: prev.downloads.map((d, idx) => idx === i ? { ...d, ...patch } : d) }));
+  };
+  const removeDownloadRow = (i: number) => {
+    setProjectForm(prev => ({ ...prev, downloads: prev.downloads.filter((_, idx) => idx !== i) }));
+  };
+
   useEffect(() => {
     if (!mounted) return;
     fetch('/api/auth/session')
@@ -301,8 +571,8 @@ export default function AdminPanel() {
 
   useEffect(() => {
     if (!user) return;
-    Promise.all([fetchStats(), fetchUsers(), fetchDiscordConfig(), fetchBotStatus(), fetchStatsConfig()]).finally(() => { setLoading(false); });
-  }, [user, fetchStats, fetchUsers, fetchDiscordConfig, fetchBotStatus, fetchStatsConfig]);
+    Promise.all([fetchStats(), fetchUsers(), fetchDiscordConfig(), fetchBotStatus(), fetchStatsConfig(), fetchAdminProjects()]).finally(() => { setLoading(false); });
+  }, [user, fetchStats, fetchUsers, fetchDiscordConfig, fetchBotStatus, fetchStatsConfig, fetchAdminProjects]);
 
   // Auto-refresh stats every 60 seconds
   useEffect(() => {
@@ -1485,6 +1755,118 @@ export default function AdminPanel() {
               </motion.div>
             )}
 
+            {/* ═══════════════ PROJECTS (dynamic) ═══════════════ */}
+            {activeTab === 'projects' && canSeeAllTabs && (
+              <motion.div key="projects" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
+                {/* Section Header */}
+                <div className="clip-card relative overflow-hidden bg-[#0b0b16] border border-[#FF2D78]/10 p-5">
+                  <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-[#FF2D78] to-[#9d4edd]" />
+                  <div className="flex items-center justify-between relative">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 clip-card bg-gradient-to-br from-[#FF2D78] to-[#9d4edd] flex items-center justify-center">
+                        <FolderKanban size={16} className="text-white" />
+                      </div>
+                      <div>
+                        <h2 className="font-cyber text-sm font-bold text-white uppercase tracking-wider">Proyectos Dinámicos</h2>
+                        <p className="font-code text-[10px] text-white/30 uppercase tracking-widest">{'// '}Creados desde el panel</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={openCreateProject}
+                      className="clip-btn py-2.5 px-4 bg-[#FF2D78] hover:bg-[#ff4d8d] text-black font-cyber font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_15px_rgba(255,45,120,0.4)] transition-all flex items-center gap-2"
+                    >
+                      <Plus size={14} /> Nuevo Proyecto
+                    </button>
+                  </div>
+                </div>
+
+                {/* Info banner */}
+                <div className="clip-card bg-[#0b0b16] border border-[#00F2FE]/10 p-4 flex items-start gap-3">
+                  <Info size={16} className="text-[#00F2FE] flex-shrink-0 mt-0.5" />
+                  <p className="font-code text-[11px] text-white/50 leading-relaxed">
+                    Los proyectos <span className="text-[#FF2D78]">Monika</span>, <span className="text-[#FF6B9D]">Natsuki</span> y <span className="text-[#9C27B0]">Yuri</span> están hardcodeados en el repositorio y <strong className="text-white/70">no aparecen aquí</strong>. Esta sección solo gestiona los proyectos nuevos que crees desde el panel. Sus botones de descarga contribuyen al mismo contador global que los demás.
+                  </p>
+                </div>
+
+                {/* Projects list */}
+                <AdminCard padding={false}>
+                  {projectsLoading ? (
+                    <div className="p-8 flex justify-center"><Loader2 className="w-6 h-6 animate-spin text-[#FF2D78]" /></div>
+                  ) : adminProjects.length === 0 ? (
+                    <EmptyState icon={FolderKanban} message="Aún no hay proyectos dinámicos" submessage="Crea tu primer proyecto con el botón 'Nuevo Proyecto'" />
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow className="border-white/[0.06] hover:bg-transparent">
+                          <TableHead className="font-code text-[10px] text-white/40 uppercase tracking-wider">Portada</TableHead>
+                          <TableHead className="font-code text-[10px] text-white/40 uppercase tracking-wider">Nombre / Slug</TableHead>
+                          <TableHead className="font-code text-[10px] text-white/40 uppercase tracking-wider">Estado</TableHead>
+                          <TableHead className="font-code text-[10px] text-white/40 uppercase tracking-wider">Descargas</TableHead>
+                          <TableHead className="font-code text-[10px] text-white/40 uppercase tracking-wider">Destacado</TableHead>
+                          <TableHead className="font-code text-[10px] text-white/40 uppercase tracking-wider">Publicado</TableHead>
+                          <TableHead className="font-code text-[10px] text-white/40 uppercase tracking-wider text-right">Acciones</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {adminProjects.map(p => (
+                          <TableRow key={p.id} className="border-white/[0.04] hover:bg-white/[0.02]">
+                            <TableCell className="py-2">
+                              <div className="w-12 h-12 rounded-md overflow-hidden border border-white/10 bg-white/5 flex items-center justify-center" style={{ background: p.coverBg || `linear-gradient(145deg, ${p.themeColor}18 0%, #0d0d24 40%)` }}>
+                                {p.image ? <img src={p.image} alt={p.name} className="w-full h-full object-cover" /> : <ImagePlus size={14} className="text-white/20" />}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-cyber text-sm text-white font-bold">{p.name}</div>
+                              <div className="font-code text-[10px] text-white/30">/proyectos/{p.id}</div>
+                            </TableCell>
+                            <TableCell>
+                              <span className="font-code text-[10px] px-2 py-1 border" style={{ borderColor: `${p.statusColor}40`, color: p.statusColor }}>{p.status}</span>
+                            </TableCell>
+                            <TableCell className="font-code text-xs text-white/60">{p.downloads?.length || 0}</TableCell>
+                            <TableCell>
+                              {p.featured ? <Star size={14} className="text-yellow-400 fill-yellow-400" /> : <span className="text-white/20 text-xs">—</span>}
+                            </TableCell>
+                            <TableCell>
+                              <span className={`font-code text-[10px] px-2 py-1 border ${p.isPublished ? 'border-green-500/30 text-green-400' : 'border-white/10 text-white/30'}`}>
+                                {p.isPublished ? 'Publicado' : 'Borrador'}
+                              </span>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end gap-1">
+                                <a
+                                  href={`/proyectos/${p.id}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="p-1.5 text-white/40 hover:text-[#00F2FE] transition-colors"
+                                  title="Ver página pública"
+                                >
+                                  <ExternalLink size={13} />
+                                </a>
+                                <button
+                                  onClick={() => openEditProject(p)}
+                                  className="p-1.5 text-white/40 hover:text-[#00F2FE] transition-colors"
+                                  title="Editar"
+                                >
+                                  <Pencil size={13} />
+                                </button>
+                                <button
+                                  onClick={() => setProjectDeleteTarget(p)}
+                                  className="p-1.5 text-white/40 hover:text-red-400 transition-colors"
+                                  title="Eliminar"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </AdminCard>
+              </motion.div>
+            )}
+
             {/* ═══════════════ LOGS ═══════════════ */}
             {activeTab === 'logs' && canSeeAllTabs && (
               <motion.div key="logs" variants={tabVariants} initial="hidden" animate="visible" exit="exit" className="space-y-6">
@@ -1875,6 +2257,344 @@ export default function AdminPanel() {
                 Listo
               </button>
             )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══════════════ PROJECT CREATE/EDIT DIALOG ═══════════════ */}
+      <Dialog open={showProjectDialog} onOpenChange={(o) => { if (!o) closeProjectDialog(); }}>
+        <DialogContent className="max-w-4xl max-h-[92vh] overflow-y-auto bg-[#0b0b16] border border-[#FF2D78]/20 text-white">
+          <DialogHeader>
+            <DialogTitle className="font-cyber text-base font-bold uppercase tracking-wider text-white">
+              {projectDialogMode === 'create' ? 'Nuevo Proyecto' : 'Editar Proyecto'}
+            </DialogTitle>
+            <DialogDescription className="font-code text-[11px] text-white/40">
+              {projectDialogMode === 'create'
+                ? 'Completa los campos para publicar una nueva página de proyecto. Los marcados con * son obligatorios.'
+                : `Editando "${projectForm.name}" (slug: ${projectForm.id}). El slug no se puede cambiar.`}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-5 py-2">
+            {/* ── Slug + Name ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Slug (URL) *</label>
+                <input
+                  type="text"
+                  value={projectForm.id}
+                  onChange={e => setProjectForm(prev => ({ ...prev, id: e.target.value }))}
+                  disabled={projectDialogMode === 'edit'}
+                  placeholder="mi-proyecto"
+                  className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40 disabled:opacity-50"
+                />
+                <p className="font-code text-[9px] text-white/30 mt-1">Solo minúsculas, números y guiones. Se usará en /proyectos/<span className="text-[#FF2D78]">slug</span>.</p>
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Nombre *</label>
+                <input
+                  type="text"
+                  value={projectForm.name}
+                  onChange={e => setProjectForm(prev => ({ ...prev, name: e.target.value }))}
+                  placeholder="Monika After History"
+                  className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40"
+                />
+              </div>
+            </div>
+
+            {/* ── Subtitles ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Subtítulo (ES)</label>
+                <input
+                  type="text"
+                  value={projectForm.subtitle}
+                  onChange={e => setProjectForm(prev => ({ ...prev, subtitle: e.target.value }))}
+                  placeholder="Novela Visual Fan-Made"
+                  className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40"
+                />
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Subtítulo (EN)</label>
+                <input
+                  type="text"
+                  value={projectForm.subtitleEn}
+                  onChange={e => setProjectForm(prev => ({ ...prev, subtitleEn: e.target.value }))}
+                  placeholder="Fan-Made Visual Novel"
+                  className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40"
+                />
+              </div>
+            </div>
+
+            {/* ── Descriptions ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Descripción (ES) *</label>
+                <textarea
+                  value={projectForm.description}
+                  onChange={e => setProjectForm(prev => ({ ...prev, description: e.target.value }))}
+                  rows={4}
+                  placeholder="Una historia alternativa que explora..."
+                  className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40 resize-none"
+                />
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Descripción (EN)</label>
+                <textarea
+                  value={projectForm.descriptionEn}
+                  onChange={e => setProjectForm(prev => ({ ...prev, descriptionEn: e.target.value }))}
+                  rows={4}
+                  placeholder="An alternative story exploring..."
+                  className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40 resize-none"
+                />
+              </div>
+            </div>
+
+            {/* ── Cover image ── */}
+            <div>
+              <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Imagen de portada *</label>
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={projectForm.image}
+                  onChange={e => setProjectForm(prev => ({ ...prev, image: e.target.value }))}
+                  placeholder="https://... o sube un archivo"
+                  className="flex-1 px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40"
+                />
+                <input
+                  ref={coverUploadRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={onCoverFileSelected}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => coverUploadRef.current?.click()}
+                  disabled={imageUploading}
+                  className="clip-btn px-3 py-2 bg-white/5 border border-white/[0.08] text-white/70 font-code text-xs hover:bg-white/10 transition-all flex items-center gap-1.5 disabled:opacity-50"
+                >
+                  {imageUploading ? <Loader2 size={12} className="animate-spin" /> : <ImagePlus size={12} />} Subir
+                </button>
+              </div>
+              {projectForm.image && (
+                <div className="mt-2 w-32 h-20 rounded-md overflow-hidden border border-white/10 bg-white/5">
+                  <img src={projectForm.image} alt="preview" className="w-full h-full object-cover" />
+                </div>
+              )}
+            </div>
+
+            {/* ── Color / Cover fit / Theme color ── */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de tema</label>
+                <input type="color" value={projectForm.themeColor} onChange={e => setProjectForm(prev => ({ ...prev, themeColor: e.target.value }))} className="w-full h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de estado</label>
+                <input type="color" value={projectForm.statusColor} onChange={e => setProjectForm(prev => ({ ...prev, statusColor: e.target.value }))} className="w-full h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Fondo de portada (opcional)</label>
+                <input type="color" value={projectForm.coverBg || '#000000'} onChange={e => setProjectForm(prev => ({ ...prev, coverBg: e.target.value }))} className="w-full h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Ajuste de portada</label>
+                <select
+                  value={projectForm.coverFit}
+                  onChange={e => setProjectForm(prev => ({ ...prev, coverFit: e.target.value as 'contain' | 'cover' }))}
+                  className="w-full h-9 px-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40"
+                >
+                  <option value="contain">contain</option>
+                  <option value="cover">cover</option>
+                </select>
+              </div>
+            </div>
+
+            {/* ── Status / Rating / Tags ── */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Estado (ES)</label>
+                <input type="text" value={projectForm.status} onChange={e => setProjectForm(prev => ({ ...prev, status: e.target.value }))} placeholder="Disponible / En desarrollo" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Estado (EN)</label>
+                <input type="text" value={projectForm.statusEn} onChange={e => setProjectForm(prev => ({ ...prev, statusEn: e.target.value }))} placeholder="Available / In Development" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Rating (0-5)</label>
+                <input type="number" min="0" max="5" step="0.1" value={projectForm.rating} onChange={e => setProjectForm(prev => ({ ...prev, rating: e.target.value }))} className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+              </div>
+            </div>
+
+            <div>
+              <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Tags (separados por comas)</label>
+              <input type="text" value={projectForm.tags} onChange={e => setProjectForm(prev => ({ ...prev, tags: e.target.value }))} placeholder="Fan-Made, Drama, Romance" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+            </div>
+
+            {/* ── Music (optional) ── */}
+            <div>
+              <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Música de fondo (opcional)</label>
+              <input type="text" value={projectForm.music} onChange={e => setProjectForm(prev => ({ ...prev, music: e.target.value }))} placeholder="https://www.youtube.com/embed/VIDEO_ID?autoplay=1&..." className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+              <p className="font-code text-[9px] text-white/30 mt-1">URL embed de YouTube con autoplay+loop. Déjalo vacío para no tener música.</p>
+            </div>
+
+            {/* ── Gallery previews ── */}
+            <div>
+              <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Galería (una URL por línea, o sube archivos)</label>
+              <textarea
+                value={projectForm.previews}
+                onChange={e => setProjectForm(prev => ({ ...prev, previews: e.target.value }))}
+                rows={3}
+                placeholder={'https://...imagen1.png\nhttps://...imagen2.png'}
+                className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40 resize-none"
+              />
+              <input
+                ref={previewUploadRef}
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={onPreviewFileSelected}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={() => previewUploadRef.current?.click()}
+                disabled={imageUploading}
+                className="mt-2 clip-btn px-3 py-1.5 bg-white/5 border border-white/[0.08] text-white/70 font-code text-xs hover:bg-white/10 transition-all flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {imageUploading ? <Loader2 size={11} className="animate-spin" /> : <ImagePlus size={11} />} Subir imágenes
+              </button>
+            </div>
+
+            {/* ── Details ── */}
+            <div className="border-t border-white/[0.06] pt-4">
+              <h4 className="font-cyber text-xs font-bold text-white/70 uppercase tracking-wider mb-3">Detalles técnicos</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Tiempo de juego (ES)</label>
+                  <input type="text" value={projectForm.details.playTime || ''} onChange={e => setProjectForm(prev => ({ ...prev, details: { ...prev.details, playTime: e.target.value } }))} placeholder="Sin límites" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Tiempo de juego (EN)</label>
+                  <input type="text" value={projectForm.details.playTimeEn || ''} onChange={e => setProjectForm(prev => ({ ...prev, details: { ...prev.details, playTimeEn: e.target.value } }))} placeholder="Unlimited" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Motor</label>
+                  <input type="text" value={projectForm.details.engine || ''} onChange={e => setProjectForm(prev => ({ ...prev, details: { ...prev.details, engine: e.target.value } }))} placeholder="Ren'Py" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Idioma (ES)</label>
+                  <input type="text" value={projectForm.details.language || ''} onChange={e => setProjectForm(prev => ({ ...prev, details: { ...prev.details, language: e.target.value } }))} placeholder="Español" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Idioma (EN)</label>
+                  <input type="text" value={projectForm.details.languageEn || ''} onChange={e => setProjectForm(prev => ({ ...prev, details: { ...prev.details, languageEn: e.target.value } }))} placeholder="Spanish" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Label de descargas (texto fijo)</label>
+                  <input type="text" value={projectForm.details.downloadsLabel || ''} onChange={e => setProjectForm(prev => ({ ...prev, details: { ...prev.details, downloadsLabel: e.target.value } }))} placeholder="1,250+" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+                </div>
+              </div>
+            </div>
+
+            {/* ── Download buttons ── */}
+            <div className="border-t border-white/[0.06] pt-4">
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="font-cyber text-xs font-bold text-white/70 uppercase tracking-wider">Botones de descarga</h4>
+                <button type="button" onClick={addDownloadRow} className="clip-btn px-3 py-1.5 bg-[#FF2D78]/10 border border-[#FF2D78]/30 text-[#FF2D78] font-code text-xs hover:bg-[#FF2D78]/20 transition-all flex items-center gap-1.5">
+                  <Plus size={11} /> Agregar
+                </button>
+              </div>
+              {projectForm.downloads.length === 0 ? (
+                <p className="font-code text-[11px] text-white/30 py-3 text-center border border-dashed border-white/[0.08]">Sin botones de descarga. Agrega al menos uno para que los usuarios puedan descargar el proyecto.</p>
+              ) : (
+                <div className="space-y-2">
+                  {projectForm.downloads.map((dl, i) => (
+                    <div key={i} className="bg-[#080812] border border-white/[0.06] p-3 space-y-2">
+                      <div className="flex items-center gap-2">
+                        <GripVertical size={12} className="text-white/20 flex-shrink-0" />
+                        <span className="font-code text-[10px] text-white/40 uppercase tracking-wider flex-1">Botón #{i + 1}</span>
+                        <button type="button" onClick={() => removeDownloadRow(i)} className="p-1 text-white/30 hover:text-red-400 transition-colors"><Trash2 size={11} /></button>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-5">
+                        <input type="text" value={dl.label} onChange={e => updateDownloadRow(i, { label: e.target.value })} placeholder="Label (ES): Descargar APK" className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                        <input type="text" value={dl.labelEn || ''} onChange={e => updateDownloadRow(i, { labelEn: e.target.value })} placeholder="Label (EN): Download APK" className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                        <input type="text" value={dl.url} onChange={e => updateDownloadRow(i, { url: e.target.value })} placeholder="https://github.com/.../release.zip" className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40 sm:col-span-2" />
+                        <select value={dl.icon} onChange={e => updateDownloadRow(i, { icon: e.target.value as ProjectDownload['icon'] })} className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40">
+                          {PROJECT_DOWNLOAD_ICONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                        </select>
+                        <div className="grid grid-cols-3 gap-2">
+                          <div className="flex items-center gap-1.5">
+                            <input type="color" value={dl.color} onChange={e => updateDownloadRow(i, { color: e.target.value })} className="w-8 h-8 bg-transparent border border-white/[0.06] cursor-pointer" title="Color base" />
+                            <span className="font-code text-[9px] text-white/30">Base</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <input type="color" value={dl.hoverColor || '#FF6B9D'} onChange={e => updateDownloadRow(i, { hoverColor: e.target.value })} className="w-8 h-8 bg-transparent border border-white/[0.06] cursor-pointer" title="Color hover" />
+                            <span className="font-code text-[9px] text-white/30">Hover</span>
+                          </div>
+                          <div className="flex items-center gap-1.5">
+                            <input type="color" value={dl.textColor || '#ffffff'} onChange={e => updateDownloadRow(i, { textColor: e.target.value })} className="w-8 h-8 bg-transparent border border-white/[0.06] cursor-pointer" title="Color texto" />
+                            <span className="font-code text-[9px] text-white/30">Texto</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* ── Flags ── */}
+            <div className="border-t border-white/[0.06] pt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={projectForm.featured} onChange={e => setProjectForm(prev => ({ ...prev, featured: e.target.checked }))} className="w-4 h-4 accent-[#FF2D78]" />
+                <span className="font-code text-xs text-white/60">Destacado</span>
+              </label>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" checked={projectForm.isPublished} onChange={e => setProjectForm(prev => ({ ...prev, isPublished: e.target.checked }))} className="w-4 h-4 accent-[#FF2D78]" />
+                <span className="font-code text-xs text-white/60">Publicado</span>
+              </label>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Orden</label>
+                <input type="number" value={projectForm.sortOrder} onChange={e => setProjectForm(prev => ({ ...prev, sortOrder: e.target.value }))} className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40" />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="gap-2">
+            <button onClick={closeProjectDialog} disabled={projectSaving} className="flex-1 clip-btn px-4 py-3 bg-white/3 border border-white/[0.06] text-white/50 font-cyber text-xs uppercase tracking-wider hover:bg-white/5 hover:text-white/60 transition-all disabled:opacity-50">
+              Cancelar
+            </button>
+            <button
+              onClick={saveProject}
+              disabled={projectSaving || imageUploading}
+              className="flex-1 clip-btn px-4 py-3 bg-[#FF2D78] hover:bg-[#ff4d8d] text-black font-cyber font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_15px_rgba(255,45,120,0.4)] transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            >
+              {projectSaving ? <><Loader2 size={12} className="animate-spin" /> Guardando...</> : <><Save size={12} /> {projectDialogMode === 'create' ? 'Crear Proyecto' : 'Guardar Cambios'}</>}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* ═══════════════ PROJECT DELETE CONFIRMATION ═══════════════ */}
+      <Dialog open={!!projectDeleteTarget} onOpenChange={(o) => { if (!o) setProjectDeleteTarget(null); }}>
+        <DialogContent className="max-w-md bg-[#0b0b16] border border-red-500/20 text-white">
+          <DialogHeader>
+            <DialogTitle className="font-cyber text-base font-bold uppercase tracking-wider text-red-400 flex items-center gap-2">
+              <AlertTriangle size={16} /> Eliminar Proyecto
+            </DialogTitle>
+            <DialogDescription className="font-code text-[11px] text-white/40">
+              ¿Seguro que quieres eliminar <strong className="text-white/70">{projectDeleteTarget?.name}</strong>? Esta acción no se puede deshacer. Los comentarios asociados se conservarán pero la página ya no será accesible.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <button onClick={() => setProjectDeleteTarget(null)} className="flex-1 clip-btn px-4 py-3 bg-white/3 border border-white/[0.06] text-white/50 font-cyber text-xs uppercase tracking-wider hover:bg-white/5 hover:text-white/60 transition-all">
+              Cancelar
+            </button>
+            <button onClick={confirmDeleteProject} className="flex-1 clip-btn px-4 py-3 bg-red-500 hover:bg-red-600 text-white font-cyber font-bold text-xs uppercase tracking-wider hover:shadow-[0_0_15px_rgba(239,68,68,0.4)] transition-all flex items-center justify-center gap-2">
+              <Trash2 size={12} /> Eliminar
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
