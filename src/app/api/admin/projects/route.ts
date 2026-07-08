@@ -276,7 +276,10 @@ export async function POST(request: NextRequest) {
            pageBgColor, cardBgColor, borderColor, textColor, titleStrokeColor, accentColor,
            sections, resources,
            isPublished, sortOrder, createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                 ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                 ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+                 ?, ?, ?, ?)`
       )
       .bind(
         slug,
@@ -338,6 +341,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ project }, { status: 201 });
   } catch (error) {
     console.error('Create project error:', error);
-    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal server error.';
+    return NextResponse.json({ error: `No se pudo crear el proyecto: ${message}` }, { status: 500 });
   }
 }
