@@ -298,7 +298,8 @@ export async function PUT(
     return NextResponse.json({ project });
   } catch (error) {
     console.error('Update project error:', error);
-    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal server error.';
+    return NextResponse.json({ error: `No se pudo actualizar el proyecto: ${message}` }, { status: 500 });
   }
 }
 
@@ -346,6 +347,7 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Delete project error:', error);
-    return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal server error.';
+    return NextResponse.json({ error: `No se pudo eliminar el proyecto: ${message}` }, { status: 500 });
   }
 }
