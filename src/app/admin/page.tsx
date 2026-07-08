@@ -25,8 +25,8 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import type { DynamicProject, ProjectDownload, ProjectDetails } from '@/data/dynamic-projects';
-import { validateProjectSlug, isReservedSlug } from '@/data/dynamic-projects';
+import type { DynamicProject, ProjectDownload, ProjectDetails, ProjectSections, ProjectResource, ResourceIcon } from '@/data/dynamic-projects';
+import { validateProjectSlug, isReservedSlug, parseMusicInput, DEFAULT_SECTIONS } from '@/data/dynamic-projects';
 
 // ─── Interfaces ───
 interface AdminUser {
@@ -208,6 +208,17 @@ interface AdminProjectForm {
   downloads: ProjectDownload[];
   music: string;
   themeColor: string;
+  bgImage: string;
+  bgFit: 'cover' | 'contain' | 'solid';
+  // Visual customization (empty string = use default / themeColor)
+  pageBgColor: string;
+  cardBgColor: string;
+  borderColor: string;
+  textColor: string;
+  titleStrokeColor: string;
+  accentColor: string;
+  sections: Required<ProjectSections>;
+  resources: ProjectResource[];
   isPublished: boolean;
   sortOrder: string;
   details: ProjectDetails;
@@ -234,6 +245,16 @@ function emptyProjectForm(): AdminProjectForm {
     downloads: [],
     music: '',
     themeColor: '#FF2D78',
+    bgImage: '',
+    bgFit: 'cover',
+    pageBgColor: '',
+    cardBgColor: '',
+    borderColor: '',
+    textColor: '',
+    titleStrokeColor: '',
+    accentColor: '',
+    sections: { ...DEFAULT_SECTIONS },
+    resources: [],
     isPublished: true,
     sortOrder: '0',
     details: { playTime: '', playTimeEn: '', language: 'Español', languageEn: 'Spanish', engine: "Ren'Py", downloadsLabel: '' },
@@ -261,6 +282,16 @@ function projectToForm(p: DynamicProject): AdminProjectForm {
     downloads: Array.isArray(p.downloads) ? p.downloads : [],
     music: p.music || '',
     themeColor: p.themeColor,
+    bgImage: p.bgImage || '',
+    bgFit: p.bgFit === 'contain' ? 'contain' : p.bgFit === 'solid' ? 'solid' : 'cover',
+    pageBgColor: p.pageBgColor || '',
+    cardBgColor: p.cardBgColor || '',
+    borderColor: p.borderColor || '',
+    textColor: p.textColor || '',
+    titleStrokeColor: p.titleStrokeColor || '',
+    accentColor: p.accentColor || '',
+    sections: { ...DEFAULT_SECTIONS, ...(p.sections || {}) },
+    resources: Array.isArray(p.resources) ? p.resources : [],
     isPublished: !!p.isPublished,
     sortOrder: String(p.sortOrder ?? 0),
     details: {
@@ -277,6 +308,9 @@ function projectToForm(p: DynamicProject): AdminProjectForm {
 function formToPayload(form: AdminProjectForm, isCreate: boolean): Record<string, unknown> {
   const tags = form.tags.split(',').map(s => s.trim()).filter(Boolean);
   const previews = form.previews.split('\n').map(s => s.trim()).filter(Boolean);
+  // Validate music input — if user pasted something unrecognizable, send null instead.
+  const musicRaw = form.music.trim();
+  const musicParsed = parseMusicInput(musicRaw);
   return {
     ...(isCreate ? { id: form.id.trim().toLowerCase() } : {}),
     name: form.name.trim(),
@@ -295,8 +329,18 @@ function formToPayload(form: AdminProjectForm, isCreate: boolean): Record<string
     featured: !!form.featured,
     previews,
     downloads: form.downloads,
-    music: form.music.trim() || null,
+    music: musicParsed ? musicRaw : null,
     themeColor: form.themeColor.trim() || '#FF2D78',
+    bgImage: form.bgImage.trim() || null,
+    bgFit: form.bgFit,
+    pageBgColor: form.pageBgColor.trim() || null,
+    cardBgColor: form.cardBgColor.trim() || null,
+    borderColor: form.borderColor.trim() || null,
+    textColor: form.textColor.trim() || null,
+    titleStrokeColor: form.titleStrokeColor.trim() || null,
+    accentColor: form.accentColor.trim() || null,
+    sections: form.sections,
+    resources: form.resources,
     isPublished: !!form.isPublished,
     sortOrder: Number(form.sortOrder) || 0,
     details: form.details,
@@ -308,6 +352,28 @@ const PROJECT_DOWNLOAD_ICONS = [
   { value: 'Monitor', label: 'Monitor (PC)' },
   { value: 'Download', label: 'Download (genérico)' },
 ] as const;
+
+const PROJECT_RESOURCE_ICONS: { value: ResourceIcon; label: string }[] = [
+  { value: 'BookOpen', label: 'Libro (Wiki)' },
+  { value: 'Shirt', label: 'Camisa (Spritepacks)' },
+  { value: 'Puzzle', label: 'Puzzle (Submods)' },
+  { value: 'Star', label: 'Estrella (Favoritos)' },
+  { value: 'Search', label: 'Lupa (Búsqueda)' },
+  { value: 'Download', label: 'Descarga' },
+  { value: 'Heart', label: 'Corazón' },
+  { value: 'ExternalLink', label: 'Link externo' },
+  { value: 'FileText', label: 'Documento' },
+];
+
+const SECTION_LABELS: { key: keyof ProjectSections; label: string; desc: string }[] = [
+  { key: 'showGallery', label: 'Galería', desc: 'Carrusel de imágenes de preview' },
+  { key: 'showResources', label: 'Recursos extra', desc: 'Cards de recursos (Wiki, Spritepacks, etc.)' },
+  { key: 'showComments', label: 'Comentarios', desc: 'Sección de comentarios al final' },
+  { key: 'showDetails', label: 'Detalles técnicos', desc: 'Card lateral con playTime, idioma, motor, descargas' },
+  { key: 'showMusic', label: 'Música', desc: 'Reproductor de música + botón mute (requiere URL de música)' },
+  { key: 'showShare', label: 'Compartir', desc: 'Botón de compartir en la navbar' },
+  { key: 'showFeaturedBadge', label: 'Badge destacado', desc: 'Badge "DESTACADO" en la esquina (requiere "featured" activo)' },
+];
 
 // ─── Main Component ───
 export default function AdminPanel() {
@@ -379,6 +445,7 @@ export default function AdminPanel() {
   const [imageUploading, setImageUploading] = useState(false);
   const coverUploadRef = useRef<HTMLInputElement>(null);
   const previewUploadRef = useRef<HTMLInputElement>(null);
+  const bgUploadRef = useRef<HTMLInputElement>(null);
   const [projectForm, setProjectForm] = useState<AdminProjectForm>(emptyProjectForm());
 
   useEffect(() => { setMounted(true); }, []);
@@ -511,7 +578,7 @@ export default function AdminPanel() {
     }
   };
 
-  const uploadProjectImage = async (file: File, target: 'cover' | 'preview') => {
+  const uploadProjectImage = async (file: File, target: 'cover' | 'preview' | 'background') => {
     if (!file) return;
     setImageUploading(true);
     try {
@@ -523,6 +590,8 @@ export default function AdminPanel() {
       const url: string = data.url as string;
       if (target === 'cover') {
         setProjectForm(prev => ({ ...prev, image: url }));
+      } else if (target === 'background') {
+        setProjectForm(prev => ({ ...prev, bgImage: url }));
       } else {
         setProjectForm(prev => ({
           ...prev,
@@ -547,6 +616,11 @@ export default function AdminPanel() {
     files.forEach(f => uploadProjectImage(f, 'preview'));
     e.target.value = '';
   };
+  const onBgFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (f) uploadProjectImage(f, 'background');
+    e.target.value = '';
+  };
 
   const addDownloadRow = () => {
     setProjectForm(prev => ({
@@ -559,6 +633,25 @@ export default function AdminPanel() {
   };
   const removeDownloadRow = (i: number) => {
     setProjectForm(prev => ({ ...prev, downloads: prev.downloads.filter((_, idx) => idx !== i) }));
+  };
+
+  // ─── Resource rows (for "Recursos y Contenido Extra" section) ───
+  const addResourceRow = () => {
+    setProjectForm(prev => ({
+      ...prev,
+      resources: [...prev.resources, { title: '', description: '', icon: 'FileText', url: '', urlLabel: '', urlLabelEn: '', color: '' }],
+    }));
+  };
+  const updateResourceRow = (i: number, patch: Partial<ProjectResource>) => {
+    setProjectForm(prev => ({ ...prev, resources: prev.resources.map((r, idx) => idx === i ? { ...r, ...patch } : r) }));
+  };
+  const removeResourceRow = (i: number) => {
+    setProjectForm(prev => ({ ...prev, resources: prev.resources.filter((_, idx) => idx !== i) }));
+  };
+
+  // ─── Section visibility toggles ───
+  const toggleSection = (key: keyof ProjectSections) => {
+    setProjectForm(prev => ({ ...prev, sections: { ...prev.sections, [key]: !prev.sections[key] } }));
   };
 
   useEffect(() => {
@@ -2435,9 +2528,162 @@ export default function AdminPanel() {
             {/* ── Music (optional) ── */}
             <div>
               <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Música de fondo (opcional)</label>
-              <input type="text" value={projectForm.music} onChange={e => setProjectForm(prev => ({ ...prev, music: e.target.value }))} placeholder="https://www.youtube.com/embed/VIDEO_ID?autoplay=1&..." className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
-              <p className="font-code text-[9px] text-white/30 mt-1">URL embed de YouTube con autoplay+loop. Déjalo vacío para no tener música.</p>
+              <input type="text" value={projectForm.music} onChange={e => setProjectForm(prev => ({ ...prev, music: e.target.value }))} placeholder="QIHUK68L9qQ  o  https://www.youtube.com/watch?v=QIHUK68L9qQ  o  https://.../cancion.mp3" className="w-full px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+              <p className="font-code text-[9px] text-white/30 mt-1">
+                Formatos aceptados: <span className="text-[#00F2FE]">ID de YouTube</span> (11 chars), URL de YouTube (watch/youtu.be/embed) o URL directa a MP3/OGG. Déjalo vacío para no tener música. Se reproduce con un reproductor de audio invisible que evita el bloqueo de autoplay de los navegadores.
+              </p>
+              {projectForm.music.trim() && !parseMusicInput(projectForm.music.trim()) && (
+                <p className="font-code text-[9px] text-red-400 mt-1">⚠ Formato no reconocido. Revisa que sea un ID de YouTube (11 chars), una URL de YouTube válida, o un MP3/OGG directo.</p>
+              )}
+              {projectForm.music.trim() && parseMusicInput(projectForm.music.trim()) && (
+                <p className="font-code text-[9px] text-green-400 mt-1">✓ Detectado: {parseMusicInput(projectForm.music.trim())!.kind === 'youtube' ? `YouTube (video ID: ${parseMusicInput(projectForm.music.trim())!.value})` : `Audio directo (${parseMusicInput(projectForm.music.trim())!.value.split('.').pop()?.toUpperCase()})`}</p>
+              )}
             </div>
+
+            {/* ── Page background ── */}
+            <div className="border-t border-white/[0.06] pt-4">
+              <h4 className="font-cyber text-xs font-bold text-white/70 uppercase tracking-wider mb-3">Fondo de la página</h4>
+              <div className="space-y-3">
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Imagen de fondo (opcional)</label>
+                  <div className="flex gap-2">
+                    <input type="text" value={projectForm.bgImage} onChange={e => setProjectForm(prev => ({ ...prev, bgImage: e.target.value }))} placeholder="https://... o sube un archivo" className="flex-1 px-3 py-2 bg-[#080812] border border-white/[0.08] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                    <input ref={bgUploadRef} type="file" accept="image/*" onChange={onBgFileSelected} className="hidden" />
+                    <button type="button" onClick={() => bgUploadRef.current?.click()} disabled={imageUploading} className="clip-btn px-3 py-2 bg-white/5 border border-white/[0.08] text-white/70 font-code text-xs hover:bg-white/10 transition-all flex items-center gap-1.5 disabled:opacity-50">
+                      {imageUploading ? <Loader2 size={12} className="animate-spin" /> : <ImagePlus size={12} />} Subir
+                    </button>
+                  </div>
+                  {projectForm.bgImage && (
+                    <button type="button" onClick={() => setProjectForm(prev => ({ ...prev, bgImage: '' }))} className="mt-1 font-code text-[9px] text-red-400/70 hover:text-red-400 transition-colors">Quitar imagen</button>
+                  )}
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Ajuste del fondo</label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <button type="button" onClick={() => setProjectForm(prev => ({ ...prev, bgFit: 'cover' }))} className={`px-2 py-1.5 border font-code text-[10px] uppercase tracking-wider transition-all ${projectForm.bgFit === 'cover' ? 'bg-[#FF2D78]/20 border-[#FF2D78]/50 text-[#FF2D78]' : 'bg-[#080812] border-white/[0.08] text-white/40 hover:text-white/70'}`}>Cover (relleno)</button>
+                    <button type="button" onClick={() => setProjectForm(prev => ({ ...prev, bgFit: 'contain' }))} className={`px-2 py-1.5 border font-code text-[10px] uppercase tracking-wider transition-all ${projectForm.bgFit === 'contain' ? 'bg-[#FF2D78]/20 border-[#FF2D78]/50 text-[#FF2D78]' : 'bg-[#080812] border-white/[0.08] text-white/40 hover:text-white/70'}`}>Contain (ajustar)</button>
+                    <button type="button" onClick={() => setProjectForm(prev => ({ ...prev, bgFit: 'solid' }))} className={`px-2 py-1.5 border font-code text-[10px] uppercase tracking-wider transition-all ${projectForm.bgFit === 'solid' ? 'bg-[#FF2D78]/20 border-[#FF2D78]/50 text-[#FF2D78]' : 'bg-[#080812] border-white/[0.08] text-white/40 hover:text-white/70'}`}>Solo color</button>
+                  </div>
+                  <p className="font-code text-[9px] text-white/30 mt-1">'Cover' rellena toda la pantalla (recorta si hace falta). 'Contain' muestra la imagen completa. 'Solo color' ignora la imagen y usa solo el color de tema.</p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Visual customization (advanced colors) ── */}
+            <div className="border-t border-white/[0.06] pt-4">
+              <h4 className="font-cyber text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Personalización visual avanzada</h4>
+              <p className="font-code text-[9px] text-white/30 mb-3">Todos los colores son opcionales. Si dejas uno vacío, se usa el color de tema (themeColor) o el default.</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de página (fondo sólido)</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={projectForm.pageBgColor || '#ffffff'} onChange={e => setProjectForm(prev => ({ ...prev, pageBgColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+                    <input type="text" value={projectForm.pageBgColor} onChange={e => setProjectForm(prev => ({ ...prev, pageBgColor: e.target.value }))} placeholder="#ffffff" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de tarjetas</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={projectForm.cardBgColor || '#ffffff'} onChange={e => setProjectForm(prev => ({ ...prev, cardBgColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+                    <input type="text" value={projectForm.cardBgColor} onChange={e => setProjectForm(prev => ({ ...prev, cardBgColor: e.target.value }))} placeholder="#ffffff" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de bordes</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={projectForm.borderColor || projectForm.themeColor} onChange={e => setProjectForm(prev => ({ ...prev, borderColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+                    <input type="text" value={projectForm.borderColor} onChange={e => setProjectForm(prev => ({ ...prev, borderColor: e.target.value }))} placeholder="(usa themeColor)" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de texto principal</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={projectForm.textColor || '#1a1a1a'} onChange={e => setProjectForm(prev => ({ ...prev, textColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+                    <input type="text" value={projectForm.textColor} onChange={e => setProjectForm(prev => ({ ...prev, textColor: e.target.value }))} placeholder="#1a1a1a" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de stroke (títulos)</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={projectForm.titleStrokeColor || projectForm.themeColor} onChange={e => setProjectForm(prev => ({ ...prev, titleStrokeColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+                    <input type="text" value={projectForm.titleStrokeColor} onChange={e => setProjectForm(prev => ({ ...prev, titleStrokeColor: e.target.value }))} placeholder="(usa themeColor)" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de acento (iconos)</label>
+                  <div className="flex items-center gap-2">
+                    <input type="color" value={projectForm.accentColor || projectForm.themeColor} onChange={e => setProjectForm(prev => ({ ...prev, accentColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+                    <input type="text" value={projectForm.accentColor} onChange={e => setProjectForm(prev => ({ ...prev, accentColor: e.target.value }))} placeholder="(usa themeColor)" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                  </div>
+                </div>
+              </div>
+              <button type="button" onClick={() => setProjectForm(prev => ({ ...prev, pageBgColor: '', cardBgColor: '', borderColor: '', textColor: '', titleStrokeColor: '', accentColor: '' }))} className="mt-2 font-code text-[9px] text-white/30 hover:text-red-400 transition-colors">Restablecer todos los colores (usar defaults)</button>
+            </div>
+
+            {/* ── Section visibility switches ── */}
+            <div className="border-t border-white/[0.06] pt-4">
+              <h4 className="font-cyber text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Mostrar / Ocultar secciones</h4>
+              <p className="font-code text-[9px] text-white/30 mb-3">Activa o desactiva cada sección solo para este proyecto.</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {SECTION_LABELS.map(({ key, label, desc }) => (
+                  <button key={key} type="button" onClick={() => toggleSection(key)} className={`flex items-start gap-2 p-2.5 border text-left transition-all ${projectForm.sections[key] ? 'bg-[#FF2D78]/8 border-[#FF2D78]/30' : 'bg-[#080812] border-white/[0.06] opacity-60'}`}>
+                    <div className={`w-4 h-4 mt-0.5 rounded border flex items-center justify-center flex-shrink-0 ${projectForm.sections[key] ? 'bg-[#FF2D78] border-[#FF2D78]' : 'border-white/20'}`}>
+                      {projectForm.sections[key] && <Check size={10} className="text-black" />}
+                    </div>
+                    <div>
+                      <div className="font-code text-xs text-white/80 font-bold">{label}</div>
+                      <div className="font-code text-[9px] text-white/30">{desc}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Resources (cards for "Recursos y Contenido Extra") ── */}
+            {projectForm.sections.showResources && (
+              <div className="border-t border-white/[0.06] pt-4">
+                <div className="flex items-center justify-between mb-3">
+                  <div>
+                    <h4 className="font-cyber text-xs font-bold text-white/70 uppercase tracking-wider">Recursos y Contenido Extra</h4>
+                    <p className="font-code text-[9px] text-white/30">Cards tipo "Wiki del Mod", "Spritepacks", "Submods" — personalízalas por proyecto.</p>
+                  </div>
+                  <button type="button" onClick={addResourceRow} className="clip-btn px-3 py-1.5 bg-[#FF2D78]/10 border border-[#FF2D78]/30 text-[#FF2D78] font-code text-xs hover:bg-[#FF2D78]/20 transition-all flex items-center gap-1.5">
+                    <Plus size={11} /> Agregar
+                  </button>
+                </div>
+                {projectForm.resources.length === 0 ? (
+                  <p className="font-code text-[11px] text-white/30 py-3 text-center border border-dashed border-white/[0.08]">Sin recursos. Agrega cards para que aparezca la sección "Recursos y Contenido Extra" en la página del proyecto.</p>
+                ) : (
+                  <div className="space-y-2">
+                    {projectForm.resources.map((r, i) => (
+                      <div key={i} className="bg-[#080812] border border-white/[0.06] p-3 space-y-2">
+                        <div className="flex items-center gap-2">
+                          <GripVertical size={12} className="text-white/20 flex-shrink-0" />
+                          <span className="font-code text-[10px] text-white/40 uppercase tracking-wider flex-1">Recurso #{i + 1}</span>
+                          <button type="button" onClick={() => removeResourceRow(i)} className="p-1 text-white/30 hover:text-red-400 transition-colors"><Trash2 size={11} /></button>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pl-5">
+                          <input type="text" value={r.title} onChange={e => updateResourceRow(i, { title: e.target.value })} placeholder="Título (Ej: Wiki del Mod)" className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                          <select value={r.icon} onChange={e => updateResourceRow(i, { icon: e.target.value as ResourceIcon })} className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40">
+                            {PROJECT_RESOURCE_ICONS.map(opt => <option key={opt.value} value={opt.value}>{opt.label}</option>)}
+                          </select>
+                          <input type="text" value={r.description} onChange={e => updateResourceRow(i, { description: e.target.value })} placeholder="Descripción (ES)" className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40 sm:col-span-2" />
+                          <input type="text" value={r.descriptionEn || ''} onChange={e => updateResourceRow(i, { descriptionEn: e.target.value })} placeholder="Descripción (EN, opcional)" className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40 sm:col-span-2" />
+                          <input type="text" value={r.url || ''} onChange={e => updateResourceRow(i, { url: e.target.value })} placeholder="URL (opcional — si se pasa, se mostrará un botón)" className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40 sm:col-span-2" />
+                          <input type="text" value={r.urlLabel || ''} onChange={e => updateResourceRow(i, { urlLabel: e.target.value })} placeholder="Label botón (ES): Ver Wiki" className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                          <input type="text" value={r.urlLabelEn || ''} onChange={e => updateResourceRow(i, { urlLabelEn: e.target.value })} placeholder="Label botón (EN): View Wiki" className="px-2 py-1.5 bg-[#0b0b16] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                          <div className="flex items-center gap-2 sm:col-span-2">
+                            <input type="color" value={r.color || projectForm.themeColor} onChange={e => updateResourceRow(i, { color: e.target.value })} className="w-8 h-8 bg-transparent border border-white/[0.06] cursor-pointer" title="Color del recurso (opcional)" />
+                            <span className="font-code text-[9px] text-white/30">Color del recurso (vacío = usa themeColor)</span>
+                            {r.color && <button type="button" onClick={() => updateResourceRow(i, { color: '' })} className="font-code text-[9px] text-red-400/70 hover:text-red-400 ml-auto">limpiar</button>}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* ── Gallery previews ── */}
             <div>
