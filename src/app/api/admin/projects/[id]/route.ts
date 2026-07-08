@@ -16,9 +16,13 @@ import { getSession } from '@/lib/session';
 import {
   parseProjectRow,
   isReservedSlug,
+  DEFAULT_SECTIONS,
   type DynamicProject,
   type ProjectDownload,
   type ProjectDetails,
+  type ProjectSections,
+  type ProjectResource,
+  type ResourceIcon,
 } from '@/data/dynamic-projects';
 
 export const dynamic = 'force-dynamic';
@@ -88,6 +92,40 @@ function asDetails(v: unknown): ProjectDetails {
     engine: asStringOrNull(obj.engine) || undefined,
     downloadsLabel: asStringOrNull(obj.downloadsLabel) || undefined,
   };
+}
+
+function asSections(v: unknown): ProjectSections {
+  if (!v || typeof v !== 'object') return {};
+  const obj = v as Record<string, unknown>;
+  const out: ProjectSections = {};
+  for (const key of Object.keys(DEFAULT_SECTIONS) as (keyof ProjectSections)[]) {
+    if (obj[key] !== undefined) {
+      const val = obj[key];
+      if (typeof val === 'boolean') out[key] = val;
+      else if (typeof val === 'number') out[key] = val === 1;
+      else if (typeof val === 'string') out[key] = val === 'true' || val === '1';
+    }
+  }
+  return out;
+}
+
+const VALID_RESOURCE_ICONS: ResourceIcon[] = ['BookOpen', 'Shirt', 'Puzzle', 'Star', 'Search', 'Download', 'Heart', 'ExternalLink', 'FileText'];
+
+function asResources(v: unknown): ProjectResource[] {
+  if (!Array.isArray(v)) return [];
+  return v
+    .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
+    .map((item) => ({
+      title: asString(item.title),
+      description: asString(item.description),
+      descriptionEn: asStringOrNull(item.descriptionEn) || undefined,
+      url: asStringOrNull(item.url) || undefined,
+      urlLabel: asStringOrNull(item.urlLabel) || undefined,
+      urlLabelEn: asStringOrNull(item.urlLabelEn) || undefined,
+      icon: (VALID_RESOURCE_ICONS.includes(asString(item.icon) as ResourceIcon) ? asString(item.icon) : 'FileText') as ResourceIcon,
+      color: asStringOrNull(item.color) || undefined,
+    }))
+    .filter((r) => r.title && r.description);
 }
 
 // ─── GET ───
@@ -175,6 +213,17 @@ export async function PUT(
     const subtitleEn = asStringOrNull(body.subtitleEn);
     const descriptionEn = asStringOrNull(body.descriptionEn);
     const statusEn = asStringOrNull(body.statusEn);
+    const bgImage = asStringOrNull(body.bgImage);
+    const bgFitRaw = asString(body.bgFit, 'cover');
+    const bgFit: 'cover' | 'contain' | 'solid' = bgFitRaw === 'contain' ? 'contain' : bgFitRaw === 'solid' ? 'solid' : 'cover';
+    const pageBgColor = asStringOrNull(body.pageBgColor);
+    const cardBgColor = asStringOrNull(body.cardBgColor);
+    const borderColor = asStringOrNull(body.borderColor);
+    const textColor = asStringOrNull(body.textColor);
+    const titleStrokeColor = asStringOrNull(body.titleStrokeColor);
+    const accentColor = asStringOrNull(body.accentColor);
+    const sections = asSections(body.sections);
+    const resources = asResources(body.resources);
     const now = nowISO();
 
     await db
@@ -184,6 +233,9 @@ export async function PUT(
           image = ?, coverBg = ?, coverFit = ?,
           tags = ?, status = ?, statusEn = ?, statusColor = ?, rating = ?, featured = ?,
           previews = ?, downloads = ?, music = ?, details = ?, themeColor = ?,
+          bgImage = ?, bgFit = ?,
+          pageBgColor = ?, cardBgColor = ?, borderColor = ?, textColor = ?, titleStrokeColor = ?, accentColor = ?,
+          sections = ?, resources = ?,
           isPublished = ?, sortOrder = ?, updatedAt = ?
          WHERE id = ?`
       )
@@ -207,6 +259,16 @@ export async function PUT(
         music,
         JSON.stringify(details),
         themeColor,
+        bgImage,
+        bgFit,
+        pageBgColor,
+        cardBgColor,
+        borderColor,
+        textColor,
+        titleStrokeColor,
+        accentColor,
+        JSON.stringify(sections),
+        JSON.stringify(resources),
         isPublished,
         sortOrder,
         now,
@@ -287,4 +349,3 @@ export async function DELETE(
     return NextResponse.json({ error: 'Internal server error.' }, { status: 500 });
   }
 }
-
