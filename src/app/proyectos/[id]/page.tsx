@@ -8,13 +8,27 @@ import {
   Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor, Download,
   Share2, X, Sparkles, Volume2, VolumeX,
   ChevronLeft, ChevronRight, Search, Shirt, Puzzle, FileText,
-  Clock, Flag, Settings, Loader2
+  Clock, Flag, Settings, Loader2, Heart, ExternalLink
 } from 'lucide-react';
 // ✅ IMPORTACIÓN ACTUALIZADA
 import { MonikaComments, NatsukiComments, YuriComments, CommentSection } from '@/components/CommentSection';
 import { useI18n } from '@/hooks/useLocale';
 import { projects, getIcon } from '@/data/projects';
-import type { DynamicProject } from '@/data/dynamic-projects';
+import type { DynamicProject, ResourceIcon } from '@/data/dynamic-projects';
+import { parseMusicInput, DEFAULT_SECTIONS } from '@/data/dynamic-projects';
+
+// Map resource icon names to Lucide components
+const RESOURCE_ICON_MAP: Record<ResourceIcon, React.ComponentType<{ size?: number; className?: string; style?: React.CSSProperties }>> = {
+  BookOpen,
+  Shirt,
+  Puzzle,
+  Star,
+  Search,
+  Download,
+  Heart,
+  ExternalLink,
+  FileText,
+};
 
 // Track download click — fires API call in background without blocking the download
 function trackDownload() {
@@ -1040,156 +1054,296 @@ function DynamicProjectLoader({ id }: { id: string }) {
     );
   }
 
-  return (
-    <div className="min-h-screen text-white" style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, ${project.themeColor || '#FF2D78'}26 50%, rgba(10, 10, 26, 0.95) 100%)` }}>
-      <DynamicProjectDetail project={project} />
-    </div>
-  );
+  return <DynamicProjectDetail project={project} />;
 }
 
-/* ─── Dark-theme detail view for dynamic (admin-managed) projects ───
-   Mirrors the structure of the existing ProjectDetail (dark theme)
-   but consumes a DynamicProject object from the API. The download
-   buttons fire the same trackDownload() helper used by the hardcoded
-   projects, so per-click website downloads keep contributing to the
-   global counter exactly like Monika / Natsuki / Yuri. */
+/* ─── Themed (light) detail view for dynamic (admin-managed) projects ───
+   Mirrors the structure of the bespoke Monika/Natsuki/Yuri themed layouts
+   (light background, RifficFree/m1_fixed fonts, pink dots animation,
+   Resources section, comment section) but consumes a DynamicProject object
+   fetched from the API and uses the per-project themeColor + bgImage +
+   advanced visual customization fields.
+
+   The download buttons fire the same trackDownload() helper used by the
+   hardcoded projects, so per-click website downloads keep contributing
+   to the global counter exactly like Monika / Natsuki / Yuri.
+
+   Music uses an <audio> element (HTML5) instead of the YouTube <iframe>,
+   which avoids the autoplay-blocking that affects iframes in modern
+   browsers. See parseMusicInput for accepted formats.
+
+   Per-project sections can be toggled via the `sections` JSON object
+   (showGallery, showResources, showComments, showDetails, showMusic,
+   showShare, showFeaturedBadge) — all default to true. */
 function DynamicProjectDetail({ project }: { project: DynamicProject }) {
   const { t, locale } = useI18n();
-  const musicRef = useRef<HTMLIFrameElement>(null);
+  const audioRef = useRef<HTMLAudioElement>(null);
   const [muted, setMuted] = useState(false);
 
-  useEffect(() => {
-    if (!project.music) return;
-    const timer = setTimeout(() => {
-      try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch { /* cross-origin */ }
-    }, 1500);
-    return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
-  }, [project.music]);
+  // Resolve all colors with sensible fallbacks to themeColor.
+  const themeColor = project.themeColor || '#FF2D78';
+  const titleStroke = project.titleStrokeColor || themeColor;
+  const borderColor = project.borderColor || themeColor;
+  const accentColor = project.accentColor || themeColor;
+  const cardBg = project.cardBgColor || '#ffffff';
+  const textColor = project.textColor || '#1a1a1a';
+  const pageBgSolid = project.pageBgColor || '#ffffff';
 
-  const toggleMute = () => {
-    if (musicRef.current) {
-      try { musicRef.current.contentWindow?.postMessage(muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'); } catch { /* cross-origin */ }
-    }
-    setMuted(!muted);
-  };
+  // Section visibility (all default to true)
+  const sections = { ...DEFAULT_SECTIONS, ...(project.sections || {}) };
+  const showGallery = sections.showGallery && (Array.isArray(project.previews) ? project.previews.length > 0 : false);
+  const showResources = sections.showResources && (Array.isArray(project.resources) ? project.resources.length > 0 : false);
+  const showComments = sections.showComments;
+  const showDetails = sections.showDetails;
+  const showMusic = sections.showMusic && !!parseMusicInput(project.music);
+  const showShare = sections.showShare;
+  const showFeaturedBadge = sections.showFeaturedBadge && !!project.featured;
 
   const isEs = locale === 'es';
   const desc = isEs ? project.description : (project.descriptionEn || project.description);
   const status = isEs ? project.status : (project.statusEn || project.status);
   const subtitle = isEs ? (project.subtitle || '') : (project.subtitleEn || project.subtitle || '');
-  const themeColor = project.themeColor || '#FF2D78';
   const previews = Array.isArray(project.previews) ? project.previews : [];
   const downloads = Array.isArray(project.downloads) ? project.downloads : [];
   const tags = Array.isArray(project.tags) ? project.tags : [];
+  const resources = Array.isArray(project.resources) ? project.resources : [];
   const details = project.details || {};
   const downloadsLabel = details.downloadsLabel || '—';
 
+  // Resolve music source.
+  const musicInfo = parseMusicInput(project.music);
+  const audioSrc = musicInfo
+    ? musicInfo.kind === 'audio'
+      ? musicInfo.value
+      : `https://cdn.jsdelivr.net/gh/coffeebeats/youtube-audio-proxy@main/${musicInfo.value}.mp3`
+    : null;
+
+  // Autoplay attempt on mount (browsers may block until user interacts).
+  useEffect(() => {
+    if (!showMusic || !audioSrc || !audioRef.current) return;
+    const audio = audioRef.current;
+    audio.volume = 0.5;
+    const tryPlay = () => {
+      audio.play().catch(() => {
+        const resume = () => {
+          audio.play().catch(() => {});
+          window.removeEventListener('click', resume);
+          window.removeEventListener('keydown', resume);
+          window.removeEventListener('touchstart', resume);
+        };
+        window.addEventListener('click', resume, { once: true });
+        window.addEventListener('keydown', resume, { once: true });
+        window.addEventListener('touchstart', resume, { once: true });
+      });
+    };
+    const tm = setTimeout(tryPlay, 400);
+    return () => { clearTimeout(tm); };
+  }, [audioSrc, showMusic]);
+
+  const handleAudioEnded = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0;
+      audioRef.current.play().catch(() => {});
+    }
+  };
+
+  const toggleMute = () => {
+    if (audioRef.current) {
+      audioRef.current.muted = !muted;
+    }
+    setMuted(!muted);
+  };
+
+  // Determine background style based on bgImage and bgFit
+  const bgStyle: React.CSSProperties = (() => {
+    if (project.bgFit === 'solid' || !project.bgImage) {
+      return { backgroundColor: pageBgSolid };
+    }
+    if (project.bgFit === 'contain') {
+      return {
+        backgroundColor: pageBgSolid,
+        backgroundImage: `url("${project.bgImage}")`,
+        backgroundRepeat: 'no-repeat',
+        backgroundPosition: 'center top',
+        backgroundSize: 'contain',
+        backgroundAttachment: 'scroll',
+      };
+    }
+    return {
+      backgroundColor: pageBgSolid,
+      backgroundImage: `url("${project.bgImage}")`,
+      backgroundRepeat: 'no-repeat',
+      backgroundPosition: 'center center',
+      backgroundSize: 'cover',
+      backgroundAttachment: 'fixed',
+    };
+  })();
+
+  // Render a single resource card
+  const renderResource = (r: typeof resources[number], i: number) => {
+    const rColor = r.color || themeColor;
+    const rDesc = isEs ? r.description : (r.descriptionEn || r.description);
+    const rUrlLabel = isEs ? (r.urlLabel || 'Abrir') : (r.urlLabelEn || r.urlLabel || 'Open');
+    const Icon = RESOURCE_ICON_MAP[r.icon] || FileText;
+    const card = (
+      <div key={i} className="rounded-2xl border-2 p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow" style={{ backgroundColor: `${cardBg}f2`, borderColor: rColor }}>
+        <h4 className="dyn-stroke-sm text-[18px] font-black flex items-center gap-1.5">
+          <Icon className="w-4 h-4" style={{ color: rColor, WebkitTextStroke: 0 } as React.CSSProperties} />
+          {r.title}
+        </h4>
+        <p className="text-[20px] leading-relaxed font-extrabold" style={{ color: textColor }}>{rDesc}</p>
+        {r.url && (
+          <span className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 text-[15px] font-black" style={{ borderColor: rColor, color: rColor, backgroundColor: cardBg }}>
+            <Icon className="w-3 h-3" /> {rUrlLabel}
+          </span>
+        )}
+      </div>
+    );
+    if (r.url) {
+      return <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="block hover:scale-[1.02] transition-transform">{card}</a>;
+    }
+    return card;
+  };
+
   return (
-    <div className="relative z-10 min-h-screen w-full overflow-x-hidden">
-      <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-white/20 px-4 sm:px-6 py-4 flex justify-between items-center">
-        <Link href="/proyectos" className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group">
-          <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
-          <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
-        </Link>
-        <div className="flex items-center gap-2">
-          {project.music && (
-            <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
-              {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-            </button>
-          )}
-          <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
-            <Share2 className="w-5 h-5" />
-          </button>
-        </div>
-      </nav>
-      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
-          <div className="lg:col-span-2 space-y-8">
-            <header>
-              <motion.h1 initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-5xl sm:text-6xl font-black italic tracking-tighter text-transparent bg-clip-text mb-4" style={{ backgroundImage: `linear-gradient(to right, ${themeColor}, ${themeColor}99)` }}>
-                {project.name}
-              </motion.h1>
-              {subtitle && <p className="text-xl text-gray-300 font-medium italic">{subtitle}</p>}
-            </header>
-            <div className="rounded-2xl overflow-hidden border aspect-video relative group" style={{ borderColor: `${themeColor}80` }}>
-              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/30 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: `linear-gradient(to top, ${themeColor}15, transparent)` }} />
-            </div>
-            <div className="space-y-6">
-              <h3 className="text-2xl font-bold text-white flex items-center gap-2">
-                <BookOpen className="w-6 h-6" style={{ color: themeColor }} /> {isEs ? 'Sobre este proyecto' : 'About this project'}
-              </h3>
-              <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: themeColor }}>{t('projects.status')}</span>
-                  <span className="text-white font-medium">{status}</span>
-                </div>
-                <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: themeColor }}>{t('projects.rating')}</span>
-                  <span className="text-white font-medium flex items-center gap-1">{project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" /></span>
-                </div>
-              </div>
-              {tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {tags.map(tag => (
-                    <span key={tag} className="text-xs px-3 py-1.5 rounded-full border text-white/70 hover:text-white hover:bg-white/5 transition-all" style={{ borderColor: `${themeColor}40`, background: `${themeColor}10` }}>{tag}</span>
-                  ))}
-                </div>
-              )}
-              {previews.length > 0 && (
-                <div className="pt-8 border-t border-white/10">
-                  <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                    <ImageIcon className="w-5 h-5" style={{ color: themeColor }} /> {t('projects.preview')}
-                  </h4>
-                  <ImageCarousel images={previews} themeColor={themeColor} />
-                </div>
-              )}
-              <div className="pt-8 border-t border-white/10">
-                <CommentSection targetId={project.id} targetType="project" />
-              </div>
-            </div>
+    <>
+      <style>{`
+        @font-face { font-family: 'm1_fixed'; src: url('/fonts/m1_fixed.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: block; }
+        @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: block; }
+        @font-face { font-family: 'Aller'; src: url('/fonts/Aller_Rg.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
+        .dyn-title { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 9px ${titleStroke}; paint-order: stroke fill; }
+        .dyn-stroke-lg { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 6px ${titleStroke}; paint-order: stroke fill; }
+        .dyn-stroke-sm { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 5px ${titleStroke}; paint-order: stroke fill; }
+        .dyn-stroke-xs { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 3px ${titleStroke}; paint-order: stroke fill; }
+        .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+      `}</style>
+      <div className="relative z-10 min-h-screen w-full overflow-x-hidden" style={{ fontFamily: "'m1_fixed', monospace", ...bgStyle }}>
+        <PinkDots dotColor={`${themeColor}22`} />
+        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: `${cardBg}e6`, backdropFilter: 'blur(14px)', borderBottom: `1px solid ${borderColor}` }}>
+          <Link href="/proyectos" className="flex items-center gap-2 transition-colors group" style={{ color: themeColor }}>
+            <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
+            <span className="font-bold tracking-wider uppercase text-[15px]">{t('projects.backToProjects')}</span>
+          </Link>
+          <div className="flex items-center gap-2">
+            {showMusic && (
+              <button onClick={toggleMute} className="p-2 rounded-full border transition-all hover:opacity-80" style={{ backgroundColor: `${cardBg}b3`, borderColor: themeColor, color: themeColor }} title={muted ? 'Unmute' : 'Mute'}>
+                {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              </button>
+            )}
+            {showShare && (
+              <button className="p-2 rounded-full border transition-all hover:opacity-80" style={{ backgroundColor: `${cardBg}b3`, borderColor: themeColor, color: themeColor }} title="Compartir">
+                <Share2 size={16} />
+              </button>
+            )}
           </div>
-          <div className="space-y-8">
-            <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32 space-y-6">
-              <h3 className="text-xl font-bold flex items-center gap-2">
-                <Cpu className="w-5 h-5" style={{ color: themeColor }} /> {t('projects.details')}
-              </h3>
-              <ul className="space-y-4">
-                {[
-                  { label: t('projects.playTime'), value: isEs ? (details.playTime || '—') : (details.playTimeEn || details.playTime || '—') },
-                  { label: t('projects.language'), value: isEs ? (details.language || '—') : (details.languageEn || details.language || '—') },
-                  { label: t('projects.engine'), value: details.engine || '—' },
-                  { label: t('projects.downloads'), value: downloadsLabel },
-                ].map(item => (
-                  <li key={item.label} className="flex justify-between text-sm">
-                    <span className="text-gray-400">{item.label}</span>
-                    <span className="text-white font-mono">{item.value}</span>
-                  </li>
+        </nav>
+        <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+          <div className="space-y-4">
+            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+              <h1 className="dyn-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
+              {subtitle && <p className="text-[22px] font-extrabold mt-1" style={{ color: textColor }}>{subtitle}</p>}
+            </motion.div>
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 aspect-video relative group" style={{ borderColor, boxShadow: `0 8px 32px ${themeColor}30` }}>
+              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
+              {showFeaturedBadge && (
+                <span className="absolute top-4 left-4 font-cyber font-bold text-xs px-3 py-1.5 bg-[#FF2D78] text-black z-10">DESTACADO</span>
+              )}
+            </motion.div>
+          </div>
+          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
+            <h3 className="dyn-stroke-lg text-xl font-black flex items-center gap-2">
+              <FileText className="w-5 h-5" style={{ color: accentColor, WebkitTextStroke: 0 } as React.CSSProperties} />
+              {isEs ? 'Sobre este proyecto' : 'About this project'}
+            </h3>
+            <p className="leading-relaxed text-[22px] font-extrabold" style={{ color: textColor }}>{desc}</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 rounded-xl border-2 shadow-sm" style={{ borderColor, backgroundColor: cardBg }}>
+                <span className="text-[18px] font-extrabold uppercase block mb-0.5" style={{ color: textColor }}>{t('projects.status')}</span>
+                <span className="font-extrabold text-[20px]" style={{ color: textColor }}>{status}</span>
+              </div>
+              <div className="p-3 rounded-xl border-2 shadow-sm" style={{ borderColor, backgroundColor: cardBg }}>
+                <span className="text-[18px] font-extrabold uppercase block mb-0.5" style={{ color: textColor }}>{t('projects.rating')}</span>
+                <span className="font-extrabold text-[20px] flex items-center gap-1" style={{ color: textColor }}>{project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" /></span>
+              </div>
+            </div>
+            {tags.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {tags.map(tag => (
+                  <span key={tag} className="text-[17px] px-4 py-2 rounded-full border-2 font-extrabold transition-colors" style={{ borderColor, backgroundColor: `${cardBg}cc`, color: textColor }}>{tag}</span>
                 ))}
+              </div>
+            )}
+          </motion.div>
+          {showGallery && (
+            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
+              <h4 className="dyn-stroke-lg text-xl font-black flex items-center gap-2">
+                <ImageIcon className="w-5 h-5" style={{ color: accentColor, WebkitTextStroke: 0 } as React.CSSProperties} />
+                {t('projects.preview')}
+              </h4>
+              <PinkPreviewCarousel images={previews} />
+            </motion.div>
+          )}
+          {showDetails && (
+            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-2xl border-2 p-5 shadow-sm space-y-5" style={{ borderColor, backgroundColor: `${cardBg}d9` }}>
+              <h3 className="dyn-stroke-lg text-[22px] font-black flex items-center gap-2">
+                <Settings className="w-5 h-5" style={{ color: accentColor, WebkitTextStroke: 0 } as React.CSSProperties} />
+                {t('projects.details')}
+              </h3>
+              <ul className="space-y-2.5">
+                {[
+                  { icon: Clock, label: t('projects.playTime'), value: isEs ? (details.playTime || '—') : (details.playTimeEn || details.playTime || '—') },
+                  { icon: Flag, label: t('projects.language'), value: isEs ? (details.language || '—') : (details.languageEn || details.language || '—') },
+                  { icon: Settings, label: t('projects.engine'), value: details.engine || '—' },
+                  { icon: Download, label: t('projects.downloads'), value: downloadsLabel },
+                ].map(item => {
+                  const ItemIcon = item.icon;
+                  return (
+                    <li key={item.label} className="flex items-center gap-2 text-[20px]">
+                      <ItemIcon className="w-5 h-5 flex-shrink-0" style={{ color: accentColor }} />
+                      <span className="flex-1 font-extrabold" style={{ color: textColor }}>{item.label}</span>
+                      <span className="font-extrabold" style={{ color: textColor }}>{item.value}</span>
+                    </li>
+                  );
+                })}
               </ul>
               {downloads.length > 0 && (
-                <div className="border-t border-white/10 pt-6 space-y-3">
-                  <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: themeColor }}>{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
+                <div className="border-t pt-4 space-y-2" style={{ borderColor: `${borderColor}50` }}>
+                  <h4 className="dyn-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
                   {downloads.map((dl, i) => {
                     const Icon = getIcon(dl.icon);
                     return (
-                      <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
-                        <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                        {isEs ? dl.label : (dl.labelEn || dl.label)}
+                      <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${dl.hoverColor || dl.color}` }}>
+                        <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff' }} />
+                        <span className="font-black uppercase tracking-wide text-[19px]" style={{ color: dl.textColor || '#ffffff' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
                       </a>
                     );
                   })}
                 </div>
               )}
-            </div>
-          </div>
-        </div>
-      </main>
-      {project.music && (
-        <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
-      )}
-    </div>
+            </motion.div>
+          )}
+          {showResources && (
+            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
+              <h3 className="dyn-stroke-lg text-xl font-black flex items-center gap-2">
+                <BookOpen className="w-5 h-5" style={{ color: accentColor, WebkitTextStroke: 0 } as React.CSSProperties} />
+                {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {resources.map((r, i) => renderResource(r, i))}
+              </div>
+            </motion.div>
+          )}
+          {showComments && (
+            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-2xl border-2 p-5 shadow-sm" style={{ borderColor, backgroundColor: cardBg }}>
+              <CommentSection targetId={project.id} targetType="project" />
+            </motion.div>
+          )}
+        </main>
+        {showMusic && audioSrc && (
+          <audio ref={audioRef} src={audioSrc} loop onEnded={handleAudioEnded} preload="auto" className="hidden" />
+        )}
+      </div>
+    </>
   );
 }
