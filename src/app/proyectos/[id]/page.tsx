@@ -8,12 +8,13 @@ import {
   Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor, Download,
   Share2, X, Sparkles, Volume2, VolumeX,
   ChevronLeft, ChevronRight, Search, Shirt, Puzzle, FileText,
-  Clock, Flag, Settings
+  Clock, Flag, Settings, Loader2
 } from 'lucide-react';
 // ✅ IMPORTACIÓN ACTUALIZADA
-import { MonikaComments, NatsukiComments, YuriComments } from '@/components/CommentSection';
+import { MonikaComments, NatsukiComments, YuriComments, CommentSection } from '@/components/CommentSection';
 import { useI18n } from '@/hooks/useLocale';
 import { projects, getIcon } from '@/data/projects';
+import type { DynamicProject } from '@/data/dynamic-projects';
 
 // Track download click — fires API call in background without blocking the download
 function trackDownload() {
@@ -962,11 +963,72 @@ function YuriDetail({ project }: { project: typeof projects[number] }) {
 }
 
 /* ─── Page component ─── */
-export default function ProjectDetailPage() {  const params = useParams();
+export default function ProjectDetailPage() {
+  const params = useParams();
   const id = params.id as string;
-  const project = projects.find(p => p.id === id);
 
-  if (!project) {
+  // 1) Hardcoded projects (monika / natsuki / yuri) — UNCHANGED flow.
+  //    We deliberately use the existing bespoke themed layouts.
+  const project = projects.find(p => p.id === id);
+  if (project) {
+    const idLower = project.id?.toLowerCase() || '';
+    const isYuri = idLower.includes('yuri');
+    const isNatsuki = idLower.includes('natsuki');
+
+    if (isYuri) return <YuriDetail project={project} />;
+    if (isNatsuki) return <NatsukiDetail project={project} />;
+    if (project.lightTheme) return <MonikaDetail project={project} />;
+
+    return (
+      <div className="min-h-screen text-white" style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, ${project.themeColor}26 50%, rgba(10, 10, 26, 0.95) 100%)` }}>
+        <ProjectDetail project={project} />
+      </div>
+    );
+  }
+
+  // 2) Unknown id → try the dynamic projects API (admin-managed).
+  return <DynamicProjectLoader id={id} />;
+}
+
+/* ─── Loader for dynamic projects ─── */
+function DynamicProjectLoader({ id }: { id: string }) {
+  const [project, setProject] = useState<DynamicProject | null>(null);
+  const [status, setStatus] = useState<'loading' | 'ok' | 'notfound'>('loading');
+
+  useEffect(() => {
+    let cancelled = false;
+    setStatus('loading');
+    fetch(`/api/projects/${encodeURIComponent(id)}`)
+      .then(r => {
+        if (!r.ok) return null;
+        return r.json();
+      })
+      .then((raw: unknown) => {
+        if (cancelled) return;
+        const data = raw as { project?: DynamicProject } | null;
+        if (data && data.project) {
+          setProject(data.project);
+          setStatus('ok');
+        } else {
+          setStatus('notfound');
+        }
+      })
+      .catch(() => { if (!cancelled) setStatus('notfound'); });
+    return () => { cancelled = true; };
+  }, [id]);
+
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] text-white">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-[#FF2D78]" />
+          <p className="font-code text-xs text-white/40">Cargando proyecto…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (status === 'notfound' || !project) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] text-white">
         <div className="text-center space-y-4">
@@ -975,19 +1037,159 @@ export default function ProjectDetailPage() {  const params = useParams();
           <a href="/proyectos" className="text-[#FF2D78] hover:underline">Back to projects</a>
         </div>
       </div>
-    );  }
-
-  const idLower = project.id?.toLowerCase() || '';
-  const isYuri = idLower.includes('yuri');
-  const isNatsuki = idLower.includes('natsuki');
-
-  if (isYuri) return <YuriDetail project={project} />;
-  if (isNatsuki) return <NatsukiDetail project={project} />;
-  if (project.lightTheme) return <MonikaDetail project={project} />;
+    );
+  }
 
   return (
-    <div className="min-h-screen text-white" style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, ${project.themeColor}26 50%, rgba(10, 10, 26, 0.95) 100%)` }}>
-      <ProjectDetail project={project} />
+    <div className="min-h-screen text-white" style={{ backgroundImage: `linear-gradient(135deg, rgba(10, 10, 26, 0.95) 0%, ${project.themeColor || '#FF2D78'}26 50%, rgba(10, 10, 26, 0.95) 100%)` }}>
+      <DynamicProjectDetail project={project} />
     </div>
   );
+}
+
+/* ─── Dark-theme detail view for dynamic (admin-managed) projects ───
+   Mirrors the structure of the existing ProjectDetail (dark theme)
+   but consumes a DynamicProject object from the API. The download
+   buttons fire the same trackDownload() helper used by the hardcoded
+   projects, so per-click website downloads keep contributing to the
+   global counter exactly like Monika / Natsuki / Yuri. */
+function DynamicProjectDetail({ project }: { project: DynamicProject }) {
+  const { t, locale } = useI18n();
+  const musicRef = useRef<HTMLIFrameElement>(null);
+  const [muted, setMuted] = useState(false);
+
+  useEffect(() => {
+    if (!project.music) return;
+    const timer = setTimeout(() => {
+      try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch { /* cross-origin */ }
+    }, 1500);
+    return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
+  }, [project.music]);
+
+  const toggleMute = () => {
+    if (musicRef.current) {
+      try { musicRef.current.contentWindow?.postMessage(muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'); } catch { /* cross-origin */ }
     }
+    setMuted(!muted);
+  };
+
+  const isEs = locale === 'es';
+  const desc = isEs ? project.description : (project.descriptionEn || project.description);
+  const status = isEs ? project.status : (project.statusEn || project.status);
+  const subtitle = isEs ? (project.subtitle || '') : (project.subtitleEn || project.subtitle || '');
+  const themeColor = project.themeColor || '#FF2D78';
+  const previews = Array.isArray(project.previews) ? project.previews : [];
+  const downloads = Array.isArray(project.downloads) ? project.downloads : [];
+  const tags = Array.isArray(project.tags) ? project.tags : [];
+  const details = project.details || {};
+  const downloadsLabel = details.downloadsLabel || '—';
+
+  return (
+    <div className="relative z-10 min-h-screen w-full overflow-x-hidden">
+      <nav className="sticky top-0 z-50 bg-[#0a0a1a]/90 backdrop-blur-md border-b border-white/20 px-4 sm:px-6 py-4 flex justify-between items-center">
+        <Link href="/proyectos" className="flex items-center gap-2 text-[#FF2D78] hover:text-white transition-colors group">
+          <X className="w-6 h-6 group-hover:rotate-90 transition-transform" />
+          <span className="font-bold tracking-wider uppercase text-sm">{t('projects.backToProjects')}</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          {project.music && (
+            <button onClick={toggleMute} className="p-2 rounded-full bg-white/5 border border-white/10 text-white/60 hover:text-white transition-all" title={muted ? 'Unmute' : 'Mute'}>
+              {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
+            </button>
+          )}
+          <button className="p-2 rounded-full bg-white/5 border border-white/10 text-white/50 hover:text-white transition-all">
+            <Share2 className="w-5 h-5" />
+          </button>
+        </div>
+      </nav>
+      <main className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
+          <div className="lg:col-span-2 space-y-8">
+            <header>
+              <motion.h1 initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} className="text-5xl sm:text-6xl font-black italic tracking-tighter text-transparent bg-clip-text mb-4" style={{ backgroundImage: `linear-gradient(to right, ${themeColor}, ${themeColor}99)` }}>
+                {project.name}
+              </motion.h1>
+              {subtitle && <p className="text-xl text-gray-300 font-medium italic">{subtitle}</p>}
+            </header>
+            <div className="rounded-2xl overflow-hidden border aspect-video relative group" style={{ borderColor: `${themeColor}80` }}>
+              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a1a]/30 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 h-24" style={{ background: `linear-gradient(to top, ${themeColor}15, transparent)` }} />
+            </div>
+            <div className="space-y-6">
+              <h3 className="text-2xl font-bold text-white flex items-center gap-2">
+                <BookOpen className="w-6 h-6" style={{ color: themeColor }} /> {isEs ? 'Sobre este proyecto' : 'About this project'}
+              </h3>
+              <p className="text-gray-300 leading-relaxed text-lg">{desc}</p>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: themeColor }}>{t('projects.status')}</span>
+                  <span className="text-white font-medium">{status}</span>
+                </div>
+                <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+                  <span className="text-xs font-bold uppercase block mb-1" style={{ color: themeColor }}>{t('projects.rating')}</span>
+                  <span className="text-white font-medium flex items-center gap-1">{project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" /></span>
+                </div>
+              </div>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {tags.map(tag => (
+                    <span key={tag} className="text-xs px-3 py-1.5 rounded-full border text-white/70 hover:text-white hover:bg-white/5 transition-all" style={{ borderColor: `${themeColor}40`, background: `${themeColor}10` }}>{tag}</span>
+                  ))}
+                </div>
+              )}
+              {previews.length > 0 && (
+                <div className="pt-8 border-t border-white/10">
+                  <h4 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                    <ImageIcon className="w-5 h-5" style={{ color: themeColor }} /> {t('projects.preview')}
+                  </h4>
+                  <ImageCarousel images={previews} themeColor={themeColor} />
+                </div>
+              )}
+              <div className="pt-8 border-t border-white/10">
+                <CommentSection targetId={project.id} targetType="project" />
+              </div>
+            </div>
+          </div>
+          <div className="space-y-8">
+            <div className="p-8 rounded-3xl bg-gradient-to-b from-white/10 to-transparent border border-white/10 backdrop-blur-xl sticky top-32 space-y-6">
+              <h3 className="text-xl font-bold flex items-center gap-2">
+                <Cpu className="w-5 h-5" style={{ color: themeColor }} /> {t('projects.details')}
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  { label: t('projects.playTime'), value: isEs ? (details.playTime || '—') : (details.playTimeEn || details.playTime || '—') },
+                  { label: t('projects.language'), value: isEs ? (details.language || '—') : (details.languageEn || details.language || '—') },
+                  { label: t('projects.engine'), value: details.engine || '—' },
+                  { label: t('projects.downloads'), value: downloadsLabel },
+                ].map(item => (
+                  <li key={item.label} className="flex justify-between text-sm">
+                    <span className="text-gray-400">{item.label}</span>
+                    <span className="text-white font-mono">{item.value}</span>
+                  </li>
+                ))}
+              </ul>
+              {downloads.length > 0 && (
+                <div className="border-t border-white/10 pt-6 space-y-3">
+                  <h4 className="text-sm font-bold uppercase tracking-wider" style={{ color: themeColor }}>{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
+                  {downloads.map((dl, i) => {
+                    const Icon = getIcon(dl.icon);
+                    return (
+                      <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className="w-full py-3 rounded-xl flex items-center justify-center gap-2 transition-all hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] group text-sm font-bold uppercase tracking-tight" style={{ background: `linear-gradient(135deg, ${dl.color}, ${dl.hoverColor || dl.color})`, color: dl.textColor || '#ffffff', boxShadow: `0 4px 15px ${dl.color}30` }}>
+                        <Icon className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                        {isEs ? dl.label : (dl.labelEn || dl.label)}
+                      </a>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+      {project.music && (
+        <iframe ref={musicRef} className="hidden" width="0" height="0" src={project.music} allow="autoplay" title={`${project.name} Music`} />
+      )}
+    </div>
+  );
+}
