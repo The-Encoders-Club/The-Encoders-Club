@@ -196,9 +196,20 @@ CREATE TABLE IF NOT EXISTS Project (
   featured       INTEGER NOT NULL DEFAULT 0,
   previews       TEXT NOT NULL DEFAULT '[]',       -- JSON array of image URLs
   downloads      TEXT NOT NULL DEFAULT '[]',       -- JSON array of {label,labelEn,icon,url,color,hoverColor,textColor}
-  music          TEXT,                             -- optional YouTube embed URL (autoplay+loop format)
+  music          TEXT,                             -- optional music: YouTube ID (11 chars), full URL, or direct MP3 URL
   details        TEXT NOT NULL DEFAULT '{}',       -- JSON: {playTime,playTimeEn,language,languageEn,engine,downloadsLabel}
   themeColor     TEXT NOT NULL DEFAULT '#FF2D78',
+  bgImage        TEXT,                             -- optional full-page background image URL (R2 or external)
+  bgFit          TEXT NOT NULL DEFAULT 'cover',    -- 'cover' | 'contain' | 'solid' (when only themeColor is used)
+  -- Visual customization (all optional; fall back to themeColor when null)
+  pageBgColor    TEXT,                             -- page background solid color (when bgFit='solid' or no bgImage)
+  cardBgColor    TEXT,                             -- background color of cards (status, rating, details)
+  borderColor    TEXT,                             -- border color of cards / sections (defaults to themeColor)
+  textColor      TEXT,                             -- main text color (defaults to #1a1a1a)
+  titleStrokeColor TEXT,                           -- stroke color for RifficFree titles (defaults to themeColor)
+  accentColor    TEXT,                             -- secondary accent for icons / links
+  sections       TEXT NOT NULL DEFAULT '{}',       -- JSON: {showGallery,showResources,showComments,showDetails,showMusic,showShare,showFeaturedBadge} (all bool, default true)
+  resources      TEXT NOT NULL DEFAULT '[]',       -- JSON array of {title,description,url,icon,color} for the "Recursos" section
   isPublished    INTEGER NOT NULL DEFAULT 1,
   sortOrder      INTEGER NOT NULL DEFAULT 0,
   createdAt      TEXT NOT NULL DEFAULT (datetime('now')),
@@ -206,3 +217,19 @@ CREATE TABLE IF NOT EXISTS Project (
 );
 CREATE INDEX IF NOT EXISTS idx_project_published ON Project(isPublished, sortOrder);
 CREATE INDEX IF NOT EXISTS idx_project_featured ON Project(featured, isPublished);
+
+-- ============================================================
+-- Migration: add columns added in v0.4.0 (visual customization + sections + resources)
+-- Run ONCE if you already created the Project table before v0.4.0.
+-- Pick ONLY the lines for columns you don't have yet.
+-- ============================================================
+-- ALTER TABLE Project ADD COLUMN bgImage TEXT;
+-- ALTER TABLE Project ADD COLUMN bgFit TEXT NOT NULL DEFAULT 'cover';
+-- ALTER TABLE Project ADD COLUMN pageBgColor TEXT;
+-- ALTER TABLE Project ADD COLUMN cardBgColor TEXT;
+-- ALTER TABLE Project ADD COLUMN borderColor TEXT;
+-- ALTER TABLE Project ADD COLUMN textColor TEXT;
+-- ALTER TABLE Project ADD COLUMN titleStrokeColor TEXT;
+-- ALTER TABLE Project ADD COLUMN accentColor TEXT;
+-- ALTER TABLE Project ADD COLUMN sections TEXT NOT NULL DEFAULT '{}';
+-- ALTER TABLE Project ADD COLUMN resources TEXT NOT NULL DEFAULT '[]';
