@@ -151,3 +151,58 @@ CREATE INDEX IF NOT EXISTS idx_comment_report_comment ON CommentReport(commentId
 -- ALTER TABLE User ADD COLUMN securityAnswerHash TEXT;
 -- ALTER TABLE User ADD COLUMN recoveryCodeHash TEXT;
 -- CREATE INDEX IF NOT EXISTS idx_user_recovery_code ON User(recoveryCodeHash);
+
+-- ============================================================
+-- Dynamic Projects (admin-managed) — added in v0.3.0
+-- Run this block ONCE in your D1 console (wrangler d1 execute) to
+-- enable the "Proyectos" admin tab that lets you publish new
+-- project pages without editing source code.
+--
+-- Slugs 'monika', 'natsuki' and 'yuri' are RESERVED for the
+-- hardcoded projects in src/data/projects.ts and cannot be used
+-- by dynamic projects (enforced at the API layer).
+-- ============================================================
+
+-- ============ SITE STATS (key/value counter table) ============
+-- Already used by /api/stats and /api/admin/stats/config; create
+-- here if it doesn't exist yet.
+CREATE TABLE IF NOT EXISTS SiteStats (
+  key   TEXT PRIMARY KEY,
+  value INTEGER NOT NULL DEFAULT 0
+);
+-- Seed the stat keys used by the app (idempotent)
+INSERT OR IGNORE INTO SiteStats (key, value) VALUES ('total_visits', 0);
+INSERT OR IGNORE INTO SiteStats (key, value) VALUES ('total_downloads', 0);
+INSERT OR IGNORE INTO SiteStats (key, value) VALUES ('visits_base', 0);
+INSERT OR IGNORE INTO SiteStats (key, value) VALUES ('downloads_base', 0);
+INSERT OR IGNORE INTO SiteStats (key, value) VALUES ('external_downloads_base', 0);
+
+-- ============ DYNAMIC PROJECTS ============
+CREATE TABLE IF NOT EXISTS Project (
+  id             TEXT PRIMARY KEY,                 -- slug (lowercase, url-safe, unique)
+  name           TEXT NOT NULL,
+  subtitle       TEXT,
+  subtitleEn     TEXT,
+  description    TEXT NOT NULL,
+  descriptionEn  TEXT,
+  image          TEXT NOT NULL,                    -- cover URL (R2 or external)
+  coverBg        TEXT,                             -- optional cover background color (hex)
+  coverFit       TEXT NOT NULL DEFAULT 'contain',  -- 'contain' | 'cover'
+  tags           TEXT NOT NULL DEFAULT '[]',       -- JSON array of strings
+  status         TEXT NOT NULL DEFAULT 'Disponible',
+  statusEn       TEXT,
+  statusColor    TEXT NOT NULL DEFAULT '#22c55e',
+  rating         REAL NOT NULL DEFAULT 0,
+  featured       INTEGER NOT NULL DEFAULT 0,
+  previews       TEXT NOT NULL DEFAULT '[]',       -- JSON array of image URLs
+  downloads      TEXT NOT NULL DEFAULT '[]',       -- JSON array of {label,labelEn,icon,url,color,hoverColor,textColor}
+  music          TEXT,                             -- optional YouTube embed URL (autoplay+loop format)
+  details        TEXT NOT NULL DEFAULT '{}',       -- JSON: {playTime,playTimeEn,language,languageEn,engine,downloadsLabel}
+  themeColor     TEXT NOT NULL DEFAULT '#FF2D78',
+  isPublished    INTEGER NOT NULL DEFAULT 1,
+  sortOrder      INTEGER NOT NULL DEFAULT 0,
+  createdAt      TEXT NOT NULL DEFAULT (datetime('now')),
+  updatedAt      TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_project_published ON Project(isPublished, sortOrder);
+CREATE INDEX IF NOT EXISTS idx_project_featured ON Project(featured, isPublished);
