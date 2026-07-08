@@ -11,8 +11,72 @@ import Footer from '@/components/Footer';
 import BackgroundParticles from '@/components/BackgroundParticles';
 import { useI18n } from '@/hooks/useLocale';
 import { projects } from '@/data/projects';
+import type { DynamicProject } from '@/data/dynamic-projects';
 
 const PROYECTOS_BG = 'https://d2xsxph8kpxj0f.cloudfront.net/310519663520694523/gdw63Pfk2mCpqaap3WKi6Q/ProyectoFondo_c3356f10.jpg';
+
+/* ─── Normalized project shape (works for both hardcoded & dynamic) ─── */
+interface NormalizedProject {
+  id: string;
+  name: string;
+  subtitle?: string;
+  description: string;
+  descriptionEn?: string;
+  image: string;
+  coverBg?: string | null;
+  coverFit?: 'contain' | 'cover';
+  tags: readonly string[] | string[];
+  status: string;
+  statusEn?: string;
+  statusColor: string;
+  rating: number;
+  featured: boolean;
+  themeColor: string;
+  /** marks hardcoded projects so the grid can keep them visually identical */
+  isHardcoded: boolean;
+}
+
+function normalizeHardcoded(p: typeof projects[number]): NormalizedProject {
+  return {
+    id: p.id,
+    name: p.name,
+    subtitle: p.subtitle,
+    description: p.description,
+    descriptionEn: p.descriptionEn,
+    image: p.image,
+    coverBg: p.coverBg,
+    coverFit: p.coverFit as 'contain' | 'cover' | undefined,
+    tags: p.tags,
+    status: p.status,
+    statusEn: p.statusEn,
+    statusColor: p.statusColor,
+    rating: p.rating,
+    featured: !!p.featured,
+    themeColor: p.themeColor,
+    isHardcoded: true,
+  };
+}
+
+function normalizeDynamic(p: DynamicProject): NormalizedProject {
+  return {
+    id: p.id,
+    name: p.name,
+    subtitle: p.subtitle,
+    description: p.description,
+    descriptionEn: p.descriptionEn,
+    image: p.image,
+    coverBg: p.coverBg,
+    coverFit: p.coverFit,
+    tags: p.tags,
+    status: p.status,
+    statusEn: p.statusEn,
+    statusColor: p.statusColor,
+    rating: p.rating,
+    featured: !!p.featured,
+    themeColor: p.themeColor,
+    isHardcoded: false,
+  };
+}
 
 /* ─── Main page ─── */
 export default function Proyectos() {
@@ -22,6 +86,27 @@ export default function Proyectos() {
   const [searchQuery, setSearchQuery] = useState('');
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Dynamic projects (admin-managed) — fetched on mount. Empty list
+  // until the request completes (or fails silently, in which case
+  // only the hardcoded projects are shown, exactly like before).
+  const [dynamicProjects, setDynamicProjects] = useState<NormalizedProject[]>([]);
+  const [dynamicLoading, setDynamicLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/projects')
+      .then(r => r.ok ? r.json() : Promise.resolve({ projects: [] }))
+      .then((raw: unknown) => {
+        if (cancelled) return;
+        const data = raw as { projects?: DynamicProject[] };
+        const list: DynamicProject[] = Array.isArray(data?.projects) ? data.projects : [];
+        setDynamicProjects(list.map(normalizeDynamic));
+      })
+      .catch(() => { /* fail silently — hardcoded projects still render */ })
+      .finally(() => { if (!cancelled) setDynamicLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -34,21 +119,28 @@ export default function Proyectos() {
     setDebouncedQuery('');
   }, []);
 
-  const featuredProjects = useMemo(() => projects.filter(p => p.featured), []);
-  const otherProjects = useMemo(() => projects.filter(p => !p.featured), []);
+  // Merge hardcoded + dynamic for the unified list. Hardcoded projects
+  // always keep their original ordering and featured flag.
+  const allProjects = useMemo(() => {
+    const hardcodedNorm = projects.map(normalizeHardcoded);
+    return [...hardcodedNorm, ...dynamicProjects];
+  }, [dynamicProjects]);
+
+  const featuredProjects = useMemo(() => allProjects.filter(p => p.featured), [allProjects]);
+  const otherProjects = useMemo(() => allProjects.filter(p => !p.featured), [allProjects]);
 
   const isSearching = debouncedQuery.trim().length > 0;
 
   const filteredProjects = useMemo(() => {
     if (!isSearching) return { featured: featuredProjects, other: otherProjects };
     const q = debouncedQuery.toLowerCase().trim();
-    const results = projects.filter(p =>
+    const results = allProjects.filter(p =>
       p.name.toLowerCase().includes(q) ||
       (p.description && p.description.toLowerCase().includes(q)) ||
       (p.descriptionEn && p.descriptionEn.toLowerCase().includes(q))
     );
     return { featured: [], other: results };
-  }, [debouncedQuery, isSearching, featuredProjects, otherProjects]);
+  }, [debouncedQuery, isSearching, featuredProjects, otherProjects, allProjects]);
 
   return (
     <div
@@ -115,7 +207,7 @@ export default function Proyectos() {
       <section className="pb-24 relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-          {/* ── FEATURED (Monika) ── */}
+          {/* ── FEATURED (Monika + any dynamic project marked as featured) ── */}
           {!isSearching && filteredProjects.featured
             .map(project => (
               <Link key={project.id} href={`/proyectos/${project.id}`}>
@@ -178,7 +270,7 @@ export default function Proyectos() {
               </Link>
             ))}
 
-          {/* ── GRID (Natsuki / Yuri) ── */}
+          {/* ── GRID (Natsuki / Yuri / dynamic projects) ── */}
           {isSearching && filteredProjects.other.length === 0 ? (
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -246,6 +338,14 @@ export default function Proyectos() {
                   </Link>
                 );
               })}
+            </div>
+          )}
+
+          {/* Loading indicator while dynamic projects are being fetched */}
+          {dynamicLoading && (
+            <div className="mt-10 flex items-center justify-center gap-3 text-white/30">
+              <div className="w-4 h-4 border-2 border-white/20 border-t-[#FF2D78] rounded-full animate-spin" />
+              <span className="font-code text-xs">Cargando proyectos…</span>
             </div>
           )}
 
