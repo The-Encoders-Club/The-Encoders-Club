@@ -40,6 +40,7 @@ interface ProjectInput {
   coverFit?: unknown;
   bgImage?: unknown;
   bgFit?: unknown;
+  bgOpacity?: unknown;
   tags?: unknown;
   status?: unknown;
   statusEn?: unknown;
@@ -245,6 +246,7 @@ export async function POST(request: NextRequest) {
     const bgImage = asStringOrNull(body.bgImage);
     const bgFitRaw = asString(body.bgFit, 'cover');
     const bgFit: 'cover' | 'contain' | 'solid' = bgFitRaw === 'contain' ? 'contain' : bgFitRaw === 'solid' ? 'solid' : 'cover';
+    const bgOpacity = Math.max(0, Math.min(100, asNumber(body.bgOpacity, 85)));
     const pageBgColor = asStringOrNull(body.pageBgColor);
     const cardBgColor = asStringOrNull(body.cardBgColor);
     const borderColor = asStringOrNull(body.borderColor);
@@ -272,14 +274,14 @@ export async function POST(request: NextRequest) {
         `INSERT INTO Project
           (id, name, subtitle, subtitleEn, description, descriptionEn, image, coverBg, coverFit,
            tags, status, statusEn, statusColor, rating, featured, previews, downloads, music,
-           details, themeColor, bgImage, bgFit,
+           details, themeColor, bgImage, bgFit, bgOpacity,
            pageBgColor, cardBgColor, borderColor, textColor, titleStrokeColor, accentColor,
            sections, resources,
            isPublished, sortOrder, createdAt, updatedAt)
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                 ?, ?, ?, ?)`
+                 ?, ?, ?, ?, ?)`
       )
       .bind(
         slug,
@@ -304,6 +306,7 @@ export async function POST(request: NextRequest) {
         themeColor,
         bgImage,
         bgFit,
+        bgOpacity,
         pageBgColor,
         cardBgColor,
         borderColor,
