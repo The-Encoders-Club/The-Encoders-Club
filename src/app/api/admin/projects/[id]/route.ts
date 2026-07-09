@@ -216,6 +216,7 @@ export async function PUT(
     const bgImage = asStringOrNull(body.bgImage);
     const bgFitRaw = asString(body.bgFit, 'cover');
     const bgFit: 'cover' | 'contain' | 'solid' = bgFitRaw === 'contain' ? 'contain' : bgFitRaw === 'solid' ? 'solid' : 'cover';
+    const bgOpacity = Math.max(0, Math.min(100, asNumber(body.bgOpacity, 85)));
     const pageBgColor = asStringOrNull(body.pageBgColor);
     const cardBgColor = asStringOrNull(body.cardBgColor);
     const borderColor = asStringOrNull(body.borderColor);
@@ -233,7 +234,7 @@ export async function PUT(
           image = ?, coverBg = ?, coverFit = ?,
           tags = ?, status = ?, statusEn = ?, statusColor = ?, rating = ?, featured = ?,
           previews = ?, downloads = ?, music = ?, details = ?, themeColor = ?,
-          bgImage = ?, bgFit = ?,
+          bgImage = ?, bgFit = ?, bgOpacity = ?,
           pageBgColor = ?, cardBgColor = ?, borderColor = ?, textColor = ?, titleStrokeColor = ?, accentColor = ?,
           sections = ?, resources = ?,
           isPublished = ?, sortOrder = ?, updatedAt = ?
@@ -261,6 +262,7 @@ export async function PUT(
         themeColor,
         bgImage,
         bgFit,
+        bgOpacity,
         pageBgColor,
         cardBgColor,
         borderColor,
