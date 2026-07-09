@@ -93,6 +93,7 @@ export interface DynamicProject {
   themeColor: string;
   bgImage?: string | null;
   bgFit: BgFit;
+  bgOpacity: number; // 0-100, overlay opacity (lower = more visible bgImage)
   // Visual customization (all optional; fall back to themeColor when null)
   pageBgColor?: string | null;
   cardBgColor?: string | null;
@@ -217,6 +218,7 @@ export function parseProjectRow(row: Record<string, unknown>): DynamicProject {
     themeColor: (row.themeColor as string) || '#FF2D78',
     bgImage: (row.bgImage as string) || null,
     bgFit,
+    bgOpacity: typeof row.bgOpacity === 'number' ? row.bgOpacity : Number(row.bgOpacity) || 85,
     pageBgColor: (row.pageBgColor as string) || null,
     cardBgColor: (row.cardBgColor as string) || null,
     borderColor: (row.borderColor as string) || null,
