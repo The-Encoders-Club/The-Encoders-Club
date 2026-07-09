@@ -210,6 +210,7 @@ interface AdminProjectForm {
   themeColor: string;
   bgImage: string;
   bgFit: 'cover' | 'contain' | 'solid';
+  bgOpacity: string; // 0-100, overlay opacity (lower = more visible bgImage)
   // Visual customization (empty string = use default / themeColor)
   pageBgColor: string;
   cardBgColor: string;
@@ -247,6 +248,7 @@ function emptyProjectForm(): AdminProjectForm {
     themeColor: '#FF2D78',
     bgImage: '',
     bgFit: 'cover',
+    bgOpacity: '85',
     pageBgColor: '',
     cardBgColor: '',
     borderColor: '',
@@ -284,6 +286,7 @@ function projectToForm(p: DynamicProject): AdminProjectForm {
     themeColor: p.themeColor,
     bgImage: p.bgImage || '',
     bgFit: p.bgFit === 'contain' ? 'contain' : p.bgFit === 'solid' ? 'solid' : 'cover',
+    bgOpacity: String(p.bgOpacity ?? 85),
     pageBgColor: p.pageBgColor || '',
     cardBgColor: p.cardBgColor || '',
     borderColor: p.borderColor || '',
@@ -333,6 +336,7 @@ function formToPayload(form: AdminProjectForm, isCreate: boolean): Record<string
     themeColor: form.themeColor.trim() || '#FF2D78',
     bgImage: form.bgImage.trim() || null,
     bgFit: form.bgFit,
+    bgOpacity: Number(form.bgOpacity) || 85,
     pageBgColor: form.pageBgColor.trim() || null,
     cardBgColor: form.cardBgColor.trim() || null,
     borderColor: form.borderColor.trim() || null,
@@ -2565,6 +2569,11 @@ export default function AdminPanel() {
                     <button type="button" onClick={() => setProjectForm(prev => ({ ...prev, bgFit: 'solid' }))} className={`px-2 py-1.5 border font-code text-[10px] uppercase tracking-wider transition-all ${projectForm.bgFit === 'solid' ? 'bg-[#FF2D78]/20 border-[#FF2D78]/50 text-[#FF2D78]' : 'bg-[#080812] border-white/[0.08] text-white/40 hover:text-white/70'}`}>Solo color</button>
                   </div>
                   <p className="font-code text-[9px] text-white/30 mt-1">'Cover' rellena toda la pantalla (recorta si hace falta). 'Contain' muestra la imagen completa. 'Solo color' ignora la imagen y usa solo el color de tema.</p>
+                </div>
+                <div>
+                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Opacidad del overlay: <span className="text-[#FF2D78] font-bold">{projectForm.bgOpacity}%</span></label>
+                  <input type="range" min="0" max="100" step="5" value={projectForm.bgOpacity} onChange={e => setProjectForm(prev => ({ ...prev, bgOpacity: e.target.value }))} className="w-full accent-[#FF2D78]" />
+                  <p className="font-code text-[9px] text-white/30 mt-1">0% = imagen de fondo totalmente visible (sin oscurecer). 100% = imagen de fondo casi tapada (solo oscuro). Default: 85%.</p>
                 </div>
               </div>
             </div>
