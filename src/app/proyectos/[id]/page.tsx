@@ -12,7 +12,7 @@ import {
   ArrowLeft, Terminal, Layers
 } from 'lucide-react';
 // ✅ IMPORTACIÓN ACTUALIZADA
-import { MonikaComments, NatsukiComments, YuriComments, CommentSection } from '@/components/CommentSection';
+import { MonikaComments, NatsukiComments, YuriComments, CommentSection, CyberComments } from '@/components/CommentSection';
 import { useI18n } from '@/hooks/useLocale';
 import { projects, getIcon } from '@/data/projects';
 import type { DynamicProject, ResourceIcon } from '@/data/dynamic-projects';
@@ -1121,6 +1121,7 @@ function DynamicProjectLoader({ id }: { id: string }) {
 function DynamicProjectDetail({ project }: { project: DynamicProject }) {
   const { t, locale } = useI18n();
   const audioRef = useRef<HTMLAudioElement>(null);
+  const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
 
   // Section visibility (all default to true)
@@ -1146,13 +1147,25 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
 
   // Resolve music source.
   const musicInfo = parseMusicInput(project.music);
-  const audioSrc = musicInfo
-    ? musicInfo.kind === 'audio'
-      ? musicInfo.value
-      : `https://cdn.jsdelivr.net/gh/coffeebeats/youtube-audio-proxy@main/${musicInfo.value}.mp3`
+  // For YouTube: use invisible iframe (same approach as Monika/Natsuki/Yuri,
+  // which works in production). For direct audio URLs: use <audio> element.
+  const musicEmbedUrl = musicInfo && musicInfo.kind === 'youtube'
+    ? `https://www.youtube.com/embed/${musicInfo.value}?autoplay=1&mute=0&start=1&loop=1&playlist=${musicInfo.value}&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3`
     : null;
+  const audioSrc = musicInfo && musicInfo.kind === 'audio' ? musicInfo.value : null;
 
-  // Autoplay attempt on mount (browsers may block until user interacts).
+  // For YouTube iframe: auto un-mute after 1.5s (browsers require mute=1 for
+  // autoplay, then we programmatically unMute via postMessage — same trick
+  // used by Monika/Natsuki/Yuri hardcoded projects).
+  useEffect(() => {
+    if (!showMusic || !musicEmbedUrl || !musicRef.current) return;
+    const timer = setTimeout(() => {
+      try { musicRef.current?.contentWindow?.postMessage('{"event":"command","func":"unMute","args":""}', '*'); } catch { /* cross-origin */ }
+    }, 1500);
+    return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
+  }, [musicEmbedUrl, showMusic]);
+
+  // For direct audio: autoplay attempt with fallback to user interaction.
   useEffect(() => {
     if (!showMusic || !audioSrc || !audioRef.current) return;
     const audio = audioRef.current;
@@ -1182,16 +1195,22 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
   };
 
   const toggleMute = () => {
+    if (musicRef.current) {
+      try { musicRef.current.contentWindow?.postMessage(muted ? '{"event":"command","func":"unMute","args":""}' : '{"event":"command","func":"mute","args":""}', '*'); } catch { /* cross-origin */ }
+    }
     if (audioRef.current) {
       audioRef.current.muted = !muted;
     }
     setMuted(!muted);
   };
 
-  // Background style: dark base + optional bgImage as overlay (matching prueba.html)
+  // Background style: dark base + optional bgImage as overlay.
+  // bgOpacity (0-100) controls how dark the overlay is — lower = more visible bgImage.
+  const overlayOpacity = Math.max(0, Math.min(100, project.bgOpacity ?? 85)) / 100;
+  const overlayOpacityBottom = Math.min(1, overlayOpacity + 0.1);
   const bgStyle: React.CSSProperties = project.bgImage
     ? {
-        backgroundImage: `linear-gradient(to bottom, rgba(12, 15, 18, 0.85), rgba(12, 15, 18, 0.95)), url("${project.bgImage}")`,
+        backgroundImage: `linear-gradient(to bottom, rgba(12, 15, 18, ${overlayOpacity}), rgba(12, 15, 18, ${overlayOpacityBottom})), url("${project.bgImage}")`,
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
@@ -1269,15 +1288,15 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
               </h1>
               {subtitle && (
                 <p className="text-rose-500 text-sm tracking-widest uppercase font-bold mt-2 flex items-center gap-2 mono-font" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                  // {subtitle.toUpperCase()}
+                  {subtitle.toUpperCase()}
                 </p>
               )}
             </div>
-            <div className="rounded-none border-2 border-blue-900/60 bg-gray-950 aspect-video relative group overflow-hidden">
+            <div className="rounded-none border-2 border-blue-900/60 bg-gray-950 relative group overflow-hidden h-[220px] sm:h-[300px] lg:h-[360px]">
               <img
                 src={project.image}
                 alt={project.name}
-                className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:mix-blend-normal group-hover:opacity-100 transition-all duration-500"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-[#0c0f12] via-transparent to-transparent" />
               {showFeaturedBadge && (
@@ -1292,13 +1311,13 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
             <div className="md:col-span-2 space-y-4 bg-gray-950/60 p-6 border border-gray-800/40 backdrop-blur-sm">
               <h3 className="text-lg font-bold uppercase tracking-tight text-white flex items-center gap-2 border-b border-gray-800 pb-2">
                 <Terminal className="w-4 h-4 text-blue-500" />
-                Data_Log // {isEs ? 'Sobre el proyecto' : 'About this project'}
+                {isEs ? 'Sobre el proyecto' : 'About this project'}
               </h3>
               <p className="text-gray-400 leading-relaxed text-sm font-medium">{desc}</p>
               {tags.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-2">
-                  {tags.map((tag, i) => (
-                    <span key={tag} className="mono-font text-xs px-2.5 py-1 bg-gray-900 border text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace", borderColor: i % 3 === 1 ? '#374151' : '#1f2937', color: i % 3 === 1 ? '#f43f5e' : '#9ca3af' }}>{tag}</span>
+                  {tags.map((tag) => (
+                    <span key={tag} className="mono-font text-xs px-2.5 py-1 bg-gray-900 border border-gray-700 text-rose-500" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{tag}</span>
                   ))}
                 </div>
               )}
@@ -1324,13 +1343,13 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
           {showGallery && (
             <div className="space-y-3">
               <h4 className="text-sm font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-rose-500" /> {isEs ? 'Archivos de Imagen Visual' : 'Visual Image Files'}
+                <Layers className="w-4 h-4 text-rose-500" /> {t('projects.preview')}
               </h4>
               <div className="relative">
                 <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
                   {previews.map((src, i) => (
                     <div key={i} className="flex-none bg-gray-900 border border-gray-800 aspect-video relative cursor-pointer hover:border-blue-500 transition-all" style={{ width: '240px' }}>
-                      <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover opacity-70 mix-blend-luminosity hover:opacity-100 hover:mix-blend-normal transition-all" />
+                      <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover transition-transform duration-400 hover:scale-105" />
                       <div className="absolute bottom-1 right-1 bg-black/80 text-gray-400 text-[10px] px-1.5 py-0.5 mono-font font-bold border border-gray-800" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{i + 1}/{previews.length}</div>
                     </div>
                   ))}
@@ -1343,9 +1362,9 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
           {showDetails && (
             <div className="bg-gray-950/40 border border-gray-800/60 p-6 space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Especificaciones */}
+                {/* Detalles */}
                 <div className="space-y-3">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-white border-b border-gray-800 pb-2">{isEs ? 'Especificaciones' : 'Specifications'}</h3>
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-white border-b border-gray-800 pb-2">{t('projects.details')}</h3>
                   <ul className="space-y-2 mono-font text-xs text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                     <li className="flex justify-between py-1 border-b border-gray-900"><span className="text-gray-600">{t('projects.playTime')}:</span> <span className="text-gray-200 font-bold">{isEs ? (details.playTime || '—') : (details.playTimeEn || details.playTime || '—')}</span></li>
                     <li className="flex justify-between py-1 border-b border-gray-900"><span className="text-gray-600">{t('projects.language')}:</span> <span className="text-gray-200 font-bold">{isEs ? (details.language || '—') : (details.languageEn || details.language || '—')}</span></li>
@@ -1385,13 +1404,18 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
           {/* COMENTARIOS */}
           {showComments && (
             <div className="bg-gray-950/40 border border-gray-800/50 p-5">
-              <CommentSection targetId={project.id} targetType="project" />
+              <CyberComments targetId={project.id} targetType="project" />
             </div>
           )}
 
         </main>
 
-        {/* Audio invisible */}
+        {/* YouTube iframe invisible (for YouTube music) — same approach as Monika/Natsuki/Yuri */}
+        {showMusic && musicEmbedUrl && (
+          <iframe ref={musicRef} className="hidden" width="0" height="0" src={musicEmbedUrl} allow="autoplay" title={`${project.name} Music`} />
+        )}
+
+        {/* Direct audio element (for MP3/OGG URLs) */}
         {showMusic && audioSrc && (
           <audio ref={audioRef} src={audioSrc} loop onEnded={handleAudioEnded} preload="auto" className="hidden" />
         )}
