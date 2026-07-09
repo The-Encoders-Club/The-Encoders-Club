@@ -2569,56 +2569,26 @@ export default function AdminPanel() {
               </div>
             </div>
 
-            {/* ── Visual customization (advanced colors) ── */}
+            {/* ── Visual customization panel: DISABLED ───
+                The dynamic project pages now use a fixed cyberpunk/brutalist
+                dark style (see DynamicProjectDetail in proyectos/[id]/page.tsx).
+                The per-project color overrides (pageBgColor, cardBgColor,
+                borderColor, textColor, titleStrokeColor, accentColor) are
+                ignored by the renderer, so we hide the panel from the admin.
+                The fields remain in the form/payload (always empty) to avoid
+                breaking the API contract. */}
             <div className="border-t border-white/[0.06] pt-4">
-              <h4 className="font-cyber text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Personalización visual avanzada</h4>
-              <p className="font-code text-[9px] text-white/30 mb-3">Todos los colores son opcionales. Si dejas uno vacío, se usa el color de tema (themeColor) o el default.</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="bg-[#080812] border border-white/[0.06] p-4 flex items-start gap-3">
+                <Info size={14} className="text-[#00F2FE] flex-shrink-0 mt-0.5" />
                 <div>
-                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de página (fondo sólido)</label>
-                  <div className="flex items-center gap-2">
-                    <input type="color" value={projectForm.pageBgColor || '#ffffff'} onChange={e => setProjectForm(prev => ({ ...prev, pageBgColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
-                    <input type="text" value={projectForm.pageBgColor} onChange={e => setProjectForm(prev => ({ ...prev, pageBgColor: e.target.value }))} placeholder="#ffffff" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de tarjetas</label>
-                  <div className="flex items-center gap-2">
-                    <input type="color" value={projectForm.cardBgColor || '#ffffff'} onChange={e => setProjectForm(prev => ({ ...prev, cardBgColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
-                    <input type="text" value={projectForm.cardBgColor} onChange={e => setProjectForm(prev => ({ ...prev, cardBgColor: e.target.value }))} placeholder="#ffffff" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de bordes</label>
-                  <div className="flex items-center gap-2">
-                    <input type="color" value={projectForm.borderColor || projectForm.themeColor} onChange={e => setProjectForm(prev => ({ ...prev, borderColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
-                    <input type="text" value={projectForm.borderColor} onChange={e => setProjectForm(prev => ({ ...prev, borderColor: e.target.value }))} placeholder="(usa themeColor)" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de texto principal</label>
-                  <div className="flex items-center gap-2">
-                    <input type="color" value={projectForm.textColor || '#1a1a1a'} onChange={e => setProjectForm(prev => ({ ...prev, textColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
-                    <input type="text" value={projectForm.textColor} onChange={e => setProjectForm(prev => ({ ...prev, textColor: e.target.value }))} placeholder="#1a1a1a" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de stroke (títulos)</label>
-                  <div className="flex items-center gap-2">
-                    <input type="color" value={projectForm.titleStrokeColor || projectForm.themeColor} onChange={e => setProjectForm(prev => ({ ...prev, titleStrokeColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
-                    <input type="text" value={projectForm.titleStrokeColor} onChange={e => setProjectForm(prev => ({ ...prev, titleStrokeColor: e.target.value }))} placeholder="(usa themeColor)" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de acento (iconos)</label>
-                  <div className="flex items-center gap-2">
-                    <input type="color" value={projectForm.accentColor || projectForm.themeColor} onChange={e => setProjectForm(prev => ({ ...prev, accentColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
-                    <input type="text" value={projectForm.accentColor} onChange={e => setProjectForm(prev => ({ ...prev, accentColor: e.target.value }))} placeholder="(usa themeColor)" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
-                  </div>
+                  <p className="font-cyber text-xs font-bold text-white/70 uppercase tracking-wider mb-1">Estilo visual fijo</p>
+                  <p className="font-code text-[10px] text-white/40 leading-relaxed">
+                    Los proyectos dinámicos usan un estilo cyberpunk/brutalist oscuro fijo (gris oscuro, glitch titles, mono-font). La personalización avanzada de colores está desactivada. Solo puedes configurar el color de tema (que afecta botones de descarga y acentos menores) y la imagen de fondo.
+                  </p>
                 </div>
               </div>
-              <button type="button" onClick={() => setProjectForm(prev => ({ ...prev, pageBgColor: '', cardBgColor: '', borderColor: '', textColor: '', titleStrokeColor: '', accentColor: '' }))} className="mt-2 font-code text-[9px] text-white/30 hover:text-red-400 transition-colors">Restablecer todos los colores (usar defaults)</button>
             </div>
+
 
             {/* ── Section visibility switches ── */}
             <div className="border-t border-white/[0.06] pt-4">
