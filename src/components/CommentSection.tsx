@@ -82,6 +82,24 @@ const YURI_THEME: CommentTheme = {
   sortArrowColor: '#8A2BE2',
 };
 
+/* Cyberpunk dark theme for dynamic projects (matches DynamicProjectDetail) */
+const CYBER_THEME: CommentTheme = {
+  name: 'cyber',
+  titleStroke: '#1f2937',
+  titleClass: 'cyber-comment-title',
+  primary: '#f43f5e',           // rose-500
+  primaryBg: '#e11d48',         // rose-600
+  primaryHover: '#be123c',      // rose-700
+  avatarBg: '#e11d48',
+  avatarBgMuted: '#374151/60',  // gray-700
+  border: '#374151/60',         // gray-700
+  cardBg: '#030712/70',         // gray-950
+  cardHover: '#111827/80',      // gray-900
+  replyBorder: '#1f2937/60',    // gray-800
+  cancelBg: '#1f2937',          // gray-800
+  sortArrowColor: '#f43f5e',
+};
+
 /* ──────────────────────────────────────────────────────────────
    SHARED SUB-COMPONENTS
    ────────────────────────────────────────────────────────────── */
@@ -601,4 +619,44 @@ export function YuriComments({ targetId, targetType }: CommentSectionProps) {
    ────────────────────────────────────────────────────────────── */
 export function CommentSection({ targetId, targetType }: CommentSectionProps) {
   return <CommentSectionInner targetId={targetId} targetType={targetType} theme={MONIKA_THEME} />;
+}
+
+/* ──────────────────────────────────────────────────────────────
+   5. CYBER COMMENTS (dark theme for dynamic projects)
+   Wraps CommentSectionInner with CYBER_THEME and overrides text
+   colors via a scoped CSS wrapper so the light-theme gray text
+   classes (text-gray-700/600/500) become readable on dark bg.
+   ────────────────────────────────────────────────────────────── */
+export function CyberComments({ targetId, targetType }: CommentSectionProps) {
+  return (
+    <div className="cyber-comments-scope text-gray-300" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+      <style>{`
+        .cyber-comments-scope .text-gray-700,
+        .cyber-comments-scope .text-gray-600 { color: #e5e7eb !important; }
+        .cyber-comments-scope .text-gray-500 { color: #9ca3af !important; }
+        .cyber-comments-scope .text-gray-400 { color: #6b7280 !important; }
+        .cyber-comments-scope textarea,
+        .cyber-comments-scope input {
+          background-color: #030712 !important;
+          color: #e5e7eb !important;
+          border-color: #374151 !important;
+        }
+        .cyber-comments-scope .${CYBER_THEME.titleClass} {
+          font-family: 'Space Grotesk', sans-serif !important;
+          font-size: 1rem !important;
+          font-weight: 700 !important;
+          color: #f43f5e !important;
+          -webkit-text-stroke: 0 !important;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .cyber-comments-scope .role-badge {
+          font-family: 'JetBrains Mono', monospace !important;
+          background-color: #1f2937 !important;
+          color: #9ca3af !important;
+        }
+      `}</style>
+      <CommentSectionInner targetId={targetId} targetType={targetType} theme={CYBER_THEME} />
+    </div>
+  );
 }
