@@ -1004,6 +1004,53 @@ export default function ProjectDetailPage() {
   return <DynamicProjectLoader id={id} />;
 }
 
+/* ─── Animated dots background for DYNAMIC projects ───
+   Same visual idea as PinkDots but WITHOUT the solid white background
+   layer (that layer was covering the per-project bgImage). The page
+   background (bgImage / pageBgColor) is applied by the parent container. */
+function DynamicDots({ dotColor = '#ffeef8' }) {
+  const DOT = 72;
+  const GAP = 130;
+  const cols = Math.ceil(1800 / GAP) + 2;
+  const rows = Math.ceil(1800 / GAP) + 2;
+  const dots: { id: number; x: number; y: number }[] = [];
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      if ((r + c) % 2 === 0) {
+        dots.push({ id: r * cols + c, x: c * GAP, y: r * GAP });
+      }
+    }
+  }
+  const shift = GAP * 2;
+  return (
+    <div
+      className="dyn-dots-layer pointer-events-none"
+      style={{
+        position: 'fixed',
+        top: -shift * 2,
+        left: -shift * 2,
+        width: `calc(100vw + ${shift * 4}px)`,
+        height: `calc(100vh + ${shift * 4}px)`,
+        zIndex: 0,
+      }}
+    >
+      {dots.map(d => (
+        <div
+          key={d.id}
+          className="absolute rounded-full"
+          style={{
+            width: DOT,
+            height: DOT,
+            left: d.x - DOT / 2,
+            top: d.y - DOT / 2,
+            backgroundColor: dotColor,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
 /* ─── Loader for dynamic projects ─── */
 function DynamicProjectLoader({ id }: { id: string }) {
   const [project, setProject] = useState<DynamicProject | null>(null);
@@ -1208,17 +1255,19 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
   return (
     <>
       <style>{`
-        @font-face { font-family: 'm1_fixed'; src: url('/fonts/m1_fixed.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: block; }
-        @font-face { font-family: 'RifficFree'; src: url('/fonts/RifficFree-Bold.ttf') format('truetype'); font-weight: bold; font-style: normal; font-display: block; }
-        @font-face { font-family: 'Aller'; src: url('/fonts/Aller_Rg.ttf') format('truetype'); font-weight: normal; font-style: normal; font-display: swap; }
-        .dyn-title { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 9px ${titleStroke}; paint-order: stroke fill; }
-        .dyn-stroke-lg { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 6px ${titleStroke}; paint-order: stroke fill; }
-        .dyn-stroke-sm { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 5px ${titleStroke}; paint-order: stroke fill; }
-        .dyn-stroke-xs { font-family: 'RifficFree', 'm1_fixed', monospace; color: #fefefe; -webkit-text-stroke: 3px ${titleStroke}; paint-order: stroke fill; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; } .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .dyn-title { font-family: 'Oxanium', 'Space Grotesk', sans-serif; color: ${textColor}; font-weight: 800; letter-spacing: -0.02em; }
+        .dyn-stroke-lg { font-family: 'Oxanium', 'Space Grotesk', sans-serif; color: ${textColor}; font-weight: 700; }
+        .dyn-stroke-sm { font-family: 'Oxanium', 'Space Grotesk', sans-serif; color: ${textColor}; font-weight: 700; }
+        .dyn-stroke-xs { font-family: 'Oxanium', 'Space Grotesk', sans-serif; color: ${textColor}; font-weight: 700; }
+        .dyn-page { scrollbar-width: none; -ms-overflow-style: none; outline: none; }
+        .dyn-page::-webkit-scrollbar { display: none; }
+        .dyn-page *:focus { outline: none; }
+        .dyn-dots-layer { animation: dynDotsScroll 6s linear infinite; }
+        @keyframes dynDotsScroll { 0% { transform: translate(0px, 0px); } 100% { transform: translate(-260px, -260px); } }
       `}</style>
-      <div className="relative z-10 min-h-screen w-full overflow-x-hidden" style={{ fontFamily: "'m1_fixed', monospace", ...bgStyle }}>
-        <PinkDots dotColor={`${themeColor}22`} />
+      <div className="dyn-page relative z-10 min-h-screen w-full overflow-x-hidden overflow-y-auto" style={{ fontFamily: "'DM Sans', sans-serif", ...bgStyle }}>
+        {/* Animated dots layer (no white background — that's the bug we fixed). */}
+        <DynamicDots dotColor={`${themeColor}22`} />
         <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: `${cardBg}e6`, backdropFilter: 'blur(14px)', borderBottom: `1px solid ${borderColor}` }}>
           <Link href="/proyectos" className="flex items-center gap-2 transition-colors group" style={{ color: themeColor }}>
             <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
@@ -1243,7 +1292,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
               <h1 className="dyn-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
               {subtitle && <p className="text-[22px] font-extrabold mt-1" style={{ color: textColor }}>{subtitle}</p>}
             </motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 aspect-video relative group" style={{ borderColor, boxShadow: `0 8px 32px ${themeColor}30` }}>
+            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 relative group h-[220px] sm:h-[300px] lg:h-[360px]" style={{ borderColor, boxShadow: `0 8px 32px ${themeColor}30` }}>
               <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
               {showFeaturedBadge && (
