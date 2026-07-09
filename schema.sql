@@ -201,6 +201,7 @@ CREATE TABLE IF NOT EXISTS Project (
   themeColor     TEXT NOT NULL DEFAULT '#FF2D78',
   bgImage        TEXT,                             -- optional full-page background image URL (R2 or external)
   bgFit          TEXT NOT NULL DEFAULT 'cover',    -- 'cover' | 'contain' | 'solid' (when only themeColor is used)
+  bgOpacity      INTEGER NOT NULL DEFAULT 85,      -- overlay opacity 0-100 (lower = more visible bgImage)
   -- Visual customization (all optional; fall back to themeColor when null)
   pageBgColor    TEXT,                             -- page background solid color (when bgFit='solid' or no bgImage)
   cardBgColor    TEXT,                             -- background color of cards (status, rating, details)
@@ -225,6 +226,7 @@ CREATE INDEX IF NOT EXISTS idx_project_featured ON Project(featured, isPublished
 -- ============================================================
 -- ALTER TABLE Project ADD COLUMN bgImage TEXT;
 -- ALTER TABLE Project ADD COLUMN bgFit TEXT NOT NULL DEFAULT 'cover';
+-- ALTER TABLE Project ADD COLUMN bgOpacity INTEGER NOT NULL DEFAULT 85;
 -- ALTER TABLE Project ADD COLUMN pageBgColor TEXT;
 -- ALTER TABLE Project ADD COLUMN cardBgColor TEXT;
 -- ALTER TABLE Project ADD COLUMN borderColor TEXT;
