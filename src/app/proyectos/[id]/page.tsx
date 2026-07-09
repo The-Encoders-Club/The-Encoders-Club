@@ -8,7 +8,8 @@ import {
   Star, Cpu, BookOpen, Image as ImageIcon, Smartphone, Monitor, Download,
   Share2, X, Sparkles, Volume2, VolumeX,
   ChevronLeft, ChevronRight, Search, Shirt, Puzzle, FileText,
-  Clock, Flag, Settings, Loader2, Heart, ExternalLink
+  Clock, Flag, Settings, Loader2, Heart, ExternalLink,
+  ArrowLeft, Terminal, Layers
 } from 'lucide-react';
 // ✅ IMPORTACIÓN ACTUALIZADA
 import { MonikaComments, NatsukiComments, YuriComments, CommentSection } from '@/components/CommentSection';
@@ -1080,10 +1081,10 @@ function DynamicProjectLoader({ id }: { id: string }) {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#0c0f12] text-white">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#FF2D78]" />
-          <p className="font-code text-xs text-white/40">Cargando proyecto…</p>
+          <Loader2 className="w-8 h-8 animate-spin text-rose-500" />
+          <p className="mono-font text-xs text-white/40">Cargando proyecto…</p>
         </div>
       </div>
     );
@@ -1091,11 +1092,11 @@ function DynamicProjectLoader({ id }: { id: string }) {
 
   if (status === 'notfound' || !project) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a1a] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#0c0f12] text-white">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold">404</h1>
-          <p className="text-gray-400">Project not found</p>
-          <a href="/proyectos" className="text-[#FF2D78] hover:underline">Back to projects</a>
+          <h1 className="text-4xl font-bold cyber-title">404</h1>
+          <p className="text-white/40 mono-font text-sm">Project not found</p>
+          <a href="/proyectos" className="text-rose-500 hover:text-rose-400 transition-colors mono-font text-xs uppercase tracking-wider">Back to projects</a>
         </div>
       </div>
     );
@@ -1104,37 +1105,23 @@ function DynamicProjectLoader({ id }: { id: string }) {
   return <DynamicProjectDetail project={project} />;
 }
 
-/* ─── Themed (light) detail view for dynamic (admin-managed) projects ───
-   Mirrors the structure of the bespoke Monika/Natsuki/Yuri themed layouts
-   (light background, RifficFree/m1_fixed fonts, pink dots animation,
-   Resources section, comment section) but consumes a DynamicProject object
-   fetched from the API and uses the per-project themeColor + bgImage +
-   advanced visual customization fields.
+/* ─── Cyberpunk/brutalist dark detail view for dynamic projects ───
+   Fixed visual style (no per-project color customization):
+   - Dark background (#0c0f12) with optional bgImage as overlay
+   - Glitch titles (rose + blue text-shadow)
+   - Space Grotesk + JetBrains Mono fonts
+   - Brutalist cards (sharp borders, no rounded corners)
+   - Bottom-border-thick download buttons with active translate
 
-   The download buttons fire the same trackDownload() helper used by the
-   hardcoded projects, so per-click website downloads keep contributing
-   to the global counter exactly like Monika / Natsuki / Yuri.
+   Per-project sections can still be toggled via `sections` JSON.
+   Music uses <audio> element with parseMusicInput() helper.
 
-   Music uses an <audio> element (HTML5) instead of the YouTube <iframe>,
-   which avoids the autoplay-blocking that affects iframes in modern
-   browsers. See parseMusicInput for accepted formats.
-
-   Per-project sections can be toggled via the `sections` JSON object
-   (showGallery, showResources, showComments, showDetails, showMusic,
-   showShare, showFeaturedBadge) — all default to true. */
+   Monika/Natsuki/Yuri hardcoded projects are NOT affected — they
+   keep using their bespoke themed layouts (MonikaDetail etc). */
 function DynamicProjectDetail({ project }: { project: DynamicProject }) {
   const { t, locale } = useI18n();
   const audioRef = useRef<HTMLAudioElement>(null);
   const [muted, setMuted] = useState(false);
-
-  // Resolve all colors with sensible fallbacks to themeColor.
-  const themeColor = project.themeColor || '#FF2D78';
-  const titleStroke = project.titleStrokeColor || themeColor;
-  const borderColor = project.borderColor || themeColor;
-  const accentColor = project.accentColor || themeColor;
-  const cardBg = project.cardBgColor || '#ffffff';
-  const textColor = project.textColor || '#1a1a1a';
-  const pageBgSolid = project.pageBgColor || '#ffffff';
 
   // Section visibility (all default to true)
   const sections = { ...DEFAULT_SECTIONS, ...(project.sections || {}) };
@@ -1201,53 +1188,40 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
     setMuted(!muted);
   };
 
-  // Determine background style based on bgImage and bgFit
-  const bgStyle: React.CSSProperties = (() => {
-    if (project.bgFit === 'solid' || !project.bgImage) {
-      return { backgroundColor: pageBgSolid };
-    }
-    if (project.bgFit === 'contain') {
-      return {
-        backgroundColor: pageBgSolid,
-        backgroundImage: `url("${project.bgImage}")`,
+  // Background style: dark base + optional bgImage as overlay (matching prueba.html)
+  const bgStyle: React.CSSProperties = project.bgImage
+    ? {
+        backgroundImage: `linear-gradient(to bottom, rgba(12, 15, 18, 0.85), rgba(12, 15, 18, 0.95)), url("${project.bgImage}")`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center top',
-        backgroundSize: 'contain',
-        backgroundAttachment: 'scroll',
-      };
-    }
-    return {
-      backgroundColor: pageBgSolid,
-      backgroundImage: `url("${project.bgImage}")`,
-      backgroundRepeat: 'no-repeat',
-      backgroundPosition: 'center center',
-      backgroundSize: 'cover',
-      backgroundAttachment: 'fixed',
-    };
-  })();
+        backgroundAttachment: 'fixed',
+        backgroundColor: '#0c0f12',
+      }
+    : { backgroundColor: '#0c0f12' };
 
-  // Render a single resource card
+  // Map resource icons
   const renderResource = (r: typeof resources[number], i: number) => {
-    const rColor = r.color || themeColor;
-    const rDesc = isEs ? r.description : (r.descriptionEn || r.description);
-    const rUrlLabel = isEs ? (r.urlLabel || 'Abrir') : (r.urlLabelEn || r.urlLabel || 'Open');
     const Icon = RESOURCE_ICON_MAP[r.icon] || FileText;
+    const rDesc = isEs ? r.description : (r.descriptionEn || r.description);
+    const rUrlLabel = isEs ? (r.urlLabel || 'Consultar') : (r.urlLabelEn || r.urlLabel || 'Open');
+    const rColor = r.color === 'rose' ? 'text-rose-400'
+                 : r.color === 'blue' ? 'text-blue-400'
+                 : r.color === 'gray' ? 'text-gray-300'
+                 : 'text-gray-300';
     const card = (
-      <div key={i} className="rounded-2xl border-2 p-5 flex flex-col items-center text-center gap-3 shadow-sm hover:shadow-md transition-shadow" style={{ backgroundColor: `${cardBg}f2`, borderColor: rColor }}>
-        <h4 className="dyn-stroke-sm text-[18px] font-black flex items-center gap-1.5">
-          <Icon className="w-4 h-4" style={{ color: rColor, WebkitTextStroke: 0 } as React.CSSProperties} />
-          {r.title}
-        </h4>
-        <p className="text-[20px] leading-relaxed font-extrabold" style={{ color: textColor }}>{rDesc}</p>
+      <div key={i} className="bg-gray-950/60 p-4 border border-gray-800/40 text-center space-y-3">
+        <h4 className={`text-xs font-bold uppercase ${rColor} tracking-wider`}>{r.title}</h4>
+        <p className="text-xs text-gray-500">{rDesc}</p>
         {r.url && (
-          <span className="flex items-center gap-1.5 px-4 py-1.5 rounded-full border-2 text-[15px] font-black" style={{ borderColor: rColor, color: rColor, backgroundColor: cardBg }}>
-            <Icon className="w-3 h-3" /> {rUrlLabel}
+          <span className="inline-block px-4 py-1.5 border border-gray-700 text-xs font-bold uppercase tracking-wider text-white">
+            {rUrlLabel}
           </span>
         )}
       </div>
     );
     if (r.url) {
-      return <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="block hover:scale-[1.02] transition-transform">{card}</a>;
+      return <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="block hover:opacity-80 transition-opacity">{card}</a>;
     }
     return card;
   };
@@ -1255,140 +1229,169 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
   return (
     <>
       <style>{`
-        .dyn-title { font-family: 'Oxanium', 'Space Grotesk', sans-serif; color: ${textColor}; font-weight: 800; letter-spacing: -0.02em; }
-        .dyn-stroke-lg { font-family: 'Oxanium', 'Space Grotesk', sans-serif; color: ${textColor}; font-weight: 700; }
-        .dyn-stroke-sm { font-family: 'Oxanium', 'Space Grotesk', sans-serif; color: ${textColor}; font-weight: 700; }
-        .dyn-stroke-xs { font-family: 'Oxanium', 'Space Grotesk', sans-serif; color: ${textColor}; font-weight: 700; }
+        .cyber-title { text-shadow: 2px 2px 0px #e11d48, -2px -2px 0px #2563eb; }
         .dyn-page { scrollbar-width: none; -ms-overflow-style: none; outline: none; }
         .dyn-page::-webkit-scrollbar { display: none; }
         .dyn-page *:focus { outline: none; }
-        .dyn-dots-layer { animation: dynDotsScroll 6s linear infinite; }
-        @keyframes dynDotsScroll { 0% { transform: translate(0px, 0px); } 100% { transform: translate(-260px, -260px); } }
       `}</style>
-      <div className="dyn-page relative z-10 min-h-screen w-full overflow-x-hidden overflow-y-auto" style={{ fontFamily: "'DM Sans', sans-serif", ...bgStyle }}>
-        {/* Animated dots layer (no white background — that's the bug we fixed). */}
-        <DynamicDots dotColor={`${themeColor}22`} />
-        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-3 flex items-center justify-between" style={{ backgroundColor: `${cardBg}e6`, backdropFilter: 'blur(14px)', borderBottom: `1px solid ${borderColor}` }}>
-          <Link href="/proyectos" className="flex items-center gap-2 transition-colors group" style={{ color: themeColor }}>
-            <X className="w-5 h-5 group-hover:rotate-90 transition-transform" />
-            <span className="font-bold tracking-wider uppercase text-[15px]">{t('projects.backToProjects')}</span>
+      <div
+        className="dyn-page relative z-10 min-h-screen w-full overflow-x-hidden overflow-y-auto bg-cover bg-center bg-no-repeat bg-fixed text-gray-100"
+        style={{ fontFamily: "'Space Grotesk', sans-serif", ...bgStyle }}
+      >
+        {/* NAVBAR */}
+        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-4 flex items-center justify-between bg-[#0c0f12]/80 backdrop-blur-md border-b border-gray-800/60">
+          <Link href="/proyectos" className="flex items-center gap-2 text-rose-500 hover:text-rose-400 transition-colors group tracking-wider uppercase text-sm font-bold">
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+            <span>{t('projects.backToProjects')}</span>
           </Link>
           <div className="flex items-center gap-2">
             {showMusic && (
-              <button onClick={toggleMute} className="p-2 rounded-full border transition-all hover:opacity-80" style={{ backgroundColor: `${cardBg}b3`, borderColor: themeColor, color: themeColor }} title={muted ? 'Unmute' : 'Mute'}>
-                {muted ? <VolumeX size={16} /> : <Volume2 size={16} />}
+              <button onClick={toggleMute} className="p-2 rounded-md bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 transition-all" title={muted ? 'Unmute' : 'Mute'}>
+                {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               </button>
             )}
             {showShare && (
-              <button className="p-2 rounded-full border transition-all hover:opacity-80" style={{ backgroundColor: `${cardBg}b3`, borderColor: themeColor, color: themeColor }} title="Compartir">
-                <Share2 size={16} />
+              <button className="p-2 rounded-md bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 transition-all" title="Compartir">
+                <Share2 className="w-4 h-4" />
               </button>
             )}
           </div>
         </nav>
-        <main className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+
+        {/* MAIN */}
+        <main className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-10">
+
+          {/* HEADER + COVER */}
           <div className="space-y-4">
-            <motion.div initial={{ opacity: 0, y: -12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
-              <h1 className="dyn-title text-4xl sm:text-5xl lg:text-6xl font-black leading-tight">{project.name}</h1>
-              {subtitle && <p className="text-[22px] font-extrabold mt-1" style={{ color: textColor }}>{subtitle}</p>}
-            </motion.div>
-            <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.55, delay: 0.1 }} className="rounded-2xl overflow-hidden border-2 relative group h-[220px] sm:h-[300px] lg:h-[360px]" style={{ borderColor, boxShadow: `0 8px 32px ${themeColor}30` }}>
-              <img src={project.image} alt={project.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none" />
-              {showFeaturedBadge && (
-                <span className="absolute top-4 left-4 font-cyber font-bold text-xs px-3 py-1.5 bg-[#FF2D78] text-black z-10">DESTACADO</span>
+            <div>
+              <h1 className="cyber-title text-4xl sm:text-5xl font-extrabold uppercase tracking-tighter text-white">
+                {project.name}
+              </h1>
+              {subtitle && (
+                <p className="text-rose-500 text-sm tracking-widest uppercase font-bold mt-2 flex items-center gap-2 mono-font" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  // {subtitle.toUpperCase()}
+                </p>
               )}
-            </motion.div>
-          </div>
-          <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
-            <h3 className="dyn-stroke-lg text-xl font-black flex items-center gap-2">
-              <FileText className="w-5 h-5" style={{ color: accentColor, WebkitTextStroke: 0 } as React.CSSProperties} />
-              {isEs ? 'Sobre este proyecto' : 'About this project'}
-            </h3>
-            <p className="leading-relaxed text-[22px] font-extrabold" style={{ color: textColor }}>{desc}</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-3 rounded-xl border-2 shadow-sm" style={{ borderColor, backgroundColor: cardBg }}>
-                <span className="text-[18px] font-extrabold uppercase block mb-0.5" style={{ color: textColor }}>{t('projects.status')}</span>
-                <span className="font-extrabold text-[20px]" style={{ color: textColor }}>{status}</span>
-              </div>
-              <div className="p-3 rounded-xl border-2 shadow-sm" style={{ borderColor, backgroundColor: cardBg }}>
-                <span className="text-[18px] font-extrabold uppercase block mb-0.5" style={{ color: textColor }}>{t('projects.rating')}</span>
-                <span className="font-extrabold text-[20px] flex items-center gap-1" style={{ color: textColor }}>{project.rating} <Star className="w-4 h-4 fill-current text-yellow-400" /></span>
-              </div>
             </div>
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {tags.map(tag => (
-                  <span key={tag} className="text-[17px] px-4 py-2 rounded-full border-2 font-extrabold transition-colors" style={{ borderColor, backgroundColor: `${cardBg}cc`, color: textColor }}>{tag}</span>
-                ))}
-              </div>
-            )}
-          </motion.div>
-          {showGallery && (
-            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-3">
-              <h4 className="dyn-stroke-lg text-xl font-black flex items-center gap-2">
-                <ImageIcon className="w-5 h-5" style={{ color: accentColor, WebkitTextStroke: 0 } as React.CSSProperties} />
-                {t('projects.preview')}
-              </h4>
-              <PinkPreviewCarousel images={previews} />
-            </motion.div>
-          )}
-          {showDetails && (
-            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-2xl border-2 p-5 shadow-sm space-y-5" style={{ borderColor, backgroundColor: `${cardBg}d9` }}>
-              <h3 className="dyn-stroke-lg text-[22px] font-black flex items-center gap-2">
-                <Settings className="w-5 h-5" style={{ color: accentColor, WebkitTextStroke: 0 } as React.CSSProperties} />
-                {t('projects.details')}
+            <div className="rounded-none border-2 border-blue-900/60 bg-gray-950 aspect-video relative group overflow-hidden">
+              <img
+                src={project.image}
+                alt={project.name}
+                className="absolute inset-0 w-full h-full object-cover opacity-80 mix-blend-luminosity group-hover:mix-blend-normal group-hover:opacity-100 transition-all duration-500"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0c0f12] via-transparent to-transparent" />
+              {showFeaturedBadge && (
+                <span className="absolute top-3 left-3 mono-font text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-rose-600 text-white border-b-2 border-rose-900" style={{ fontFamily: "'JetBrains Mono', monospace" }}>★ DESTACADO</span>
+              )}
+            </div>
+          </div>
+
+          {/* SOBRE EL PROYECTO + STATS */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Descripción */}
+            <div className="md:col-span-2 space-y-4 bg-gray-950/60 p-6 border border-gray-800/40 backdrop-blur-sm">
+              <h3 className="text-lg font-bold uppercase tracking-tight text-white flex items-center gap-2 border-b border-gray-800 pb-2">
+                <Terminal className="w-4 h-4 text-blue-500" />
+                Data_Log // {isEs ? 'Sobre el proyecto' : 'About this project'}
               </h3>
-              <ul className="space-y-2.5">
-                {[
-                  { icon: Clock, label: t('projects.playTime'), value: isEs ? (details.playTime || '—') : (details.playTimeEn || details.playTime || '—') },
-                  { icon: Flag, label: t('projects.language'), value: isEs ? (details.language || '—') : (details.languageEn || details.language || '—') },
-                  { icon: Settings, label: t('projects.engine'), value: details.engine || '—' },
-                  { icon: Download, label: t('projects.downloads'), value: downloadsLabel },
-                ].map(item => {
-                  const ItemIcon = item.icon;
-                  return (
-                    <li key={item.label} className="flex items-center gap-2 text-[20px]">
-                      <ItemIcon className="w-5 h-5 flex-shrink-0" style={{ color: accentColor }} />
-                      <span className="flex-1 font-extrabold" style={{ color: textColor }}>{item.label}</span>
-                      <span className="font-extrabold" style={{ color: textColor }}>{item.value}</span>
-                    </li>
-                  );
-                })}
-              </ul>
-              {downloads.length > 0 && (
-                <div className="border-t pt-4 space-y-2" style={{ borderColor: `${borderColor}50` }}>
-                  <h4 className="dyn-stroke-sm text-[19px] font-black uppercase tracking-widest mb-2">{isEs ? 'Opciones de Descarga' : 'Download Options'}</h4>
-                  {downloads.map((dl, i) => {
-                    const Icon = getIcon(dl.icon);
-                    return (
-                      <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className="w-full py-3.5 rounded-2xl flex items-center justify-center gap-2.5 transition-all hover:brightness-110 hover:scale-[1.02] active:scale-[0.98] group shadow-md" style={{ background: dl.color, border: `3px solid ${dl.hoverColor || dl.color}` }}>
-                        <Icon className="w-4 h-4 group-hover:scale-110 transition-transform flex-shrink-0" style={{ color: dl.textColor || '#fff' }} />
-                        <span className="font-black uppercase tracking-wide text-[19px]" style={{ color: dl.textColor || '#ffffff' }}>{isEs ? dl.label : (dl.labelEn || dl.label)}</span>
-                      </a>
-                    );
-                  })}
+              <p className="text-gray-400 leading-relaxed text-sm font-medium">{desc}</p>
+              {tags.length > 0 && (
+                <div className="flex flex-wrap gap-2 pt-2">
+                  {tags.map((tag, i) => (
+                    <span key={tag} className="mono-font text-xs px-2.5 py-1 bg-gray-900 border text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace", borderColor: i % 3 === 1 ? '#374151' : '#1f2937', color: i % 3 === 1 ? '#f43f5e' : '#9ca3af' }}>{tag}</span>
+                  ))}
                 </div>
               )}
-            </motion.div>
-          )}
-          {showResources && (
-            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="space-y-4">
-              <h3 className="dyn-stroke-lg text-xl font-black flex items-center gap-2">
-                <BookOpen className="w-5 h-5" style={{ color: accentColor, WebkitTextStroke: 0 } as React.CSSProperties} />
-                {isEs ? 'Recursos y Contenido Extra' : 'Resources & Extra Content'}
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {resources.map((r, i) => renderResource(r, i))}
+            </div>
+            {/* Stats */}
+            <div className="grid grid-rows-2 gap-4">
+              <div className="bg-gray-950/60 p-4 border border-gray-800/40 flex flex-col justify-center">
+                <span className="mono-font text-xs text-gray-500 uppercase tracking-wider block mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{t('projects.status')}</span>
+                <span className="text-white font-bold text-lg uppercase tracking-wide flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> {status}
+                </span>
               </div>
-            </motion.div>
+              <div className="bg-gray-950/60 p-4 border border-gray-800/40 flex flex-col justify-center">
+                <span className="mono-font text-xs text-gray-500 uppercase tracking-wider block mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{t('projects.rating')}</span>
+                <span className="text-white font-bold text-lg flex items-center gap-1.5">
+                  {project.rating} <Star className="w-4 h-4 fill-blue-500 text-blue-500" />
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* VISTA PREVIA */}
+          {showGallery && (
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-rose-500" /> {isEs ? 'Archivos de Imagen Visual' : 'Visual Image Files'}
+              </h4>
+              <div className="relative">
+                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+                  {previews.map((src, i) => (
+                    <div key={i} className="flex-none bg-gray-900 border border-gray-800 aspect-video relative cursor-pointer hover:border-blue-500 transition-all" style={{ width: '240px' }}>
+                      <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover opacity-70 mix-blend-luminosity hover:opacity-100 hover:mix-blend-normal transition-all" />
+                      <div className="absolute bottom-1 right-1 bg-black/80 text-gray-400 text-[10px] px-1.5 py-0.5 mono-font font-bold border border-gray-800" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{i + 1}/{previews.length}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
+
+          {/* DETALLES + DESCARGAS */}
+          {showDetails && (
+            <div className="bg-gray-950/40 border border-gray-800/60 p-6 space-y-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Especificaciones */}
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-white border-b border-gray-800 pb-2">{isEs ? 'Especificaciones' : 'Specifications'}</h3>
+                  <ul className="space-y-2 mono-font text-xs text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                    <li className="flex justify-between py-1 border-b border-gray-900"><span className="text-gray-600">{t('projects.playTime')}:</span> <span className="text-gray-200 font-bold">{isEs ? (details.playTime || '—') : (details.playTimeEn || details.playTime || '—')}</span></li>
+                    <li className="flex justify-between py-1 border-b border-gray-900"><span className="text-gray-600">{t('projects.language')}:</span> <span className="text-gray-200 font-bold">{isEs ? (details.language || '—') : (details.languageEn || details.language || '—')}</span></li>
+                    <li className="flex justify-between py-1 border-b border-gray-900"><span className="text-gray-600">{t('projects.engine')}:</span> <span className="text-gray-200 font-bold">{details.engine || '—'}</span></li>
+                    <li className="flex justify-between py-1"><span className="text-gray-600">{t('projects.downloads')}:</span> <span className="text-rose-400 font-bold">{downloadsLabel}</span></li>
+                  </ul>
+                </div>
+                {/* Botones de descarga */}
+                {downloads.length > 0 && (
+                  <div className="flex flex-col justify-end gap-2">
+                    {downloads.map((dl, i) => {
+                      const Icon = getIcon(dl.icon);
+                      // Map dl.color to brutalist color scheme
+                      const colorClass = i === 0 ? 'bg-rose-600 hover:bg-rose-500 border-rose-900'
+                                       : i === 1 ? 'bg-blue-600 hover:bg-blue-500 border-blue-900'
+                                       : 'bg-gray-800 hover:bg-gray-700 border-gray-950';
+                      return (
+                        <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className={`w-full py-3 ${colorClass} text-white font-bold uppercase tracking-wider text-xs text-center border-b-4 transition-all active:translate-y-[2px] active:border-b-2 flex items-center justify-center gap-2`}>
+                          <Icon className="w-4 h-4" />
+                          {isEs ? dl.label : (dl.labelEn || dl.label)}
+                        </a>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* RECURSOS */}
+          {showResources && (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {resources.map((r, i) => renderResource(r, i))}
+            </div>
+          )}
+
+          {/* COMENTARIOS */}
           {showComments && (
-            <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }} className="rounded-2xl border-2 p-5 shadow-sm" style={{ borderColor, backgroundColor: cardBg }}>
+            <div className="bg-gray-950/40 border border-gray-800/50 p-5">
               <CommentSection targetId={project.id} targetType="project" />
-            </motion.div>
+            </div>
           )}
+
         </main>
+
+        {/* Audio invisible */}
         {showMusic && audioSrc && (
           <audio ref={audioRef} src={audioSrc} loop onEnded={handleAudioEnded} preload="auto" className="hidden" />
         )}
