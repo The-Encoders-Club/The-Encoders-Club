@@ -78,8 +78,8 @@ function asDownloadsArray(v: unknown): ProjectDownload[] {
       color: asString(item.color, '#FF2D78'),
       hoverColor: asStringOrNull(item.hoverColor) || undefined,
       textColor: asStringOrNull(item.textColor) || undefined,
-    }))
-    .filter((d) => d.label || d.url);
+    }));
+    // Don't filter — keep ALL rows (see route.ts for rationale).
 }
 function asDetails(v: unknown): ProjectDetails {
   if (!v || typeof v !== 'object') return {};
