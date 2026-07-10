@@ -188,6 +188,8 @@ CREATE TABLE IF NOT EXISTS Project (
   image          TEXT NOT NULL,                    -- cover URL (R2 or external)
   coverBg        TEXT,                             -- optional cover background color (hex)
   coverFit       TEXT NOT NULL DEFAULT 'contain',  -- 'contain' | 'cover'
+  coverBgColor   TEXT,                             -- fill color behind cover image when aspect ratio doesn't fill (hex)
+  coverHeight    TEXT NOT NULL DEFAULT 'auto',     -- 'auto' | 'small' | 'medium' | 'large' | 'full'
   tags           TEXT NOT NULL DEFAULT '[]',       -- JSON array of strings
   status         TEXT NOT NULL DEFAULT 'Disponible',
   statusEn       TEXT,
@@ -227,6 +229,8 @@ CREATE INDEX IF NOT EXISTS idx_project_featured ON Project(featured, isPublished
 -- ALTER TABLE Project ADD COLUMN bgImage TEXT;
 -- ALTER TABLE Project ADD COLUMN bgFit TEXT NOT NULL DEFAULT 'cover';
 -- ALTER TABLE Project ADD COLUMN bgOpacity INTEGER NOT NULL DEFAULT 85;
+-- ALTER TABLE Project ADD COLUMN coverBgColor TEXT;
+-- ALTER TABLE Project ADD COLUMN coverHeight TEXT NOT NULL DEFAULT 'auto';
 -- ALTER TABLE Project ADD COLUMN pageBgColor TEXT;
 -- ALTER TABLE Project ADD COLUMN cardBgColor TEXT;
 -- ALTER TABLE Project ADD COLUMN borderColor TEXT;
