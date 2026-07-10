@@ -1452,7 +1452,11 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
                       {downloads.filter(dl => dl.url).map((dl, i) => {
                         const Icon = getIcon(dl.icon);
                         // Resolve label with fallback so the URL is never shown as the button text.
-                        const resolvedLabel = (isEs ? dl.label : (dl.labelEn || dl.label)) || (isEs ? 'Descargar' : 'Download');
+                        // If the label looks like a URL (starts with http), use the generic "Descargar" fallback.
+                        let resolvedLabel = (isEs ? dl.label : (dl.labelEn || dl.label)) || '';
+                        if (!resolvedLabel || /^https?:\/\//i.test(resolvedLabel)) {
+                          resolvedLabel = isEs ? 'Descargar' : 'Download';
+                        }
                         // Color scheme: 1° fuchsia, 2° zinc with blue icon, 3° gradient blue-950
                         const colorClass = i === 0 ? 'bg-fuchsia-700 hover:bg-fuchsia-600 text-white'
                                          : i === 1 ? 'bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200'
