@@ -1081,10 +1081,10 @@ function DynamicProjectLoader({ id }: { id: string }) {
 
   if (status === 'loading') {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0c0f12] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#0c0c0e] text-white">
         <div className="flex flex-col items-center gap-3">
-          <Loader2 className="w-8 h-8 animate-spin text-rose-500" />
-          <p className="mono-font text-xs text-white/40">Cargando proyecto…</p>
+          <Loader2 className="w-8 h-8 animate-spin text-fuchsia-500" />
+          <p className="font-mono text-xs text-white/40">Cargando proyecto…</p>
         </div>
       </div>
     );
@@ -1092,11 +1092,11 @@ function DynamicProjectLoader({ id }: { id: string }) {
 
   if (status === 'notfound' || !project) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0c0f12] text-white">
+      <div className="min-h-screen flex items-center justify-center bg-[#0c0c0e] text-white">
         <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold cyber-title">404</h1>
-          <p className="text-white/40 mono-font text-sm">Project not found</p>
-          <a href="/proyectos" className="text-rose-500 hover:text-rose-400 transition-colors mono-font text-xs uppercase tracking-wider">Back to projects</a>
+          <h1 className="text-4xl font-bold font-tech">404</h1>
+          <p className="text-white/40 font-mono text-sm">Project not found</p>
+          <a href="/proyectos" className="text-fuchsia-500 hover:text-fuchsia-400 transition-colors font-mono text-xs uppercase tracking-wider">Back to projects</a>
         </div>
       </div>
     );
@@ -1105,19 +1105,15 @@ function DynamicProjectLoader({ id }: { id: string }) {
   return <DynamicProjectDetail project={project} />;
 }
 
-/* ─── Cyberpunk/brutalist dark detail view for dynamic projects ───
-   Fixed visual style (no per-project color customization):
-   - Dark background (#0c0f12) with optional bgImage as overlay
-   - Glitch titles (rose + blue text-shadow)
-   - Space Grotesk + JetBrains Mono fonts
-   - Brutalist cards (sharp borders, no rounded corners)
-   - Bottom-border-thick download buttons with active translate
+/* ─── Technical/brutalist dark detail view for dynamic projects ───
+   Based on prueba.html v2: grid pattern background + blue/magenta glows,
+   asymmetric 2+1 column layout, Oxanium + Space Grotesk + JetBrains Mono fonts,
+   cards with backdrop-blur, tags with #, color-differentiated download buttons.
 
-   Per-project sections can still be toggled via `sections` JSON.
-   Music uses <audio> element with parseMusicInput() helper.
+   Per-project sections can be toggled via `sections` JSON.
+   Music uses YouTube iframe (same as Monika/Natsuki/Yuri) + audio fallback.
 
-   Monika/Natsuki/Yuri hardcoded projects are NOT affected — they
-   keep using their bespoke themed layouts (MonikaDetail etc). */
+   Monika/Natsuki/Yuri hardcoded projects are NOT affected. */
 function DynamicProjectDetail({ project }: { project: DynamicProject }) {
   const { t, locale } = useI18n();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -1147,16 +1143,12 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
 
   // Resolve music source.
   const musicInfo = parseMusicInput(project.music);
-  // For YouTube: use invisible iframe (same approach as Monika/Natsuki/Yuri,
-  // which works in production). For direct audio URLs: use <audio> element.
   const musicEmbedUrl = musicInfo && musicInfo.kind === 'youtube'
     ? `https://www.youtube.com/embed/${musicInfo.value}?autoplay=1&mute=0&start=1&loop=1&playlist=${musicInfo.value}&enablejsapi=1&modestbranding=1&controls=0&showinfo=0&rel=0&iv_load_policy=3`
     : null;
   const audioSrc = musicInfo && musicInfo.kind === 'audio' ? musicInfo.value : null;
 
-  // For YouTube iframe: auto un-mute after 1.5s (browsers require mute=1 for
-  // autoplay, then we programmatically unMute via postMessage — same trick
-  // used by Monika/Natsuki/Yuri hardcoded projects).
+  // YouTube iframe: auto un-mute after 1.5s
   useEffect(() => {
     if (!showMusic || !musicEmbedUrl || !musicRef.current) return;
     const timer = setTimeout(() => {
@@ -1165,7 +1157,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
     return () => { clearTimeout(timer); if (musicRef.current) musicRef.current.src = ''; };
   }, [musicEmbedUrl, showMusic]);
 
-  // For direct audio: autoplay attempt with fallback to user interaction.
+  // Direct audio: autoplay with fallback
   useEffect(() => {
     if (!showMusic || !audioSrc || !audioRef.current) return;
     const audio = audioRef.current;
@@ -1204,36 +1196,72 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
     setMuted(!muted);
   };
 
-  // Background style: dark base + optional bgImage as overlay.
-  // bgOpacity (0-100) controls how dark the overlay is — lower = more visible bgImage.
+  // Background style: grid pattern + optional bgImage with overlay + glows.
+  // bgOpacity controls overlay darkness (lower = more visible bgImage).
   const overlayOpacity = Math.max(0, Math.min(100, project.bgOpacity ?? 85)) / 100;
-  const overlayOpacityBottom = Math.min(1, overlayOpacity + 0.1);
   const bgStyle: React.CSSProperties = project.bgImage
     ? {
-        backgroundImage: `linear-gradient(to bottom, rgba(12, 15, 18, ${overlayOpacity}), rgba(12, 15, 18, ${overlayOpacityBottom})), url("${project.bgImage}")`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
-        backgroundAttachment: 'fixed',
-        backgroundColor: '#0c0f12',
+        backgroundColor: '#0c0c0e',
+        backgroundImage: `
+          linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(12, 12, 14, ${overlayOpacity}), rgba(12, 12, 14, ${Math.min(1, overlayOpacity + 0.1)})),
+          url("${project.bgImage}")
+        `,
+        backgroundSize: '40px 40px, 40px 40px, cover, cover',
+        backgroundPosition: '0 0, 0 0, center, center',
+        backgroundRepeat: 'repeat, repeat, no-repeat, no-repeat',
+        backgroundAttachment: 'scroll, scroll, fixed, fixed',
       }
-    : { backgroundColor: '#0c0f12' };
+    : {
+        backgroundColor: '#0c0c0e',
+        backgroundImage: `
+          linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: '40px 40px, 40px 40px',
+      };
 
-  // Map resource icons
+  // Render a single resource card
   const renderResource = (r: typeof resources[number], i: number) => {
     const Icon = RESOURCE_ICON_MAP[r.icon] || FileText;
     const rDesc = isEs ? r.description : (r.descriptionEn || r.description);
-    const rUrlLabel = isEs ? (r.urlLabel || 'Consultar') : (r.urlLabelEn || r.urlLabel || 'Open');
-    const rColor = r.color === 'rose' ? 'text-rose-400'
-                 : r.color === 'blue' ? 'text-blue-400'
-                 : r.color === 'gray' ? 'text-gray-300'
-                 : 'text-gray-300';
+    const rUrlLabel = isEs ? (r.urlLabel || 'Abrir') : (r.urlLabelEn || r.urlLabel || 'Open');
+    // If it's the 3rd resource (i === 2), render as horizontal card (like Submods)
+    if (i === 2 && resources.length === 3) {
+      const card = (
+        <div className="bg-zinc-900/30 border border-zinc-800/60 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 backdrop-blur-sm shadow-md">
+          <div>
+            <h4 className="font-tech text-sm font-bold uppercase text-white flex items-center gap-2">
+              <Icon className="w-3.5 h-3.5 text-fuchsia-500" />
+              {r.title}
+            </h4>
+            <p className="text-xs text-zinc-400 mt-0.5 font-mono">{rDesc}</p>
+          </div>
+          {r.url ? (
+            <span className="w-full sm:w-auto px-5 py-2 rounded bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-400 font-mono font-bold text-xs hover:bg-fuchsia-600 hover:text-white transition-all inline-flex items-center justify-center">
+              {rUrlLabel}
+            </span>
+          ) : null}
+        </div>
+      );
+      if (r.url) {
+        return <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" className="block hover:opacity-80 transition-opacity">{card}</a>;
+      }
+      return card;
+    }
+    // Default: vertical card (Wiki / Spritepacks style)
     const card = (
-      <div key={i} className="bg-gray-950/60 p-4 border border-gray-800/40 text-center space-y-3">
-        <h4 className={`text-xs font-bold uppercase ${rColor} tracking-wider`}>{r.title}</h4>
-        <p className="text-xs text-gray-500">{rDesc}</p>
+      <div className="bg-zinc-900/30 border border-zinc-800/60 rounded-xl p-5 flex flex-col justify-between gap-4 backdrop-blur-sm shadow-md">
+        <div>
+          <h4 className="font-tech text-sm font-bold uppercase text-white flex items-center gap-2">
+            <Icon className="w-3.5 h-3.5 text-blue-400" />
+            {r.title}
+          </h4>
+          <p className="text-xs text-zinc-400 mt-1 font-mono">// {rDesc}</p>
+        </div>
         {r.url && (
-          <span className="inline-block px-4 py-1.5 border border-gray-700 text-xs font-bold uppercase tracking-wider text-white">
+          <span className="inline-flex items-center justify-center gap-1.5 px-4 py-2 rounded border border-zinc-700 text-zinc-300 bg-zinc-950/40 font-mono text-xs font-bold hover:bg-zinc-800 hover:text-white transition-all">
             {rUrlLabel}
           </span>
         )}
@@ -1248,29 +1276,33 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
   return (
     <>
       <style>{`
-        .cyber-title { text-shadow: 2px 2px 0px #e11d48, -2px -2px 0px #2563eb; }
+        .font-tech { font-family: 'Oxanium', sans-serif; }
         .dyn-page { scrollbar-width: none; -ms-overflow-style: none; outline: none; }
         .dyn-page::-webkit-scrollbar { display: none; }
         .dyn-page *:focus { outline: none; }
       `}</style>
       <div
-        className="dyn-page relative z-10 min-h-screen w-full overflow-x-hidden overflow-y-auto bg-cover bg-center bg-no-repeat bg-fixed text-gray-100"
+        className="dyn-page relative z-10 min-h-screen w-full overflow-x-hidden overflow-y-auto text-zinc-100"
         style={{ fontFamily: "'Space Grotesk', sans-serif", ...bgStyle }}
       >
+        {/* Background glows (blue + magenta) */}
+        <div className="absolute top-[-10%] left-[-20%] w-[600px] h-[600px] bg-blue-900/20 blur-[150px] rounded-full pointer-events-none z-0" />
+        <div className="absolute bottom-[20%] right-[-10%] w-[500px] h-[500px] bg-fuchsia-900/20 blur-[130px] rounded-full pointer-events-none z-0" />
+
         {/* NAVBAR */}
-        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-4 flex items-center justify-between bg-[#0c0f12]/80 backdrop-blur-md border-b border-gray-800/60">
-          <Link href="/proyectos" className="flex items-center gap-2 text-rose-500 hover:text-rose-400 transition-colors group tracking-wider uppercase text-sm font-bold">
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+        <nav className="sticky top-0 z-50 px-4 sm:px-6 py-4 flex items-center justify-between bg-[#0c0c0e]/80 border-b border-zinc-800/60 backdrop-blur-md">
+          <Link href="/proyectos" className="flex items-center gap-2 text-zinc-400 hover:text-fuchsia-500 transition-colors group font-tech font-bold uppercase tracking-wider text-xs sm:text-sm">
+            <X className="w-4 h-4 group-hover:rotate-90 transition-transform text-fuchsia-500" />
             <span>{t('projects.backToProjects')}</span>
           </Link>
           <div className="flex items-center gap-2">
             {showMusic && (
-              <button onClick={toggleMute} className="p-2 rounded-md bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 transition-all" title={muted ? 'Unmute' : 'Mute'}>
+              <button onClick={toggleMute} className="p-2 rounded-lg bg-zinc-900/50 border border-zinc-800 text-zinc-400 hover:text-fuchsia-400 hover:border-fuchsia-500/50 transition-all shadow-md" title={muted ? 'Unmute' : 'Mute'}>
                 {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               </button>
             )}
             {showShare && (
-              <button className="p-2 rounded-md bg-gray-900 border border-gray-800 text-gray-400 hover:text-white hover:bg-gray-800 transition-all" title="Compartir">
+              <button className="p-2 rounded-lg bg-zinc-900/50 border border-zinc-800 text-zinc-400 hover:text-fuchsia-400 hover:border-fuchsia-500/50 transition-all shadow-md" title="Compartir">
                 <Share2 className="w-4 h-4" />
               </button>
             )}
@@ -1278,139 +1310,182 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
         </nav>
 
         {/* MAIN */}
-        <main className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-10">
+        <main className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-10 space-y-10 flex-1">
 
           {/* HEADER + COVER */}
-          <div className="space-y-4">
-            <div>
-              <h1 className="cyber-title text-4xl sm:text-5xl font-extrabold uppercase tracking-tighter text-white">
+          <div className="space-y-6">
+            <div className="relative">
+              <h1 className="font-tech text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight uppercase text-white">
                 {project.name}
               </h1>
               {subtitle && (
-                <p className="text-rose-500 text-sm tracking-widest uppercase font-bold mt-2 flex items-center gap-2 mono-font" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                <p className="text-zinc-400 font-mono text-xs sm:text-sm mt-2 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
                   {subtitle.toUpperCase()}
                 </p>
               )}
             </div>
-            <div className="rounded-none border-2 border-blue-900/60 bg-gray-950 relative group overflow-hidden h-[220px] sm:h-[300px] lg:h-[360px]">
+
+            <div className="rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-950 aspect-video relative group shadow-2xl shadow-black/50">
               <img
                 src={project.image}
                 alt={project.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 filter brightness-90 contrast-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0c0f12] via-transparent to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent opacity-40 pointer-events-none" />
               {showFeaturedBadge && (
-                <span className="absolute top-3 left-3 mono-font text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-rose-600 text-white border-b-2 border-rose-900" style={{ fontFamily: "'JetBrains Mono', monospace" }}>★ DESTACADO</span>
+                <span className="absolute top-3 left-3 font-mono text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-fuchsia-600 text-white rounded">★ DESTACADO</span>
               )}
             </div>
           </div>
 
-          {/* SOBRE EL PROYECTO + STATS */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {/* Descripción */}
-            <div className="md:col-span-2 space-y-4 bg-gray-950/60 p-6 border border-gray-800/40 backdrop-blur-sm">
-              <h3 className="text-lg font-bold uppercase tracking-tight text-white flex items-center gap-2 border-b border-gray-800 pb-2">
-                <Terminal className="w-4 h-4 text-blue-500" />
-                {isEs ? 'Sobre el proyecto' : 'About this project'}
-              </h3>
-              <p className="text-gray-400 leading-relaxed text-sm font-medium">{desc}</p>
-              {tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-2">
-                  {tags.map((tag) => (
-                    <span key={tag} className="mono-font text-xs px-2.5 py-1 bg-gray-900 border border-gray-700 text-rose-500" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{tag}</span>
-                  ))}
-                </div>
-              )}
-            </div>
-            {/* Stats */}
-            <div className="grid grid-rows-2 gap-4">
-              <div className="bg-gray-950/60 p-4 border border-gray-800/40 flex flex-col justify-center">
-                <span className="mono-font text-xs text-gray-500 uppercase tracking-wider block mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{t('projects.status')}</span>
-                <span className="text-white font-bold text-lg uppercase tracking-wide flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> {status}
-                </span>
-              </div>
-              <div className="bg-gray-950/60 p-4 border border-gray-800/40 flex flex-col justify-center">
-                <span className="mono-font text-xs text-gray-500 uppercase tracking-wider block mb-1" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{t('projects.rating')}</span>
-                <span className="text-white font-bold text-lg flex items-center gap-1.5">
-                  {project.rating} <Star className="w-4 h-4 fill-blue-500 text-blue-500" />
-                </span>
-              </div>
-            </div>
-          </div>
+          {/* ASYMMETRIC LAYOUT: 2 cols left + 1 col right */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
 
-          {/* VISTA PREVIA */}
-          {showGallery && (
-            <div className="space-y-3">
-              <h4 className="text-sm font-bold uppercase tracking-wider text-gray-400 flex items-center gap-2">
-                <Layers className="w-4 h-4 text-rose-500" /> {t('projects.preview')}
-              </h4>
-              <div className="relative">
-                <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
-                  {previews.map((src, i) => (
-                    <div key={i} className="flex-none bg-gray-900 border border-gray-800 aspect-video relative cursor-pointer hover:border-blue-500 transition-all" style={{ width: '240px' }}>
-                      <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover transition-transform duration-400 hover:scale-105" />
-                      <div className="absolute bottom-1 right-1 bg-black/80 text-gray-400 text-[10px] px-1.5 py-0.5 mono-font font-bold border border-gray-800" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{i + 1}/{previews.length}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+            {/* LEFT COLUMN (2/3): Sinopsis + Vista Previa */}
+            <div className="md:col-span-2 space-y-8">
 
-          {/* DETALLES + DESCARGAS */}
-          {showDetails && (
-            <div className="bg-gray-950/40 border border-gray-800/60 p-6 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* Detalles */}
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-white border-b border-gray-800 pb-2">{t('projects.details')}</h3>
-                  <ul className="space-y-2 mono-font text-xs text-gray-400" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                    <li className="flex justify-between py-1 border-b border-gray-900"><span className="text-gray-600">{t('projects.playTime')}:</span> <span className="text-gray-200 font-bold">{isEs ? (details.playTime || '—') : (details.playTimeEn || details.playTime || '—')}</span></li>
-                    <li className="flex justify-between py-1 border-b border-gray-900"><span className="text-gray-600">{t('projects.language')}:</span> <span className="text-gray-200 font-bold">{isEs ? (details.language || '—') : (details.languageEn || details.language || '—')}</span></li>
-                    <li className="flex justify-between py-1 border-b border-gray-900"><span className="text-gray-600">{t('projects.engine')}:</span> <span className="text-gray-200 font-bold">{details.engine || '—'}</span></li>
-                    <li className="flex justify-between py-1"><span className="text-gray-600">{t('projects.downloads')}:</span> <span className="text-rose-400 font-bold">{downloadsLabel}</span></li>
-                  </ul>
+              {/* SINOPSIS */}
+              <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-6 backdrop-blur-sm space-y-5 shadow-lg">
+                <h3 className="font-tech text-sm font-bold tracking-widest uppercase text-white flex items-center gap-2 border-b border-zinc-800 pb-3">
+                  <FileText className="w-4 h-4 text-fuchsia-500" />
+                  {isEs ? 'Sinopsis' : 'Synopsis'}
+                </h3>
+                <p className="text-zinc-300 leading-relaxed text-sm sm:text-base font-normal">{desc}</p>
+
+                {/* Status + Rating grid */}
+                <div className="grid grid-cols-2 gap-4 pt-2">
+                  <div className="p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/60">
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase block mb-1">{t('projects.status')}</span>
+                    <span className="text-fuchsia-400 font-mono font-bold text-xs uppercase tracking-wider">{status}</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/60">
+                    <span className="text-[10px] font-mono text-zinc-500 uppercase block mb-1">{t('projects.rating')}</span>
+                    <span className="text-zinc-200 font-bold text-xs flex items-center gap-1.5 font-mono">
+                      {project.rating} / 5.0
+                      <Star className="w-3.5 h-3.5 fill-current text-amber-500" />
+                    </span>
+                  </div>
                 </div>
-                {/* Botones de descarga */}
-                {downloads.length > 0 && (
-                  <div className="flex flex-col justify-end gap-2">
-                    {downloads.map((dl, i) => {
-                      const Icon = getIcon(dl.icon);
-                      // Map dl.color to brutalist color scheme
-                      const colorClass = i === 0 ? 'bg-rose-600 hover:bg-rose-500 border-rose-900'
-                                       : i === 1 ? 'bg-blue-600 hover:bg-blue-500 border-blue-900'
-                                       : 'bg-gray-800 hover:bg-gray-700 border-gray-950';
-                      return (
-                        <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className={`w-full py-3 ${colorClass} text-white font-bold uppercase tracking-wider text-xs text-center border-b-4 transition-all active:translate-y-[2px] active:border-b-2 flex items-center justify-center gap-2`}>
-                          <Icon className="w-4 h-4" />
-                          {isEs ? dl.label : (dl.labelEn || dl.label)}
-                        </a>
-                      );
-                    })}
+
+                {/* Tags */}
+                {tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {tags.map(tag => (
+                      <span key={tag} className="text-xs font-mono px-2.5 py-1 rounded bg-zinc-950 border border-zinc-800 text-zinc-400">#{tag.toLowerCase().replace(/\s+/g, '-')}</span>
+                    ))}
                   </div>
                 )}
               </div>
-            </div>
-          )}
 
-          {/* RECURSOS */}
+              {/* VISTA PREVIA */}
+              {showGallery && (
+                <div className="space-y-3">
+                  <h4 className="font-tech text-xs font-bold tracking-widest uppercase text-zinc-400 flex items-center gap-2">
+                    <ImageIcon className="w-4 h-4 text-blue-500" />
+                    {t('projects.preview')}
+                  </h4>
+                  <div className="relative">
+                    <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
+                      {previews.map((src, i) => (
+                        <div key={i} className="flex-none rounded-lg overflow-hidden border border-zinc-800 aspect-video relative snap-start cursor-zoom-in hover:border-blue-500/50 transition-all bg-zinc-950" style={{ width: 'calc(45% - 8px)', minWidth: '150px' }}>
+                          <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover opacity-70 hover:opacity-100 transition-opacity duration-300" />
+                          <div className="absolute bottom-1.5 right-1.5 bg-zinc-950/90 border border-zinc-800 text-zinc-400 text-[9px] font-mono px-1.5 py-0.5 rounded">{i + 1}/{previews.length}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+            </div>
+
+            {/* RIGHT COLUMN (1/3): Detalles + Descargas */}
+            {showDetails && (
+              <div className="space-y-6">
+                <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5 backdrop-blur-sm space-y-5 shadow-lg">
+                  <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-white flex items-center gap-2 border-b border-zinc-800 pb-3">
+                    <Settings className="w-4 h-4 text-fuchsia-500" />
+                    {t('projects.details')}
+                  </h3>
+
+                  <ul className="space-y-3 font-mono text-xs">
+                    <li className="flex items-center justify-between border-b border-zinc-800/40 pb-2">
+                      <span className="text-zinc-500">{t('projects.playTime')}:</span>
+                      <span className="text-zinc-300">{(isEs ? (details.playTime || '—') : (details.playTimeEn || details.playTime || '—')).toUpperCase()}</span>
+                    </li>
+                    <li className="flex items-center justify-between border-b border-zinc-800/40 pb-2">
+                      <span className="text-zinc-500">{t('projects.language')}:</span>
+                      <span className="text-zinc-300">{(isEs ? (details.language || '—') : (details.languageEn || details.language || '—')).toUpperCase()}</span>
+                    </li>
+                    <li className="flex items-center justify-between border-b border-zinc-800/40 pb-2">
+                      <span className="text-zinc-500">{t('projects.engine')}:</span>
+                      <span className="text-zinc-300">{(details.engine || '—').toUpperCase()}</span>
+                    </li>
+                    <li className="flex items-center justify-between pb-1">
+                      <span className="text-zinc-500">{t('projects.downloads')}:</span>
+                      <span className="text-blue-400 font-bold">{downloadsLabel}</span>
+                    </li>
+                  </ul>
+
+                  {/* Opciones de Descarga */}
+                  {downloads.length > 0 && (
+                    <div className="pt-2 space-y-2">
+                      <span className="text-[10px] font-mono tracking-wider text-zinc-500 uppercase block mb-1">{isEs ? 'Enlaces de descarga' : 'Download links'}</span>
+                      {downloads.map((dl, i) => {
+                        const Icon = getIcon(dl.icon);
+                        // Color scheme: 1° fuchsia, 2° zinc with blue icon, 3° gradient blue-950
+                        const colorClass = i === 0 ? 'bg-fuchsia-700 hover:bg-fuchsia-600 text-white'
+                                         : i === 1 ? 'bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200'
+                                         : 'bg-gradient-to-r from-blue-950 to-zinc-900 border border-blue-800/40 hover:from-blue-900 text-blue-300';
+                        const iconColor = i === 1 ? 'text-blue-400' : '';
+                        return (
+                          <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className={`w-full py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all ${colorClass} font-mono text-xs font-bold uppercase tracking-wider shadow-lg active:scale-95`}>
+                            <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
+                            {isEs ? dl.label : (dl.labelEn || dl.label)}
+                          </a>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+          </div>
+
+          {/* RECURSOS / MÓDULOS ADICIONALES */}
           {showResources && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {resources.map((r, i) => renderResource(r, i))}
+            <div className="space-y-4">
+              <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-zinc-400 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-fuchsia-500" />
+                {isEs ? 'Módulos Adicionales' : 'Additional Modules'}
+              </h3>
+              {resources.length === 3 ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {resources.slice(0, 2).map((r, i) => renderResource(r, i))}
+                  </div>
+                  {renderResource(resources[2], 2)}
+                </>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {resources.map((r, i) => renderResource(r, i))}
+                </div>
+              )}
             </div>
           )}
 
           {/* COMENTARIOS */}
           {showComments && (
-            <div className="bg-gray-950/40 border border-gray-800/50 p-5">
+            <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-5 backdrop-blur-sm">
               <CyberComments targetId={project.id} targetType="project" />
             </div>
           )}
 
         </main>
 
-        {/* YouTube iframe invisible (for YouTube music) — same approach as Monika/Natsuki/Yuri */}
+        {/* YouTube iframe invisible (for YouTube music) */}
         {showMusic && musicEmbedUrl && (
           <iframe ref={musicRef} className="hidden" width="0" height="0" src={musicEmbedUrl} allow="autoplay" title={`${project.name} Music`} />
         )}
