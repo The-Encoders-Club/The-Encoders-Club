@@ -1369,7 +1369,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
                 <div className="grid grid-cols-2 gap-4 pt-2">
                   <div className="p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/60">
                     <span className="text-[10px] font-mono text-zinc-500 uppercase block mb-1">{t('projects.status')}</span>
-                    <span className="text-fuchsia-400 font-mono font-bold text-xs uppercase tracking-wider">{status}</span>
+                    <span className="text-zinc-200 font-mono font-bold text-xs uppercase tracking-wider">{status}</span>
                   </div>
                   <div className="p-3 rounded-lg bg-zinc-950/60 border border-zinc-800/60">
                     <span className="text-[10px] font-mono text-zinc-500 uppercase block mb-1">{t('projects.rating')}</span>
@@ -1446,11 +1446,13 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
                   </ul>
 
                   {/* Opciones de Descarga */}
-                  {downloads.length > 0 && (
+                  {downloads.filter(dl => dl.url).length > 0 && (
                     <div className="pt-2 space-y-2">
                       <span className="text-[10px] font-mono tracking-wider text-zinc-500 uppercase block mb-1">{isEs ? 'Enlaces de descarga' : 'Download links'}</span>
-                      {downloads.map((dl, i) => {
+                      {downloads.filter(dl => dl.url).map((dl, i) => {
                         const Icon = getIcon(dl.icon);
+                        // Resolve label with fallback so the URL is never shown as the button text.
+                        const resolvedLabel = (isEs ? dl.label : (dl.labelEn || dl.label)) || (isEs ? 'Descargar' : 'Download');
                         // Color scheme: 1° fuchsia, 2° zinc with blue icon, 3° gradient blue-950
                         const colorClass = i === 0 ? 'bg-fuchsia-700 hover:bg-fuchsia-600 text-white'
                                          : i === 1 ? 'bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200'
@@ -1459,7 +1461,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
                         return (
                           <a key={i} href={dl.url} target="_blank" rel="noopener noreferrer" onClick={trackDownload} className={`w-full py-2.5 rounded-lg flex items-center justify-center gap-2 transition-all ${colorClass} font-mono text-xs font-bold uppercase tracking-wider shadow-lg active:scale-95`}>
                             <Icon className={`w-3.5 h-3.5 ${iconColor}`} />
-                            {isEs ? dl.label : (dl.labelEn || dl.label)}
+                            {resolvedLabel}
                           </a>
                         );
                       })}
