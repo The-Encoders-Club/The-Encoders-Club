@@ -25,7 +25,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import type { DynamicProject, ProjectDownload, ProjectDetails, ProjectSections, ProjectResource, ResourceIcon } from '@/data/dynamic-projects';
+import type { DynamicProject, ProjectDownload, ProjectDetails, ProjectSections, ProjectResource, ResourceIcon, CoverHeight } from '@/data/dynamic-projects';
 import { validateProjectSlug, isReservedSlug, parseMusicInput, DEFAULT_SECTIONS } from '@/data/dynamic-projects';
 
 // ─── Interfaces ───
@@ -198,6 +198,8 @@ interface AdminProjectForm {
   image: string;
   coverBg: string;
   coverFit: 'contain' | 'cover';
+  coverBgColor: string;
+  coverHeight: CoverHeight;
   tags: string;
   status: string;
   statusEn: string;
@@ -236,6 +238,8 @@ function emptyProjectForm(): AdminProjectForm {
     image: '',
     coverBg: '',
     coverFit: 'contain',
+    coverBgColor: '',
+    coverHeight: 'auto',
     tags: '',
     status: 'Disponible',
     statusEn: '',
@@ -274,6 +278,8 @@ function projectToForm(p: DynamicProject): AdminProjectForm {
     image: p.image,
     coverBg: p.coverBg || '',
     coverFit: p.coverFit === 'cover' ? 'cover' : 'contain',
+    coverBgColor: p.coverBgColor || '',
+    coverHeight: p.coverHeight || 'auto',
     tags: Array.isArray(p.tags) ? p.tags.join(', ') : '',
     status: p.status,
     statusEn: p.statusEn || '',
@@ -324,6 +330,8 @@ function formToPayload(form: AdminProjectForm, isCreate: boolean): Record<string
     image: form.image.trim(),
     coverBg: form.coverBg.trim() || null,
     coverFit: form.coverFit,
+    coverBgColor: form.coverBgColor.trim() || null,
+    coverHeight: form.coverHeight,
     tags,
     status: form.status.trim() || 'Disponible',
     statusEn: form.statusEn.trim() || null,
@@ -2505,6 +2513,29 @@ export default function AdminPanel() {
                   <option value="contain">contain</option>
                   <option value="cover">cover</option>
                 </select>
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Color de relleno (portada)</label>
+                <div className="flex items-center gap-2">
+                  <input type="color" value={projectForm.coverBgColor || '#0c0c0e'} onChange={e => setProjectForm(prev => ({ ...prev, coverBgColor: e.target.value }))} className="w-9 h-9 bg-[#080812] border border-white/[0.08] cursor-pointer" />
+                  <input type="text" value={projectForm.coverBgColor} onChange={e => setProjectForm(prev => ({ ...prev, coverBgColor: e.target.value }))} placeholder="(transparente)" className="flex-1 px-2 py-1.5 bg-[#080812] border border-white/[0.06] text-white font-code text-xs focus:outline-none focus:border-[#FF2D78]/40" />
+                </div>
+                <p className="font-code text-[9px] text-white/30 mt-1">Color que rellena los lados vacíos cuando la imagen es cuadrada o no cubre todo el contenedor.</p>
+              </div>
+              <div>
+                <label className="block font-code text-[10px] text-white/40 uppercase tracking-wider mb-1">Altura de portada (página detalle)</label>
+                <select
+                  value={projectForm.coverHeight}
+                  onChange={e => setProjectForm(prev => ({ ...prev, coverHeight: e.target.value as CoverHeight }))}
+                  className="w-full h-9 px-2 bg-[#080812] border border-white/[0.08] text-white font-code text-sm focus:outline-none focus:border-[#FF2D78]/40"
+                >
+                  <option value="auto">Auto (16:9)</option>
+                  <option value="small">Pequeña (180px)</option>
+                  <option value="medium">Mediana (280px)</option>
+                  <option value="large">Grande (400px)</option>
+                  <option value="full">Completa (520px)</option>
+                </select>
+                <p className="font-code text-[9px] text-white/30 mt-1">Controla qué tan alta se ve la portada cuando entras al proyecto. No afecta la portada en el listado.</p>
               </div>
             </div>
 
