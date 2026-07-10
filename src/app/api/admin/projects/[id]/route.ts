@@ -70,15 +70,24 @@ function asDownloadsArray(v: unknown): ProjectDownload[] {
   const validIcons = ['Smartphone', 'Monitor', 'Download'];
   return v
     .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
-    .map((item) => ({
-      label: asString(item.label),
-      labelEn: asStringOrNull(item.labelEn) || undefined,
-      icon: (validIcons.includes(asString(item.icon)) ? asString(item.icon) : 'Download') as ProjectDownload['icon'],
-      url: asString(item.url),
-      color: asString(item.color, '#FF2D78'),
-      hoverColor: asStringOrNull(item.hoverColor) || undefined,
-      textColor: asStringOrNull(item.textColor) || undefined,
-    }));
+    .map((item) => {
+      let label = asString(item.label);
+      let url = asString(item.url);
+      // Safety net: swap if URL was pasted into the label field.
+      if (!url && /^https?:\/\//i.test(label)) {
+        url = label;
+        label = '';
+      }
+      return {
+        label,
+        labelEn: asStringOrNull(item.labelEn) || undefined,
+        icon: (validIcons.includes(asString(item.icon)) ? asString(item.icon) : 'Download') as ProjectDownload['icon'],
+        url,
+        color: asString(item.color, '#FF2D78'),
+        hoverColor: asStringOrNull(item.hoverColor) || undefined,
+        textColor: asStringOrNull(item.textColor) || undefined,
+      };
+    });
     // Don't filter — keep ALL rows (see route.ts for rationale).
 }
 function asDetails(v: unknown): ProjectDetails {
