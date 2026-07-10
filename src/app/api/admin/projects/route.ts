@@ -112,15 +112,25 @@ function asDownloadsArray(v: unknown): ProjectDownload[] {
   const validIcons = ['Smartphone', 'Monitor', 'Download'];
   return v
     .filter((item): item is Record<string, unknown> => !!item && typeof item === 'object')
-    .map((item) => ({
-      label: asString(item.label),
-      labelEn: asStringOrNull(item.labelEn) || undefined,
-      icon: (validIcons.includes(asString(item.icon)) ? asString(item.icon) : 'Download') as ProjectDownload['icon'],
-      url: asString(item.url),
-      color: asString(item.color, '#FF2D78'),
-      hoverColor: asStringOrNull(item.hoverColor) || undefined,
-      textColor: asStringOrNull(item.textColor) || undefined,
-    }));
+    .map((item) => {
+      let label = asString(item.label);
+      let url = asString(item.url);
+      // Safety net: if the user accidentally pasted the URL into the label field
+      // (and left the url field empty), swap them so the button works correctly.
+      if (!url && /^https?:\/\//i.test(label)) {
+        url = label;
+        label = '';
+      }
+      return {
+        label,
+        labelEn: asStringOrNull(item.labelEn) || undefined,
+        icon: (validIcons.includes(asString(item.icon)) ? asString(item.icon) : 'Download') as ProjectDownload['icon'],
+        url,
+        color: asString(item.color, '#FF2D78'),
+        hoverColor: asStringOrNull(item.hoverColor) || undefined,
+        textColor: asStringOrNull(item.textColor) || undefined,
+      };
+    });
     // Don't filter — keep ALL rows so the admin form shows what the user typed
     // when editing. Empty rows are harmless (the renderer skips buttons without
     // a url). Previously we filtered with .filter((d) => d.label || d.url) which
