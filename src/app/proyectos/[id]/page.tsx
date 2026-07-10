@@ -1119,6 +1119,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
   const audioRef = useRef<HTMLAudioElement>(null);
   const musicRef = useRef<HTMLIFrameElement>(null);
   const [muted, setMuted] = useState(false);
+  const [lightboxIdx, setLightboxIdx] = useState<number | null>(null);
 
   // Section visibility (all default to true)
   const sections = { ...DEFAULT_SECTIONS, ...(project.sections || {}) };
@@ -1230,7 +1231,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
     // If it's the 3rd resource (i === 2), render as horizontal card (like Submods)
     if (i === 2 && resources.length === 3) {
       const card = (
-        <div className="bg-zinc-900/30 border border-zinc-800/60 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 backdrop-blur-sm shadow-md">
+        <div className="bg-zinc-900/30 border border-zinc-800/60 rounded-xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-md">
           <div>
             <h4 className="font-tech text-sm font-bold uppercase text-white flex items-center gap-2">
               <Icon className="w-3.5 h-3.5 text-fuchsia-500" />
@@ -1252,7 +1253,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
     }
     // Default: vertical card (Wiki / Spritepacks style)
     const card = (
-      <div className="bg-zinc-900/30 border border-zinc-800/60 rounded-xl p-5 flex flex-col justify-between gap-4 backdrop-blur-sm shadow-md">
+      <div className="bg-zinc-900/30 border border-zinc-800/60 rounded-xl p-5 flex flex-col justify-between gap-4 shadow-md">
         <div>
           <h4 className="font-tech text-sm font-bold uppercase text-white flex items-center gap-2">
             <Icon className="w-3.5 h-3.5 text-blue-400" />
@@ -1319,22 +1320,33 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
                 {project.name}
               </h1>
               {subtitle && (
-                <p className="text-zinc-400 font-mono text-xs sm:text-sm mt-2 flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
+                <p className="text-zinc-400 font-mono text-xs sm:text-sm mt-2">
                   {subtitle.toUpperCase()}
                 </p>
               )}
             </div>
 
-            <div className="rounded-xl overflow-hidden border border-zinc-800/80 bg-zinc-950 aspect-video relative group shadow-2xl shadow-black/50">
+            {/* Cover with configurable height + fill color (no brightness/overlay so colors show) */}
+            <div
+              className="rounded-xl overflow-hidden border border-zinc-800/80 relative group shadow-2xl shadow-black/50 flex items-center justify-center"
+              style={{
+                backgroundColor: project.coverBgColor || '#0c0c0e',
+                height: project.coverHeight === 'small' ? '180px'
+                      : project.coverHeight === 'medium' ? '280px'
+                      : project.coverHeight === 'large' ? '400px'
+                      : project.coverHeight === 'full' ? '520px'
+                      : undefined,
+                aspectRatio: project.coverHeight === 'auto' ? '16/9' : undefined,
+              }}
+            >
               <img
                 src={project.image}
                 alt={project.name}
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 filter brightness-90 contrast-105"
+                className="w-full h-full transition-transform duration-500 group-hover:scale-105"
+                style={{ objectFit: project.coverFit, objectPosition: 'center' }}
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0c0c0e] via-transparent to-transparent opacity-40 pointer-events-none" />
               {showFeaturedBadge && (
-                <span className="absolute top-3 left-3 font-mono text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-fuchsia-600 text-white rounded">★ DESTACADO</span>
+                <span className="absolute top-3 left-3 font-mono text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-fuchsia-600 text-white rounded z-10">★ DESTACADO</span>
               )}
             </div>
           </div>
@@ -1346,7 +1358,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
             <div className="md:col-span-2 space-y-8">
 
               {/* SINOPSIS */}
-              <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-6 backdrop-blur-sm space-y-5 shadow-lg">
+              <div className="bg-zinc-900/40 border border-zinc-800/80 rounded-xl p-6 space-y-5 shadow-lg">
                 <h3 className="font-tech text-sm font-bold tracking-widest uppercase text-white flex items-center gap-2 border-b border-zinc-800 pb-3">
                   <FileText className="w-4 h-4 text-fuchsia-500" />
                   {isEs ? 'Sinopsis' : 'Synopsis'}
@@ -1372,7 +1384,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
                 {tags.length > 0 && (
                   <div className="flex flex-wrap gap-2 pt-2">
                     {tags.map(tag => (
-                      <span key={tag} className="text-xs font-mono px-2.5 py-1 rounded bg-zinc-950 border border-zinc-800 text-zinc-400">#{tag.toLowerCase().replace(/\s+/g, '-')}</span>
+                      <span key={tag} className="text-xs font-mono px-2.5 py-1 rounded bg-zinc-950 border border-zinc-800 text-zinc-400">{tag}</span>
                     ))}
                   </div>
                 )}
@@ -1388,8 +1400,13 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
                   <div className="relative">
                     <div className="flex gap-3 overflow-x-auto scrollbar-hide snap-x scroll-smooth pb-2">
                       {previews.map((src, i) => (
-                        <div key={i} className="flex-none rounded-lg overflow-hidden border border-zinc-800 aspect-video relative snap-start cursor-zoom-in hover:border-blue-500/50 transition-all bg-zinc-950" style={{ width: 'calc(45% - 8px)', minWidth: '150px' }}>
-                          <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover opacity-70 hover:opacity-100 transition-opacity duration-300" />
+                        <div
+                          key={i}
+                          onClick={() => setLightboxIdx(i)}
+                          className="flex-none rounded-lg overflow-hidden border border-zinc-800 aspect-video relative snap-start cursor-zoom-in hover:border-blue-500/50 transition-all bg-zinc-950"
+                          style={{ width: 'calc(45% - 8px)', minWidth: '150px' }}
+                        >
+                          <img src={src} alt={`Preview ${i + 1}`} className="w-full h-full object-cover transition-transform duration-300 hover:scale-105" />
                           <div className="absolute bottom-1.5 right-1.5 bg-zinc-950/90 border border-zinc-800 text-zinc-400 text-[9px] font-mono px-1.5 py-0.5 rounded">{i + 1}/{previews.length}</div>
                         </div>
                       ))}
@@ -1403,7 +1420,7 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
             {/* RIGHT COLUMN (1/3): Detalles + Descargas */}
             {showDetails && (
               <div className="space-y-6">
-                <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5 backdrop-blur-sm space-y-5 shadow-lg">
+                <div className="bg-zinc-900/60 border border-zinc-800/80 rounded-xl p-5 space-y-5 shadow-lg">
                   <h3 className="font-tech text-xs font-bold tracking-widest uppercase text-white flex items-center gap-2 border-b border-zinc-800 pb-3">
                     <Settings className="w-4 h-4 text-fuchsia-500" />
                     {t('projects.details')}
@@ -1478,12 +1495,62 @@ function DynamicProjectDetail({ project }: { project: DynamicProject }) {
 
           {/* COMENTARIOS */}
           {showComments && (
-            <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-5 backdrop-blur-sm">
+            <div className="bg-zinc-900/50 border border-zinc-800/60 rounded-xl p-5">
               <CyberComments targetId={project.id} targetType="project" />
             </div>
           )}
 
         </main>
+
+        {/* LIGHTBOX for preview images (same behavior as Monika/Natsuki/Yuri) */}
+        <AnimatePresence>
+          {lightboxIdx !== null && (
+            <motion.div
+              className="fixed inset-0 z-[200] flex items-center justify-center bg-black/90 backdrop-blur-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setLightboxIdx(null)}
+            >
+              <button
+                onClick={(e) => { e.stopPropagation(); setLightboxIdx(null); }}
+                className="absolute top-4 right-4 w-10 h-10 rounded-lg bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10"
+              >
+                <X size={20} />
+              </button>
+              {lightboxIdx > 0 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setLightboxIdx(i => i !== null ? Math.max(0, i - 1) : null); }}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10"
+                >
+                  <ChevronLeft size={22} />
+                </button>
+              )}
+              {lightboxIdx < previews.length - 1 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setLightboxIdx(i => i !== null ? Math.min(previews.length - 1, i + 1) : null); }}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-lg bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-all z-10"
+                >
+                  <ChevronRight size={22} />
+                </button>
+              )}
+              <motion.img
+                key={lightboxIdx}
+                src={previews[lightboxIdx]}
+                alt={`Preview ${lightboxIdx + 1}`}
+                className="max-w-[90vw] max-h-[85vh] rounded-xl object-contain shadow-2xl"
+                initial={{ scale: 0.85, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.85, opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                onClick={(e) => e.stopPropagation()}
+              />
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/60 text-white/70 text-xs px-3 py-1.5 rounded-lg font-mono">
+                {lightboxIdx + 1} / {previews.length}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* YouTube iframe invisible (for YouTube music) */}
         {showMusic && musicEmbedUrl && (
