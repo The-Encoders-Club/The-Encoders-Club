@@ -38,6 +38,8 @@ interface ProjectInput {
   image?: unknown;
   coverBg?: unknown;
   coverFit?: unknown;
+  coverBgColor?: unknown;
+  coverHeight?: unknown;
   bgImage?: unknown;
   bgFit?: unknown;
   bgOpacity?: unknown;
@@ -119,7 +121,9 @@ function asDownloadsArray(v: unknown): ProjectDownload[] {
       hoverColor: asStringOrNull(item.hoverColor) || undefined,
       textColor: asStringOrNull(item.textColor) || undefined,
     }))
-    .filter((d) => d.label && d.url);
+    // Keep the row if it has at least a label OR a url — don't silently drop
+    // partially-filled rows, the admin form should show what the user typed.
+    .filter((d) => d.label || d.url);
 }
 
 function asDetails(v: unknown): ProjectDetails {
@@ -232,6 +236,9 @@ export async function POST(request: NextRequest) {
     const themeColor = asString(body.themeColor, '#FF2D78').trim() || '#FF2D78';
     const statusColor = asString(body.statusColor, '#22c55e').trim() || '#22c55e';
     const coverFit: 'contain' | 'cover' = asString(body.coverFit) === 'cover' ? 'cover' : 'contain';
+    const coverBgColor = asStringOrNull(body.coverBgColor);
+    const coverHeightRaw = asString(body.coverHeight, 'auto');
+    const coverHeight: 'auto' | 'small' | 'medium' | 'large' | 'full' = ['small', 'medium', 'large', 'full'].includes(coverHeightRaw) ? (coverHeightRaw as 'small' | 'medium' | 'large' | 'full') : 'auto';
     const status = asString(body.status, 'Disponible').trim() || 'Disponible';
     const rating = Math.max(0, Math.min(5, asNumber(body.rating, 0)));
     const featured = asBool(body.featured) ? 1 : 0;
@@ -272,16 +279,16 @@ export async function POST(request: NextRequest) {
     await db
       .prepare(
         `INSERT INTO Project
-          (id, name, subtitle, subtitleEn, description, descriptionEn, image, coverBg, coverFit,
+          (id, name, subtitle, subtitleEn, description, descriptionEn, image, coverBg, coverFit, coverBgColor, coverHeight,
            tags, status, statusEn, statusColor, rating, featured, previews, downloads, music,
            details, themeColor, bgImage, bgFit, bgOpacity,
            pageBgColor, cardBgColor, borderColor, textColor, titleStrokeColor, accentColor,
            sections, resources,
            isPublished, sortOrder, createdAt, updatedAt)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
                  ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-                 ?, ?, ?, ?, ?)`
+                 ?, ?, ?, ?, ?, ?)`
       )
       .bind(
         slug,
@@ -293,6 +300,8 @@ export async function POST(request: NextRequest) {
         image,
         coverBg,
         coverFit,
+        coverBgColor,
+        coverHeight,
         JSON.stringify(tags),
         status,
         statusEn,
