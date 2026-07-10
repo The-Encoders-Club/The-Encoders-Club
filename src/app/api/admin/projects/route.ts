@@ -120,10 +120,11 @@ function asDownloadsArray(v: unknown): ProjectDownload[] {
       color: asString(item.color, '#FF2D78'),
       hoverColor: asStringOrNull(item.hoverColor) || undefined,
       textColor: asStringOrNull(item.textColor) || undefined,
-    }))
-    // Keep the row if it has at least a label OR a url — don't silently drop
-    // partially-filled rows, the admin form should show what the user typed.
-    .filter((d) => d.label || d.url);
+    }));
+    // Don't filter — keep ALL rows so the admin form shows what the user typed
+    // when editing. Empty rows are harmless (the renderer skips buttons without
+    // a url). Previously we filtered with .filter((d) => d.label || d.url) which
+    // silently dropped partially-filled rows and confused the admin.
 }
 
 function asDetails(v: unknown): ProjectDetails {
