@@ -5,6 +5,7 @@
 
 export type DownloadIconName = 'Smartphone' | 'Monitor' | 'Download';
 export type BgFit = 'cover' | 'contain' | 'solid';
+export type CoverHeight = 'auto' | 'small' | 'medium' | 'large' | 'full';
 
 export interface ProjectDownload {
   label: string;
@@ -80,6 +81,8 @@ export interface DynamicProject {
   image: string;
   coverBg?: string | null;
   coverFit: 'contain' | 'cover';
+  coverBgColor?: string | null;
+  coverHeight: CoverHeight;
   tags: string[];
   status: string;
   statusEn?: string;
@@ -205,6 +208,8 @@ export function parseProjectRow(row: Record<string, unknown>): DynamicProject {
     image: row.image as string,
     coverBg: (row.coverBg as string) || null,
     coverFit: ((row.coverFit as string) === 'cover' ? 'cover' : 'contain'),
+    coverBgColor: (row.coverBgColor as string) || null,
+    coverHeight: ((['auto', 'small', 'medium', 'large', 'full'].includes((row.coverHeight as string) || '')) ? (row.coverHeight as CoverHeight) : 'auto'),
     tags,
     status: row.status as string,
     statusEn: (row.statusEn as string) || undefined,
